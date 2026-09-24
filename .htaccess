@@ -1,0 +1,11 @@
+# Clean page addresses (/products/…, /sets/…, /guides/…) for Apache and LiteSpeed hosts.
+# Turn them on in Admin → Settings once https://your-domain/shop opens the shop.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+# Don't list folder contents
+Options -Indexes

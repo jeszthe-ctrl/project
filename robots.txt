@@ -1,0 +1,11 @@
+# If the shop's domain changes, update the Sitemap line.
+User-agent: *
+Disallow: /admin.php
+Disallow: /cart
+Disallow: /checkout
+Disallow: /order-received
+Disallow: /*?p=cart
+Disallow: /*?p=checkout
+Disallow: /*?p=received
+
+Sitemap: https://fudakura.store/index.php?p=sitemap

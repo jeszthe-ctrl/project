@@ -1,13 +1,14 @@
 <?php
 /* Starting data for a fresh install. On first load it is copied to data/store.php,
-   and from then on everything is edited in admin.php — not here. */
+   and from then on everything is edited in admin.php — not here.
+   Category, series, set, collection and guide text lives in content.php. */
 if(!defined('FK_ROOT')){ http_response_code(404); exit; }
 
-return [
+$d = [
   'settings' => [
     'brand'         => 'FUDAKURA',
     'kanji'         => '札蔵',
-    'tagline'       => 'Wholesale Japanese Pokémon TCG',
+    'tagline'       => 'Japanese Pokémon cards, shipped from Japan',
     'legal_name'    => 'Fudakura',
     'address'       => 'Japan',
     'email'         => 'support@fudakura.store',
@@ -24,6 +25,7 @@ return [
     'hero_lede'     => 'Sealed booster boxes, Elite Trainer Boxes, premium sets and singles, bought through Japanese distribution and priced by the case. Every quantity break is published — price a full order before you talk to anyone.',
     'footer_blurb'  => 'Wholesale Japanese Pokémon TCG, shipped worldwide from Japan to retailers, resellers and card shops. Pricing published on every product — order direct, no account needed.',
     'shipping_reviewed' => false,
+    'pretty_urls'   => false,            /* clean addresses like /products/151-booster-box; turn on in Admin → Settings */
   ],
 
   'currencies' => [
@@ -35,13 +37,6 @@ return [
     'AUD' => ['rate'=>1.52, 'sym'=>'A$',  'dec'=>2],
   ],
 
-  'categories' => [
-    'boxes'       => ['label'=>'Booster Boxes',         'blurb'=>'Sealed Japanese booster boxes, shipped by the case.'],
-    'etb'         => ['label'=>'Elite Trainer Boxes',   'blurb'=>'ETBs and starter sets with sleeves, dice and promos.'],
-    'premium'     => ['label'=>'Premium & Special Sets','blurb'=>'Premium decks, collection boxes and limited commemoratives.'],
-    'singles'     => ['label'=>'Single Cards',          'blurb'=>'Graded and raw singles, including SAR, AR and promos.'],
-    'accessories' => ['label'=>'Accessories',           'blurb'=>'Sleeves, deck boxes, playmats and storage.'],
-  ],
 
   /* status: in | new | low | preorder | soldout.  cond: Sealed | Graded | Near Mint | Lightly Played.
      ladder: [min_qty, unit_price_usd] ascending.  weight: kg per unit (used for shipping) */
@@ -50,22 +45,22 @@ return [
      'name'=>'Storm Emeralda Elite Trainer Box', 'set'=>'Storm Emeralda', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,45.00],[6,38.00],[18,36.00],[36,34.00]],
-     'desc'=>'Japanese Elite Trainer Box for the Storm Emeralda expansion. Sealed factory case, includes card sleeves, damage counters, dice, energy cards and the set promo. Sold in multiples of six.'],
+     'desc'=>'Storm Emeralda Elite Trainer Box from the Japanese Mega Evolution series, factory sealed. Inside: booster packs plus card sleeves, dice, damage counters, energy cards and the set promo — a steady seller alongside Storm Emeralda booster boxes. Sold in sixes, with lower prices from 18 and 36.'],
     ['id'=>'30th-celebration-m6a-booster-box', 'sku'=>'FK-BB-M6A-01',
      'name'=>'30th Celebration (M6A) Booster Box', 'set'=>'30th Celebration', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
      'ladder'=>[[1,327.00],[6,279.00],[12,267.00],[24,255.00]],
-     'desc'=>'Anniversary booster box from the 30th Celebration series. High pull-rate set with reprinted classic illustrations. Sealed Japanese domestic release.'],
+     'desc'=>'Japanese booster box from 30th Celebration, the Pokémon 30th-anniversary set with reprinted classic illustrations and a high pull rate. Factory sealed, sold in sixes, with the lowest per-box price from 24.'],
     ['id'=>'mega-rayquaza-ex-mur', 'sku'=>'FK-SGL-MRAY-MUR',
      'name'=>'Mega Rayquaza ex — Master Ultra Rare (Japanese)', 'set'=>'Storm Emeralda', 'cat'=>'singles', 'cond'=>'Near Mint',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.05, 'hidden'=>false,
      'ladder'=>[[1,1207.30],[3,1150.00],[6,1092.90]],
-     'desc'=>'Japanese Master Ultra Rare Mega Rayquaza ex. Pack-fresh, sleeved and toploaded on dispatch. Condition graded NM unless otherwise noted on the invoice.'],
+     'desc'=>'Japanese Mega Rayquaza ex Master Ultra Rare from Storm Emeralda — the top-rarity chase card of the set. Near Mint, sleeved and toploaded on dispatch; any condition notes appear on your invoice. Lower prices from 3 and 6 copies.'],
     ['id'=>'mega-gengar-ex-sir', 'sku'=>'FK-SGL-MGEN-SIR',
      'name'=>'Mega Gengar ex — Special Illustration Rare', 'set'=>'Mega Dream ex', 'cat'=>'singles', 'cond'=>'Near Mint',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.05, 'hidden'=>false,
      'ladder'=>[[1,1033.50],[3,985.00],[6,935.60]],
-     'desc'=>'Japanese Special Illustration Rare Mega Gengar ex. Pack-fresh, sleeved and toploaded on dispatch. Condition graded NM unless otherwise noted.'],
+     'desc'=>'The Japanese Mega Gengar ex Special Illustration Rare from Mega Dream ex, one of the standout Gengar Pokémon cards of the Mega Evolution series. Near Mint, sleeved and toploaded on dispatch. Lower prices from 3 and 6 copies.'],
     ['id'=>'30th-celebration-elite-trainer-box', 'sku'=>'FK-ETB-30C-01',
      'name'=>'30th Celebration Elite Trainer Box', 'set'=>'30th Celebration', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
@@ -80,22 +75,22 @@ return [
      'name'=>'Abyss Eye Elite Trainer Box', 'set'=>'Abyss Eye', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,42.00],[6,35.50],[18,33.60],[36,32.00]],
-     'desc'=>'Elite Trainer Box for the Abyss Eye expansion. Sealed Japanese release with sleeves, dice, counters and promo card.'],
+     'desc'=>'Abyss Eye Elite Trainer Box, a sealed Japanese Mega Evolution-series release with booster packs, sleeves, dice, damage counters and a promo card. Sold in sixes, with lower prices from 18 and 36.'],
     ['id'=>'30th-celebration-greninja-ex-box', 'sku'=>'FK-PRM-GRE-01',
      'name'=>'30th Celebration Greninja ex Box', 'set'=>'30th Celebration', 'cat'=>'premium', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.6, 'hidden'=>false,
      'ladder'=>[[1,21.56],[6,19.40],[18,16.80],[36,14.60]],
-     'desc'=>'Special collection box built around the promo Greninja ex, with additional booster packs. Strong single-unit retail margin at case pricing.'],
+     'desc'=>'30th Celebration collection box built around a Greninja ex promo card, with booster packs inside. It sells well as a single unit, and case pricing from 18 and 36 leaves room for margin.'],
     ['id'=>'heat-wave-arena-sv9a-booster-box', 'sku'=>'FK-BB-SV9A-01',
      'name'=>'Heat Wave Arena (SV9a) Booster Box', 'set'=>'Heat Wave Arena', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
      'ladder'=>[[1,207.11],[6,197.70],[18,186.00],[36,177.00]],
-     'desc'=>'Sealed SV9a Heat Wave Arena booster box, Japanese domestic release. Consistent reorder line for shops running draft and league events.'],
+     'desc'=>'Sealed Japanese Heat Wave Arena (SV9a) booster box from the Scarlet & Violet series — a dependable reorder line for shops running drafts and league nights. Sold in sixes, with lower prices from 18 and 36.'],
     ['id'=>'glory-of-team-rocket-sv10-booster-box', 'sku'=>'FK-BB-SV10-01',
      'name'=>'Glory of Team Rocket (SV10) Booster Box', 'set'=>'Glory of Team Rocket', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
      'ladder'=>[[1,261.40],[6,249.50],[18,235.00],[36,223.40]],
-     'desc'=>'Sealed SV10 Glory of Team Rocket booster box. One of the strongest secondary-market sets of the year; allocation moves quickly.'],
+     'desc'=>'Sealed Japanese Glory of Team Rocket (SV10) booster box: Team Rocket\'s Pokémon return in one of the most in-demand Scarlet & Violet sets. Sold in sixes, with lower prices from 18 and 36; allocation sells quickly.'],
     ['id'=>'mega-start-deck-100-battle-collection', 'sku'=>'FK-PRM-MSD100-01',
      'name'=>'MEGA Start Deck 100 Battle Collection', 'set'=>'', 'cat'=>'premium', 'cond'=>'Sealed',
      'moq'=>12, 'step'=>12, 'status'=>'in', 'release'=>'', 'weight'=>1.2, 'hidden'=>false,
@@ -115,12 +110,12 @@ return [
      'name'=>'151 Booster Box', 'set'=>'151', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
      'ladder'=>[[1,445.71],[6,425.40],[36,380.90]],
-     'desc'=>'Sealed Japanese 151 (SV2a) booster box — the special expansion built around the original 151 Pokémon, and one of the most collected Japanese sets of recent years. Sold in multiples of six.'],
+     'desc'=>'Sealed Japanese 151 (SV2a) booster box: 20 packs of 7 cards from the set that revisits the original 151 Pokémon. 151 Pokémon cards are some of the most collected of the Scarlet & Violet era, and the Charizard ex Special Illustration Rare is the chase card. Sold in sixes.'],
     ['id'=>'151-charizard-ex-special-illustration-rare', 'sku'=>'FK-SGL-CHAR-151',
      'name'=>'151 Charizard ex — Special Illustration Rare', 'set'=>'151', 'cat'=>'singles', 'cond'=>'Near Mint',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.05, 'hidden'=>false,
      'ladder'=>[[1,328.80],[6,297.70]],
-     'desc'=>'Japanese Charizard ex Special Illustration Rare from 151 (SV2a). Near Mint, sleeved and toploaded on dispatch.'],
+     'desc'=>'Japanese Charizard ex Special Illustration Rare from 151 (SV2a) — one of the most sought-after Charizard Pokémon cards of the Scarlet & Violet era. Near Mint, sleeved and toploaded on dispatch.'],
     ['id'=>'storm-emeralda-booster-box-case-12-ct', 'sku'=>'FK-BB-M6-C12',
      'name'=>'Storm Emeralda Booster Box Case (12-ct)', 'set'=>'Storm Emeralda', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>5.6, 'hidden'=>false,
@@ -145,7 +140,7 @@ return [
      'name'=>'Pokémon TCG 9-Pocket Binder — Mega Evolution Series', 'set'=>'', 'cat'=>'accessories', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.45, 'hidden'=>false,
      'ladder'=>[[1,31.36],[6,27.90],[36,20.30]],
-     'desc'=>'9-pocket binder with Mega Evolution series artwork, for collections and trade binders. Sold in sixes, with the lowest price from 36.'],
+     'desc'=>'9-pocket Pokémon card binder with Mega Evolution series artwork. Each page holds nine standard-size cards, making it a good first binder for a growing collection. Sold in sixes, with lower prices from 36.'],
     ['id'=>'celebi-and-furret-deck-sleeves', 'sku'=>'FK-ACC-SLV-CELF',
      'name'=>'Celebi & Furret Deck Sleeves', 'set'=>'', 'cat'=>'accessories', 'cond'=>'Sealed',
      'moq'=>24, 'step'=>24, 'status'=>'in', 'release'=>'', 'weight'=>0.06, 'hidden'=>false,
@@ -170,7 +165,7 @@ return [
      'name'=>'Ultra PRO Pikachu Deck Protector Sleeves (65 ct)', 'set'=>'', 'cat'=>'accessories', 'cond'=>'Sealed',
      'moq'=>24, 'step'=>24, 'status'=>'in', 'release'=>'', 'weight'=>0.06, 'hidden'=>false,
      'ladder'=>[[1,10.78],[24,9.10],[144,5.40]],
-     'desc'=>'Ultra PRO Deck Protector sleeves with Pikachu artwork, 65 sleeves per pack. Sold in 24s, with the lowest price from 144 packs.'],
+     'desc'=>'Ultra PRO Deck Protector sleeves with Pikachu artwork: 65 standard-size Pokémon card sleeves per pack. Sold in 24s, with the lowest price from 144 packs.'],
     ['id'=>'pokemon-playmat-assorted-designs', 'sku'=>'FK-ACC-MAT-AST',
      'name'=>'Pokémon Playmat — Assorted Designs', 'set'=>'', 'cat'=>'accessories', 'cond'=>'Sealed',
      'moq'=>10, 'step'=>5, 'status'=>'in', 'release'=>'', 'weight'=>0.45, 'hidden'=>false,
@@ -185,7 +180,7 @@ return [
      'name'=>'Pokémon Card Sleeves (64 ct) — Assorted Designs', 'set'=>'', 'cat'=>'accessories', 'cond'=>'Sealed',
      'moq'=>20, 'step'=>10, 'status'=>'in', 'release'=>'', 'weight'=>0.06, 'hidden'=>false,
      'ladder'=>[[1,8.00],[20,6.20],[100,5.20]],
-     'desc'=>'Pokémon card sleeves, 64 per pack, in assorted designs; the mix varies by shipment. Minimum 20, then in tens.'],
+     'desc'=>'Pokémon card sleeves in assorted designs, 64 per pack, sized for standard 63 × 88 mm Pokémon cards. The mix of designs varies by shipment. Minimum 20 packs, then in tens.'],
     ['id'=>'mega-rayquaza-ex-sar-245-191-near-mint', 'sku'=>'FK-SGL-MRAY-SAR245',
      'name'=>'Mega Rayquaza ex SAR #245/191 — Near Mint', 'set'=>'Storm Emeralda', 'cat'=>'singles', 'cond'=>'Near Mint',
      'moq'=>3, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.05, 'hidden'=>false,
@@ -195,7 +190,7 @@ return [
      'name'=>'Pikachu ex SAR #240/191 — PSA 10 Gem Mint', 'set'=>'', 'cat'=>'singles', 'cond'=>'Graded',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.15, 'hidden'=>false,
      'ladder'=>[[1,495.00],[3,470.00]],
-     'desc'=>'Pikachu ex Special Illustration Rare #240/191, graded PSA 10 Gem Mint and supplied in its PSA slab.'],
+     'desc'=>'Pikachu ex Special Illustration Rare #240/191, graded PSA 10 Gem Mint — a top-grade Pikachu Pokémon card supplied in its original PSA slab.'],
     ['id'=>'mega-floette-ex-japanese', 'sku'=>'FK-SGL-MFLO',
      'name'=>'Mega Floette ex (Japanese)', 'set'=>'Ninja Spinner', 'cat'=>'singles', 'cond'=>'Near Mint',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.05, 'hidden'=>false,
@@ -220,12 +215,12 @@ return [
      'name'=>'Pikachu ex — Special Illustration Rare #277/217', 'set'=>'', 'cat'=>'singles', 'cond'=>'Near Mint',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.05, 'hidden'=>false,
      'ladder'=>[[1,362.70],[6,328.30]],
-     'desc'=>'Pikachu ex Special Illustration Rare, card 277/217. Near Mint, sleeved and toploaded on dispatch.'],
+     'desc'=>'Pikachu ex Special Illustration Rare, card 277/217 — a full art Pikachu Pokémon card. Near Mint, sleeved and toploaded on dispatch.'],
     ['id'=>'mega-charizard-y-ex-hyper-rare', 'sku'=>'FK-SGL-MCHY-HR',
      'name'=>'Mega Charizard Y ex — Hyper Rare', 'set'=>'', 'cat'=>'singles', 'cond'=>'Near Mint',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.05, 'hidden'=>false,
      'ladder'=>[[1,410.60],[6,371.70]],
-     'desc'=>'Mega Charizard Y ex Hyper Rare. Near Mint, sleeved and toploaded on dispatch.'],
+     'desc'=>'Mega Charizard Y ex Hyper Rare — a gold Charizard Pokémon card from the Mega Evolution series. Near Mint, sleeved and toploaded on dispatch.'],
     ['id'=>'30th-celebration-premium-deck-set-espeon-and-umbreon', 'sku'=>'FK-PRM-30C-ESUM',
      'name'=>'30th Celebration Premium Deck Set — Espeon & Umbreon', 'set'=>'30th Celebration', 'cat'=>'premium', 'cond'=>'Sealed',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>1.2, 'hidden'=>false,
@@ -255,12 +250,12 @@ return [
      'name'=>'Perfect Order Elite Trainer Box', 'set'=>'Nihil Zero', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,44.09],[4,39.60],[24,29.90]],
-     'desc'=>'Perfect Order Elite Trainer Box, factory sealed, from our Nihil Zero range. Sold in fours, with the lowest per-unit price from 24.'],
+     'desc'=>'Pokémon TCG Mega Evolution Perfect Order Elite Trainer Box, factory sealed. An Elite Trainer Box bundles booster packs with sleeves, dice and accessories in a storage box. Sold in fours, with the lowest per-unit price from 24.'],
     ['id'=>'mega-evolution-ascended-heroes-elite-trainer-box', 'sku'=>'FK-ETB-AH-01',
      'name'=>'Mega Evolution: Ascended Heroes Elite Trainer Box', 'set'=>'Mega Dream ex', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,44.09],[4,39.60],[24,29.90]],
-     'desc'=>'Mega Evolution: Ascended Heroes Elite Trainer Box, factory sealed, from our Mega Dream ex range. Sold in fours, with the lowest per-unit price from 24.'],
+     'desc'=>'Pokémon TCG Mega Evolution Ascended Heroes Elite Trainer Box, factory sealed. An Elite Trainer Box bundles booster packs with sleeves, dice and accessories in a storage box. Sold in fours, with the lowest per-unit price from 24.'],
     ['id'=>'30th-celebration-elite-trainer-box-case-10-ct', 'sku'=>'FK-ETB-30C-C10',
      'name'=>'30th Celebration Elite Trainer Box Case (10-ct)', 'set'=>'30th Celebration', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>10, 'hidden'=>false,
@@ -333,15 +328,14 @@ return [
     'rest' => ['base'=>22, 'per_kg'=>16],
   ],
 
-  /* placeholders: {reply_hours} {hold_hours} {countries} {min_order} */
-  'faqs' => [
-    ['Do I need an account to see wholesale pricing?', 'No. Every product shows its full quantity-break ladder publicly, so you can price a complete order before contacting anyone. There is no application form and no approval wait.'],
-    ['What is the minimum order?', 'Every order must total at least {min_order} including shipping. Sealed product starts at six units and sells in multiples of six. Graded and raw singles start at one, with breaks from three and six.'],
-    ['How do I pay?', 'Select a method at checkout — cryptocurrency, Cash App or Apple Pay for US customers, UK bank transfer for UK customers, or the "other" option anywhere else. We send the details for your chosen method to your email and phone within {reply_hours} hours, with your invoice.'],
-    ['When is my stock allocated?', 'Placing an order reserves your stock for {hold_hours} hours. Once payment clears, the allocation is confirmed and we dispatch within {hold_hours} hours. If payment does not clear inside the window, high-demand stock returns to general availability.'],
-    ['Which countries do you ship to?', '{countries} countries from Japan by EMS, DHL and FedEx with tracking on every consignment. Shipping is calculated at checkout from your destination and order weight. Import duty, VAT or GST and clearance fees are excluded from our prices and collected by your carrier on delivery.'],
-    ['Can I preorder an upcoming set?', 'Yes. Preorder lines commit an allocation ahead of release at the same published ladder, and are invoiced at allocation rather than at request.'],
-    ['Is the product authentic?', 'Yes. Everything is sourced through Japanese distribution and ships sealed in its original factory packaging. We do not deal in resealed, reprinted or counterfeit product.'],
-    ['What if something arrives damaged or short?', 'Report transit damage, a short shipment or a wrong item within seven days of delivery and we replace, credit or refund the affected lines and their shipping.'],
-  ],
 ];
+
+$c = require __DIR__.'/content.php';
+$d['settings']    = $c['settings'] + $d['settings'];
+$d['categories']  = $c['categories'];
+$d['faqs']        = $c['faqs'];
+$d['series']      = $c['series'];
+$d['sets']        = $c['sets'];
+$d['collections'] = $c['collections'];
+$d['guides']      = $c['guides'];
+return $d;
