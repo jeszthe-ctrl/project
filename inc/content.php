@@ -378,6 +378,120 @@ Modern cards can be valuable too. Chase cards from recent Japanese sets — like
 MD],
   ],
 
+  /* About, Returns, Privacy and Terms. Shown at /{slug} (or index.php?p=page&pg={slug}) and linked in the footer.
+     Extra placeholders here: {brand} {company} {address} {email}. Review the policies for your own business. */
+  'pages' => [
+    ['slug'=>'about', 'title'=>'About FUDAKURA',
+     'seo_title'=>'About FUDAKURA — Japanese Pokémon Cards from Japan',
+     'seo_desc'=>'FUDAKURA sources Japanese Pokémon cards in Japan and ships them sealed to collectors, resellers and card shops in the USA. How we work and who we are.',
+     'body'=><<<'MD'
+FUDAKURA takes its name from two Japanese words: **fuda** (札), a card, and **kura** (蔵), a storehouse — a card storehouse. We source Japanese Pokémon cards in Japan and ship them to collectors, resellers and card shops in the USA and worldwide.
+
+## What we sell
+
+Sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb), [collection boxes and starter sets](category:premium), [rare single cards](category:singles) and [accessories](category:accessories) — from the current [Mega Evolution sets](set:mega-evolution) back to [Scarlet & Violet](set:scarlet-violet) favourites like [151](set:151).
+
+## How we work
+
+- **Sourced in Japan.** Everything is bought through Japanese distribution and ships sealed in its original factory packaging. We don't sell resealed, reprinted or fake product.
+- **Prices in the open.** Every listing shows its full quantity-break ladder, so you can price an order before you contact us.
+- **Careful packing.** Singles ship sleeved and toploaded; sealed product ships as it left the factory, with tracking on every parcel.
+- **Straight answers.** Questions go to a real person at [{email}](mailto:{email}).
+
+## Company details
+
+{company} · {address} · [{email}](mailto:{email})
+MD],
+    ['slug'=>'returns', 'title'=>'Returns, damage & missing items',
+     'seo_title'=>'Returns & Damaged Items Policy',
+     'seo_desc'=>'What to do if your Pokémon card order arrives damaged, short or wrong: report it within seven days and we replace, credit or refund the affected items.',
+     'body'=><<<'MD'
+We want every order to arrive exactly as you ordered it. Here's what happens if it doesn't.
+
+## Damaged, short or wrong items
+
+If your order arrives damaged in transit, short, or with a wrong item, email [{email}](mailto:{email}) within **seven days of delivery** with your order reference and photos of the parcel and the items. We will replace, credit or refund the affected items and their shipping.
+
+## Anything else
+
+Pokémon cards and sealed product are collectibles, so please contact us before sending anything back and we'll tell you how to proceed.
+
+## Preorders
+
+Preorders are invoiced when stock is allocated, not when you order.
+
+## Import duty and taxes
+
+Import duty, taxes and carrier fees charged on delivery are the buyer's responsibility — see [shipping](page:shipping).
+MD],
+    ['slug'=>'privacy-policy', 'title'=>'Privacy policy',
+     'seo_title'=>'Privacy Policy',
+     'seo_desc'=>'What information FUDAKURA collects when you order, how it is used, and how to ask us to see, correct or delete it.',
+     'body'=><<<'MD'
+This policy explains what information {brand} collects and how it is used.
+
+## What we collect
+
+- **Order details** you enter at checkout: name, company, email, phone, shipping address, notes and your chosen payment method.
+- **Technical details:** your IP address is stored with each order to help prevent fraud and spam.
+- **Cookies:** one session cookie keeps your order basket and currency choice while you browse. We don't use advertising or tracking cookies.
+
+## How we use it
+
+We use your details only to process and deliver your order, send payment details and invoices, and answer your questions. Orders are emailed to us and stored on our server.
+
+## Sharing
+
+We share your name, address and phone number with the carrier delivering your order. We don't sell your information or share it for marketing.
+
+## How long we keep it
+
+We keep order records for as long as we need them for accounting and legal obligations.
+
+## Your choices
+
+You can ask for a copy of the information we hold about you, or ask us to correct or delete it, by emailing [{email}](mailto:{email}).
+
+## Contact
+
+{company}, {address} — [{email}](mailto:{email})
+MD],
+    ['slug'=>'terms', 'title'=>'Terms of sale',
+     'seo_title'=>'Terms of Sale',
+     'seo_desc'=>'Terms for ordering Japanese Pokémon cards from FUDAKURA: prices, minimum order, payment, preorders, shipping, duties and authenticity.',
+     'body'=><<<'MD'
+These terms apply to orders placed on {brand}.
+
+## Prices and currency
+
+Prices are set in US dollars. Prices shown in other currencies are converted at our current rates for guidance, and your invoice is issued in the currency you selected at checkout.
+
+## Orders
+
+Placing an order reserves stock for {hold_hours} hours while we send payment details, and an order is confirmed once payment clears. Orders must total at least {min_order} including shipping.
+
+## Payment
+
+No payment is taken on this site. We send payment details for your chosen method within {reply_hours} hours. Always quote your order reference, and check payment details against our email from {email}.
+
+## Preorders
+
+Preorders are invoiced when stock is allocated, not when you order.
+
+## Shipping and duties
+
+Orders ship from Japan with tracking, and shipping is calculated at checkout. Import duty, taxes and carrier fees charged on delivery are the buyer's responsibility.
+
+## Damage and shortages
+
+Report damage, shortages or wrong items within seven days of delivery — see [returns](page:returns).
+
+## Authenticity and trademarks
+
+All product is genuine and sourced through Japanese distribution. {company} is an independent reseller and is not affiliated with, endorsed by or licensed by The Pokémon Company, Nintendo, Creatures Inc. or GAME FREAK Inc.
+MD],
+  ],
+
   'faqs' => [
     ['Do you ship Japanese Pokémon cards to the USA?', 'Yes. Everything ships from Japan to the USA with tracking by EMS, DHL or FedEx, typically in 3–6 working days. Shipping is calculated at checkout, and orders start at {min_order} including shipping.'],
     ['Do I need an account to see pricing?', 'No. Every product shows its full quantity-break ladder publicly, so you can price a complete order before contacting anyone. There is no application form and no approval wait.'],

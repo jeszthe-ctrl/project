@@ -121,6 +121,32 @@ function shrink_image($file, $max=1600){
   imagedestroy($src); imagedestroy($dst);
 }
 
+/* A $w-px copy of a product photo for grids and thumbnails, made once and kept in assets/products/thumbs.
+   The name carries the source's size+date, so a replaced photo never shows a stale copy. Without GD, the full photo. */
+function thumb($rel, $w=600){
+  $src = FK_ROOT.'/'.$rel;
+  if(!function_exists('imagecreatetruecolor') || !is_file($src)) return $rel;
+  $tag = substr(md5(filesize($src).'-'.filemtime($src)), 0, 8);
+  $t = 'assets/products/thumbs/'.pathinfo($rel, PATHINFO_FILENAME)."-$w-$tag.".pathinfo($rel, PATHINFO_EXTENSION);
+  if(is_file(FK_ROOT.'/'.$t)) return $t;
+  $dir = FK_ROOT.'/assets/products/thumbs';
+  if(!is_dir($dir) && !@mkdir($dir, 0755, true)) return $rel;
+  if(!@copy($src, FK_ROOT.'/'.$t)) return $rel;
+  shrink_image(FK_ROOT.'/'.$t, $w);
+  return $t;
+}
+
+/* <img> with a small copy for phones and grids, the full photo for large screens, and fixed
+   dimensions so nothing jumps while loading. $lcp = the page's main image (load it first). */
+function img_tag($rel, $alt, $sizes='(max-width:520px) 100vw, (max-width:1040px) 50vw, 300px', $lcp=false){
+  $small = thumb($rel);
+  $v = '?v='.@filemtime(FK_ROOT.'/'.$rel);
+  $dim = @getimagesize(FK_ROOT.'/'.$small) ?: [600, 600];
+  $srcset = $small !== $rel ? ' srcset="'.h($small).' '.$dim[0].'w, '.h($rel.$v).' '.(@getimagesize(FK_ROOT.'/'.$rel)[0] ?: 1600).'w" sizes="'.h($sizes).'"' : '';
+  return '<img src="'.h($small === $rel ? $rel.$v : $small).'"'.$srcset.' width="'.(int)$dim[0].'" height="'.(int)$dim[1].'" alt="'.h($alt).'"'
+       .($lcp ? ' fetchpriority="high"' : ' loading="lazy"').' decoding="async">';
+}
+
 function slugify($s){
   $s = strtolower(strtr(trim((string)$s), ['é'=>'e','è'=>'e','ê'=>'e','É'=>'e','á'=>'a','à'=>'a','ä'=>'a','ó'=>'o','ö'=>'o','ú'=>'u','ü'=>'u','í'=>'i','ñ'=>'n','—'=>'-','–'=>'-']));
   return trim(preg_replace('/[^a-z0-9]+/', '-', $s), '-');

@@ -66,6 +66,49 @@ function save($msg){
   else note('Could not save. The data folder is not writable — ask your host to make it writable by PHP.', 'err');
 }
 
+/* formatting accepted in intros and guides (rendered by the shop) */
+const FORMAT_HELP = 'Blank line = new paragraph · "## " heading · "- " bullet · **bold** · links: [text](product:ID), category:KEY, set:SLUG, cards:SLUG, guide:SLUG, page:shipping, or a full https:// address · {min_order} fills in your minimum order.';
+/* first path segments the shop uses itself, so categories can't take them */
+const RESERVED_SLUGS = ['shop','products','sets','cards','guides','cart','checkout','order-received','how-it-works','shipping',
+                        'payment-methods','faq','contact','sitemap-xml','admin-php','index-php','assets','data','inc'];
+
+function unique_slug($slug, $taken){
+  $base = $slug; $n = 2;
+  while(in_array($slug, $taken, true)) $slug = $base.'-'.$n++;
+  return $slug;
+}
+
+function seo_inputs($name, $row, $ph_title='', $ph_desc=''){ ?>
+  <div class="fld"><label class="f">Google title</label>
+    <input type="text" name="<?= h($name) ?>[seo_title]" value="<?= h($row['seo_title'] ?? '') ?>" placeholder="<?= h($ph_title) ?>" maxlength="90">
+    <div class="hint">Shown as the headline in Google. Under 60 characters works best; your shop name is added after it.</div></div>
+  <div class="fld"><label class="f">Google description</label>
+    <textarea name="<?= h($name) ?>[seo_desc]" rows="2" maxlength="300" placeholder="<?= h($ph_desc) ?>"><?= h($row['seo_desc'] ?? '') ?></textarea>
+    <div class="hint">The snippet under the headline. Aim for 120–160 characters and include the words people search for.</div></div>
+<?php }
+
+function coll_products($c){
+  global $STORE;
+  $terms = array_filter(array_map('trim', explode(',', strtolower($c['match'] ?? ''))));
+  $ids = $c['ids'] ?? []; $cond = $c['cond'] ?? '';
+  return array_values(array_filter($STORE['products'], function($p) use($terms, $ids, $cond){
+    if(!empty($p['hidden'])) return false;
+    if(in_array($p['id'], $ids, true)) return true;
+    if($cond !== '' && ($p['cond'] ?? 'Sealed') !== $cond) return false;
+    if(!$terms) return $cond !== '';
+    foreach($terms as $t){ if(strpos(strtolower($p['name']), $t) !== false) return true; }
+    return false;
+  }));
+}
+
+/* set names in admin order: saved set pages first, then any new set typed on a product */
+function set_names(){
+  global $STORE;
+  $names = array_map('strval', array_keys($STORE['sets'] ?? []));   /* "151" comes back from array keys as a number */
+  foreach($STORE['products'] as $p){ if($p['set'] !== '' && !in_array($p['set'], $names, true)) $names[] = $p['set']; }
+  return $names;
+}
+
 function product_index($id){
   global $STORE;
   foreach($STORE['products'] as $i=>$p){ if($p['id'] === $id) return $i; }
@@ -87,6 +130,7 @@ function photo_paths($id){
 /* put $files into the photo slots of $id in the given order (renames via temp names so slots can swap) */
 function photos_arrange($id, $files){
   $dir = FK_ROOT.'/assets/products'; $tmp = [];
+  foreach(glob("$dir/thumbs/{$id}-*") ?: [] as $old) @unlink($old);   /* small copies are remade on demand */
   foreach($files as $f){
     $t = "$dir/.tmp-".bin2hex(random_bytes(5)).'.'.pathinfo($f, PATHINFO_EXTENSION);
     if(@rename($f, $t)) $tmp[] = $t;
@@ -185,6 +229,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
       'moq'=>(int)(num(in_str('moq'), 1) ?? 0), 'step'=>(int)(num(in_str('step'), 1) ?? 0),
       'status'=>in_str('status'), 'cond'=>in_str('cond'), 'release'=>in_str('release'), 'weight'=>num(in_str('weight'), 0),
       'hidden'=>!empty($_POST['hidden']), 'ladder'=>array_values($ladder), 'desc'=>in_str('desc'),
+      'seo_title'=>str(in_arr('seo')['seo_title'] ?? ''), 'seo_desc'=>str(in_arr('seo')['seo_desc'] ?? ''),
     ];
     if($name === '')                              $form_errors[] = 'Enter a product name.';
     if($id === '')                                $form_errors[] = 'Enter a web address (letters and numbers).';
@@ -209,6 +254,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
       if(isset($keep[$main])) $keep = [$main=>$keep[$main]] + $keep;
       $new = take_uploads('photos', count(photo_slots()) - count($keep));
       photos_arrange($id, array_merge(array_values($keep), $new));
+      foreach(photos($id) as $rel){ thumb($rel); thumb($rel, 160); }   /* make the small copies now, not on a shopper's first visit */
 
       if($idx === null) $STORE['products'][] = $p; else $STORE['products'][$idx] = $p;
       save($idx === null ? "Added “{$name}”." : "Saved “{$name}”.");
@@ -253,7 +299,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
   /* ----- categories ----- */
   if($do === 'categories_save'){
     $used = array_count_values(array_column($STORE['products'], 'cat'));
-    $cats = [];
+    $cats = []; $slugs = array_merge(RESERVED_SLUGS, array_column($STORE['pages'] ?? [], 'slug'));
     foreach(in_arr('cats') as $row){
       if(!is_array($row)) continue;
       $given = str($row['key'] ?? '');
@@ -265,12 +311,105 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
         if(!empty($used[$key])){ note("“{$label}” still has {$used[$key]} product(s), so it was kept. Move them first.", 'err'); }
         else continue;
       }
-      $cats[$key] = ['label'=>$label, 'blurb'=>str($row['blurb'] ?? '')];
+      $slug = slugify(str($row['slug'] ?? '') ?: $label);
+      $fixed = unique_slug($slug, $slugs);
+      if($fixed !== $slug) note("The web address “{$slug}” is already used, so “{$label}” is at “{$fixed}”.", 'err');
+      $slugs[] = $fixed;
+      $cats[$key] = ['label'=>$label, 'blurb'=>str($row['blurb'] ?? ''), 'slug'=>$fixed, 'h1'=>str($row['h1'] ?? ''),
+                     'seo_title'=>str($row['seo_title'] ?? ''), 'seo_desc'=>str($row['seo_desc'] ?? ''), 'intro'=>str($row['intro'] ?? '')];
     }
     foreach($used as $key=>$n){ if(!isset($cats[$key]) && isset($STORE['categories'][$key])) $cats[$key] = $STORE['categories'][$key]; }
     $STORE['categories'] = $cats;
     save('Categories saved.');
     go('categories');
+  }
+
+  /* ----- sets and series pages ----- */
+  if($do === 'sets_save'){
+    foreach(in_arr('series') as $k=>$row){
+      if(!is_array($row) || !isset($STORE['series'][$k])) continue;
+      $STORE['series'][$k] = ['name'=>str($row['name'] ?? '') ?: $STORE['series'][$k]['name'],
+        'slug'=>slugify(str($row['slug'] ?? '')) ?: $STORE['series'][$k]['slug'], 'h1'=>str($row['h1'] ?? ''),
+        'seo_title'=>str($row['seo_title'] ?? ''), 'seo_desc'=>str($row['seo_desc'] ?? ''), 'intro'=>str($row['intro'] ?? '')];
+    }
+    $taken = array_column($STORE['series'], 'slug'); $sets = [];
+    foreach(in_arr('sets') as $row){
+      $name = is_array($row) ? str($row['name'] ?? '') : '';
+      if($name === '') continue;
+      $slug = slugify(str($row['slug'] ?? '') ?: $name);
+      $fixed = unique_slug($slug, $taken); $taken[] = $fixed;
+      if($fixed !== $slug) note("The web address “{$slug}” is already used, so {$name} is at “{$fixed}”.", 'err');
+      $sets[$name] = ['slug'=>$fixed, 'series'=>isset($STORE['series'][$row['series'] ?? '']) ? $row['series'] : '',
+        'code'=>str($row['code'] ?? ''), 'intro'=>str($row['intro'] ?? ''),
+        'seo_title'=>str($row['seo_title'] ?? ''), 'seo_desc'=>str($row['seo_desc'] ?? '')];
+    }
+    $STORE['sets'] = $sets;
+    save('Sets saved.');
+    go('sets');
+  }
+
+  /* ----- collections (e.g. Charizard cards) ----- */
+  if($do === 'collection_save' || $do === 'collection_delete'){
+    $i = (int)in_str('i'); $exists = isset($STORE['collections'][$i]);
+    if($do === 'collection_delete'){
+      if($exists){ $t = $STORE['collections'][$i]['title']; array_splice($STORE['collections'], $i, 1); save("Deleted “{$t}”."); }
+      go('collections');
+    }
+    $c = ['title'=>in_str('title'), 'h1'=>in_str('h1'), 'match'=>in_str('match'), 'cond'=>in_array(in_str('cond'), CONDITIONS, true) ? in_str('cond') : '',
+          'ids'=>array_values(array_intersect(array_map('strval', in_arr('ids')), array_column($STORE['products'], 'id'))),
+          'intro'=>in_str('intro'), 'seo_title'=>str(in_arr('seo')['seo_title'] ?? ''), 'seo_desc'=>str(in_arr('seo')['seo_desc'] ?? '')];
+    $others = array_column(array_filter($STORE['collections'], fn($x, $k)=>$k !== $i || !$exists, ARRAY_FILTER_USE_BOTH), 'slug');
+    $c['slug'] = unique_slug(slugify(in_str('slug') ?: $c['title']), $others);
+    if($c['title'] === '') $form_errors[] = 'Enter a title.';
+    if($c['match'] === '' && !$c['ids'] && $c['cond'] === '') $form_errors[] = 'Choose which products belong: match words, pick products, or pick a condition.';
+    if($form_errors){ $form = $c + ['i'=>$exists ? $i : -1]; $v = 'collection'; }
+    else {
+      if($exists) $STORE['collections'][$i] = $c; else { $STORE['collections'][] = $c; $i = count($STORE['collections']) - 1; }
+      save("Saved “{$c['title']}”.");
+      go('collection', ['i'=>$i]);
+    }
+  }
+
+  /* ----- guides ----- */
+  if($do === 'guide_save' || $do === 'guide_delete'){
+    $i = (int)in_str('i'); $exists = isset($STORE['guides'][$i]);
+    if($do === 'guide_delete'){
+      if($exists){ $t = $STORE['guides'][$i]['title']; array_splice($STORE['guides'], $i, 1); save("Deleted “{$t}”."); }
+      go('guides');
+    }
+    $g = ['title'=>in_str('title'), 'body'=>in_str('body'), 'updated'=>gmdate('Y-m-d'),
+          'seo_title'=>str(in_arr('seo')['seo_title'] ?? ''), 'seo_desc'=>str(in_arr('seo')['seo_desc'] ?? '')];
+    $others = array_column(array_filter($STORE['guides'], fn($x, $k)=>$k !== $i || !$exists, ARRAY_FILTER_USE_BOTH), 'slug');
+    $g['slug'] = unique_slug(slugify(in_str('slug') ?: $g['title']), $others);
+    if($g['title'] === '') $form_errors[] = 'Enter a title.';
+    if($g['body'] === '')  $form_errors[] = 'Write the guide text.';
+    if($form_errors){ $form = $g + ['i'=>$exists ? $i : -1]; $v = 'guide'; }
+    else {
+      if($exists) $STORE['guides'][$i] = $g; else { $STORE['guides'][] = $g; $i = count($STORE['guides']) - 1; }
+      save("Saved “{$g['title']}”.");
+      go('guide', ['i'=>$i]);
+    }
+  }
+
+  /* ----- info pages (About, Returns, Privacy, Terms) ----- */
+  if($do === 'page_save' || $do === 'page_delete'){
+    $i = (int)in_str('i'); $exists = isset($STORE['pages'][$i]);
+    if($do === 'page_delete'){
+      if($exists){ $t = $STORE['pages'][$i]['title']; array_splice($STORE['pages'], $i, 1); save("Deleted “{$t}”."); }
+      go('pages');
+    }
+    $g = ['title'=>in_str('title'), 'body'=>in_str('body'),
+          'seo_title'=>str(in_arr('seo')['seo_title'] ?? ''), 'seo_desc'=>str(in_arr('seo')['seo_desc'] ?? '')];
+    $others = array_column(array_filter($STORE['pages'], fn($x, $k)=>$k !== $i || !$exists, ARRAY_FILTER_USE_BOTH), 'slug');
+    $g['slug'] = unique_slug(slugify(in_str('slug') ?: $g['title']), array_merge($others, RESERVED_SLUGS, array_map(fn($k)=>($STORE['categories'][$k]['slug'] ?? '') ?: $k, array_keys($STORE['categories']))));
+    if($g['title'] === '') $form_errors[] = 'Enter a title.';
+    if($g['body'] === '')  $form_errors[] = 'Write the page text.';
+    if($form_errors){ $form = $g + ['i'=>$exists ? $i : -1]; $v = 'page'; }
+    else {
+      if($exists) $STORE['pages'][$i] = $g; else { $STORE['pages'][] = $g; $i = count($STORE['pages']) - 1; }
+      save("Saved “{$g['title']}”.");
+      go('page', ['i'=>$i]);
+    }
   }
 
   /* ----- shipping ----- */
@@ -327,6 +466,10 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     $s['domain'] = rtrim($s['domain'], '/');
     foreach(['reply_hours','hold_hours'] as $k){ $n = num(in_str($k), 1); if($n !== null) $s[$k] = (int)$n; }
     $min = num(in_str('min_order_usd'), 0); if($min !== null) $s['min_order_usd'] = round($min, 2);
+    $s['home_seo_title'] = str(in_arr('home')['seo_title'] ?? '');
+    $s['home_seo_desc']  = str(in_arr('home')['seo_desc'] ?? '');
+    $s['home_intro']     = in_str('home_intro');
+    $s['pretty_urls']    = !empty($_POST['pretty_urls']);
     unset($s);
 
     $curs = [];
@@ -348,7 +491,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     if($countries) $STORE['countries'] = $countries; else note('The country list was empty, so the old list was kept.', 'err');
 
     if(!empty($_POST['hero_remove'])) foreach(photo_paths('hero') as $f) @unlink($f);
-    if($up = take_uploads('hero', 1)){ foreach(photo_paths('hero') as $f) @unlink($f); photos_arrange('hero', $up); }
+    if($up = take_uploads('hero', 1)){ foreach(photo_paths('hero') as $f) @unlink($f); photos_arrange('hero', $up); foreach(photos('hero') as $rel) thumb($rel); }
 
     save('Settings saved.');
     go('settings');
@@ -403,9 +546,10 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
 
 /* ---------------- view data ---------------- */
 $NAV = ['dashboard'=>'Dashboard', 'orders'=>'Orders', 'products'=>'Products', 'categories'=>'Categories',
+        'sets'=>'Sets', 'collections'=>'Collections', 'guides'=>'Guides', 'pages'=>'Pages',
         'shipping'=>'Shipping', 'payments'=>'Payments', 'settings'=>'Settings', 'faq'=>'FAQ', 'password'=>'Password'];
-if(is_admin() && !isset($NAV[$v]) && !in_array($v, ['product','order'], true)) $v = 'dashboard';
-$nav_on = ['product'=>'products', 'order'=>'orders'][$v] ?? $v;
+if(is_admin() && !isset($NAV[$v]) && !in_array($v, ['product','order','collection','guide','page'], true)) $v = 'dashboard';
+$nav_on = ['product'=>'products', 'order'=>'orders', 'collection'=>'collections', 'guide'=>'guides', 'page'=>'pages'][$v] ?? $v;
 $flash = $_SESSION['admin_flash'] ?? []; unset($_SESSION['admin_flash']);
 $writable = is_writable(data_dir()) && (is_dir(FK_ROOT.'/assets/products') ? is_writable(FK_ROOT.'/assets/products') : is_writable(FK_ROOT.'/assets'));
 $S = $STORE['settings'];
@@ -492,6 +636,11 @@ table.t input,table.t select,table.t textarea{min-width:70px}
 .ladder td{padding:4px 6px 4px 0}
 .ladder input{width:120px}
 .inline{display:inline}
+details.card>summary{cursor:pointer;list-style:none}
+details.card>summary::-webkit-details-marker{display:none}
+details.card>summary::before{content:"▸ ";color:var(--muted)}
+details.card[open]>summary::before{content:"▾ "}
+select[multiple]{padding:4px}
 .auth{max-width:380px;margin:60px auto}
 .muted{color:var(--muted)} .small{font-size:13px}
 dl.kv{display:grid;grid-template-columns:130px 1fr;gap:6px 12px;margin:0;font-size:14px}
@@ -553,6 +702,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   <?php if(in_array(trim($S['address']), ['', 'Japan'], true)): ?><div class="msg warn">Your business address is just “<?= h($S['address'] ?: 'blank') ?>”. Add the full address in <a href="<?= h(self_url('settings')) ?>">Settings</a> — buyers look for it before ordering.</div><?php endif; ?>
   <?php $failed = array_filter(array_slice($orders, 0, 20), fn($o)=>isset($o['mail_shop']) && !$o['mail_shop']);
   if($failed): ?><div class="msg err"><?= count($failed) ?> recent order email<?= count($failed)===1?'':'s' ?> to <?= h($S['order_email']) ?> failed to send. The orders are safe here, but check with your host that PHP can send mail from <?= h($S['email']) ?>.</div><?php endif; ?>
+  <?php if(empty($S['pretty_urls'])): ?><div class="msg warn">Clean page addresses are off. They help Google — see <a href="<?= h(self_url('settings')) ?>">Settings → Google &amp; web addresses</a> to test and turn them on.</div><?php endif; ?>
   <?php if($no_photo): ?><div class="msg warn"><?= count($no_photo) ?> product<?= count($no_photo)===1?' has':'s have' ?> no photo yet. Add photos from <a href="<?= h(self_url('products')) ?>">Products</a>.</div><?php endif; ?>
   <div class="stats">
     <div><b><?= (int)($by['new'] ?? 0) ?></b><span>New orders</span></div>
@@ -702,6 +852,11 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
       </table>
     </div>
 
+    <div class="card"><h2>Google</h2>
+      <p class="small muted" style="margin-top:0">Leave blank to use the product name and the start of the description.</p>
+      <?php seo_inputs('seo', $p, $p['name'] ?: 'e.g. 151 Booster Box (Japanese)', 'e.g. Sealed Japanese 151 booster box…'); ?>
+    </div>
+
     <div class="card"><h2>Photos</h2>
       <?php if($ph): ?>
         <div class="photos"><?php foreach($ph as $i=>$src): ?>
@@ -726,22 +881,179 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 <?php elseif($v === 'categories'):
   $used = array_count_values(array_column($STORE['products'], 'cat')); ?>
   <h1>Categories</h1>
-  <p class="sub">Shown in the menu bar and on the home page. A category with products in it can’t be deleted.</p>
+  <p class="sub">Shown in the menu bar and on the home page. Each category has its own page — the heading, Google text and intro below help it rank. A category with products in it can’t be deleted.</p>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="categories_save">
-    <div class="card scroll"><table class="t">
-      <thead><tr><th>Name</th><th>Short description</th><th class="r">Products</th><th>Delete</th></tr></thead><tbody>
-      <?php $i = 0; foreach($STORE['categories'] as $k=>$c): ?>
-        <tr><td><input type="hidden" name="cats[<?= $i ?>][key]" value="<?= h($k) ?>"><input type="text" name="cats[<?= $i ?>][label]" value="<?= h($c['label']) ?>" aria-label="Name"></td>
-            <td><input type="text" name="cats[<?= $i ?>][blurb]" value="<?= h($c['blurb']) ?>" aria-label="Description"></td>
-            <td class="r"><?= (int)($used[$k] ?? 0) ?></td>
-            <td><input type="checkbox" name="cats[<?= $i ?>][delete]" value="1" <?= !empty($used[$k])?'disabled':'' ?> aria-label="Delete"></td></tr>
-      <?php $i++; endforeach; for($j=0; $j<2; $j++, $i++): ?>
-        <tr><td><input type="text" name="cats[<?= $i ?>][label]" placeholder="New category" aria-label="Name"></td>
-            <td><input type="text" name="cats[<?= $i ?>][blurb]" aria-label="Description"></td><td></td><td></td></tr>
-      <?php endfor; ?>
-      </tbody></table></div>
+    <?php $i = 0; foreach($STORE['categories'] + ['' => ['label'=>'','blurb'=>'']] as $k=>$c): ?>
+    <details class="card" <?= $k === '' ? '' : 'open' ?>>
+      <summary><b><?= $k === '' ? '+ Add a category' : h($c['label']) ?></b><?php if($k !== ''): ?> <span class="muted small">· <?= (int)($used[$k] ?? 0) ?> products</span><?php endif; ?></summary>
+      <?php if($k !== ''): ?><input type="hidden" name="cats[<?= $i ?>][key]" value="<?= h($k) ?>"><?php endif; ?>
+      <div class="grid3" style="margin-top:12px">
+        <div class="fld"><label class="f">Name (menu)</label><input type="text" name="cats[<?= $i ?>][label]" value="<?= h($c['label']) ?>"></div>
+        <div class="fld"><label class="f">Web address</label><input type="text" name="cats[<?= $i ?>][slug]" value="<?= h($c['slug'] ?? '') ?>" placeholder="made from the name"></div>
+        <div class="fld"><label class="f">Page heading (H1)</label><input type="text" name="cats[<?= $i ?>][h1]" value="<?= h($c['h1'] ?? '') ?>" placeholder="<?= h($c['label'] ?: 'the name') ?>"></div>
+      </div>
+      <div class="fld"><label class="f">Short description (home page and top of the category)</label><input type="text" name="cats[<?= $i ?>][blurb]" value="<?= h($c['blurb']) ?>"></div>
+      <?php seo_inputs("cats[$i]", $c); ?>
+      <div class="fld"><label class="f">Intro text (below the products)</label><textarea name="cats[<?= $i ?>][intro]" rows="6"><?= h($c['intro'] ?? '') ?></textarea>
+        <div class="hint"><?= h(FORMAT_HELP) ?></div></div>
+      <?php if($k !== ''): ?><label class="row small"><input type="checkbox" name="cats[<?= $i ?>][delete]" value="1" <?= !empty($used[$k])?'disabled':'' ?>> Delete this category</label><?php endif; ?>
+    </details>
+    <?php $i++; endforeach; ?>
     <button class="btn" type="submit">Save categories</button>
   </form>
+
+<?php elseif($v === 'sets'):
+  $counts = array_count_values(array_column($STORE['products'], 'set')); ?>
+  <h1>Sets</h1>
+  <p class="sub">Every set on your products gets its own page (e.g. /sets/151), grouped into series pages. New sets appear here automatically when you type them on a product.</p>
+  <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="sets_save">
+    <h2 style="font-size:18px;margin:6px 0 10px">Series</h2>
+    <?php foreach($STORE['series'] as $k=>$sr): ?>
+    <details class="card">
+      <summary><b><?= h($sr['name']) ?></b> <span class="muted small">· /sets/<?= h($sr['slug']) ?></span></summary>
+      <div class="grid3" style="margin-top:12px">
+        <div class="fld"><label class="f">Name</label><input type="text" name="series[<?= h($k) ?>][name]" value="<?= h($sr['name']) ?>"></div>
+        <div class="fld"><label class="f">Web address</label><input type="text" name="series[<?= h($k) ?>][slug]" value="<?= h($sr['slug']) ?>"></div>
+        <div class="fld"><label class="f">Page heading (H1)</label><input type="text" name="series[<?= h($k) ?>][h1]" value="<?= h($sr['h1'] ?? '') ?>"></div>
+      </div>
+      <?php seo_inputs("series[$k]", $sr); ?>
+      <div class="fld"><label class="f">Intro text</label><textarea name="series[<?= h($k) ?>][intro]" rows="6"><?= h($sr['intro'] ?? '') ?></textarea><div class="hint"><?= h(FORMAT_HELP) ?></div></div>
+    </details>
+    <?php endforeach; ?>
+    <h2 style="font-size:18px;margin:22px 0 10px">Sets</h2>
+    <?php foreach(set_names() as $i=>$name): $st = ($STORE['sets'][$name] ?? []) + ['slug'=>slugify($name), 'series'=>'', 'code'=>'', 'intro'=>'']; ?>
+    <details class="card">
+      <summary><b><?= h($name) ?></b> <span class="muted small">· <?= (int)($counts[$name] ?? 0) ?> products<?= $st['code'] !== '' ? ' · '.h($st['code']) : '' ?></span></summary>
+      <input type="hidden" name="sets[<?= $i ?>][name]" value="<?= h($name) ?>">
+      <div class="grid3" style="margin-top:12px">
+        <div class="fld"><label class="f">Web address</label><input type="text" name="sets[<?= $i ?>][slug]" value="<?= h($st['slug']) ?>"></div>
+        <div class="fld"><label class="f">Series</label><select name="sets[<?= $i ?>][series]"><option value="">—</option>
+          <?php foreach($STORE['series'] as $k=>$sr): ?><option value="<?= h($k) ?>" <?= $st['series']===$k?'selected':'' ?>><?= h($sr['name']) ?></option><?php endforeach; ?></select></div>
+        <div class="fld"><label class="f">Set code</label><input type="text" name="sets[<?= $i ?>][code]" value="<?= h($st['code']) ?>" placeholder="e.g. SV2a"></div>
+      </div>
+      <?php seo_inputs("sets[$i]", $st, $name.' Japanese Booster Boxes & Cards'); ?>
+      <div class="fld"><label class="f">Intro text</label><textarea name="sets[<?= $i ?>][intro]" rows="4"><?= h($st['intro']) ?></textarea><div class="hint"><?= h(FORMAT_HELP) ?></div></div>
+    </details>
+    <?php endforeach; ?>
+    <button class="btn" type="submit">Save sets</button>
+  </form>
+
+<?php elseif($v === 'collections'): ?>
+  <div class="row" style="justify-content:space-between"><div><h1>Collections</h1>
+    <p class="sub">Pages that gather products around a search people make, like “Charizard Pokémon cards”. Each has its own address (e.g. /cards/charizard-pokemon-cards).</p></div>
+    <a class="btn" href="<?= h(self_url('collection', ['i'=>'new'])) ?>">+ Add a collection</a></div>
+  <div class="card scroll"><table class="t"><thead><tr><th>Title</th><th>Address</th><th class="r">Products</th><th></th></tr></thead><tbody>
+    <?php foreach($STORE['collections'] as $i=>$c): ?>
+      <tr><td><a href="<?= h(self_url('collection', ['i'=>$i])) ?>"><b><?= h($c['title']) ?></b></a></td><td class="muted small">/cards/<?= h($c['slug']) ?></td>
+          <td class="r"><?= count(coll_products($c)) ?></td><td class="r"><a class="btn g s" href="<?= h(self_url('collection', ['i'=>$i])) ?>">Edit</a></td></tr>
+    <?php endforeach; ?>
+  </tbody></table><?php if(!$STORE['collections']): ?><p class="muted">No collections yet.</p><?php endif; ?></div>
+
+<?php elseif($v === 'collection'):
+  $ci = str($_GET['i'] ?? 'new');
+  $c = $form ?? ($STORE['collections'][(int)$ci] ?? null);
+  $idx = $form ? $form['i'] : (isset($STORE['collections'][(int)$ci]) && $ci !== 'new' ? (int)$ci : -1);
+  if($idx === -1 && !$form) $c = null;
+  $c = ($c ?? []) + ['title'=>'','slug'=>'','h1'=>'','match'=>'','ids'=>[],'cond'=>'','intro'=>'','seo_title'=>'','seo_desc'=>'']; ?>
+  <p class="small"><a href="<?= h(self_url('collections')) ?>">← Collections</a></p>
+  <h1><?= $idx === -1 ? 'Add a collection' : h($c['title']) ?></h1>
+  <?php if($idx !== -1): ?><p class="sub"><a href="index.php?<?= h(http_build_query(['p'=>'collection','c'=>$c['slug']])) ?>" target="_blank" rel="noopener">View in shop ↗</a> · <?= count(coll_products($c)) ?> products</p><?php endif; ?>
+  <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="collection_save"><input type="hidden" name="i" value="<?= (int)$idx ?>">
+    <div class="card">
+      <div class="grid3">
+        <div class="fld"><label class="f">Title</label><input type="text" name="title" value="<?= h($c['title']) ?>" required placeholder="e.g. Charizard Pokémon cards"></div>
+        <div class="fld"><label class="f">Web address</label><input type="text" name="slug" value="<?= h($c['slug']) ?>" placeholder="made from the title"></div>
+        <div class="fld"><label class="f">Page heading (H1)</label><input type="text" name="h1" value="<?= h($c['h1']) ?>" placeholder="the title"></div>
+      </div>
+      <h2>Which products</h2>
+      <div class="grid2">
+        <div class="fld"><label class="f">Names containing</label><input type="text" name="match" value="<?= h($c['match']) ?>" placeholder="e.g. charizard (separate several with commas)">
+          <div class="hint">Any product whose name contains one of these words — new ones join automatically.</div></div>
+        <div class="fld"><label class="f">Only this condition</label><select name="cond"><option value="">Any</option>
+          <?php foreach(CONDITIONS as $cn): ?><option <?= $c['cond']===$cn?'selected':'' ?>><?= h($cn) ?></option><?php endforeach; ?></select>
+          <div class="hint">On its own (no words), lists every product in that condition.</div></div>
+      </div>
+      <div class="fld"><label class="f">Always include these products</label>
+        <select name="ids[]" multiple size="8"><?php foreach($STORE['products'] as $p): ?><option value="<?= h($p['id']) ?>" <?= in_array($p['id'], $c['ids'], true)?'selected':'' ?>><?= h($p['name']) ?></option><?php endforeach; ?></select>
+        <div class="hint">Hold Ctrl (Cmd on Mac) to pick several; on a phone, tap to tick.</div></div>
+      <div class="fld"><label class="f">Intro text</label><textarea name="intro" rows="6"><?= h($c['intro']) ?></textarea><div class="hint"><?= h(FORMAT_HELP) ?></div></div>
+      <?php seo_inputs('seo', $c); ?>
+    </div>
+    <button class="btn" type="submit"><?= $idx === -1 ? 'Add collection' : 'Save changes' ?></button>
+  </form>
+  <?php if($idx !== -1): ?>
+  <form method="post" style="margin-top:22px" onsubmit="return confirm('Delete this collection page?')"><?= csrf_field() ?><input type="hidden" name="do" value="collection_delete"><input type="hidden" name="i" value="<?= (int)$idx ?>"><button class="btn d s" type="submit">Delete collection</button></form>
+  <?php endif; ?>
+
+<?php elseif($v === 'guides'): ?>
+  <div class="row" style="justify-content:space-between"><div><h1>Guides</h1>
+    <p class="sub">Articles that answer what people search for — they bring visitors in and link them to your products.</p></div>
+    <a class="btn" href="<?= h(self_url('guide', ['i'=>'new'])) ?>">+ Write a guide</a></div>
+  <div class="card scroll"><table class="t"><thead><tr><th>Title</th><th>Address</th><th>Updated</th><th></th></tr></thead><tbody>
+    <?php foreach($STORE['guides'] as $i=>$g): ?>
+      <tr><td><a href="<?= h(self_url('guide', ['i'=>$i])) ?>"><b><?= h($g['title']) ?></b></a></td><td class="muted small">/guides/<?= h($g['slug']) ?></td>
+          <td class="small"><?= h($g['updated'] ?? '') ?></td><td class="r"><a class="btn g s" href="<?= h(self_url('guide', ['i'=>$i])) ?>">Edit</a></td></tr>
+    <?php endforeach; ?>
+  </tbody></table><?php if(!$STORE['guides']): ?><p class="muted">No guides yet.</p><?php endif; ?></div>
+
+<?php elseif($v === 'guide'):
+  $gi = str($_GET['i'] ?? 'new');
+  $g = $form ?? ($gi !== 'new' ? ($STORE['guides'][(int)$gi] ?? null) : null);
+  $idx = $form ? $form['i'] : ($g ? (int)$gi : -1);
+  $g = ($g ?? []) + ['title'=>'','slug'=>'','body'=>'','seo_title'=>'','seo_desc'=>'']; ?>
+  <p class="small"><a href="<?= h(self_url('guides')) ?>">← Guides</a></p>
+  <h1><?= $idx === -1 ? 'Write a guide' : h($g['title']) ?></h1>
+  <?php if($idx !== -1): ?><p class="sub"><a href="index.php?<?= h(http_build_query(['p'=>'guide','g'=>$g['slug']])) ?>" target="_blank" rel="noopener">View in shop ↗</a></p><?php endif; ?>
+  <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="guide_save"><input type="hidden" name="i" value="<?= (int)$idx ?>">
+    <div class="card">
+      <div class="grid2">
+        <div class="fld"><label class="f">Title (page heading)</label><input type="text" name="title" value="<?= h($g['title']) ?>" required></div>
+        <div class="fld"><label class="f">Web address</label><input type="text" name="slug" value="<?= h($g['slug']) ?>" placeholder="made from the title"></div>
+      </div>
+      <div class="fld"><label class="f">Text</label><textarea name="body" rows="22" style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px"><?= h($g['body']) ?></textarea>
+        <div class="hint"><?= h(FORMAT_HELP) ?></div></div>
+      <?php seo_inputs('seo', $g, $g['title']); ?>
+    </div>
+    <button class="btn" type="submit"><?= $idx === -1 ? 'Publish guide' : 'Save changes' ?></button>
+  </form>
+  <?php if($idx !== -1): ?>
+  <form method="post" style="margin-top:22px" onsubmit="return confirm('Delete this guide?')"><?= csrf_field() ?><input type="hidden" name="do" value="guide_delete"><input type="hidden" name="i" value="<?= (int)$idx ?>"><button class="btn d s" type="submit">Delete guide</button></form>
+  <?php endif; ?>
+
+<?php elseif($v === 'pages'): ?>
+  <div class="row" style="justify-content:space-between"><div><h1>Pages</h1>
+    <p class="sub">About, returns, privacy and terms. Google looks for these to judge whether a shop is trustworthy; they’re linked in the footer. Review the policies for your own business.</p></div>
+    <a class="btn" href="<?= h(self_url('page', ['i'=>'new'])) ?>">+ Add a page</a></div>
+  <div class="card scroll"><table class="t"><thead><tr><th>Title</th><th>Address</th><th></th></tr></thead><tbody>
+    <?php foreach($STORE['pages'] as $i=>$g): ?>
+      <tr><td><a href="<?= h(self_url('page', ['i'=>$i])) ?>"><b><?= h($g['title']) ?></b></a></td><td class="muted small">/<?= h($g['slug']) ?></td>
+          <td class="r"><a class="btn g s" href="<?= h(self_url('page', ['i'=>$i])) ?>">Edit</a></td></tr>
+    <?php endforeach; ?>
+  </tbody></table><?php if(!$STORE['pages']): ?><p class="muted">No pages yet.</p><?php endif; ?></div>
+
+<?php elseif($v === 'page'):
+  $gi = str($_GET['i'] ?? 'new');
+  $g = $form ?? ($gi !== 'new' ? ($STORE['pages'][(int)$gi] ?? null) : null);
+  $idx = $form ? $form['i'] : ($g ? (int)$gi : -1);
+  $g = ($g ?? []) + ['title'=>'','slug'=>'','body'=>'','seo_title'=>'','seo_desc'=>'']; ?>
+  <p class="small"><a href="<?= h(self_url('pages')) ?>">← Pages</a></p>
+  <h1><?= $idx === -1 ? 'Add a page' : h($g['title']) ?></h1>
+  <?php if($idx !== -1): ?><p class="sub"><a href="index.php?<?= h(http_build_query(['p'=>'page','pg'=>$g['slug']])) ?>" target="_blank" rel="noopener">View in shop ↗</a></p><?php endif; ?>
+  <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="page_save"><input type="hidden" name="i" value="<?= (int)$idx ?>">
+    <div class="card">
+      <div class="grid2">
+        <div class="fld"><label class="f">Title (page heading)</label><input type="text" name="title" value="<?= h($g['title']) ?>" required></div>
+        <div class="fld"><label class="f">Web address</label><input type="text" name="slug" value="<?= h($g['slug']) ?>" placeholder="made from the title"></div>
+      </div>
+      <div class="fld"><label class="f">Text</label><textarea name="body" rows="22" style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px"><?= h($g['body']) ?></textarea>
+        <div class="hint"><?= h(FORMAT_HELP) ?></div></div>
+      <?php seo_inputs('seo', $g, $g['title']); ?>
+    </div>
+    <button class="btn" type="submit"><?= $idx === -1 ? 'Add page' : 'Save changes' ?></button>
+  </form>
+  <?php if($idx !== -1): ?>
+  <form method="post" style="margin-top:22px" onsubmit="return confirm('Delete this page?')"><?= csrf_field() ?><input type="hidden" name="do" value="page_delete"><input type="hidden" name="i" value="<?= (int)$idx ?>"><button class="btn d s" type="submit">Delete page</button></form>
+  <?php endif; ?>
 
 <?php elseif($v === 'shipping'):
   $sh = $STORE['shipping']; ?>
@@ -818,6 +1130,17 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
         <div class="fld"><label class="f" for="reply_hours">Hours to send payment details</label><input type="number" id="reply_hours" name="reply_hours" min="1" value="<?= (int)$S['reply_hours'] ?>"></div>
         <div class="fld"><label class="f" for="hold_hours">Hours stock is held / to dispatch</label><input type="number" id="hold_hours" name="hold_hours" min="1" value="<?= (int)$S['hold_hours'] ?>"></div>
       </div>
+    </div>
+
+    <div class="card"><h2>Google &amp; web addresses</h2>
+      <?php seo_inputs('home', ['seo_title'=>$S['home_seo_title'] ?? '', 'seo_desc'=>$S['home_seo_desc'] ?? ''], 'Japanese Pokémon Cards — Booster Boxes & Singles'); ?>
+      <div class="fld"><label class="f" for="home_intro">Home page text (shown near the bottom of the home page)</label>
+        <textarea id="home_intro" name="home_intro" rows="10"><?= h($S['home_intro'] ?? '') ?></textarea>
+        <div class="hint"><?= h(FORMAT_HELP) ?></div></div>
+      <label class="row small" style="align-items:flex-start"><input type="checkbox" name="pretty_urls" value="1" <?= !empty($S['pretty_urls'])?'checked':'' ?> style="margin-top:4px">
+        <span><b>Clean page addresses</b>, like /products/151-booster-box instead of index.php?p=product&amp;id=…
+        First open <a href="shop" target="_blank" rel="noopener">your-domain/shop</a>: if it shows the shop, your host supports them and you can tick this.
+        If it shows an error, leave it off (the shop works either way).</span></label>
     </div>
 
     <div class="card"><h2>Home page &amp; announcement bar</h2>
