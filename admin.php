@@ -183,7 +183,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     $p = [
       'id'=>$id, 'sku'=>in_str('sku'), 'name'=>$name, 'set'=>in_str('set'), 'cat'=>in_str('cat'),
       'moq'=>(int)(num(in_str('moq'), 1) ?? 0), 'step'=>(int)(num(in_str('step'), 1) ?? 0),
-      'status'=>in_str('status'), 'release'=>in_str('release'), 'weight'=>num(in_str('weight'), 0),
+      'status'=>in_str('status'), 'cond'=>in_str('cond'), 'release'=>in_str('release'), 'weight'=>num(in_str('weight'), 0),
       'hidden'=>!empty($_POST['hidden']), 'ladder'=>array_values($ladder), 'desc'=>in_str('desc'),
     ];
     if($name === '')                              $form_errors[] = 'Enter a product name.';
@@ -191,6 +191,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     elseif(($clash = product_index($id)) !== null && $clash !== $idx) $form_errors[] = "Another product already uses the web address “{$id}”.";
     if(!isset($STORE['categories'][$p['cat']]))   $form_errors[] = 'Choose a category.';
     if(!array_key_exists($p['status'], PRODUCT_STATUSES)) $form_errors[] = 'Choose a status.';
+    if(!in_array($p['cond'], CONDITIONS, true))  $form_errors[] = 'Choose a condition.';
     if($p['moq'] < 1)                             $form_errors[] = 'Minimum order quantity must be 1 or more.';
     if($p['step'] < 1)                            $form_errors[] = 'Sold-in-multiples-of must be 1 or more.';
     if($p['weight'] === null)                     $form_errors[] = 'Enter the weight in kg (0 if unknown).';
@@ -652,7 +653,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   $p = $form ?? ($idx !== null ? $STORE['products'][$idx] + ['old_id'=>$id] : null);
   $is_new = !$p || ($p['old_id'] ?? '') === '';
   $p = ($p ?? []) + ['old_id'=>'', 'id'=>'', 'sku'=>'', 'name'=>'', 'set'=>'', 'cat'=>array_key_first($STORE['categories']),
-                     'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false, 'ladder'=>[], 'desc'=>''];
+                     'moq'=>6, 'step'=>6, 'status'=>'in', 'cond'=>'Sealed', 'release'=>'', 'weight'=>0.4, 'hidden'=>false, 'ladder'=>[], 'desc'=>''];
   $ph = $p['old_id'] !== '' ? photos($p['old_id']) : []; ?>
   <p class="small"><a href="<?= h(self_url('products')) ?>">← Products</a></p>
   <h1><?= $is_new ? 'Add a product' : h($p['name']) ?></h1>
@@ -671,6 +672,10 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
         <div class="fld"><label class="f" for="status">Status</label><select id="status" name="status">
           <?php foreach(PRODUCT_STATUSES as $k=>$label): ?><option value="<?= h($k) ?>" <?= $p['status']===$k?'selected':'' ?>><?= h($label) ?></option><?php endforeach; ?></select>
           <div class="hint">“Sold out” shows the product but stops orders.</div></div>
+        <div class="fld"><label class="f" for="cond">Condition</label><select id="cond" name="cond">
+          <?php foreach(CONDITIONS as $c): ?><option <?= ($p['cond'] ?? 'Sealed')===$c?'selected':'' ?>><?= h($c) ?></option><?php endforeach; ?></select></div>
+      </div>
+      <div class="grid3">
         <div class="fld"><label class="f" for="release">Release date (preorders)</label><input type="text" id="release" name="release" value="<?= h($p['release']) ?>" placeholder="e.g. November 2026"></div>
         <div class="fld"><label class="f" for="pid">Web address</label><input type="text" id="pid" name="id" value="<?= h($p['id']) ?>" placeholder="made from the name if blank">
           <div class="hint">Lowercase words and dashes. Changing it breaks old links to this product.</div></div>

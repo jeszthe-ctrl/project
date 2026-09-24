@@ -8,6 +8,7 @@ if(!defined('FK_ROOT')){ http_response_code(404); exit; }
 const FK_GUARD = "<?php http_response_code(404); exit; ?>\n";
 
 const PRODUCT_STATUSES = ['in'=>'In stock', 'new'=>'New', 'low'=>'Low stock', 'preorder'=>'Preorder', 'soldout'=>'Sold out'];
+const CONDITIONS       = ['Sealed', 'Graded', 'Near Mint', 'Lightly Played'];
 const ORDER_STATUSES   = ['new'=>'New', 'invoiced'=>'Payment details sent', 'paid'=>'Paid', 'shipped'=>'Shipped', 'cancelled'=>'Cancelled'];
 
 function status_label($list, $key){ return $list[$key] ?? (string)$key; }

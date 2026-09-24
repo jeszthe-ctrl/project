@@ -277,6 +277,12 @@ if($_SERVER['REQUEST_METHOD']==='POST' && ($_POST['action']??'')==='order' && $e
 $cat   = $_GET['cat'] ?? '';
 if(!is_string($cat) || !isset($CATEGORIES[$cat])) $cat = '';
 $q     = trim(is_string($_GET['q'] ?? null) ? $_GET['q'] : '');
+/* catalogue filters (prices in the shopper's currency) */
+$gs    = fn($k)=>is_string($_GET[$k] ?? null) ? trim($_GET[$k]) : '';
+$f_set = $gs('set'); $f_cond = $gs('cond'); $f_avail = $gs('avail'); $f_sort = $gs('sort');
+$f_min = is_numeric($gs('min')) ? (float)$gs('min') : null;
+$f_max = is_numeric($gs('max')) ? (float)$gs('max') : null;
+$filtered = $f_set !== '' || $f_cond !== '' || $f_avail !== '' || $f_sort !== '' || $f_min !== null || $f_max !== null || $q !== '';
 $prod  = $page === 'product' ? product($_GET['id'] ?? '') : null;
 if($page === 'product' && !$prod) $page = 'catalog';
 
@@ -316,7 +322,7 @@ $in_stock = array_values(array_filter($PRODUCTS, fn($p)=>!in_array($p['status'],
 <title><?= h($page_title) ?> | <?= h($CONFIG['brand']) ?></title>
 <meta name="description" content="<?= h($page_desc) ?>">
 <link rel="canonical" href="<?= h($canonical) ?>">
-<meta name="robots" content="<?= in_array($page,['cart','checkout','received']) ? 'noindex, follow' : 'index, follow, max-image-preview:large' ?>">
+<meta name="robots" content="<?= in_array($page,['cart','checkout','received']) || ($page==='catalog' && $filtered) ? 'noindex, follow' : 'index, follow, max-image-preview:large' ?>">
 <meta property="og:type" content="<?= $prod ? 'product' : 'website' ?>">
 <meta property="og:site_name" content="<?= h($CONFIG['brand']) ?>">
 <meta property="og:title" content="<?= h($page_title) ?>">
@@ -490,7 +496,15 @@ h1{font-size:clamp(33px,5vw,56px);margin-bottom:18px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:4px;overflow:hidden;
   display:flex;flex-direction:column}
 .card:hover{border-color:var(--brand)}
-.card .art{aspect-ratio:1/1;position:relative;border-bottom:1px solid var(--hair);overflow:hidden}
+.filters{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end;background:var(--card);border:1px solid var(--line);
+  border-radius:4px;padding:14px;margin-bottom:20px}
+.filters label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;color:var(--muted);flex:1 1 150px;min-width:0}
+.filters select,.filters input{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:8px 9px;font-size:14px;font-weight:400;color:var(--ink);width:100%}
+.filters .price span{display:flex;gap:6px}
+.filters .fbtns{display:flex;gap:8px}
+.filters .fbtns .btn{padding:9px 14px;font-size:14px}
+@media(max-width:560px){.filters label{flex-basis:calc(50% - 6px)}.filters label.price{flex-basis:100%}}
+.card .art{aspect-ratio:1/1;position:relative;border-bottom:1px solid var(--hair);overflow:hidden;text-decoration:none}
 .card .art img{width:100%;height:100%;object-fit:cover}
 .flag{position:absolute;top:10px;left:10px;font-size:10.5px;font-weight:700;letter-spacing:.05em;
   padding:3px 7px;border-radius:2px;background:var(--ink);color:var(--paper);z-index:2}
@@ -505,6 +519,7 @@ h1{font-size:clamp(33px,5vw,56px);margin-bottom:18px}
 .card .px{display:flex;align-items:baseline;gap:8px;margin-top:auto}
 .card .px .u{font-size:21px;font-weight:900}
 .card .px .w{font-size:12.5px;color:var(--muted);text-decoration:line-through}
+.card .px .per{font-size:12px;color:var(--muted);margin-left:-4px}
 .card .drop{font-size:12.5px;color:var(--ink2)}
 .card .drop b{color:var(--ink)}
 .card form{padding:0 14px 14px;display:flex;gap:8px}
@@ -769,20 +784,66 @@ footer .bl{font-size:14px;opacity:.8;margin-top:11px;max-width:44ch}
   </div></section>
 
 <?php elseif($page==='catalog'):
-  $list = array_filter($PRODUCTS, function($p) use($cat,$q,$CATEGORIES){
+  $rate = $CURRENCIES[cur_code()]['rate'];
+  $list = array_filter($PRODUCTS, function($p) use($cat,$q,$CATEGORIES,$f_set,$f_cond,$f_avail,$f_min,$f_max,$rate){
     if($cat && $p['cat']!==$cat) return false;
+    if($f_set !== '' && $p['set'] !== $f_set) return false;
+    if($f_cond !== '' && ($p['cond'] ?? 'Sealed') !== $f_cond) return false;
+    if($f_avail === 'preorder' && $p['status'] !== 'preorder') return false;
+    if($f_avail === 'in' && in_array($p['status'], ['preorder','soldout'], true)) return false;
+    $price = unit_price($p, $p['moq']) * $rate;
+    if($f_min !== null && $price < $f_min) return false;
+    if($f_max !== null && $price > $f_max) return false;
     if($q){
-      $hay = strtolower($p['name'].' '.$p['set'].' '.$p['sku'].' '.$CATEGORIES[$p['cat']]['label']);
+      $hay = strtolower($p['name'].' '.$p['set'].' '.$p['sku'].' '.$CATEGORIES[$p['cat']]['label'].' '.($p['cond'] ?? ''));
       if(strpos($hay, strtolower($q))===false) return false;
     }
     return true;
-  }); ?>
+  });
+  if($f_sort === 'price-asc' || $f_sort === 'price-desc'){
+    usort($list, fn($a, $b)=>unit_price($a, $a['moq']) <=> unit_price($b, $b['moq']));
+    if($f_sort === 'price-desc') $list = array_reverse($list);
+  } elseif($f_sort === 'name') usort($list, fn($a, $b)=>strcasecmp($a['name'], $b['name']));
+  $count_by = fn($key)=>array_count_values(array_map(fn($p)=>(string)($p[$key] ?? ($key==='cond' ? 'Sealed' : '')), $PRODUCTS));
+  $sets = array_filter($count_by('set'), fn($k)=>$k !== '', ARRAY_FILTER_USE_KEY);
+  $conds = $count_by('cond');
+  $cats_n = $count_by('cat');
+  $n_pre = count(array_filter($PRODUCTS, fn($p)=>$p['status']==='preorder'));
+  $n_in = count(array_filter($PRODUCTS, fn($p)=>!in_array($p['status'], ['preorder','soldout'], true))); ?>
   <div class="wrap crumbs"><a href="index.php">Home</a> / <?= $cat ? h($CATEGORIES[$cat]['label']) : 'All products' ?></div>
   <section style="padding-top:22px"><div class="wrap">
     <div class="sechead"><div>
-      <h2><?= $q ? 'Results for “'.h($q).'”' : ($cat ? h($CATEGORIES[$cat]['label']) : 'Wholesale catalog') ?></h2>
+      <h2><?= $q ? 'Results for “'.h($q).'”' : ($cat ? h($CATEGORIES[$cat]['label']) : ($f_set !== '' ? h($f_set) : 'Wholesale catalog')) ?></h2>
       <p><?= $cat ? h($CATEGORIES[$cat]['blurb']) : 'Everything in stock, with the full quantity-break ladder published on each listing.' ?></p>
     </div><span style="color:var(--muted);font-size:14px"><?= count($list) ?> product<?= count($list)===1?'':'s' ?></span></div>
+    <form class="filters" method="get" action="index.php" id="filters" onsubmit="fsub(this); return false">
+      <input type="hidden" name="p" value="catalog">
+      <?php if($q !== ''): ?><input type="hidden" name="q" value="<?= h($q) ?>"><?php endif; ?>
+      <label>Product type<select name="cat" onchange="fsub(this.form)">
+        <option value="">All types</option>
+        <?php foreach($CATEGORIES as $k=>$c): ?><option value="<?= h($k) ?>" <?= $cat===$k?'selected':'' ?>><?= h($c['label']) ?> (<?= (int)($cats_n[$k] ?? 0) ?>)</option><?php endforeach; ?>
+      </select></label>
+      <label>Set<select name="set" onchange="fsub(this.form)">
+        <option value="">All sets</option>
+        <?php foreach($sets as $k=>$n): ?><option value="<?= h($k) ?>" <?= $f_set===(string)$k?'selected':'' ?>><?= h($k) ?> (<?= (int)$n ?>)</option><?php endforeach; ?>
+      </select></label>
+      <label>Condition<select name="cond" onchange="fsub(this.form)">
+        <option value="">Any condition</option>
+        <?php foreach(CONDITIONS as $k): ?><option value="<?= h($k) ?>" <?= $f_cond===$k?'selected':'' ?>><?= h($k) ?> (<?= (int)($conds[$k] ?? 0) ?>)</option><?php endforeach; ?>
+      </select></label>
+      <label>Buying as<select name="avail" onchange="fsub(this.form)">
+        <option value="">In stock &amp; pre-order</option>
+        <option value="in" <?= $f_avail==='in'?'selected':'' ?>>In stock (<?= $n_in ?>)</option>
+        <option value="preorder" <?= $f_avail==='preorder'?'selected':'' ?>>Pre-order (<?= $n_pre ?>)</option>
+      </select></label>
+      <label class="price">Price per unit (<?= h(cur_code()) ?>)<span>
+        <input type="number" name="min" min="0" step="any" placeholder="Min" value="<?= $f_min===null?'':h($f_min) ?>" aria-label="Minimum price">
+        <input type="number" name="max" min="0" step="any" placeholder="Max" value="<?= $f_max===null?'':h($f_max) ?>" aria-label="Maximum price"></span></label>
+      <label>Sort<select name="sort" onchange="fsub(this.form)">
+        <?php foreach([''=>'Featured','price-asc'=>'Price: low to high','price-desc'=>'Price: high to low','name'=>'Name A–Z'] as $k=>$lbl): ?><option value="<?= h($k) ?>" <?= $f_sort===$k?'selected':'' ?>><?= h($lbl) ?></option><?php endforeach; ?>
+      </select></label>
+      <div class="fbtns"><button class="btn" type="submit">Apply</button><?php if($filtered || $cat): ?><a class="btn g" href="<?= url('catalog') ?>">Clear</a><?php endif; ?></div>
+    </form>
     <?php if($list): ?>
       <div class="grid"><?php foreach($list as $p) include_card($p); ?></div>
     <?php else: ?>
@@ -811,7 +872,7 @@ footer .bl{font-size:14px;opacity:.8;margin-top:11px;max-width:44ch}
     </div>
     <div>
       <h1><?= h($prod['name']) ?></h1>
-      <div class="sub"><?= h($prod['sku']) ?> · <?= h($prod['set']) ?> · <?= h($CATEGORIES[$prod['cat']]['label']) ?>
+      <div class="sub"><?= h(implode(' · ', array_filter([$prod['sku'], $prod['set'], $CATEGORIES[$prod['cat']]['label'], $prod['cond'] ?? 'Sealed']))) ?>
         <?= $prod['status']==='preorder' ? ' · Releases '.h($prod['release']) : ' · '.h(status_label(PRODUCT_STATUSES, $prod['status'])) ?></div>
       <p class="desc"><?= h($prod['desc']) ?></p>
 
@@ -1189,6 +1250,11 @@ footer .bl{font-size:14px;opacity:.8;margin-top:11px;max-width:44ch}
 </div></footer>
 
 <script>
+/* catalogue filters: drop empty fields so shared links stay short */
+function fsub(f){
+  [...f.elements].forEach(el => { if(el.name && el.value === '') el.disabled = true; });
+  f.submit();
+}
 function bump(btn, delta, min){
   const input = btn.parentElement.querySelector('input');
   input.value = Math.max(min, (parseInt(input.value,10) || min) + delta);
@@ -1251,9 +1317,10 @@ function include_card($p){
     </a>
     <div class="in">
       <h3><a href="<?= url('product',['id'=>$p['id']]) ?>"><?= h($p['name']) ?></a></h3>
-      <div class="meta"><?= h($p['sku']) ?> · MOQ <?= h($p['moq']) ?> · sold in <?= h($p['step']) ?>s<?= !empty($p['release']) ? ' · '.h($p['release']) : '' ?></div>
-      <div class="px"><span class="u"><?= money($base) ?></span><?php if($p['ladder'][0][1] > $base): ?><span class="w"><?= money($p['ladder'][0][1]) ?></span><?php endif; ?></div>
-      <div class="drop">down to <b><?= money($best[1]) ?></b> at <?= h($best[0]) ?>+</div>
+      <div class="meta"><?= h(implode(' · ', array_filter([$p['set'], ($p['cond'] ?? 'Sealed') !== 'Sealed' ? $p['cond'] : '', $p['status']==='preorder' ? $p['release'] : '']))) ?></div>
+      <div class="px"><span class="u"><?= money($base) ?></span><span class="per">/unit at <?= (int)$p['moq'] ?></span><?php if($p['ladder'][0][1] > $base): ?><span class="w"><?= money($p['ladder'][0][1]) ?></span><?php endif; ?></div>
+      <?php if(count($p['ladder']) > 1 && $best[1] < $base): ?><div class="drop">down to <b><?= money($best[1]) ?></b> at <?= (int)$best[0] ?>+</div><?php endif; ?>
+      <div class="meta">MOQ <?= (int)$p['moq'] ?><?= $p['step'] > 1 ? ' · in '.(int)$p['step'].'s' : '' ?></div>
     </div>
     <form method="post" action="index.php">
       <input type="hidden" name="action" value="add">
