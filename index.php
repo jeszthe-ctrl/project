@@ -86,6 +86,9 @@ function cart_weight(){ $kg=0; foreach(cart_lines() as $l) $kg += (float)($l['p'
    Clean addresses (Admin → Settings; needs .htaccess support, i.e. Apache or LiteSpeed):
      /shop  /booster-boxes  /products/{id}  /sets  /sets/{set or series}  /cards/{collection}  /guides/{guide}  /cart …
    Otherwise index.php?p=…  Links are written relative to <base href>, so the shop also works in a subfolder. */
+/* site photos (assets/site): the home page image until you upload your own in Settings, and the link-preview image */
+const SITE_HERO  = 'assets/site/pokemon-30th-celebration-elite-trainer-box.webp';
+const SITE_SHARE = 'assets/site/share-30th-celebration.jpg';
 $BASE = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/index.php')), '/').'/';
 const PAGE_PATHS = ['cart'=>'cart', 'checkout'=>'checkout', 'received'=>'order-received', 'how'=>'how-it-works',
                     'shipping'=>'shipping', 'payment'=>'payment-methods', 'faq'=>'faq', 'contact'=>'contact',
@@ -302,7 +305,7 @@ function send_order_mail($order){
       $l['name'].' ('.$l['sku'].')', $l['qty'], $l['unit'], $l['total']);
   }
   $body .= "\n  GOODS:    {$order['goods']}\n";
-  $body .= "  SHIPPING: {$order['shipping']} ({$order['ship_zone']})\n";
+  $body .= "  SHIPPING: {$order['shipping']} ({$order['ship_zone']}, {$order['ship_label']})\n";
   $body .= "  TOTAL:    {$order['total']} ({$order['currency']})\n";
   $body .= "  Import duty and taxes are not included.\n\n";
   if($order['notes']) $body .= "NOTES\n  {$order['notes']}\n\n";
@@ -314,7 +317,7 @@ function send_order_mail($order){
   $c  = "Thank you — we have your order.\n\n";
   $c .= "Order reference: {$order['ref']}\n";
   $c .= "Goods: {$order['goods']}\n";
-  $c .= "Shipping: {$order['shipping']}\n";
+  $c .= "Shipping: {$order['shipping']} — {$order['ship_label']}\n";
   $c .= "Order total: {$order['total']} ({$order['currency']})\n";
   $c .= "Payment method selected: {$order['payment_label']}\n\n";
   $c .= "WHAT HAPPENS NEXT\n";
@@ -392,9 +395,14 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
       $errors[] = $PAYMENTS[$f['payment']]['label'].' is not available for '.$COUNTRIES[$f['country']].'. Choose another payment method.';
     if(empty($_POST['agree']))                           $errors[] = 'Confirm you understand payment details follow by email or text.';
 
+    /* delivery option: Standard or Express */
+    $SHIPM = ship_methods($STORE);
+    $method = in_array($_POST['ship_method'] ?? '', SHIP_METHODS, true) ? $_POST['ship_method'] : 'standard';
+    $f['ship_method'] = $method;
+
     /* minimum order value counts goods plus shipping */
     if(isset($COUNTRIES[$f['country']]) && cart_lines()){
-      $ship  = shipping_usd($STORE, $f['country'], cart_weight());
+      $ship  = shipping_usd($STORE, $f['country'], cart_weight(), $method);
       $grand = round(cart_total() + $ship, 2);
       if($grand < $MIN_ORDER)
         $errors[] = 'The minimum order is '.money($MIN_ORDER).' including shipping. Your total is '.money($grand).', so add '.money($MIN_ORDER - $grand).' more to place this order.';
@@ -414,6 +422,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         'country_name'  => $COUNTRIES[$f['country']],
         'payment_label' => $PAYMENTS[$f['payment']]['label'],
         'ship_zone'     => ship_zone($STORE, $f['country'])['name'],
+        'ship_label'    => $SHIPM[$method]['label'].' ('.$SHIPM[$method]['days'].')',
         'lines'         => $lines,
         'goods_usd'     => $goods,
         'shipping_usd'  => $ship,
@@ -627,7 +636,7 @@ $in_stock = array_values(array_filter($PRODUCTS, fn($p)=>!in_array($p['status'],
 <meta name="robots" content="<?= $noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large' ?>">
 <?php
   $abs_img = fn($f)=>rtrim($CONFIG['domain'], '/').'/'.$f;
-  $og = $prod ? photos($prod['id']) : (photos('hero') ?: ($PRODUCTS ? photos($PRODUCTS[0]['id']) : [])); ?>
+  $og = ($prod ? photos($prod['id']) : []) ?: (photos('hero') ?: (is_file(FK_ROOT.'/'.SITE_SHARE) ? [SITE_SHARE] : [])); ?>
 <meta property="og:type" content="<?= $prod ? 'product' : ($guide ? 'article' : 'website') ?>">
 <meta property="og:site_name" content="<?= h($CONFIG['brand']) ?>">
 <meta property="og:locale" content="en_US">
@@ -659,13 +668,18 @@ if($prod){
                     : (can_order($prod) ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'),
     'seller'=>['@id'=>$org_id]];
   if(($prod['cond'] ?? 'Sealed') === 'Sealed') $offer['itemCondition'] = 'https://schema.org/NewCondition';
-  if(!empty($CONFIG['shipping_reviewed']))   /* only once real rates are set */
-    $offer['shippingDetails'] = ['@type'=>'OfferShippingDetails',
-      'shippingDestination'=>['@type'=>'DefinedRegion','addressCountry'=>'US'],
-      'shippingRate'=>['@type'=>'MonetaryAmount','currency'=>'USD','value'=>number_format(shipping_usd($STORE, 'US', (float)($prod['weight'] ?? 0) * $prod['moq']), 2, '.', '')],
-      'deliveryTime'=>['@type'=>'ShippingDeliveryTime',
-        'handlingTime'=>['@type'=>'QuantitativeValue','minValue'=>0,'maxValue'=>max(1, (int)ceil($CONFIG['hold_hours'] / 24)),'unitCode'=>'DAY'],
-        'transitTime'=>['@type'=>'QuantitativeValue','minValue'=>3,'maxValue'=>6,'unitCode'=>'DAY']]];
+  if(!empty($CONFIG['shipping_reviewed'])){   /* only once real rates are set */
+    $offer['shippingDetails'] = [];
+    foreach(ship_methods($STORE) as $mk=>$mm){
+      [$dmin, $dmax] = ship_day_range($mm['days']);
+      $offer['shippingDetails'][] = ['@type'=>'OfferShippingDetails',
+        'shippingDestination'=>['@type'=>'DefinedRegion','addressCountry'=>'US'],
+        'shippingRate'=>['@type'=>'MonetaryAmount','currency'=>'USD','value'=>number_format(shipping_usd($STORE, 'US', (float)($prod['weight'] ?? 0) * $prod['moq'], $mk), 2, '.', '')],
+        'deliveryTime'=>['@type'=>'ShippingDeliveryTime',
+          'handlingTime'=>['@type'=>'QuantitativeValue','minValue'=>0,'maxValue'=>max(1, (int)ceil($CONFIG['hold_hours'] / 24)),'unitCode'=>'DAY'],
+          'transitTime'=>['@type'=>'QuantitativeValue','minValue'=>$dmin,'maxValue'=>$dmax,'unitCode'=>'DAY']]];
+    }
+  }
   $graph[] = array_filter(['@type'=>'Product','name'=>$prod['name'],'sku'=>$prod['sku'],'url'=>$canonical,
     'image'=>array_map($abs_img, photos($prod['id'])) ?: null,
     'description'=>plain($prod['desc'], 2000),'category'=>$CATEGORIES[$prod['cat']]['label'],
@@ -805,6 +819,25 @@ h1{font-size:clamp(34px,5.2vw,62px);margin-bottom:18px}
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;z-index:2}
 .heroart img,.heroart .ph{width:100%;height:100%;object-fit:cover;border-radius:17px}
 .heroart::after{content:"";position:absolute;inset:auto -20% -40% -20%;height:70%;background:radial-gradient(closest-side,rgba(34,225,195,.25),transparent);pointer-events:none}
+
+.heroart.light{background:#fff}
+.heroart.light::after{display:none}
+.heroart.light img{object-fit:contain;padding:22px;background:#fff}
+.heroimg{display:block;width:100%;height:100%}
+
+/* featured release */
+.feature{position:relative;overflow:hidden;border-block:1px solid var(--hair);
+  background:radial-gradient(700px 360px at 18% 40%,rgba(255,201,77,.18),transparent 60%),radial-gradient(640px 320px at 88% 70%,rgba(255,59,92,.14),transparent 60%),#000}
+.fgrid{display:grid;grid-template-columns:230px 1fr 400px;gap:40px;align-items:center}
+@media(max-width:1060px){.fgrid{grid-template-columns:200px 1fr}.fbox{grid-column:1 / -1}}
+@media(max-width:640px){.fgrid{grid-template-columns:1fr;gap:24px}.fpack{max-width:200px;margin:0 auto}}
+.fpack{display:block;border-radius:14px;overflow:hidden;transform:rotate(-4deg);box-shadow:0 30px 60px -22px rgba(255,201,77,.55),0 0 0 1px rgba(255,255,255,.08);transition:transform .2s}
+.fpack:hover{transform:rotate(-2deg) translateY(-4px)}
+.kicker{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#1b1204;background:linear-gradient(135deg,#FFC94D,#FF9F43);padding:5px 12px;border-radius:999px;margin-bottom:14px}
+.ftext h2{font-size:clamp(28px,3.6vw,44px);margin-bottom:14px}
+.ftext p{color:var(--ink2);font-size:16.5px;max-width:52ch}
+.fbox{margin:0;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 24px 50px -24px rgba(0,0,0,.9)}
+.fbox figcaption{background:var(--card);color:var(--ink2);font-size:13px;padding:10px 14px}
 
 /* placeholder art (until photos are uploaded) */
 .ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;text-align:center;padding:14px;
@@ -1130,9 +1163,10 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
         <div><strong><?= (int)$CONFIG['hold_hours'] ?>h</strong>Stock held on order</div>
       </div>
     </div>
-    <div class="heroart">
-      <?php $hp = photos('hero') ?: photos($PRODUCTS[1]['id']);
+    <div class="heroart<?= photos('hero') ? '' : ' light' ?>">
+      <?php $hp = photos('hero');
       if($hp): ?><?= img_tag($hp[0], 'Sealed Japanese Pokémon booster boxes ready to ship from Japan', '(max-width:960px) 100vw, 600px', true) ?>
+      <?php elseif(is_file(FK_ROOT.'/'.SITE_HERO)): ?><a href="<?= h(url('product', ['id'=>'30th-celebration-elite-trainer-box'])) ?>" class="heroimg"><?= img_tag(SITE_HERO, 'Pokémon TCG 30th Celebration Elite Trainer Box', '(max-width:960px) 100vw, 600px', true) ?></a>
       <?php else: ?><div class="ph"><span>札蔵</span><span>Japanese Pokémon cards · shipped from Japan</span></div><?php endif; ?>
     </div>
   </div></section>
@@ -1175,6 +1209,26 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
     </div>
   </section>
 
+  <?php $f30 = set_by_slug('30th-celebration'); $etb30 = product('30th-celebration-elite-trainer-box');
+  if($f30 && is_file(FK_ROOT.'/assets/site/pokemon-30th-celebration-booster-pack.webp')): ?>
+  <section class="feature"><div class="wrap fgrid">
+    <a class="fpack" href="<?= h(url('set', ['s'=>$f30['slug']])) ?>"><?= img_tag('assets/site/pokemon-30th-celebration-booster-pack.webp', 'Pokémon TCG 30th Celebration booster pack with Pikachu, Mew and Mewtwo', '(max-width:860px) 55vw, 260px') ?></a>
+    <div class="ftext">
+      <span class="kicker">30th anniversary</span>
+      <h2>Pokémon TCG: 30th Celebration</h2>
+      <p>Thirty years of Pokémon in one set. Mewtwo ex and Mew ex lead the way, joined by Umbreon ex, Salamence ex and Greninja ex — and every booster pack holds a Pikachu, with 30 different Pikachu rare cards to collect.</p>
+      <div class="hero-cta" style="margin:22px 0 0">
+        <a class="btn gold" href="<?= h(url('set', ['s'=>$f30['slug']])) ?>">Shop 30th Celebration</a>
+        <?php if($etb30): ?><a class="btn g" href="<?= h(url('product', ['id'=>$etb30['id']])) ?>">Elite Trainer Box</a><?php endif; ?>
+      </div>
+    </div>
+    <figure class="fbox">
+      <?= img_tag('assets/site/pokemon-30th-celebration-elite-trainer-box-contents.webp', 'What’s inside the Pokémon TCG 30th Celebration Elite Trainer Box', '(max-width:860px) 100vw, 420px') ?>
+      <figcaption>Inside the Elite Trainer Box: 9 booster packs, a full-art Nidorina promo, 65 sleeves, dice and more.</figcaption>
+    </figure>
+  </div></section>
+  <?php endif; ?>
+
   <?php $home_sets = sets_all(); if($home_sets): ?>
   <section style="padding-top:0"><div class="wrap">
     <div class="sechead"><div><h2>Shop by set</h2>
@@ -1198,7 +1252,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       <div><span>Stock hold on order</span><span><?= (int)$CONFIG['hold_hours'] ?> hours</span></div>
       <div><span>Dispatch after payment</span><span>Within <?= (int)$CONFIG['hold_hours'] ?> hours</span></div>
       <div><span>Carriers</span><span>EMS · DHL · FedEx</span></div>
-      <div><span>Shipping</span><span>Calculated at checkout</span></div>
+      <?php $SM = ship_methods($STORE); ?><div><span>Delivery</span><span><?= h($SM['standard']['label'].' '.$SM['standard']['days'].' · '.$SM['express']['label'].' '.$SM['express']['days']) ?></span></div>
     </div>
   </div></section>
 
@@ -1369,7 +1423,10 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       </div>
       <div class="panel"><h2>Shipping &amp; payment</h2>
         <div class="prose" style="font-size:14.5px">
-          <p>Shipped from Japan by EMS, DHL or FedEx with tracking — typically 3–6 working days to the USA. Shipping is calculated at checkout, and orders start at <?= money($MIN_ORDER) ?> including shipping.</p>
+          <?php $SM = ship_methods($STORE); $one = (float)($prod['weight'] ?? 0) * $prod['moq']; ?>
+          <p>Shipped from Japan with tracking: <b><?= h($SM['standard']['label']) ?></b> <?= h($SM['standard']['days']) ?> or <b><?= h($SM['express']['label']) ?></b> <?= h($SM['express']['days']) ?>.
+            Priced by weight — <?= (int)$prod['moq'] ?> of these to the USA ship for <?= money(shipping_usd($STORE, 'US', $one, 'standard')) ?> Standard or <?= money(shipping_usd($STORE, 'US', $one, 'express')) ?> Express.
+            Orders start at <?= money($MIN_ORDER) ?> including shipping.</p>
           <p>No payment is taken on the site: we send payment details for your chosen method within <?= (int)$CONFIG['reply_hours'] ?> hours. <a href="<?= url('shipping') ?>">Shipping</a> · <a href="<?= url('payment') ?>">Payment methods</a></p>
         </div>
       </div>
@@ -1498,6 +1555,20 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
         </fieldset>
 
         <fieldset>
+          <legend>Delivery</legend>
+          <div class="pay" id="shipList">
+            <?php foreach(ship_methods($STORE) as $mk=>$mm): ?>
+              <label>
+                <input type="radio" name="ship_method" value="<?= h($mk) ?>" <?= ($f['ship_method'] ?? 'standard')===$mk?'checked':'' ?>>
+                <span style="flex:1"><span class="t"><?= h($mm['label']) ?></span><br><span class="n"><?= h($mm['days']) ?>, tracked</span></span>
+                <span class="t" data-ship-price="<?= h($mk) ?>"><?= !empty($f['country']) && isset($COUNTRIES[$f['country']]) ? money(shipping_usd($STORE, $f['country'], cart_weight(), $mk)) : '' ?></span>
+              </label>
+            <?php endforeach; ?>
+          </div>
+          <p class="n" style="font-size:12.5px;color:var(--muted);margin-top:10px">Priced by the weight of your order (<?= h(rtrim(rtrim(number_format(cart_weight(), 2), '0'), '.')) ?> kg). Choose your country to see prices.</p>
+        </fieldset>
+
+        <fieldset>
           <legend>Payment method</legend>
           <div class="pay" id="payList">
             <?php foreach($PAYMENTS as $key=>$m):
@@ -1542,14 +1613,15 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
               <span style="color:var(--seal)">− <?= money(cart_saved()) ?></span></div>
           <?php endif; ?>
           <div class="sl"><span style="color:var(--muted)">Goods</span><span><?= money(cart_total()) ?></span></div>
-          <div class="sl"><span style="color:var(--muted)">Shipping</span><span id="shipCost" style="color:var(--muted)">Select your country</span></div>
+          <div class="sl"><span style="color:var(--muted)" id="shipLabel">Shipping</span><span id="shipCost" style="color:var(--muted)">Select your country</span></div>
           <div class="tot"><span>Order total</span><span id="grandTotal"><?= money(cart_total()) ?></span></div>
           <p style="font-size:12.5px;color:var(--muted);margin-top:8px">Minimum order <?= money($MIN_ORDER) ?> including shipping.</p>
           <?php
           /* per-country shipping for this cart, so the summary updates as the country changes */
           $cm = $CURRENCIES[cur_code()]; $kg = cart_weight(); $ship_by = [];
-          foreach($COUNTRIES as $code=>$nm) $ship_by[$code] = shipping_usd($STORE, $code, $kg);
-          $co_data = ['ship'=>$ship_by, 'goods'=>cart_total(), 'min'=>$MIN_ORDER,
+          foreach($COUNTRIES as $code=>$nm) foreach(SHIP_METHODS as $mk) $ship_by[$code][$mk] = shipping_usd($STORE, $code, $kg, $mk);
+          $labels = array_map(fn($m)=>$m['label'], ship_methods($STORE));
+          $co_data = ['ship'=>$ship_by, 'labels'=>$labels, 'goods'=>cart_total(), 'min'=>$MIN_ORDER,
                       'rate'=>$cm['rate'], 'sym'=>$cm['sym'], 'dec'=>$cm['dec']]; ?>
           <script>window.CO = <?= json_encode($co_data, JSON_HEX_TAG|JSON_HEX_AMP) ?>;</script>
           <p style="font-size:12.5px;color:var(--muted);margin-top:12px">Shown in <?= cur_code() ?>. Your invoice is issued in the same currency.</p>
@@ -1581,7 +1653,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
         </ol>
         <hr style="border:none;border-top:1px solid var(--hair);margin:20px 0">
         <div class="sl" style="border:none;padding:0"><span>Goods</span><span><?= h($o['goods']) ?></span></div>
-        <div class="sl" style="border:none;padding:4px 0 0"><span>Shipping</span><span><?= h($o['shipping']) ?></span></div>
+        <div class="sl" style="border:none;padding:4px 0 0"><span>Shipping<?= !empty($o['ship_label']) ? ' · '.h($o['ship_label']) : '' ?></span><span><?= h($o['shipping']) ?></span></div>
         <div class="sl" style="border:none;padding:4px 0 0"><span>Order total</span><b><?= h($o['total']) ?> <?= h($o['currency']) ?></b></div>
         <div class="sl" style="border:none;padding:4px 0 0"><span>Shipping to</span><span><?= h($o['city']) ?>, <?= h($o['country_name']) ?></span></div>
         <p style="font-size:13.5px;color:var(--muted);margin-top:16px">
@@ -1636,23 +1708,26 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       <tbody>
         <tr><td class="nm">Carriers</td><td>Japan Post EMS, DHL Express and FedEx. We choose on weight, destination and your instructions.</td></tr>
         <tr><td class="nm">Dispatch</td><td>Within <?= (int)$CONFIG['hold_hours'] ?> hours of payment clearing.</td></tr>
-        <tr><td class="nm">Transit</td><td>Typically 3–6 working days to North America and Europe, 2–4 within Asia-Pacific.</td></tr>
-        <tr><td class="nm">Shipping cost</td><td>Calculated at checkout from your destination and the weight of your order — see the rates below.</td></tr>
+        <?php foreach(ship_methods($STORE) as $mm): ?><tr><td class="nm"><?= h($mm['label']) ?> delivery</td><td><?= h($mm['days']) ?>, tracked.</td></tr><?php endforeach; ?>
+        <tr><td class="nm">Shipping cost</td><td>Priced by the weight of your order and your destination, and shown at checkout before you order — see the rates below.</td></tr>
         <tr><td class="nm">Minimum order</td><td><?= money($MIN_ORDER) ?> including shipping.</td></tr>
         <tr><td class="nm">Duty and taxes</td><td>Excluded from our prices. US orders of any value can be charged import duty and carrier fees on delivery; elsewhere your carrier collects import duty, VAT or GST and clearance fees.</td></tr>
         <tr><td class="nm">Damage or shortage</td><td>Report within seven days of delivery and we replace, credit or refund the affected lines and their shipping.</td></tr>
       </tbody>
     </table>
-    <h3 style="font-size:19px;margin:34px 0 12px">Shipping rates</h3>
+    <h2 class="sub2">Shipping rates</h2>
+    <?php $SM = ship_methods($STORE); ?>
     <table class="tbl">
-      <thead><tr><th>Destination</th><th class="r">Per order</th><th class="r">Plus per kg</th></tr></thead>
+      <thead><tr><th>Destination</th><?php foreach($SM as $mm): ?><th class="r"><?= h($mm['label']) ?> per order</th><th class="r">+ per kg</th><?php endforeach; ?></tr></thead>
       <tbody>
-        <?php foreach(array_merge($STORE['shipping']['zones'], [['name'=>'Rest of world']+$STORE['shipping']['rest']]) as $z): ?>
-          <tr><td class="nm"><?= h($z['name']) ?></td><td class="r"><?= money($z['base']) ?></td><td class="r"><?= money($z['per_kg']) ?></td></tr>
+        <?php foreach(array_merge($STORE['shipping']['zones'], [['name'=>'Rest of world']+$STORE['shipping']['rest']]) as $z): $zr = zone_rates($z); ?>
+          <tr><td class="nm"><?= h($z['name']) ?></td><?php foreach(array_keys($SM) as $mk): ?><td class="r"><?= money($zr[$mk]['base']) ?></td><td class="r"><?= money($zr[$mk]['per_kg']) ?></td><?php endforeach; ?></tr>
         <?php endforeach; ?>
       </tbody>
     </table>
-    <p style="font-size:13.5px;color:var(--muted);margin-top:12px">As a guide, a sealed booster box weighs about 0.4 kg and an Elite Trainer Box about 0.9 kg packed.</p>
+    <p style="font-size:13.5px;color:var(--muted);margin-top:12px">Totals are rounded up to the next whole dollar. For example, six Japanese booster boxes (about 2.4 kg) to the USA cost
+      <?= money(shipping_usd($STORE, 'US', 2.4, 'standard')) ?> Standard or <?= money(shipping_usd($STORE, 'US', 2.4, 'express')) ?> Express; a single card costs
+      <?= money(shipping_usd($STORE, 'US', 0.05, 'standard')) ?> Standard. As a guide, a sealed booster box weighs about 0.4 kg and an Elite Trainer Box about 0.9 kg packed.</p>
   </div></section>
 
 <?php elseif($page==='faq'): ?>
@@ -1828,9 +1903,13 @@ function fmt(usd){
 /* shipping, total and the minimum-order check follow the selected country; the server re-checks all of it */
 function updateTotals(country){
   if(!window.CO) return;
-  const ship = CO.ship[country], warn = document.getElementById('minWarn'), btn = document.getElementById('placeBtn');
+  const rates = CO.ship[country], warn = document.getElementById('minWarn'), btn = document.getElementById('placeBtn');
   const cost = document.getElementById('shipCost');
-  if(ship === undefined){ cost.textContent = 'Select your country'; document.getElementById('grandTotal').textContent = fmt(CO.goods); warn.hidden = true; btn.disabled = false; return; }
+  const picked = (document.querySelector('input[name=ship_method]:checked') || {}).value || 'standard';
+  document.querySelectorAll('[data-ship-price]').forEach(el => { el.textContent = rates ? fmt(rates[el.dataset.shipPrice]) : ''; });
+  document.getElementById('shipLabel').textContent = 'Shipping · ' + (CO.labels[picked] || '');
+  if(rates === undefined){ cost.textContent = 'Select your country'; document.getElementById('grandTotal').textContent = fmt(CO.goods); warn.hidden = true; btn.disabled = false; return; }
+  const ship = rates[picked];
   const total = Math.round((CO.goods + ship) * 100) / 100;
   cost.textContent = fmt(ship); cost.style.color = '';
   document.getElementById('grandTotal').textContent = fmt(total);
@@ -1839,7 +1918,8 @@ function updateTotals(country){
   if(short) warn.textContent = 'The minimum order is ' + fmt(CO.min) + ' including shipping. Your total is ' + fmt(total) + ', so add ' + fmt(CO.min - total) + ' more to place this order.';
 }
 function galPick(btn, src){
-  document.getElementById('galMain').src = src;
+  const m = document.getElementById('galMain');
+  m.removeAttribute('srcset'); m.src = src;     /* drop the responsive list, or the browser keeps showing the first photo */
   btn.parentElement.querySelectorAll('button').forEach(b=>b.setAttribute('aria-current','false'));
   btn.setAttribute('aria-current','true');
 }
@@ -1853,6 +1933,7 @@ function filterPay(country){
 }
 const c = document.getElementById('country');
 if(c){ c.addEventListener('change', ()=>updateTotals(c.value)); if(c.value){ filterPay(c.value); updateTotals(c.value); } }
+document.querySelectorAll('input[name=ship_method]').forEach(r => r.addEventListener('change', ()=>updateTotals(c ? c.value : '')));
 </script>
 </body>
 </html>

@@ -415,22 +415,37 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
   /* ----- shipping ----- */
   if($do === 'shipping_save'){
     $zones = []; $seen = [];
+    $rates = function($row, $what){   /* ['standard'=>['base','per_kg'], 'express'=>…] or null if a number is missing */
+      $out = [];
+      foreach(SHIP_METHODS as $m){
+        $base = num($row[$m]['base'] ?? '', 0); $kg = num($row[$m]['per_kg'] ?? '', 0);
+        if($base === null || $kg === null){ note("$what was skipped: fill in all four prices.", 'err'); return null; }
+        $out[$m] = ['base'=>round($base, 2), 'per_kg'=>round($kg, 2)];
+      }
+      if($out['express']['base'] < $out['standard']['base'] || $out['express']['per_kg'] < $out['standard']['per_kg'])
+        note("$what: Express is cheaper than Standard somewhere — check that’s intended.", 'err');
+      return $out;
+    };
     foreach(in_arr('zones') as $row){
       if(!is_array($row) || !empty($row['delete'])) continue;
       $name = str($row['name'] ?? ''); $cc = codes($row['countries'] ?? '');
       if($name === '' && !$cc) continue;
-      $base = num($row['base'] ?? '', 0); $kg = num($row['per_kg'] ?? '', 0);
-      if($name === '' || !$cc || $base === null || $kg === null){ note("A zone was skipped: it needs a name, country codes and both rates.", 'err'); continue; }
+      if($name === '' || !$cc){ note('A zone was skipped: it needs a name and country codes.', 'err'); continue; }
+      $r = $rates($row, "“{$name}”"); if(!$r) continue;
       foreach($cc as $i=>$c){
         if(!isset($STORE['countries'][$c])){ note("$c in “{$name}” isn’t in your country list (Settings), so it was left out.", 'err'); unset($cc[$i]); continue; }
         if(isset($seen[$c])) note("$c is in both “{$seen[$c]}” and “{$name}” — the first zone is used.", 'err');
         $seen[$c] = $seen[$c] ?? $name;
       }
-      $cc = array_values($cc);
-      $zones[] = ['name'=>$name, 'countries'=>$cc, 'base'=>round($base, 2), 'per_kg'=>round($kg, 2)];
+      $zones[] = ['name'=>$name, 'countries'=>array_values($cc)] + $r;
     }
-    $rb = num(in_str('rest_base'), 0); $rk = num(in_str('rest_per_kg'), 0);
-    $STORE['shipping'] = ['zones'=>$zones, 'rest'=>['base'=>round($rb ?? 0, 2), 'per_kg'=>round($rk ?? 0, 2)]];
+    $rest = $rates(in_arr('rest'), 'Rest of world') ?? zone_rates($STORE['shipping']['rest']);
+    $methods = [];
+    foreach(ship_methods($STORE) as $m=>$old){
+      $row = in_arr('methods')[$m] ?? [];
+      $methods[$m] = ['label'=>str($row['label'] ?? '') ?: $old['label'], 'days'=>str($row['days'] ?? '') ?: $old['days']];
+    }
+    $STORE['shipping'] = ['methods'=>$methods, 'round_up'=>!empty($_POST['round_up']), 'zones'=>$zones, 'rest'=>$rest];
     $STORE['settings']['shipping_reviewed'] = true;
     save('Shipping rates saved.');
     go('shipping');
@@ -761,7 +776,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
           <td class="r"><?= usd($l['unit_usd']) ?></td><td class="r"><?= usd($l['total_usd']) ?></td><td class="r muted"><?= h($l['total']) ?></td></tr>
     <?php endforeach; ?>
       <tr><td colspan="4" class="r">Goods</td><td class="r"><?= usd($o['goods_usd']) ?></td><td class="r muted"><?= h($o['goods']) ?></td></tr>
-      <tr><td colspan="4" class="r">Shipping (<?= h($o['ship_zone']) ?>)</td><td class="r"><?= usd($o['shipping_usd']) ?></td><td class="r muted"><?= h($o['shipping']) ?></td></tr>
+      <tr><td colspan="4" class="r">Shipping (<?= h($o['ship_zone']) ?><?= !empty($o['ship_label']) ? ' · '.h($o['ship_label']) : '' ?>)</td><td class="r"><?= usd($o['shipping_usd']) ?></td><td class="r muted"><?= h($o['shipping']) ?></td></tr>
       <tr><td colspan="4" class="r"><b>Order total</b></td><td class="r"><b><?= usd($o['total_usd']) ?></b></td><td class="r"><b><?= h($o['total']) ?></b></td></tr>
     </tbody></table></div></div>
   <form method="post" onsubmit="return confirm('Delete order <?= h($o['ref']) ?> permanently?')"><?= csrf_field() ?>
@@ -1056,26 +1071,51 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   <?php endif; ?>
 
 <?php elseif($v === 'shipping'):
-  $sh = $STORE['shipping']; ?>
+  $sh = $STORE['shipping']; $SM = ship_methods($STORE);
+  $ex = fn($c, $kg, $m)=>usd(shipping_usd($STORE, $c, $kg, $m)); ?>
   <h1>Shipping rates</h1>
-  <p class="sub">Shipping for an order = the zone’s <b>per-order</b> amount + its <b>per-kg</b> rate × the order’s weight (each product’s weight × quantity). All in USD. Set per-kg to 0 for a flat rate.
-    The <?= usd($S['min_order_usd']) ?> minimum order counts goods plus this shipping.</p>
-  <?php if(empty($S['shipping_reviewed'])): ?><div class="msg warn">These are placeholder rates. Replace them with your real costs and save.</div><?php endif; ?>
+  <p class="sub">Customers choose <b><?= h($SM['standard']['label']) ?></b> or <b><?= h($SM['express']['label']) ?></b> at checkout. Each costs the zone’s <b>per-order</b> price + its <b>per-kg</b> price × the order’s weight (each product’s weight × quantity), in USD.
+    The <?= usd($S['min_order_usd']) ?> minimum order counts goods plus the shipping chosen.</p>
+  <?php if(empty($S['shipping_reviewed'])): ?><div class="msg warn">These are starting rates: a single card to the US comes to $12 Standard (TCGplayer’s $11.99 international rate, rounded up), then more per kg. Check them against what your carrier actually charges from Japan, then save.</div><?php endif; ?>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="shipping_save">
+    <div class="card"><h2>Delivery options</h2>
+      <div class="grid2">
+        <?php foreach($SM as $m=>$mm): ?>
+        <div class="grid2" style="gap:10px">
+          <div class="fld"><label class="f">Name</label><input type="text" name="methods[<?= h($m) ?>][label]" value="<?= h($mm['label']) ?>"></div>
+          <div class="fld"><label class="f">Delivery time</label><input type="text" name="methods[<?= h($m) ?>][days]" value="<?= h($mm['days']) ?>"></div>
+        </div>
+        <?php endforeach; ?>
+      </div>
+      <label class="row small"><input type="checkbox" name="round_up" value="1" <?= !empty($sh['round_up'])?'checked':'' ?>> Round shipping totals up to the next whole dollar</label>
+    </div>
     <div class="card scroll"><table class="t">
-      <thead><tr><th>Zone name</th><th>Country codes</th><th>Per order $</th><th>Per kg $</th><th>Delete</th></tr></thead><tbody>
-      <?php $zones = $sh['zones']; for($i=0; $i<count($zones)+2; $i++): $z = $zones[$i] ?? ['name'=>'','countries'=>[],'base'=>'','per_kg'=>'']; ?>
+      <thead><tr><th>Zone name</th><th>Country codes</th>
+        <?php foreach($SM as $mm): ?><th><?= h($mm['label']) ?><br>per order $</th><th><?= h($mm['label']) ?><br>per kg $</th><?php endforeach; ?><th>Delete</th></tr></thead><tbody>
+      <?php $zones = $sh['zones']; for($i=0; $i<count($zones)+2; $i++): $z = $zones[$i] ?? ['name'=>'','countries'=>[]];
+        $zr = isset($zones[$i]) ? zone_rates($z) : ['standard'=>['base'=>'','per_kg'=>''], 'express'=>['base'=>'','per_kg'=>'']]; ?>
         <tr><td><input type="text" name="zones[<?= $i ?>][name]" value="<?= h($z['name']) ?>" placeholder="<?= isset($zones[$i])?'':'New zone' ?>" aria-label="Zone name"></td>
-            <td><input type="text" name="zones[<?= $i ?>][countries]" value="<?= h(implode(', ', $z['countries'])) ?>" placeholder="e.g. US, CA" aria-label="Country codes" style="min-width:200px"></td>
-            <td><input type="number" name="zones[<?= $i ?>][base]" value="<?= h($z['base']) ?>" min="0" step="0.01" aria-label="Per order"></td>
-            <td><input type="number" name="zones[<?= $i ?>][per_kg]" value="<?= h($z['per_kg']) ?>" min="0" step="0.01" aria-label="Per kg"></td>
+            <td><input type="text" name="zones[<?= $i ?>][countries]" value="<?= h(implode(', ', $z['countries'])) ?>" placeholder="e.g. US, CA" aria-label="Country codes" style="min-width:170px"></td>
+            <?php foreach($SM as $m=>$mm): ?>
+            <td><input type="number" name="zones[<?= $i ?>][<?= $m ?>][base]" value="<?= h($zr[$m]['base']) ?>" min="0" step="0.01" aria-label="<?= h($mm['label']) ?> per order"></td>
+            <td><input type="number" name="zones[<?= $i ?>][<?= $m ?>][per_kg]" value="<?= h($zr[$m]['per_kg']) ?>" min="0" step="0.01" aria-label="<?= h($mm['label']) ?> per kg"></td>
+            <?php endforeach; ?>
             <td><?php if(isset($zones[$i])): ?><input type="checkbox" name="zones[<?= $i ?>][delete]" value="1" aria-label="Delete"><?php endif; ?></td></tr>
-      <?php endfor; ?>
+      <?php endfor; $rr = zone_rates($sh['rest']); ?>
         <tr><td><b>Rest of world</b></td><td class="muted small">every country not in a zone above</td>
-            <td><input type="number" name="rest_base" value="<?= h($sh['rest']['base']) ?>" min="0" step="0.01" aria-label="Rest of world per order"></td>
-            <td><input type="number" name="rest_per_kg" value="<?= h($sh['rest']['per_kg']) ?>" min="0" step="0.01" aria-label="Rest of world per kg"></td><td></td></tr>
+            <?php foreach($SM as $m=>$mm): ?>
+            <td><input type="number" name="rest[<?= $m ?>][base]" value="<?= h($rr[$m]['base']) ?>" min="0" step="0.01" aria-label="Rest of world <?= h($mm['label']) ?> per order"></td>
+            <td><input type="number" name="rest[<?= $m ?>][per_kg]" value="<?= h($rr[$m]['per_kg']) ?>" min="0" step="0.01" aria-label="Rest of world <?= h($mm['label']) ?> per kg"></td>
+            <?php endforeach; ?><td></td></tr>
       </tbody></table>
-      <p class="small muted">Country codes are the two-letter codes from your country list in <a href="<?= h(self_url('settings')) ?>">Settings</a> (US, GB, DE…). Separate them with commas.</p>
+      <p class="small muted">Country codes are the two-letter codes from your country list in <a href="<?= h(self_url('settings')) ?>">Settings</a> (US, GB, DE…), separated by commas.</p>
+    </div>
+    <div class="card"><h2>What customers pay to the US (current rates)</h2>
+      <table class="t"><thead><tr><th>Order</th><th class="r">Weight</th><?php foreach($SM as $mm): ?><th class="r"><?= h($mm['label']) ?></th><?php endforeach; ?></tr></thead><tbody>
+        <?php foreach([['1 single card', 0.05], ['24 packs of sleeves', 1.44], ['6 booster boxes', 2.4], ['6 Elite Trainer Boxes', 5.4], ['12-box case', 5.6], ['36 booster boxes', 14.4]] as [$lbl, $kg]): ?>
+          <tr><td><?= h($lbl) ?></td><td class="r"><?= h($kg) ?> kg</td><?php foreach(array_keys($SM) as $m): ?><td class="r"><?= $ex('US', $kg, $m) ?></td><?php endforeach; ?></tr>
+        <?php endforeach; ?>
+      </tbody></table>
     </div>
     <button class="btn" type="submit">Save shipping rates</button>
   </form>
@@ -1154,7 +1194,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
       <div class="fld"><label class="f" for="footer_blurb">Footer text</label><textarea id="footer_blurb" name="footer_blurb"><?= h($S['footer_blurb']) ?></textarea></div>
       <label class="f">Home page photo</label>
       <?php if($hero): ?><div class="photos"><figure><img src="<?= h($hero[0]) ?>?v=<?= @filemtime(FK_ROOT.'/'.$hero[0]) ?>" alt=""><label><input type="checkbox" name="hero_remove" value="1"> Remove</label></figure></div><?php endif; ?>
-      <input type="file" name="hero[]" accept="image/jpeg,image/png,image/webp"><div class="hint small muted">Landscape, about 1600×1200.</div>
+      <input type="file" name="hero[]" accept="image/jpeg,image/png,image/webp"><div class="hint small muted">Landscape, about 1600×1200. Until you upload one, the home page shows the 30th Celebration Elite Trainer Box.</div>
     </div>
 
     <div class="card"><h2>Currencies</h2>

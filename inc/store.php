@@ -144,7 +144,7 @@ function img_tag($rel, $alt, $sizes='(max-width:520px) 100vw, (max-width:1040px)
   $dim = @getimagesize(FK_ROOT.'/'.$small) ?: [600, 600];
   $srcset = $small !== $rel ? ' srcset="'.h($small).' '.$dim[0].'w, '.h($rel.$v).' '.(@getimagesize(FK_ROOT.'/'.$rel)[0] ?: 1600).'w" sizes="'.h($sizes).'"' : '';
   return '<img src="'.h($small === $rel ? $rel.$v : $small).'"'.$srcset.' width="'.(int)$dim[0].'" height="'.(int)$dim[1].'" alt="'.h($alt).'"'
-       .($lcp ? ' fetchpriority="high"' : ' loading="lazy"').' decoding="async">';
+       .($lcp ? ' fetchpriority="high">' : ' loading="lazy" decoding="async">');   /* the main image paints as soon as it arrives */
 }
 
 function slugify($s){
@@ -160,11 +160,31 @@ function ship_zone($store, $country){
   return ['name'=>'Rest of world', 'countries'=>[]] + $store['shipping']['rest'];
 }
 
-/* USD: zone base per order + per-kg rate × order weight */
-function shipping_usd($store, $country, $kg){
-  $z = ship_zone($store, $country);
-  return round((float)$z['base'] + (float)$z['per_kg'] * $kg, 2);
+const SHIP_METHODS = ['standard', 'express'];
+
+/* delivery options shown at checkout, with their names and delivery times */
+function ship_methods($store){
+  $m = $store['shipping']['methods'] ?? [];
+  return ['standard'=>($m['standard'] ?? []) + ['label'=>'Standard', 'days'=>'3–6 working days'],
+          'express' =>($m['express'] ?? [])  + ['label'=>'Express',  'days'=>'1–2 working days']];
 }
+
+/* a zone's rates per method (older data had one flat rate: that becomes Standard, Express is double) */
+function zone_rates($z){
+  $std = $z['standard'] ?? ['base'=>(float)($z['base'] ?? 0), 'per_kg'=>(float)($z['per_kg'] ?? 0)];
+  $exp = $z['express'] ?? ['base'=>$std['base'] * 2, 'per_kg'=>$std['per_kg'] * 2];
+  return ['standard'=>$std, 'express'=>$exp];
+}
+
+/* USD: the zone's per-order price + per-kg price × order weight, rounded up to a whole dollar */
+function shipping_usd($store, $country, $kg, $method='standard'){
+  $r = zone_rates(ship_zone($store, $country))[$method === 'express' ? 'express' : 'standard'];
+  $v = round((float)$r['base'] + (float)$r['per_kg'] * $kg, 2);
+  return empty($store['shipping']['round_up']) ? $v : ceil($v);
+}
+
+/* "3–6 working days" → [3, 6], for Google's delivery-time data */
+function ship_day_range($days){ return preg_match('/(\d+)\D+(\d+)/', (string)$days, $m) ? [(int)$m[1], (int)$m[2]] : [3, 6]; }
 
 /* ---------------- orders (data/orders/{ref}.php) ---------------- */
 function valid_ref($ref){ return is_string($ref) && preg_match('/^FK-\d{2}-[A-F0-9]{5}$/', $ref); }

@@ -92,13 +92,17 @@ Gengar has one of the most loyal followings in the hobby, and this Special Illus
      'name'=>'30th Celebration Elite Trainer Box', 'set'=>'30th Celebration', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,48.99],[4,44.00],[24,33.20]],
-     'desc'=>'A factory-sealed Elite Trainer Box from 30th Celebration, Pokémon\'s 30th-anniversary release.
+     'desc'=>'The Pokémon TCG: 30th Celebration Elite Trainer Box — nine booster packs of the 30th-anniversary expansion plus everything needed to play them.
 
-An anniversary ETB works as a gift and a display piece as well as an opener: booster packs with sleeves, dice and accessories in a themed storage box. Buying in volume? See the [sealed 10-box case](product:30th-celebration-elite-trainer-box-case-10-ct).
+30th Celebration marks thirty years of Pokémon: Mewtwo ex and Mew ex lead the set, joined by Umbreon ex, Salamence ex and Greninja ex, and every booster pack contains a Pikachu — with 30 different Pikachu rare cards to collect. Buying in volume? See the [sealed 10-box case](product:30th-celebration-elite-trainer-box-case-10-ct).
 
-- Sealed 30th Celebration Elite Trainer Box
-- Sold in fours, with the lowest price from 24
-- 10-box sealed cases also available'],
+- 9 Pokémon TCG: 30th Celebration booster packs
+- 1 full-art foil promo card featuring Nidorina
+- 16 foil Basic Energy cards and 65 card sleeves
+- A player\'s guide to the 30th Celebration expansion
+- 6 damage-counter dice, 1 competition-legal coin-flip die and 1 plastic coin
+- A collector\'s box with 6 dividers, plus a code card for Pokémon TCG Live
+- Sold in fours, with the lowest price from 24'],
     ['id'=>'storm-emeralda-m6-booster-box', 'sku'=>'FK-BB-M6-01',
      'name'=>'Storm Emeralda (M6) Booster Box', 'set'=>'Storm Emeralda', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
@@ -515,11 +519,12 @@ Ascended Heroes is part of the Pokémon Trading Card Game\'s Mega Evolution seri
      'name'=>'30th Celebration Elite Trainer Box Case (10-ct)', 'set'=>'30th Celebration', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>10, 'hidden'=>false,
      'ladder'=>[[1,440.50],[6,331.70]],
-     'desc'=>'A sealed case of 10 30th Celebration Elite Trainer Boxes, priced per case.
+     'desc'=>'A sealed case of 10 Pokémon TCG: 30th Celebration Elite Trainer Boxes, priced per case.
 
-The most economical way to stock anniversary ETBs: ten boxes in one sealed case, with the price per case falling sharply from six cases.
+The most economical way to stock anniversary ETBs: ten boxes in one sealed case, with the price per case falling sharply from six cases. Each Elite Trainer Box holds 9 booster packs, a full-art Nidorina promo, 65 sleeves, dice and a player\'s guide.
 
 - 10 sealed 30th Celebration Elite Trainer Boxes per case
+- Each box: 9 booster packs, Nidorina promo, 16 foil Energy, 65 sleeves, dice, coin and collector\'s box
 - Price per case drops from 6 cases
 - Also sold [in fours](product:30th-celebration-elite-trainer-box)'],
     ['id'=>'mega-dream-ex-m2a-booster-box', 'sku'=>'FK-BB-M2A-01',
@@ -625,19 +630,26 @@ Terastal Festival ex is built around Terastal Pokémon and all of the Eevee evol
 
   'countries' => ['US'=>'United States','GB'=>'United Kingdom','CA'=>'Canada','AU'=>'Australia','JP'=>'Japan','DE'=>'Germany','FR'=>'France','ES'=>'Spain','IT'=>'Italy','NL'=>'Netherlands','BE'=>'Belgium','SE'=>'Sweden','NO'=>'Norway','DK'=>'Denmark','FI'=>'Finland','IE'=>'Ireland','PL'=>'Poland','PT'=>'Portugal','CH'=>'Switzerland','AT'=>'Austria','CZ'=>'Czechia','GR'=>'Greece','SG'=>'Singapore','MY'=>'Malaysia','TH'=>'Thailand','PH'=>'Philippines','ID'=>'Indonesia','VN'=>'Vietnam','KR'=>'South Korea','TW'=>'Taiwan','HK'=>'Hong Kong','NZ'=>'New Zealand','MX'=>'Mexico','BR'=>'Brazil','AR'=>'Argentina','CL'=>'Chile','ZA'=>'South Africa','AE'=>'United Arab Emirates','SA'=>'Saudi Arabia','IL'=>'Israel','TR'=>'Turkey','IN'=>'India','NG'=>'Nigeria','KE'=>'Kenya','EG'=>'Egypt','CM'=>'Cameroon','GH'=>'Ghana'],
 
-  /* shipping (USD) = zone base per order + per_kg × total order weight.
-     PLACEHOLDER RATES — set real ones in Admin → Shipping before going live. */
+  /* shipping (USD) = zone per-order price + per-kg price × order weight, for each delivery option; totals round up
+     to whole dollars. A single card to the US comes to $12 Standard — TCGplayer's $11.99 international flat rate,
+     rounded up — and heavier orders add per kg. Check these against your carrier's real costs from Japan. */
   'shipping' => [
+    'methods'  => ['standard'=>['label'=>'Standard', 'days'=>'3–6 working days'],
+                   'express' =>['label'=>'Express',  'days'=>'1–2 working days']],
+    'round_up' => true,
     'zones' => [
-      ['name'=>'Japan',            'countries'=>['JP'], 'base'=>8,  'per_kg'=>2],
-      ['name'=>'United States',    'countries'=>['US'], 'base'=>18, 'per_kg'=>14],
-      ['name'=>'Canada',           'countries'=>['CA'], 'base'=>18, 'per_kg'=>14],
-      ['name'=>'United Kingdom',   'countries'=>['GB'], 'base'=>16, 'per_kg'=>12],
-      ['name'=>'Europe',           'countries'=>['DE','FR','ES','IT','NL','BE','SE','NO','DK','FI','IE','PL','PT','CH','AT','CZ','GR'], 'base'=>16, 'per_kg'=>12],
-      ['name'=>'Asia-Pacific',     'countries'=>['SG','MY','TH','PH','ID','VN','KR','TW','HK','AU','NZ'], 'base'=>10, 'per_kg'=>8],
+      ['name'=>'United States',  'countries'=>['US'], 'standard'=>['base'=>11, 'per_kg'=>8], 'express'=>['base'=>22, 'per_kg'=>16]],
+      ['name'=>'Canada',         'countries'=>['CA'], 'standard'=>['base'=>11, 'per_kg'=>8], 'express'=>['base'=>22, 'per_kg'=>16]],
+      ['name'=>'United Kingdom', 'countries'=>['GB'], 'standard'=>['base'=>11, 'per_kg'=>8], 'express'=>['base'=>22, 'per_kg'=>16]],
+      ['name'=>'Europe',         'countries'=>['DE','FR','ES','IT','NL','BE','SE','NO','DK','FI','IE','PL','PT','CH','AT','CZ','GR'],
+                                 'standard'=>['base'=>12, 'per_kg'=>9], 'express'=>['base'=>24, 'per_kg'=>18]],
+      ['name'=>'Asia-Pacific',   'countries'=>['SG','MY','TH','PH','ID','VN','KR','TW','HK','AU','NZ'],
+                                 'standard'=>['base'=>8, 'per_kg'=>6], 'express'=>['base'=>16, 'per_kg'=>12]],
+      ['name'=>'Japan',          'countries'=>['JP'], 'standard'=>['base'=>5, 'per_kg'=>2], 'express'=>['base'=>10, 'per_kg'=>4]],
     ],
-    'rest' => ['base'=>22, 'per_kg'=>16],
+    'rest' => ['standard'=>['base'=>15, 'per_kg'=>11], 'express'=>['base'=>30, 'per_kg'=>22]],
   ],
+
 
 ];
 
