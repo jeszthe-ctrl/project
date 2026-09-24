@@ -106,17 +106,17 @@ $PRODUCTS = [
 
 /* payment methods: which countries each is offered to */
 $PAYMENTS = [
-  'crypto'   => ['label'=>'Cryptocurrency',    'note'=>'BTC, ETH or USDT (TRC-20 / ERC-20).', 'countries'=>'*'],
+  'crypto'   => ['label'=>'Cryptocurrency',    'note'=>'BTC, ETH or USDT (TRC-20 / ERC-20). Network fees are the sender\'s.', 'countries'=>'*'],
   'cashapp'  => ['label'=>'Cash App',          'note'=>'US customers only.',                  'countries'=>['US']],
   'applepay' => ['label'=>'Apple Pay',         'note'=>'US customers only.',                  'countries'=>['US']],
-  'ukbank'   => ['label'=>'UK bank transfer',  'note'=>'UK customers only. Faster Payments.', 'countries'=>['GB']],
+  'ukbank'   => ['label'=>'UK bank transfer',  'note'=>'UK customers only. Faster Payments to a UK account in our business name.', 'countries'=>['GB']],
   'other'    => ['label'=>'Other / discuss with us', 'note'=>'Tell us what works and we will arrange it.', 'countries'=>'*'],
 ];
 
 $COUNTRIES = ['US'=>'United States','GB'=>'United Kingdom','CA'=>'Canada','AU'=>'Australia','JP'=>'Japan','DE'=>'Germany','FR'=>'France','ES'=>'Spain','IT'=>'Italy','NL'=>'Netherlands','BE'=>'Belgium','SE'=>'Sweden','NO'=>'Norway','DK'=>'Denmark','FI'=>'Finland','IE'=>'Ireland','PL'=>'Poland','PT'=>'Portugal','CH'=>'Switzerland','AT'=>'Austria','CZ'=>'Czechia','GR'=>'Greece','SG'=>'Singapore','MY'=>'Malaysia','TH'=>'Thailand','PH'=>'Philippines','ID'=>'Indonesia','VN'=>'Vietnam','KR'=>'South Korea','TW'=>'Taiwan','HK'=>'Hong Kong','NZ'=>'New Zealand','MX'=>'Mexico','BR'=>'Brazil','AR'=>'Argentina','CL'=>'Chile','ZA'=>'South Africa','AE'=>'United Arab Emirates','SA'=>'Saudi Arabia','IL'=>'Israel','TR'=>'Turkey','IN'=>'India','NG'=>'Nigeria','KE'=>'Kenya','EG'=>'Egypt','CM'=>'Cameroon','GH'=>'Ghana'];
 
 /* ---------------- HELPERS ---------------- */
-function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
+function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES|ENT_SUBSTITUTE, 'UTF-8'); }
 
 function product($id){ global $PRODUCTS; foreach($PRODUCTS as $p){ if($p['id']===$id) return $p; } return null; }
 
@@ -125,6 +125,30 @@ function unit_price($p, $qty){
   foreach($p['ladder'] as $t){ if($qty >= $t[0]) $price = $t[1]; }
   return $price;
 }
+
+/* most a customer can order: stock rounded down to the selling step; null = no cap (preorder) */
+function max_qty($p){
+  if($p['status']==='preorder') return null;
+  return intdiv((int)$p['stock'], $p['step']) * $p['step'];
+}
+function orderable($p){ $m = max_qty($p); return $m===null || $m >= $p['moq']; }
+
+/* snap a requested quantity to the step, MOQ and available stock; 0 = cannot be ordered */
+function fit_qty($p, $qty){
+  if(!orderable($p)) return 0;
+  $qty = max($p['moq'], (int)round($qty / $p['step']) * $p['step']);
+  $m = max_qty($p);
+  return $m===null ? $qty : min($qty, $m);
+}
+
+function payment_ok($key, $country){
+  global $PAYMENTS;
+  if(!isset($PAYMENTS[$key])) return false;
+  $c = $PAYMENTS[$key]['countries'];
+  return $c==='*' || in_array($country, $c, true);
+}
+
+function flash($msg){ $_SESSION['flash'][] = $msg; }
 
 function cur_code(){
   global $CURRENCIES;
@@ -220,6 +244,15 @@ function send_order_mail($order){
 }
 
 /* ---------------- ACTIONS (POST / redirect) ---------------- */
+/* trim or drop cart lines that no longer fit stock (inventory edited since they were added) */
+foreach(cart() as $id=>$qty){
+  $p = product($id);
+  $fit = $p ? fit_qty($p, $qty) : 0;
+  if($fit === $qty) continue;
+  if($fit){ $_SESSION['cart'][$id] = $fit; flash("{$p['name']}: quantity changed to {$fit}, the most currently available."); }
+  else { unset($_SESSION['cart'][$id]); if($p) flash("{$p['name']} is out of stock and was removed from your order."); }
+}
+
 $errors = [];
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
   $action = $_POST['action'] ?? '';
@@ -227,8 +260,12 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
   if($action === 'add'){
     $p = product($_POST['id'] ?? '');
     if($p){
-      $qty = max($p['moq'], (int)round(((int)$_POST['qty'] ?: $p['moq']) / $p['step']) * $p['step']);
-      $_SESSION['cart'][$p['id']] = $qty;
+      $want = (int)($_POST['qty'] ?? 0) ?: $p['moq'];
+      $qty  = fit_qty($p, $want);
+      $max  = max_qty($p);
+      if(!$qty)                        flash("{$p['name']} is out of stock.");
+      elseif($max!==null && $want>$max) flash("{$p['name']}: only {$max} available, so your quantity was set to {$max}.");
+      if($qty) $_SESSION['cart'][$p['id']] = $qty;
     }
     header('Location: '.url('cart')); exit;
   }
@@ -238,7 +275,10 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
       $p = product($id); if(!$p) continue;
       $q = (int)$q;
       if($q <= 0){ unset($_SESSION['cart'][$id]); continue; }
-      $_SESSION['cart'][$id] = max($p['moq'], (int)round($q / $p['step']) * $p['step']);
+      $fit = fit_qty($p, $q);
+      if(!$fit){ unset($_SESSION['cart'][$id]); flash("{$p['name']} is out of stock and was removed from your order."); continue; }
+      if($fit < $q && $fit === max_qty($p)) flash("{$p['name']}: only {$fit} available, so your quantity was set to {$fit}.");
+      $_SESSION['cart'][$id] = $fit;
     }
     header('Location: '.url('cart')); exit;
   }
@@ -251,8 +291,14 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
   if($action === 'order'){
     $f = [];
     foreach(['name','company','email','phone','country','address1','address2','city','region','postcode','notes','payment'] as $k){
-      $f[$k] = trim($_POST[$k] ?? '');
+      $f[$k] = trim(is_string($_POST[$k] ?? null) ? $_POST[$k] : '');
     }
+    /* bot filter: honeypot left empty, token from this session's checkout page, not submitted instantly */
+    $bot = ($_POST['website'] ?? '') !== ''
+        || empty($_SESSION['co_token'])
+        || !hash_equals($_SESSION['co_token'], is_string($_POST['token'] ?? null) ? $_POST['token'] : '')
+        || time() - ($_SESSION['co_time'] ?? time()) < 3;
+    if($bot)                                             $errors[] = 'We could not submit your order. Please check the form and place it again.';
     if(!cart_lines())                                    $errors[] = 'Your order is empty.';
     if($f['name'] === '')                                $errors[] = 'Enter the name the order ships to.';
     if(!filter_var($f['email'], FILTER_VALIDATE_EMAIL))  $errors[] = 'Enter a valid email address.';
@@ -261,6 +307,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     if($f['address1'] === '')                            $errors[] = 'Enter a street address.';
     if($f['city'] === '')                                $errors[] = 'Enter a city.';
     if(!isset($PAYMENTS[$f['payment']]))                 $errors[] = 'Choose how you want to pay.';
+    elseif(isset($COUNTRIES[$f['country']]) && !payment_ok($f['payment'], $f['country']))
+      $errors[] = $PAYMENTS[$f['payment']]['label'].' is not available for '.$COUNTRIES[$f['country']].'. Choose another payment method.';
     if(empty($_POST['agree']))                           $errors[] = 'Confirm you understand payment details follow by email or text.';
 
     if(!$errors){
@@ -289,10 +337,12 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
 /* ---------------- ROUTE ---------------- */
 $page = $_GET['p'] ?? 'home';
+if(!is_string($page)) $page = 'home';
 if($_SERVER['REQUEST_METHOD']==='POST' && ($_POST['action']??'')==='order' && $errors) $page = 'checkout';
 
 $cat   = $_GET['cat'] ?? '';
-$q     = trim($_GET['q'] ?? '');
+if(!is_string($cat) || !isset($CATEGORIES[$cat])) $cat = '';
+$q     = trim(is_string($_GET['q'] ?? null) ? $_GET['q'] : '');
 $prod  = $page === 'product' ? product($_GET['id'] ?? '') : null;
 if($page === 'product' && !$prod) $page = 'catalog';
 
@@ -309,10 +359,20 @@ $titles = [
   'faq'      => 'Wholesale FAQ',
   'contact'  => 'Contact',
 ];
+if($page !== 'product' && !isset($titles[$page])) $page = 'home';
 $page_title = $prod ? $prod['name'].' — Wholesale' : ($titles[$page] ?? 'Wholesale Japanese Pokémon TCG');
 $page_desc  = $prod
-  ? substr($prod['desc'],0,155)
+  ? (preg_match('/^.{0,155}/us', $prod['desc'], $cut) ? $cut[0] : '')
   : 'Buy Japanese Pokémon TCG wholesale direct from Japan. Sealed booster boxes, Elite Trainer Boxes, premium sets and singles at published quantity-break pricing. Ships worldwide.';
+
+/* one canonical URL per product and category, not per page type */
+$canonical = $CONFIG['domain'].'/';
+if($page !== 'home'){
+  $extra = $prod ? ['id'=>$prod['id']] : ($page==='catalog' && $cat ? ['cat'=>$cat] : []);
+  $canonical .= url($page, $extra);
+}
+
+$in_stock = array_values(array_filter($PRODUCTS, fn($p)=>$p['status']!=='preorder' && orderable($p)));
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -321,7 +381,7 @@ $page_desc  = $prod
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title><?= h($page_title) ?> | <?= h($CONFIG['brand']) ?></title>
 <meta name="description" content="<?= h($page_desc) ?>">
-<link rel="canonical" href="<?= h($CONFIG['domain']) ?>/<?= $page==='home'?'':h('index.php?p='.$page) ?>">
+<link rel="canonical" href="<?= h($canonical) ?>">
 <meta name="robots" content="<?= in_array($page,['cart','checkout','received']) ? 'noindex, follow' : 'index, follow, max-image-preview:large' ?>">
 <meta property="og:type" content="<?= $prod ? 'product' : 'website' ?>">
 <meta property="og:site_name" content="<?= h($CONFIG['brand']) ?>">
@@ -354,7 +414,8 @@ $page_desc  = $prod
      'offers'=>['@type'=>'Offer','priceCurrency'=>'USD',
        'price'=>number_format(unit_price($prod,$prod['moq']),2,'.',''),
        'eligibleQuantity'=>['@type'=>'QuantitativeValue','minValue'=>$prod['moq']],
-       'availability'=>$prod['status']==='preorder'?'https://schema.org/PreOrder':'https://schema.org/InStock',
+       'availability'=>$prod['status']==='preorder' ? 'https://schema.org/PreOrder'
+                       : (orderable($prod) ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'),
        'seller'=>['@id'=>$CONFIG['domain'].'/#org']]] : null,
  ])
 ], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) ?>
@@ -502,6 +563,7 @@ h1{font-size:clamp(33px,5vw,56px);margin-bottom:18px}
 .flag.new{background:var(--brand);color:var(--onbrand)}
 .flag.pre{background:var(--gold);color:#1B1405}
 .flag.low{background:var(--seal);color:#fff}
+.flag.out{background:var(--muted);color:var(--paper)}
 .card .in{padding:14px;display:flex;flex-direction:column;gap:7px;flex:1}
 .card h3{font-size:15px;line-height:1.35}
 .card h3 a{text-decoration:none}
@@ -593,6 +655,7 @@ legend{font-family:'Shippori Mincho B1',serif;font-weight:700;font-size:17px;pad
 .errs{border:1px solid var(--seal);border-radius:4px;padding:14px 16px;margin-bottom:20px;
   background:color-mix(in srgb,var(--seal) 8%,transparent);font-size:14px}
 .errs ul{margin:6px 0 0;padding-left:18px}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 
 /* confirmation */
 .done{max-width:720px;margin:0 auto;text-align:center;padding:20px 0}
@@ -690,11 +753,14 @@ footer .bl{font-size:14px;opacity:.8;margin-top:11px;max-width:44ch}
 </header>
 
 <main>
+<?php if(!empty($_SESSION['flash'])): ?>
+  <div class="wrap"><div class="notice" role="status"><?php foreach($_SESSION['flash'] as $msg) echo '<div>'.h($msg).'</div>'; ?></div></div>
+<?php unset($_SESSION['flash']); endif; ?>
 <?php if($page==='home'): ?>
 
   <section class="hero"><div class="wrap hgrid">
     <div>
-      <div class="eyebrow"><b>Japan direct</b> · Sealed · Priced by the case · 43 countries</div>
+      <div class="eyebrow"><b>Japan direct</b> · Sealed · Priced by the case · <?= count($COUNTRIES) ?> countries</div>
       <h1>Wholesale Japanese Pokémon cards, shipped worldwide from Japan.</h1>
       <p class="lede">Sealed booster boxes, Elite Trainer Boxes, premium sets and singles, bought through Japanese distribution and priced by the case. Every quantity break is published — price a full order before you talk to anyone.</p>
       <div class="hero-cta">
@@ -702,9 +768,9 @@ footer .bl{font-size:14px;opacity:.8;margin-top:11px;max-width:44ch}
         <a class="btn g" href="<?= url('how') ?>">How ordering works</a>
       </div>
       <div class="stats">
-        <div><strong>50+</strong>SKUs in stock</div>
+        <div><strong><?= count($in_stock) ?></strong>SKUs in stock</div>
         <div><strong>6</strong>Minimum order, sealed</div>
-        <div><strong>43</strong>Countries served</div>
+        <div><strong><?= count($COUNTRIES) ?></strong>Countries served</div>
         <div><strong><?= (int)$CONFIG['hold_hours'] ?>h</strong>Stock held on order</div>
       </div>
     </div>
@@ -737,7 +803,7 @@ footer .bl{font-size:14px;opacity:.8;margin-top:11px;max-width:44ch}
         <p>Ready to ship from Japan at published quantity breaks. Sealed product sells in multiples of six; singles start at one.</p></div>
         <a href="<?= url('catalog') ?>">All products →</a></div>
       <div class="grid">
-        <?php foreach(array_slice($PRODUCTS,0,8) as $p) include_card($p); ?>
+        <?php foreach(array_slice($in_stock,0,8) as $p) include_card($p); ?>
       </div>
     </div>
   </section>
@@ -787,7 +853,8 @@ footer .bl{font-size:14px;opacity:.8;margin-top:11px;max-width:44ch}
   </div></section>
 
 <?php elseif($page==='product'):
-  $ph = photos($prod['id']); $base = unit_price($prod,$prod['moq']); $best = end($prod['ladder']); ?>
+  $ph = photos($prod['id']); $base = unit_price($prod,$prod['moq']); $best = end($prod['ladder']);
+  $moq_tier = 0; foreach($prod['ladder'] as $i=>$t){ if($t[0] <= $prod['moq']) $moq_tier = $i; } ?>
   <div class="wrap crumbs"><a href="index.php">Home</a> / <a href="<?= url('catalog',['cat'=>$prod['cat']]) ?>"><?= h($CATEGORIES[$prod['cat']]['label']) ?></a> / <?= h($prod['name']) ?></div>
   <div class="wrap pdp">
     <div>
@@ -807,15 +874,18 @@ footer .bl{font-size:14px;opacity:.8;margin-top:11px;max-width:44ch}
     <div>
       <h1><?= h($prod['name']) ?></h1>
       <div class="sub"><?= h($prod['sku']) ?> · <?= h($prod['set']) ?> · <?= h($CATEGORIES[$prod['cat']]['label']) ?>
-        <?= $prod['status']==='preorder' ? ' · Releases '.h($prod['release']) : ($prod['stock'] ? ' · '.$prod['stock'].' in stock' : '') ?></div>
+        <?= $prod['status']==='preorder' ? ' · Releases '.h($prod['release']) : (orderable($prod) ? ' · '.$prod['stock'].' in stock' : ' · Out of stock') ?></div>
       <p class="desc"><?= h($prod['desc']) ?></p>
 
       <div class="ladder">
         <div class="lh">Quantity-break pricing</div>
         <?php foreach($prod['ladder'] as $i=>$t):
           $next = $prod['ladder'][$i+1] ?? null;
-          $lbl = $i===0 ? 'Single unit' : ($next ? $t[0].' – '.($next[0]-1).' units' : $t[0].'+ units'); ?>
-          <div class="row <?= $i===1||($i===0&&count($prod['ladder'])===1)?'on':'' ?>">
+          $hi   = $next ? $next[0]-1 : null;
+          /* a tier wholly below MOQ is only a reference price */
+          $lbl  = ($hi!==null && $hi < $prod['moq']) ? 'Single unit'
+                : ($hi===null ? $t[0].'+ units' : ($hi===$t[0] ? $t[0].($t[0]===1?' unit':' units') : $t[0].' – '.$hi.' units')); ?>
+          <div class="row <?= $i===$moq_tier?'on':'' ?>">
             <span><?= h($lbl) ?></span><span><?= money($t[1]) ?></span></div>
         <?php endforeach; ?>
       </div>
@@ -826,12 +896,11 @@ footer .bl{font-size:14px;opacity:.8;margin-top:11px;max-width:44ch}
         <form method="post" action="index.php">
           <input type="hidden" name="action" value="add">
           <input type="hidden" name="id" value="<?= h($prod['id']) ?>">
-          <div class="step">
-            <button type="button" onclick="bump(this,-<?= $prod['step'] ?>,<?= $prod['moq'] ?>)">−</button>
-            <input type="number" name="qty" value="<?= $prod['moq'] ?>" min="<?= $prod['moq'] ?>" step="<?= $prod['step'] ?>" aria-label="Quantity">
-            <button type="button" onclick="bump(this,<?= $prod['step'] ?>,<?= $prod['moq'] ?>)">+</button>
-          </div>
+          <?php if(orderable($prod)): stepper($prod, 'qty', $prod['moq'], $prod['moq']); ?>
           <button class="btn" type="submit"><?= $prod['status']==='preorder'?'Add preorder':'Add to order' ?></button>
+          <?php else: ?>
+          <button class="btn" type="submit" disabled>Out of stock</button>
+          <?php endif; ?>
         </form>
         <div class="trustline">
           <span>Sold in <?= $prod['step']>1 ? $prod['step'].'s' : 'singles' ?></span>
@@ -869,11 +938,7 @@ footer .bl{font-size:14px;opacity:.8;margin-top:11px;max-width:44ch}
             <tr>
               <td><div class="nm"><a href="<?= url('product',['id'=>$l['p']['id']]) ?>" style="text-decoration:none"><?= h($l['p']['name']) ?></a></div>
                   <div class="sk"><?= h($l['p']['sku']) ?> · sold in <?= $l['p']['step'] ?>s</div></td>
-              <td><div class="step">
-                    <button type="button" onclick="bump(this,-<?= $l['p']['step'] ?>,<?= $l['p']['moq'] ?>)">−</button>
-                    <input type="number" name="qty[<?= h($l['p']['id']) ?>]" value="<?= $l['qty'] ?>" min="0" step="<?= $l['p']['step'] ?>" aria-label="Quantity">
-                    <button type="button" onclick="bump(this,<?= $l['p']['step'] ?>,<?= $l['p']['moq'] ?>)">+</button>
-                  </div></td>
+              <td><?php stepper($l['p'], 'qty['.$l['p']['id'].']', $l['qty'], 0); ?></td>
               <td class="r"><?= money($l['unit']) ?></td>
               <td class="r"><b><?= money($l['total']) ?></b></td>
               <td class="r"><button class="btn g" style="padding:7px 12px;font-size:13px"
@@ -895,7 +960,9 @@ footer .bl{font-size:14px;opacity:.8;margin-top:11px;max-width:44ch}
     <?php endif; ?>
   </div></section>
 
-<?php elseif($page==='checkout'): $lines = cart_lines(); $f = $form ?? []; ?>
+<?php elseif($page==='checkout'): $lines = cart_lines(); $f = $form ?? [];
+  $_SESSION['co_token'] = $_SESSION['co_token'] ?? bin2hex(random_bytes(16));
+  $_SESSION['co_time']  = time(); ?>
   <div class="wrap crumbs"><a href="index.php">Home</a> / <a href="<?= url('cart') ?>">Order</a> / Checkout</div>
   <section style="padding-top:22px"><div class="wrap">
     <div class="sechead"><div><h2>Checkout</h2>
@@ -910,6 +977,9 @@ footer .bl{font-size:14px;opacity:.8;margin-top:11px;max-width:44ch}
 
     <form method="post" action="index.php" class="cogrid">
       <input type="hidden" name="action" value="order">
+      <input type="hidden" name="token" value="<?= h($_SESSION['co_token']) ?>">
+      <div class="hp" aria-hidden="true"><label for="website">Leave this empty</label>
+        <input id="website" name="website" tabindex="-1" autocomplete="off"></div>
       <div>
         <fieldset>
           <legend>Contact</legend>
@@ -954,10 +1024,10 @@ footer .bl{font-size:14px;opacity:.8;margin-top:11px;max-width:44ch}
           <legend>Payment method</legend>
           <div class="pay" id="payList">
             <?php foreach($PAYMENTS as $key=>$m):
-              $all = $m['countries']==='*';
-              $data = $all ? '*' : implode(',', $m['countries']); ?>
-              <label data-countries="<?= h($data) ?>" <?= $all?'':'hidden' ?>>
-                <input type="radio" name="payment" value="<?= $key ?>" <?= ($f['payment']??'')===$key?'checked':'' ?>>
+              $data = $m['countries']==='*' ? '*' : implode(',', $m['countries']);
+              $ok   = payment_ok($key, $f['country'] ?? ''); ?>
+              <label data-countries="<?= h($data) ?>" <?= $ok?'':'hidden' ?>>
+                <input type="radio" name="payment" value="<?= $key ?>" <?= $ok && ($f['payment']??'')===$key?'checked':'' ?>>
                 <span><span class="t"><?= h($m['label']) ?></span><br><span class="n"><?= h($m['note']) ?></span></span>
               </label>
             <?php endforeach; ?>
@@ -1054,11 +1124,11 @@ footer .bl{font-size:14px;opacity:.8;margin-top:11px;max-width:44ch}
     <table class="tbl">
       <thead><tr><th>Method</th><th>Available to</th><th>Notes</th></tr></thead>
       <tbody>
-        <tr><td class="nm">Cryptocurrency</td><td>All countries</td><td>BTC, ETH or USDT (TRC-20 / ERC-20). Network fees are the sender's.</td></tr>
-        <tr><td class="nm">Cash App</td><td>United States</td><td>US customers only.</td></tr>
-        <tr><td class="nm">Apple Pay</td><td>United States</td><td>US customers only.</td></tr>
-        <tr><td class="nm">UK bank transfer</td><td>United Kingdom</td><td>Faster Payments to a UK account in our business name.</td></tr>
-        <tr><td class="nm">Other</td><td>Everywhere else</td><td>Tell us what works at checkout and we will arrange it.</td></tr>
+        <?php foreach($PAYMENTS as $m):
+          $where = $m['countries']==='*' ? 'All countries'
+                 : implode(', ', array_map(fn($c)=>$COUNTRIES[$c] ?? $c, $m['countries'])); ?>
+          <tr><td class="nm"><?= h($m['label']) ?></td><td><?= h($where) ?></td><td><?= h($m['note']) ?></td></tr>
+        <?php endforeach; ?>
       </tbody>
     </table>
     <div class="notice" style="margin-top:22px">
@@ -1099,7 +1169,7 @@ footer .bl{font-size:14px;opacity:.8;margin-top:11px;max-width:44ch}
         ['What is the minimum order quantity?','Sealed product starts at six units and sells in multiples of six. Graded and raw singles start at one, with breaks from three and six.'],
         ['How do I pay?','Select a method at checkout — cryptocurrency, Cash App or Apple Pay for US customers, UK bank transfer for UK customers, or the "other" option anywhere else. We send the details for your chosen method to your email and phone within '.(int)$CONFIG['reply_hours'].' hours, with your final invoice including shipping.'],
         ['When is my stock allocated?','Placing an order reserves your stock for '.(int)$CONFIG['hold_hours'].' hours. Once payment clears, the allocation is confirmed and we dispatch within '.(int)$CONFIG['hold_hours'].' hours. If payment does not clear inside the window, high-demand stock returns to general availability.'],
-        ['Which countries do you ship to?','43 countries from Japan by EMS, DHL and FedEx with tracking on every consignment. Import duty, VAT or GST and clearance fees are excluded from our prices and collected by your carrier on delivery.'],
+        ['Which countries do you ship to?',count($COUNTRIES).' countries from Japan by EMS, DHL and FedEx with tracking on every consignment. Import duty, VAT or GST and clearance fees are excluded from our prices and collected by your carrier on delivery.'],
         ['Can I preorder an upcoming set?','Yes. Preorder lines commit an allocation ahead of release at the same published ladder, and are invoiced at allocation rather than at request.'],
         ['Is the product authentic?','Yes. Everything is sourced through Japanese distribution and ships sealed in its original factory packaging. We do not deal in resealed, reprinted or counterfeit product.'],
         ['What if something arrives damaged or short?','Report transit damage, a short shipment or a wrong item within seven days of delivery and we replace, credit or refund the affected lines and their shipping.'],
@@ -1167,9 +1237,10 @@ footer .bl{font-size:14px;opacity:.8;margin-top:11px;max-width:44ch}
 </div></footer>
 
 <script>
-function bump(btn, delta, min){
+function bump(btn, delta, min, max){
   const input = btn.parentElement.querySelector('input');
-  const v = (parseInt(input.value,10) || min) + delta;
+  let v = (parseInt(input.value,10) || min) + delta;
+  if(max) v = Math.min(max, v);
   input.value = Math.max(min, v);
 }
 function galPick(btn, src){
@@ -1199,8 +1270,9 @@ function include_card($p){
   $base = unit_price($p, $p['moq']);
   $best = end($p['ladder']);
   $flag = $p['status']==='preorder' ? ['pre','PREORDER']
+        : (!orderable($p) ? ['out','OUT OF STOCK']
         : ($p['status']==='new' ? ['new','NEW']
-        : (($p['stock'] && $p['stock']<15) ? ['low','LOW STOCK'] : ['','IN STOCK']));
+        : ($p['stock']<15 ? ['low','LOW STOCK'] : ['','IN STOCK'])));
   ?>
   <article class="card">
     <a class="art" href="<?= url('product',['id'=>$p['id']]) ?>" style="display:block">
@@ -1214,22 +1286,31 @@ function include_card($p){
     <div class="in">
       <h3><a href="<?= url('product',['id'=>$p['id']]) ?>"><?= h($p['name']) ?></a></h3>
       <div class="meta"><?= h($p['sku']) ?> · MOQ <?= $p['moq'] ?> · sold in <?= $p['step'] ?>s<?= !empty($p['release']) ? ' · '.h($p['release']) : '' ?></div>
-      <div class="px"><span class="u"><?= money($base) ?></span><span class="w"><?= money($p['ladder'][0][1]) ?></span></div>
+      <div class="px"><span class="u"><?= money($base) ?></span><?php if($p['ladder'][0][1] > $base): ?><span class="w"><?= money($p['ladder'][0][1]) ?></span><?php endif; ?></div>
       <div class="drop">down to <b><?= money($best[1]) ?></b> at <?= $best[0] ?>+</div>
     </div>
     <form method="post" action="index.php">
       <input type="hidden" name="action" value="add">
       <input type="hidden" name="id" value="<?= h($p['id']) ?>">
-      <div class="step">
-        <button type="button" onclick="bump(this,-<?= $p['step'] ?>,<?= $p['moq'] ?>)">−</button>
-        <input type="number" name="qty" value="<?= $p['moq'] ?>" min="<?= $p['moq'] ?>" step="<?= $p['step'] ?>" aria-label="Quantity">
-        <button type="button" onclick="bump(this,<?= $p['step'] ?>,<?= $p['moq'] ?>)">+</button>
-      </div>
+      <?php if(orderable($p)): stepper($p, 'qty', $p['moq'], $p['moq']); ?>
       <button class="btn" type="submit">Add</button>
+      <?php else: ?>
+      <button class="btn" type="submit" disabled>Out of stock</button>
+      <?php endif; ?>
     </form>
   </article>
   <?php
 }
+
+/* quantity stepper; $min is the input floor (0 in the cart so a line can be cleared) */
+function stepper($p, $name, $value, $min){
+  $max = max_qty($p); ?>
+  <div class="step">
+    <button type="button" onclick="bump(this,-<?= $p['step'] ?>,<?= $p['moq'] ?>,<?= (int)$max ?>)">−</button>
+    <input type="number" name="<?= h($name) ?>" value="<?= (int)$value ?>" min="<?= (int)$min ?>"<?= $max!==null ? ' max="'.$max.'"' : '' ?> step="<?= $p['step'] ?>" aria-label="Quantity">
+    <button type="button" onclick="bump(this,<?= $p['step'] ?>,<?= $p['moq'] ?>,<?= (int)$max ?>)">+</button>
+  </div>
+<?php }
 
 function steps_block($CONFIG){ ?>
   <div class="steps">
