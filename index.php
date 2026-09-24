@@ -9,6 +9,7 @@
 
 define('FK_ROOT', __DIR__);
 require FK_ROOT.'/inc/store.php';
+require FK_ROOT.'/inc/bitcoin.php';
 if(!ini_get('zlib.output_compression') && extension_loaded('zlib')) ob_start('ob_gzhandler');
 start_session();
 error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
@@ -19,7 +20,7 @@ $CONFIG     = $STORE['settings'];
 $CURRENCIES = $STORE['currencies'];
 $CATEGORIES = $STORE['categories'];
 $PRODUCTS   = array_values(array_filter($STORE['products'], fn($p)=>empty($p['hidden']) && isset($CATEGORIES[$p['cat']])));
-$PAYMENTS   = array_filter($STORE['payments'], fn($m)=>!empty($m['enabled']));
+$PAYMENTS   = array_filter($STORE['payments'], fn($m)=>!empty($m['enabled']) && (!btc_method($m) || btc_ready()));   /* Bitcoin only with a valid wallet address */
 $COUNTRIES  = $STORE['countries'];
 $MIN_ORDER  = (float)$CONFIG['min_order_usd'];
 $SERIES     = $STORE['series'] ?? [];
@@ -67,6 +68,13 @@ function money($usd){
   return $m['sym'] . number_format($usd * $m['rate'], $m['dec']);
 }
 
+/* whole units, for round numbers like the free-shipping threshold */
+function money_whole($usd){
+  global $CURRENCIES;
+  $m = $CURRENCIES[cur_code()];
+  return $m['sym'] . number_format(round($usd * $m['rate']), 0);
+}
+
 function cart(){ return $_SESSION['cart'] ?? []; }
 function cart_units(){ $n=0; foreach(cart() as $q) $n += $q; return $n; }
 function cart_lines(){
@@ -91,8 +99,10 @@ const SITE_HERO  = 'assets/site/pokemon-30th-celebration-elite-trainer-box.webp'
 const SITE_SHARE = 'assets/site/share-30th-celebration.jpg';
 $BASE = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/index.php')), '/').'/';
 const PAGE_PATHS = ['cart'=>'cart', 'checkout'=>'checkout', 'received'=>'order-received', 'how'=>'how-it-works',
-                    'shipping'=>'shipping', 'payment'=>'payment-methods', 'faq'=>'faq', 'contact'=>'contact',
-                    'sets'=>'sets', 'guides'=>'guides', 'sitemap'=>'sitemap.xml'];
+                    'shipping'=>'shipping-returns', 'payment'=>'payment-methods', 'faq'=>'faq', 'contact'=>'contact',
+                    'sets'=>'sets', 'guides'=>'guides', 'sitemap'=>'sitemap.xml', 'pay'=>'pay', 'paystatus'=>'pay-status'];
+/* older addresses that now live on another page: path => [page, #section] */
+const MOVED_PATHS = ['shipping'=>['shipping', ''], 'returns'=>['shipping', 'returns']];
 
 function cat_slug($key){ global $CATEGORIES; return ($CATEGORIES[$key]['slug'] ?? '') ?: slugify($CATEGORIES[$key]['label'] ?? $key); }
 
@@ -133,6 +143,7 @@ function route_from_path(){
     $pages = array_flip(PAGE_PATHS);
     if(isset($pages[$path])) return ['p'=>$pages[$path]];
     if(info_page($path)) return ['p'=>'page', 'pg'=>$path];
+    if(isset(MOVED_PATHS[$path])) return ['p'=>MOVED_PATHS[$path][0], 'moved'=>MOVED_PATHS[$path][1]];
   } elseif(count($seg) === 2){
     [$a, $b] = $seg;
     if($a === 'products') return ['p'=>'product', 'id'=>$b];
@@ -186,7 +197,12 @@ function guide_by_slug($slug){ global $GUIDES; foreach($GUIDES as $g){ if(($g['s
    blank line = paragraph, "## " / "### " heading, "- " bullet, **bold**, [text](link) — see inc/content.php */
 function link_target($t){
   if(preg_match('#^(https?://|mailto:)#i', $t)) return $t;
-  if(!preg_match('/^([a-z]+):(.+)$/', $t, $m)) return null;
+  if(!preg_match('/^([a-z]+):([^#]+)(#[\w-]+)?$/', $t, $m)) return null;
+  $to = link_page($m[1], $m[2]);
+  return $to === null ? null : $to.($m[3] ?? '');
+}
+function link_page($kind, $slug){
+  $m = [0, $kind, $slug];
   $pages = ['home'=>'home', 'shop'=>'catalog', 'sets'=>'sets', 'guides'=>'guides', 'faq'=>'faq', 'shipping'=>'shipping',
             'payment'=>'payment', 'how'=>'how', 'contact'=>'contact'];
   switch($m[1]){
@@ -195,7 +211,8 @@ function link_target($t){
     case 'set':      return url(series_by_slug($m[2]) ? 'series' : 'set', ['s'=>$m[2]]);
     case 'cards':    return url('collection', ['c'=>$m[2]]);
     case 'guide':    return url('guide', ['g'=>$m[2]]);
-    case 'page':     return isset($pages[$m[2]]) ? url($pages[$m[2]]) : (info_page($m[2]) ? url('page', ['pg'=>$m[2]]) : null);
+    case 'page':     return isset($pages[$m[2]]) ? url($pages[$m[2]]) : (info_page($m[2]) ? url('page', ['pg'=>$m[2]])
+                            : ($m[2] === 'returns' ? url('shipping').'#returns' : null));
   }
   return null;
 }
@@ -212,21 +229,22 @@ function rich_inline($s){
   return $out.$bold(h(substr($s, $pos)));
 }
 function rich($text){
-  $html = ''; $para = []; $list = false;
+  $html = ''; $para = []; $list = '';   /* '', 'ul' or 'ol' */
   $flush = function() use(&$html, &$para, &$list){
     if($para){ $html .= '<p>'.rich_inline(implode(' ', $para)).'</p>'; $para = []; }
-    if($list){ $html .= '</ul>'; $list = false; }
+    if($list){ $html .= "</$list>"; $list = ''; }
   };
   foreach(explode("\n", str_replace("\r", '', fill((string)$text))) as $line){
     $line = trim($line);
     if($line === ''){ $flush(); continue; }
     if(preg_match('/^(#{2,3})\s+(.+)$/', $line, $m)){ $flush(); $t = strlen($m[1]); $html .= "<h$t id=\"".h(slugify($m[2]))."\">".rich_inline($m[2])."</h$t>"; continue; }
-    if(preg_match('/^[-*]\s+(.+)$/', $line, $m)){
+    if(preg_match('/^(?:([-*])|\d{1,2}[.)])\s+(.+)$/', $line, $m)){   /* "- item" bullets, "1. step" numbered */
+      $want = $m[1] !== '' ? 'ul' : 'ol';
       if($para){ $html .= '<p>'.rich_inline(implode(' ', $para)).'</p>'; $para = []; }
-      if(!$list){ $html .= '<ul>'; $list = true; }
-      $html .= '<li>'.rich_inline($m[1]).'</li>'; continue;
+      if($list !== $want){ if($list) $html .= "</$list>"; $html .= "<$want>"; $list = $want; }
+      $html .= '<li>'.rich_inline($m[2]).'</li>'; continue;
     }
-    if($list){ $html .= '</ul>'; $list = false; }
+    if($list){ $html .= "</$list>"; $list = ''; }
     $para[] = $line;
   }
   $flush();
@@ -254,32 +272,17 @@ function plain($text, $len=155){
   return rtrim($cut, ' ,;:-').'…';
 }
 
-/* admin-editable text: fills {reply_hours} {hold_hours} {countries} {min_order} {brand} {company} {address} {email} */
+/* admin-editable text: fills {reply_hours} {hold_hours} {countries} {min_order} {brand} {company} {address} {email}
+   {free_ship} {standard} {express} {standard_days} {express_days} */
 function fill($text){
-  global $CONFIG, $COUNTRIES, $MIN_ORDER;
+  global $CONFIG, $COUNTRIES, $MIN_ORDER, $STORE;
+  $sm = ship_methods($STORE);
   return strtr($text, ['{reply_hours}'=>(int)$CONFIG['reply_hours'], '{hold_hours}'=>(int)$CONFIG['hold_hours'],
                        '{countries}'=>count($COUNTRIES), '{min_order}'=>money($MIN_ORDER), '{brand}'=>$CONFIG['brand'],
-                       '{company}'=>$CONFIG['legal_name'], '{address}'=>$CONFIG['address'], '{email}'=>$CONFIG['email']]);
-}
-
-/* =?UTF-8?B?…?= so names like “Pokémon” and dashes survive in subjects and sender names */
-function mail_header($s){ return preg_match('/[^\x20-\x7E]/', $s) ? '=?UTF-8?B?'.base64_encode($s).'?=' : $s; }
-
-/* UTF-8 plain-text mail from the shop address. The envelope sender (-f) is set to the same
-   address so SPF checks line up; hosts that refuse -f get a second try without it. */
-function shop_mail($to, $subject, $body, $reply_to=''){
-  global $CONFIG;
-  $from = filter_var($CONFIG['email'], FILTER_VALIDATE_EMAIL) ? $CONFIG['email'] : $CONFIG['order_email'];
-  $headers = implode("\r\n", array_filter([
-    'From: '.mail_header($CONFIG['brand']).' <'.$from.'>',
-    $reply_to ? 'Reply-To: '.$reply_to : '',
-    'MIME-Version: 1.0',
-    'Content-Type: text/plain; charset=UTF-8',
-    'Content-Transfer-Encoding: quoted-printable',
-  ]));
-  $subject = mail_header($subject);
-  $body = quoted_printable_encode($body);
-  return @mail($to, $subject, $body, $headers, '-f'.$from) || @mail($to, $subject, $body, $headers);
+                       '{company}'=>$CONFIG['legal_name'], '{address}'=>$CONFIG['address'], '{email}'=>$CONFIG['email'],
+                       '{free_ship}'=>money_whole(free_ship_usd($STORE)),
+                       '{standard}'=>$sm['standard']['label'], '{express}'=>$sm['express']['label'],
+                       '{standard_days}'=>$sm['standard']['days'], '{express_days}'=>$sm['express']['days']]);
 }
 
 /* returns which emails went out, so a failure shows up in the admin instead of vanishing */
@@ -288,7 +291,12 @@ function send_order_mail($order){
   $body  = "NEW ORDER  {$order['ref']}\n";
   $body .= str_repeat('=',50)."\n\n";
   $body .= "PAYMENT METHOD CHOSEN: {$order['payment_label']}\n";
-  $body .= "-> Send payment details to this customer manually.\n\n";
+  if(!empty($order['btc'])){
+    $b = $order['btc'];
+    $body .= !empty($b['sats'])
+      ? "-> Paid by Bitcoin on the site: ".btc_amount($b['sats'])." BTC to {$b['address']}\n   (1 BTC = \${$b['rate']} from {$b['rate_source']}). You'll get a receipt email when the payment\n   is seen on the blockchain, and another when it confirms. No need to send payment details.\n\n"
+      : "-> Paid by Bitcoin on the site to {$b['address']}. The BTC price feeds didn't answer, so the customer's\n   order page will show the amount once they do. You'll get a receipt email when the payment is seen.\n\n";
+  } else $body .= "-> Send payment details to this customer manually.\n\n";
   $body .= "CONTACT\n";
   $body .= "  Name:    {$order['name']}\n";
   $body .= "  Company: {$order['company']}\n";
@@ -320,13 +328,27 @@ function send_order_mail($order){
   $c .= "Shipping: {$order['shipping']} — {$order['ship_label']}\n";
   $c .= "Order total: {$order['total']} ({$order['currency']})\n";
   $c .= "Payment method selected: {$order['payment_label']}\n\n";
-  $c .= "WHAT HAPPENS NEXT\n";
-  $c .= "Your stock is reserved for {$CONFIG['hold_hours']} hours. We will contact you\n";
-  $c .= "by email or text within {$CONFIG['reply_hours']} hours with the payment details\n";
-  $c .= "for the method you selected, together with your invoice.\n\n";
-  $c .= "Quote {$order['ref']} on your payment so we can match it to your order.\n";
-  $c .= "Once payment clears we dispatch within {$CONFIG['hold_hours']} hours from Japan\n";
-  $c .= "with tracking.\n\n";
+  if(!empty($order['btc'])){
+    $b = $order['btc'];
+    $c .= "PAY WITH BITCOIN\n";
+    if(!empty($b['sats'])){
+      $c .= "Send exactly:  ".btc_amount($b['sats'])." BTC\n";
+      $c .= "To address:    {$b['address']}\n";
+      $c .= "This amount is held until ".gmdate('H:i', $b['expires'])." UTC. After that, your order page\n";
+      $c .= "shows a new amount at the current rate.\n\n";
+    } else $c .= "Your order page shows the exact BTC amount and a QR code.\n\n";
+    $c .= "Your order page (QR code, amount and payment status):\n".btc_pay_link($order)."\n\n";
+    $c .= "We email your receipt as soon as your payment reaches the blockchain,\n";
+    $c .= "and dispatch within {$CONFIG['hold_hours']} hours of it confirming, from Japan with tracking.\n\n";
+  } else {
+    $c .= "WHAT HAPPENS NEXT\n";
+    $c .= "Your stock is reserved for {$CONFIG['hold_hours']} hours. We will contact you\n";
+    $c .= "by email or text within {$CONFIG['reply_hours']} hours with the payment details\n";
+    $c .= "for the method you selected, together with your invoice.\n\n";
+    $c .= "Quote {$order['ref']} on your payment so we can match it to your order.\n";
+    $c .= "Once payment clears we dispatch within {$CONFIG['hold_hours']} hours from Japan\n";
+    $c .= "with tracking.\n\n";
+  }
   $c .= "Questions: {$CONFIG['email']}\n";
   $c .= "{$CONFIG['legal_name']} — {$CONFIG['address']}\n";
   $to_customer = shop_mail($order['email'], "Order {$order['ref']} received — {$CONFIG['brand']}", $c, $CONFIG['email']);
@@ -393,7 +415,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     if(!isset($PAYMENTS[$f['payment']]))                 $errors[] = 'Choose how you want to pay.';
     elseif(isset($COUNTRIES[$f['country']]) && !payment_ok($f['payment'], $f['country']))
       $errors[] = $PAYMENTS[$f['payment']]['label'].' is not available for '.$COUNTRIES[$f['country']].'. Choose another payment method.';
-    if(empty($_POST['agree']))                           $errors[] = 'Confirm you understand payment details follow by email or text.';
+    if(empty($_POST['agree']))                           $errors[] = 'Please accept the terms of sale and the shipping & returns policy.';
 
     /* delivery option: Standard or Express */
     $SHIPM = ship_methods($STORE);
@@ -402,7 +424,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
     /* minimum order value counts goods plus shipping */
     if(isset($COUNTRIES[$f['country']]) && cart_lines()){
-      $ship  = shipping_usd($STORE, $f['country'], cart_weight(), $method);
+      $ship  = shipping_usd($STORE, $f['country'], cart_weight(), $method, cart_total());
       $grand = round(cart_total() + $ship, 2);
       if($grand < $MIN_ORDER)
         $errors[] = 'The minimum order is '.money($MIN_ORDER).' including shipping. Your total is '.money($grand).', so add '.money($MIN_ORDER - $grand).' more to place this order.';
@@ -434,7 +456,9 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         'time'          => gmdate('Y-m-d H:i').' UTC',
         'time_iso'      => gmdate('c'),
         'ip'            => $_SERVER['REMOTE_ADDR'] ?? '',
+        'free_shipping' => free_shipping($STORE, $goods),
       ];
+      if(btc_method($PAYMENTS[$f['payment']])){ $order['btc'] = ['address'=>btc_settings()['address'], 'quotes'=>[]]; btc_quote($order); }
       if(!order_save($order)) error_log("fudakura: could not save order {$order['ref']} to data/orders");
       $sent = send_order_mail($order);
       $order['mail_shop'] = $sent['shop']; $order['mail_customer'] = $sent['customer'];
@@ -442,9 +466,46 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
       if(!$sent['shop']) error_log("fudakura: order email for {$order['ref']} to {$CONFIG['order_email']} failed");
       $_SESSION['last_order'] = $order;
       $_SESSION['cart'] = [];
+      if(!empty($order['btc'])) go_to('pay', ['ref'=>$order['ref'], 'k'=>order_key($order['ref'])]);
       go_to('received');
     }
     $form = $f;
+  }
+
+  /* Bitcoin: the customer pastes the transaction ID of their payment */
+  if($action === 'btc_txid'){
+    $ref = is_string($_POST['ref'] ?? null) ? $_POST['ref'] : ''; $k = is_string($_POST['k'] ?? null) ? $_POST['k'] : '';
+    $o = order_key_ok($ref, $k) ? order_load($ref) : null;
+    $txid = strtolower(trim(is_string($_POST['txid'] ?? null) ? $_POST['txid'] : ''));
+    if(preg_match('#/tx/([0-9a-f]{64})#i', $txid, $m)) $txid = strtolower($m[1]);   /* a pasted explorer link works too */
+    if(!$o || empty($o['btc'])) go_to('home');
+    if(!empty($o['btc']['txid'])) flash('We already have your payment for this order — thank you.');
+    elseif(($o['btc']['tries'] ?? 0) >= 8) flash('Too many attempts. Please email '.$CONFIG['email'].' with your order reference and transaction ID.');
+    elseif(!preg_match('/^[0-9a-f]{64}$/', $txid)) flash('That doesn’t look like a transaction ID. It’s 64 letters and numbers, shown in your wallet’s payment details.');
+    else {
+      $o['btc']['tries'] = ($o['btc']['tries'] ?? 0) + 1;
+      $claims = btc_claims();
+      $r = isset($claims[$txid]) ? false : btc_lookup_tx($txid, $o['btc']['address']);
+      if($r === false) flash('That transaction has already been matched to an order. If you think that’s a mistake, email '.$CONFIG['email'].'.');
+      elseif($r === null){      /* explorers didn't answer: keep it, and check it again on the next status check */
+        $o['btc']['reported'] = $txid;
+        shop_mail($CONFIG['order_email'], "Bitcoin payment reported — {$o['ref']}",
+          "The customer says they've paid order {$o['ref']} and gave this transaction ID:\n$txid\n".btc_tx_url($txid)."\n\nThe block explorers couldn't be reached to check it. The order page will keep trying, or check it yourself in the admin.\n", $o['email']);
+        flash('Thanks — we’ve noted your transaction and will confirm it as soon as the Bitcoin network check comes back.');
+      }
+      elseif(!$r['exists']) flash('We can’t find that transaction on the Bitcoin network yet. If you’ve only just sent it, wait a minute and try again.');
+      elseif(!$r['found']) flash('That transaction doesn’t send Bitcoin to our address '.$o['btc']['address'].'. Check you copied the transaction for this payment.');
+      else {
+        $before = btc_state($o);
+        btc_attach($o, $r['found'], $r['tip']);
+        $after = btc_state($o);
+        if($after === 'seen') btc_mail($o, 'received');
+        elseif($after !== $before){ if($after === 'confirmed' && in_array($o['status'], ['new','invoiced'], true)) $o['status'] = 'paid'; btc_mail($o, $after); }
+        flash('Payment found — thank you. Your receipt is on its way by email.');
+      }
+      order_save($o);
+    }
+    go_to('pay', ['ref'=>$ref, 'k'=>$k]);
   }
 }
 
@@ -455,7 +516,7 @@ $page = $_GET['p'] ?? 'home';
 if(!is_string($page)) $page = 'home';
 if($_SERVER['REQUEST_METHOD']==='POST' && ($_POST['action']??'')==='order' && $errors) $page = 'checkout';
 $PAGES = ['home','catalog','product','sets','set','series','collection','guides','guide','page','cart','checkout','received',
-          'how','shipping','payment','faq','contact','sitemap','notfound'];
+          'how','shipping','payment','faq','contact','sitemap','pay','paystatus','notfound'];
 if(!in_array($page, $PAGES, true)) $page = 'notfound';
 
 $gs    = fn($k)=>is_string($_GET[$k] ?? null) ? trim($_GET[$k]) : '';
@@ -477,10 +538,37 @@ if($page === 'guide')      $guide  = guide_by_slug($gs('g'));
 if($page === 'page')       $info   = info_page($gs('pg'));
 if(($page === 'product' && !$prod) || ($page === 'set' && !$set) || ($page === 'series' && !$series)
    || ($page === 'collection' && !$coll) || ($page === 'guide' && !$guide) || ($page === 'page' && !$info)) $page = 'notfound';
+/* addresses that moved: /shipping and /returns → /shipping-returns */
+if(isset($from_path['moved']) || (($_GET['p'] ?? '') === 'page' && !$info && $gs('pg') === 'returns')){
+  $u = url('shipping');
+  header('Location: '.$BASE.$u.(($from_path['moved'] ?? 'returns') !== '' ? '#'.($from_path['moved'] ?? 'returns') : ''), true, 301); exit;
+}
+
+/* Bitcoin order page, opened with the key in the customer's link. The page itself never waits on the
+   blockchain: it polls pay-status, which checks for the payment (at most every 15 seconds per order). */
+$pay = null;
+if($page === 'pay' || $page === 'paystatus'){
+  $pay = order_key_ok($gs('ref'), $gs('k')) ? order_load($gs('ref')) : null;
+  if(!$pay || empty($pay['btc'])){ $pay = null; if($page === 'pay') $page = 'notfound'; }
+  elseif($page === 'pay'){ if(btc_quote($pay)) order_save($pay); }
+  else {
+    $changed = btc_quote($pay);
+    if(btc_sync($pay)) $changed = true;
+    if($changed) order_save($pay);
+  }
+}
+if($page === 'paystatus'){
+  header('Content-Type: application/json; charset=utf-8'); header('Cache-Control: no-store'); header('X-Robots-Tag: noindex');
+  if(!$pay){ http_response_code(404); echo '{}'; exit; }
+  echo json_encode(['state'=>btc_state($pay), 'quoted'=>(int)($pay['btc']['quoted'] ?? 0), 'status'=>$pay['status'],
+                    'conf'=>(int)($pay['btc']['confirmations'] ?? 0), 'need'=>btc_settings()['confs']]);
+  exit;
+}
+if($page === 'received' && !empty($_SESSION['last_order']['btc'])) go_to('pay', ['ref'=>$_SESSION['last_order']['ref'], 'k'=>order_key($_SESSION['last_order']['ref'])]);
 if($page === 'notfound') http_response_code(404);
 
 /* with clean addresses on, old index.php?p=… links (and /shop?cat=…) move permanently to the clean address */
-if(!empty($CONFIG['pretty_urls']) && $_SERVER['REQUEST_METHOD'] === 'GET' && !in_array($page, ['notfound','sitemap'], true)
+if(!empty($CONFIG['pretty_urls']) && $_SERVER['REQUEST_METHOD'] === 'GET' && !in_array($page, ['notfound','sitemap','paystatus'], true)
    && ((!$from_path && isset($_GET['p'])) || ($page === 'catalog' && $from_path && !isset($from_path['cat']) && $cat !== ''))){
   $extra = $_GET; unset($extra['p']);
   $u = url($page, $extra);
@@ -522,7 +610,8 @@ $fixed = [
   'checkout' => ['Checkout', 'Checkout'],
   'received' => ['Order received', ''],
   'how'      => ['How ordering works — Japanese Pokémon cards to the USA', 'How ordering works'],
-  'shipping' => ['Shipping Japanese Pokémon cards to the USA', 'Shipping, customs and delivery'],
+  'shipping' => ['Shipping & Returns — Japanese Pokémon Cards from Japan', 'Shipping & Returns'],
+  'pay'      => ['Pay for your order', ''],
   'payment'  => ['Payment methods', 'Payment methods'],
   'faq'      => ['FAQ — Buying Japanese Pokémon cards', 'Frequently asked questions'],
   'contact'  => ['Contact', 'Contact'],
@@ -612,6 +701,8 @@ switch($page){
     if($page === 'checkout') $crumbs[] = ['Order', 'cart', []];
     if($h1 !== '') $crumbs[] = [$h1, '', []]; else $crumbs = [];
     if($page === 'notfound') $crumbs = [];
+    if($page === 'shipping') $page_desc = (free_ship_usd($STORE) ? 'Free shipping on orders over '.money_whole(free_ship_usd($STORE)).'. ' : '')
+      .'Japanese Pokémon cards shipped from Japan with tracking: delivery times, rates, customs and duty, and how returns, refunds and damage claims work.';
 }
 if($page_desc === '') $page_desc = 'Japanese Pokémon cards shipped from Japan to the USA: sealed booster boxes, Elite Trainer Boxes, rare singles and PSA graded cards.';
 
@@ -619,8 +710,8 @@ if($page_desc === '') $page_desc = 'Japanese Pokémon cards shipped from Japan t
 $canon_args = ['product'=>['id'=>$prod['id'] ?? ''], 'set'=>['s'=>$set['slug'] ?? ''], 'series'=>['s'=>$series['slug'] ?? ''],
                'collection'=>['c'=>$coll['slug'] ?? ''], 'guide'=>['g'=>$guide['slug'] ?? ''], 'page'=>['pg'=>$info['slug'] ?? ''],
                'catalog'=>$cat ? ['cat'=>$cat] : []];
-$canonical = $page === 'notfound' ? '' : abs_url($page, $canon_args[$page] ?? []);
-$noindex = in_array($page, ['cart','checkout','received','notfound'], true) || ($page === 'catalog' && $filtered);
+$canonical = in_array($page, ['notfound','pay'], true) ? '' : abs_url($page, $canon_args[$page] ?? []);
+$noindex = in_array($page, ['cart','checkout','received','pay','notfound'], true) || ($page === 'catalog' && $filtered);
 
 $in_stock = array_values(array_filter($PRODUCTS, fn($p)=>!in_array($p['status'], ['preorder','soldout'], true)));
 ?>
@@ -674,7 +765,7 @@ if($prod){
       [$dmin, $dmax] = ship_day_range($mm['days']);
       $offer['shippingDetails'][] = ['@type'=>'OfferShippingDetails',
         'shippingDestination'=>['@type'=>'DefinedRegion','addressCountry'=>'US'],
-        'shippingRate'=>['@type'=>'MonetaryAmount','currency'=>'USD','value'=>number_format(shipping_usd($STORE, 'US', (float)($prod['weight'] ?? 0) * $prod['moq'], $mk), 2, '.', '')],
+        'shippingRate'=>['@type'=>'MonetaryAmount','currency'=>'USD','value'=>number_format(shipping_usd($STORE, 'US', (float)($prod['weight'] ?? 0) * $prod['moq'], $mk, unit_price($prod, $prod['moq']) * $prod['moq']), 2, '.', '')],
         'deliveryTime'=>['@type'=>'ShippingDeliveryTime',
           'handlingTime'=>['@type'=>'QuantitativeValue','minValue'=>0,'maxValue'=>max(1, (int)ceil($CONFIG['hold_hours'] / 24)),'unitCode'=>'DAY'],
           'transitTime'=>['@type'=>'QuantitativeValue','minValue'=>$dmin,'maxValue'=>$dmax,'unitCode'=>'DAY']]];
@@ -763,8 +854,8 @@ select.pick{appearance:none;background-color:var(--card);border:1px solid var(--
 .catbar{border-top:1px solid var(--hair)}
 .catbar .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
 .catbar .wrap::-webkit-scrollbar{display:none}
-.catbar a{padding:12px 14px;text-decoration:none;font-size:14px;font-weight:500;color:var(--ink2);white-space:nowrap;position:relative}
-.catbar a::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:2px;border-radius:2px;background:var(--holo);opacity:0;transition:opacity .15s}
+.catbar a{padding:12px 11px;text-decoration:none;font-size:14px;font-weight:500;color:var(--ink2);white-space:nowrap;position:relative}
+.catbar a::after{content:"";position:absolute;left:11px;right:11px;bottom:0;height:2px;border-radius:2px;background:var(--holo);opacity:0;transition:opacity .15s}
 .catbar a:hover{color:#fff}.catbar a:hover::after{opacity:.6}
 .catbar a.on{color:#fff;font-weight:700}.catbar a.on::after{opacity:1}
 @media(max-width:820px){form.search{order:3;max-width:none;flex-basis:100%;margin-bottom:12px}.bar{flex-wrap:wrap;padding-top:10px}}
@@ -772,7 +863,7 @@ select.pick{appearance:none;background-color:var(--card);border:1px solid var(--
   .bar{gap:10px}.brand{gap:6px}.brand .mk{font-size:16px;letter-spacing:.12em}.brand .kj{font-size:10.5px;padding:2px 5px}
   select.pick{padding:7px 22px 7px 10px;font-size:12.5px;background-position:calc(100% - 12px) 53%,calc(100% - 8px) 53%}
   .cartbtn{padding:8px 12px;font-size:13px}.tools{gap:6px}
-  .strip span{display:none}.strip .wrap{justify-content:center;min-height:32px}
+  .strip .st{display:none}.strip .fship~.sl{display:none}.strip .wrap{justify-content:center;min-height:32px}
   .catbar a{padding:11px 11px;font-size:13.5px}
 }
 
@@ -1085,14 +1176,117 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
 .toc a{color:var(--link);text-decoration:none;font-size:14.5px}
 .toc a:hover{text-decoration:underline}
 
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* free shipping: top bar, cart and checkout */
+.strip .fship{display:inline-flex;align-items:center;gap:7px;color:#fff;font-weight:800;letter-spacing:.01em}
+.strip .fship svg{color:var(--gold);flex:none}
+.strip .fship span{background:linear-gradient(90deg,#fff,#FFE3A1);-webkit-background-clip:text;background-clip:text;color:transparent}
+.strip .fship:hover span{text-decoration:underline;text-decoration-color:var(--gold)}
+.fsm{margin:10px 0 12px;max-width:420px;margin-left:auto;text-align:left}
+.fsm .t{font-size:13.5px;color:var(--ink2);margin-bottom:7px}.fsm .t b{color:#fff}
+.fsm .meter{height:7px;border-radius:9px;background:var(--hair);overflow:hidden}
+.fsm .meter i{display:block;height:100%;background:var(--holo);border-radius:9px}
+.fsm.c{max-width:none;margin:12px 0 0}
+
+/* Bitcoin payment page */
+.payhead{margin-bottom:22px}
+.payhead .kick{font-size:13px;color:var(--muted);letter-spacing:.04em}.payhead .kick b{color:var(--gold)}
+.payhead h1{font-size:clamp(28px,3.6vw,42px);margin:6px 0 10px}
+.payhead .lede{margin-bottom:0}
+.paygrid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:26px;align-items:start}
+@media(max-width:960px){.paygrid{grid-template-columns:1fr}.paygrid .summary{position:static}}
+.paybox{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,rgba(255,201,77,.07),var(--card) 38%);padding:24px;position:relative;overflow:hidden}
+.paybox::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,#F7931A,#FFC94D)}
+.payrow{display:grid;grid-template-columns:250px minmax(0,1fr);gap:26px;align-items:start}
+@media(max-width:640px){.payrow{grid-template-columns:1fr}.qrcol{max-width:300px;margin:0 auto;width:100%}}
+.qr{background:#fff;border-radius:14px;padding:10px;aspect-ratio:1;display:grid;place-items:center;margin-bottom:12px;box-shadow:0 18px 50px -24px rgba(247,147,26,.8)}
+.qr svg{width:100%;height:100%;display:block}
+.qr .qrph{color:#666;font-size:13px}
+.pf .l{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:6px}
+.pf .v{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pf .amt span{font-size:clamp(26px,3.4vw,34px);font-weight:900;color:#fff;letter-spacing:.01em;font-variant-numeric:tabular-nums}
+.pf .amt small{font-size:16px;font-weight:800;color:#F7931A}
+.pf .n{font-size:13px;color:var(--muted);margin-top:6px}
+.pf .addr code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14.5px;color:#fff;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:9px 11px;word-break:break-all;flex:1;min-width:0}
+.copy{background:var(--card2);border:1px solid var(--line);color:#fff;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.copy:hover{border-color:var(--gold);color:var(--gold)}
+.hold{font-size:13.5px;color:var(--ink2);margin-top:16px}.hold b{color:var(--gold);font-variant-numeric:tabular-nums}
+.watch{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--teal);margin-top:14px;padding:11px 13px;border-radius:10px;background:rgba(34,225,195,.07);border:1px solid rgba(34,225,195,.25)}
+.pulse{width:9px;height:9px;border-radius:50%;background:var(--teal);flex:none;box-shadow:0 0 0 0 rgba(34,225,195,.7);animation:pulse 1.8s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 10px rgba(34,225,195,0)}100%{box-shadow:0 0 0 0 rgba(34,225,195,0)}}
+.paytips{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:9px;font-size:13.5px;color:var(--ink2)}
+.paytips li{padding-left:22px;position:relative}.paytips b{color:#fff}
+.paytips li::before{content:"";position:absolute;left:4px;top:.55em;width:7px;height:7px;border-radius:2px;background:#F7931A;transform:rotate(45deg)}
+.txform{margin-top:20px;border-top:1px solid var(--hair);padding-top:14px}
+.txform summary{cursor:pointer;font-size:14px;font-weight:700;color:var(--link)}
+.txform label{display:block;font-size:13px;color:var(--muted);margin:12px 0 6px}
+.txrow{display:flex;gap:10px;flex-wrap:wrap}
+.txrow input{flex:1;min-width:220px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+.timeline{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.timeline li{position:relative;padding:0 0 22px 38px;display:grid;gap:2px}
+.timeline li::before{content:"";position:absolute;left:0;top:1px;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);background:var(--paper)}
+.timeline li::after{content:"";position:absolute;left:11px;top:26px;bottom:2px;width:2px;background:var(--line)}
+.timeline li:last-child::after{display:none}
+.timeline li.ok::before{background:var(--green);border-color:var(--green);box-shadow:inset 0 0 0 5px var(--green)}
+.timeline li.ok::after{background:var(--green)}
+.timeline li.now::before{border-color:var(--gold);animation:pulse 1.8s infinite}
+.timeline b{color:#fff;font-size:15.5px}.timeline span{font-size:13.5px;color:var(--muted)}
+.txbox{margin-top:8px;padding:14px;border-radius:10px;background:var(--paper);border:1px solid var(--line);display:grid;gap:6px}
+.txbox .l{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.txbox code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;color:#fff;word-break:break-all}
+.txbox a{color:var(--link);font-weight:700;font-size:14px;text-decoration:none}
+.summary .n{font-size:12.5px;color:var(--muted);margin-top:10px}.summary .n a{color:var(--link)}
+
+/* Shipping & Returns */
+.srhead h1{font-size:clamp(30px,4vw,46px)}
+.srhead .lede{margin:12px 0 26px}
+.srcards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:40px}
+@media(max-width:900px){.srcards{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.srcards{gap:10px}.srcards>div{padding:14px}.srcards .ic{width:32px;height:32px}.srcards b{font-size:15px}}
+.srcards>div{--c:var(--gold);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:4px;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--c) 13%,var(--card)),var(--card) 70%)}
+.srcards .k2{--c:var(--teal)}.srcards .k3{--c:var(--red)}.srcards .k4{--c:var(--violet)}
+.srcards .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent);margin-bottom:6px}
+.srcards .ic svg{width:21px;height:21px}
+.srcards b{color:#fff;font-size:16px}.srcards span:last-child{font-size:13.5px;color:var(--ink2)}
+.srgrid{display:grid;grid-template-columns:230px minmax(0,1fr);gap:48px;align-items:start}
+.srtoc{position:sticky;top:140px;border-left:1px solid var(--line);padding-left:16px}
+.srtoc b{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.srtoc ol{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:2px}
+.srtoc a{display:block;padding:5px 0;font-size:14px;color:var(--ink2);text-decoration:none}
+.srtoc a:hover{color:#fff}
+@media(max-width:960px){
+  .srgrid{grid-template-columns:1fr;gap:10px}
+  .srtoc{position:static;border:none;padding:0}
+  .srtoc ol{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:6px}
+  .srtoc a{white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;background:var(--card)}
+}
+.prose.sr{max-width:780px}
+.prose.sr h2{scroll-margin-top:140px;padding-top:8px}
+.prose.sr h3{scroll-margin-top:140px}
+.prose ol{margin:0 0 15px;padding:0;list-style:none;counter-reset:step}
+.prose ol li{counter-increment:step;padding-left:40px;margin-bottom:12px;min-height:28px}
+.prose ol li::before{content:counter(step);position:absolute;left:0;top:0;width:28px;height:28px;border-radius:50%;background:var(--card2);
+  border:1px solid var(--line);color:var(--gold);font-weight:800;font-size:13px;display:grid;place-items:center;transform:none}
+.prose .tblwrap{overflow-x:auto;margin:0 0 16px}
+.prose .tbl small{color:var(--muted);font-weight:500}
+.prose .tbl .free{color:var(--green)}
+.prose p.small{font-size:13.5px;color:var(--muted)}
+.prose code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;color:#fff;background:var(--card2);padding:2px 6px;border-radius:5px;word-break:break-all}
+.srcontact{margin-top:40px;border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+  background:linear-gradient(120deg,rgba(255,59,92,.09),rgba(155,140,255,.09))}
+.srcontact b{display:block;color:#fff;font-size:17px}.srcontact span{font-size:14px;color:var(--ink2)}
+.srcontact .row2{display:flex;gap:10px;flex-wrap:wrap}
+.prose .srcontact .btn{color:#fff;border-bottom:0}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
 
 <div class="strip"><div class="wrap">
-  <span><?= h($CONFIG['strip_text']) ?></span>
-  <?php if($CONFIG['strip_link_text']): ?><a href="<?= h($CONFIG['strip_link_url'] ?: url('catalog')) ?>"><?= h($CONFIG['strip_link_text']) ?></a><?php endif; ?>
+  <?php if(free_ship_usd($STORE)): ?><a class="fship" href="<?= url('shipping') ?>"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M3 6.5A1.5 1.5 0 0 1 4.5 5h9A1.5 1.5 0 0 1 15 6.5V8h2.6a1.5 1.5 0 0 1 1.2.6l2.4 3.2c.2.26.3.58.3.9V16a1.5 1.5 0 0 1-1.5 1.5h-.6a2.75 2.75 0 0 1-5.3 0H9.9a2.75 2.75 0 0 1-5.3 0h-.1A1.5 1.5 0 0 1 3 16V6.5Zm12 3V13h4.5l-1.9-2.5a1.5 1.5 0 0 0-1.2-.6H15ZM7.25 18.25a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm9.4 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/></svg><span>Free shipping on orders over <?= money_whole(free_ship_usd($STORE)) ?></span></a><?php endif; ?>
+  <span class="st"><?= h($CONFIG['strip_text']) ?></span>
+  <?php if($CONFIG['strip_link_text']): ?><a class="sl" href="<?= h($CONFIG['strip_link_url'] ?: url('catalog')) ?>"><?= h($CONFIG['strip_link_text']) ?></a><?php endif; ?>
 </div></div>
 
 <header class="site">
@@ -1127,9 +1321,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
     <?php endforeach; ?>
     <a href="<?= url('sets') ?>" class="<?= in_array($page, ['sets','series','set'], true)?'on':'' ?>">Sets</a>
     <?php if($GUIDES): ?><a href="<?= url('guides') ?>" class="<?= in_array($page, ['guides','guide'], true)?'on':'' ?>">Guides</a><?php endif; ?>
-    <a href="<?= url('how') ?>" class="<?= $page==='how'?'on':'' ?>">How it works</a>
-    <a href="<?= url('shipping') ?>" class="<?= $page==='shipping'?'on':'' ?>">Shipping</a>
-    <a href="<?= url('payment') ?>" class="<?= $page==='payment'?'on':'' ?>">Payment</a>
+    <a href="<?= url('shipping') ?>" class="<?= $page==='shipping'?'on':'' ?>">Shipping &amp; Returns</a>
     <a href="<?= url('faq') ?>" class="<?= $page==='faq'?'on':'' ?>">FAQ</a>
     <a href="<?= url('contact') ?>" class="<?= $page==='contact'?'on':'' ?>">Contact</a>
   </div></nav>
@@ -1251,6 +1443,8 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       <div><span>Minimum order value</span><span><?= money($MIN_ORDER) ?> incl. shipping</span></div>
       <div><span>Stock hold on order</span><span><?= (int)$CONFIG['hold_hours'] ?> hours</span></div>
       <div><span>Dispatch after payment</span><span>Within <?= (int)$CONFIG['hold_hours'] ?> hours</span></div>
+      <?php if(free_ship_usd($STORE)): ?><div><span>Free shipping</span><span>Orders over <?= money_whole(free_ship_usd($STORE)) ?></span></div><?php endif; ?>
+      <?php $nbtc = count(array_filter($PAYMENTS, 'btc_method')); if($nbtc): ?><div><span>Pay by</span><span>Bitcoin, on the site<?= count($PAYMENTS) > $nbtc ? ' · or '.(count($PAYMENTS) - $nbtc).' other ways' : '' ?></span></div><?php endif; ?>
       <div><span>Carriers</span><span>EMS · DHL · FedEx</span></div>
       <?php $SM = ship_methods($STORE); ?><div><span>Delivery</span><span><?= h($SM['standard']['label'].' '.$SM['standard']['days'].' · '.$SM['express']['label'].' '.$SM['express']['days']) ?></span></div>
     </div>
@@ -1426,8 +1620,10 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
           <?php $SM = ship_methods($STORE); $one = (float)($prod['weight'] ?? 0) * $prod['moq']; ?>
           <p>Shipped from Japan with tracking: <b><?= h($SM['standard']['label']) ?></b> <?= h($SM['standard']['days']) ?> or <b><?= h($SM['express']['label']) ?></b> <?= h($SM['express']['days']) ?>.
             Priced by weight — <?= (int)$prod['moq'] ?> of these to the USA ship for <?= money(shipping_usd($STORE, 'US', $one, 'standard')) ?> Standard or <?= money(shipping_usd($STORE, 'US', $one, 'express')) ?> Express.
+            <?php if(free_ship_usd($STORE)): ?><b>Free <?= h($SM['standard']['label']) ?> shipping on orders over <?= money_whole(free_ship_usd($STORE)) ?>.</b><?php endif; ?>
             Orders start at <?= money($MIN_ORDER) ?> including shipping.</p>
-          <p>No payment is taken on the site: we send payment details for your chosen method within <?= (int)$CONFIG['reply_hours'] ?> hours. <a href="<?= url('shipping') ?>">Shipping</a> · <a href="<?= url('payment') ?>">Payment methods</a></p>
+          <p><?php if(array_filter($PAYMENTS, 'btc_method')): ?>Pay with Bitcoin straight after you order, or choose another method and we send the details within <?= (int)$CONFIG['reply_hours'] ?> hours.<?php else: ?>We send payment details for your chosen method within <?= (int)$CONFIG['reply_hours'] ?> hours.<?php endif; ?>
+            <a href="<?= url('shipping') ?>">Shipping &amp; Returns</a> · <a href="<?= url('payment') ?>">Payment methods</a></p>
         </div>
       </div>
       <?php $pg = guides_for($prod['cat']); if($pg): ?>
@@ -1487,6 +1683,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
           <div style="text-align:right">
             <?php if(cart_saved()>0): ?><div style="font-size:13.5px;color:var(--muted)">You save <?= money(cart_saved()) ?> against single-unit pricing</div><?php endif; ?>
             <div style="font-size:26px;font-weight:900;margin:4px 0 4px">Goods total <?= money(cart_total()) ?></div>
+            <?php free_ship_meter(cart_total()); ?>
             <div style="font-size:13.5px;color:var(--muted);margin-bottom:10px">Shipping is calculated at checkout. Minimum order <?= money($MIN_ORDER) ?> including shipping.</div>
             <a class="btn" href="<?= url('checkout') ?>">Continue to checkout</a>
           </div>
@@ -1500,7 +1697,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
   $_SESSION['co_time']  = time(); ?>
   <section style="padding-top:22px"><div class="wrap">
     <div class="sechead"><div><h1><?= h($h1) ?></h1>
-      <p>Tell us where it ships and how you want to pay. Nothing is charged here — we send your payment details and invoice by email or text after you place the order.</p></div></div>
+      <p>Tell us where it ships and how you want to pay. <?= array_filter($PAYMENTS, 'btc_method') ? 'Paying by Bitcoin? You pay on the next page, straight from your wallet. For other methods we' : 'We' ?> send payment details and your invoice by email or text after you place the order.</p></div></div>
 
     <?php if(!$lines): ?>
       <p class="empty">Your order is empty. <a href="<?= url('catalog') ?>">Browse the catalog →</a></p>
@@ -1561,11 +1758,12 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
               <label>
                 <input type="radio" name="ship_method" value="<?= h($mk) ?>" <?= ($f['ship_method'] ?? 'standard')===$mk?'checked':'' ?>>
                 <span style="flex:1"><span class="t"><?= h($mm['label']) ?></span><br><span class="n"><?= h($mm['days']) ?>, tracked</span></span>
-                <span class="t" data-ship-price="<?= h($mk) ?>"><?= !empty($f['country']) && isset($COUNTRIES[$f['country']]) ? money(shipping_usd($STORE, $f['country'], cart_weight(), $mk)) : '' ?></span>
+                <span class="t" data-ship-price="<?= h($mk) ?>"><?php if(!empty($f['country']) && isset($COUNTRIES[$f['country']])){ $sv = shipping_usd($STORE, $f['country'], cart_weight(), $mk, cart_total()); echo $sv > 0 ? money($sv) : 'Free'; } ?></span>
               </label>
             <?php endforeach; ?>
           </div>
           <p class="n" style="font-size:12.5px;color:var(--muted);margin-top:10px">Priced by the weight of your order (<?= h(rtrim(rtrim(number_format(cart_weight(), 2), '0'), '.')) ?> kg). Choose your country to see prices.</p>
+          <?php free_ship_meter(cart_total(), true); ?>
         </fieldset>
 
         <fieldset>
@@ -1581,21 +1779,24 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
             <?php endforeach; ?>
           </div>
           <div class="notice">
-            <b>How payment works.</b> Select your method and place the order. We will send the payment
-            details for that method to your email and phone within <?= (int)$CONFIG['reply_hours'] ?> hours,
-            together with your invoice. Your stock is reserved for
-            <?= (int)$CONFIG['hold_hours'] ?> hours in the meantime. Quote your order reference on the
-            payment so we can match it to your order.
+            <b>How payment works.</b>
+            <?php if(array_filter($PAYMENTS, 'btc_method')): ?>
+            <b>Bitcoin:</b> place the order and pay on the next page. You get the exact amount and a QR code for your wallet, and a receipt by email as soon as your payment reaches the blockchain.
+            <b>Other methods:</b> we send the details to your email and phone within <?= (int)$CONFIG['reply_hours'] ?> hours with your invoice, and hold your stock for <?= (int)$CONFIG['hold_hours'] ?> hours.
+            <?php else: ?>
+            Select your method and place the order. We will send the payment details for that method to your email and phone within <?= (int)$CONFIG['reply_hours'] ?> hours, together with your invoice. Your stock is reserved for <?= (int)$CONFIG['hold_hours'] ?> hours in the meantime. Quote your order reference on the payment so we can match it to your order.
+            <?php endif; ?>
+            We never ask for card details, passwords or wallet keys.
           </div>
           <div class="fld"><label for="notes">Order notes (optional)</label>
             <textarea id="notes" name="notes" placeholder="Delivery instructions, preferred carrier, VAT/EORI number, anything else we should know."><?= h($f['notes']??'') ?></textarea></div>
           <label class="agree">
             <input type="checkbox" name="agree" value="1" <?= !empty($_POST['agree'])?'checked':'' ?>>
-            <span>I understand that no payment is taken on this site, and that <?= h($CONFIG['legal_name']) ?>
-            will contact me by email or text with the payment details and invoice.</span>
+            <span>I agree to the <a href="<?= h(url('page', ['pg'=>'terms'])) ?>" target="_blank">terms of sale</a> and the
+            <a href="<?= h(url('shipping')) ?>#returns" target="_blank">shipping &amp; returns policy</a>.</span>
           </label>
           <div class="minwarn" id="minWarn" hidden></div>
-          <button class="btn wide" id="placeBtn" type="submit" style="margin-top:14px">Place order</button>
+          <button class="btn wide" id="placeBtn" type="submit" style="margin-top:14px" data-btc-label="Place order and pay with Bitcoin">Place order</button>
           <p style="font-size:12.5px;color:var(--muted);margin-top:10px">
             Shipping is calculated from your destination and shown in the order summary. Import duty and taxes are not included.</p>
         </fieldset>
@@ -1619,9 +1820,10 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
           <?php
           /* per-country shipping for this cart, so the summary updates as the country changes */
           $cm = $CURRENCIES[cur_code()]; $kg = cart_weight(); $ship_by = [];
-          foreach($COUNTRIES as $code=>$nm) foreach(SHIP_METHODS as $mk) $ship_by[$code][$mk] = shipping_usd($STORE, $code, $kg, $mk);
+          foreach($COUNTRIES as $code=>$nm) foreach(SHIP_METHODS as $mk) $ship_by[$code][$mk] = shipping_usd($STORE, $code, $kg, $mk, cart_total());
           $labels = array_map(fn($m)=>$m['label'], ship_methods($STORE));
           $co_data = ['ship'=>$ship_by, 'labels'=>$labels, 'goods'=>cart_total(), 'min'=>$MIN_ORDER,
+                      'btc'=>array_keys(array_filter($PAYMENTS, 'btc_method')),
                       'rate'=>$cm['rate'], 'sym'=>$cm['sym'], 'dec'=>$cm['dec']]; ?>
           <script>window.CO = <?= json_encode($co_data, JSON_HEX_TAG|JSON_HEX_AMP) ?>;</script>
           <p style="font-size:12.5px;color:var(--muted);margin-top:12px">Shown in <?= cur_code() ?>. Your invoice is issued in the same currency.</p>
@@ -1664,14 +1866,98 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
     <?php endif; ?>
   </div></section>
 
+<?php elseif($page==='pay'): $o = $pay; $b = $o['btc']; $st = btc_state($o); $key = order_key($o['ref']);
+  $cancelled = ($o['status'] ?? '') === 'cancelled'; $need = btc_settings()['confs']; $conf = (int)($b['confirmations'] ?? 0);
+  $open = !$cancelled && in_array($st, ['awaiting','reported'], true); $uri = btc_uri($o);
+  $heads = ['awaiting'=>'Pay with Bitcoin', 'reported'=>'Checking your payment', 'seen'=>'Payment received', 'confirmed'=>'Paid — thank you', 'short'=>'Payment received']; ?>
+  <section style="padding-top:22px"><div class="wrap">
+    <div class="payhead">
+      <div class="kick">Order <b><?= h($o['ref']) ?></b> · <?= h($o['time']) ?></div>
+      <h1><?= $cancelled ? 'Order cancelled' : h($heads[$st]) ?></h1>
+      <?php if($open): ?><p class="lede">Your order is placed and your stock is reserved. Pay from any Bitcoin wallet: scan the code, or copy the amount and address.</p>
+      <?php elseif(!$cancelled): ?><p class="lede">We’ve emailed your receipt to <b><?= h($o['email']) ?></b>. <?= $st === 'confirmed' ? 'We’re packing your order and will email your tracking number when it ships.' : 'Your payment is on the blockchain; this page updates when it confirms.' ?></p><?php endif; ?>
+    </div>
+
+    <div class="paygrid">
+      <div class="paybox" id="payBox" data-state="<?= h($st) ?>" data-quoted="<?= (int)($b['quoted'] ?? 0) ?>"
+           data-status="<?= h(url('paystatus', ['ref'=>$o['ref'], 'k'=>$key])) ?>">
+      <?php if($cancelled): ?>
+        <p>This order has been cancelled, so please don’t send a payment for it. If that’s a mistake, email <a href="mailto:<?= h($CONFIG['email']) ?>"><?= h($CONFIG['email']) ?></a>.</p>
+      <?php elseif($open): ?>
+        <div class="payrow">
+          <div class="qrcol">
+            <div class="qr" id="qr" data-uri="<?= h($uri) ?>"><span class="qrph">QR code</span></div>
+            <a class="btn wide gold" href="<?= h($uri) ?>">Open in wallet app</a>
+          </div>
+          <div class="pf">
+            <?php if(!empty($b['sats'])): ?>
+              <div class="l">Send exactly</div>
+              <div class="v amt"><span><?= btc_amount($b['sats']) ?></span> <small>BTC</small>
+                <button type="button" class="copy" data-copy="<?= btc_amount($b['sats']) ?>">Copy</button></div>
+              <div class="n">Order total $<?= number_format($o['total_usd'], 2) ?> USD · 1 BTC = $<?= number_format($b['rate'], 2) ?> (<?= h($b['rate_source']) ?>)</div>
+            <?php else: ?>
+              <div class="l">Amount</div>
+              <div class="v amt">$<?= number_format($o['total_usd'], 2) ?> <small>USD in BTC</small></div>
+              <div class="n">We couldn’t get the Bitcoin price just now. This page tries again every minute, so please wait for the exact BTC amount before paying.</div>
+            <?php endif; ?>
+            <div class="l" style="margin-top:18px">To this Bitcoin address</div>
+            <div class="v addr"><code><?= h($b['address']) ?></code>
+              <button type="button" class="copy" data-copy="<?= h($b['address']) ?>">Copy</button></div>
+            <?php if(!empty($b['sats'])): ?>
+              <div class="hold">Amount held for <b id="countdown" data-expires="<?= (int)$b['expires'] ?>"><?= gmdate('i:s', max(0, $b['expires'] - time())) ?></b>. After that it updates to the current rate.</div>
+            <?php endif; ?>
+            <div class="watch"><i class="pulse"></i> <?= $st === 'reported' ? 'Checking transaction '.h(substr($b['reported'], 0, 12)).'… — this page updates by itself.' : 'Watching the blockchain for your payment. This page updates by itself.' ?></div>
+          </div>
+        </div>
+        <ul class="paytips">
+          <li><b>Send the exact amount in one payment.</b> If your exchange takes its withdrawal fee from the amount, add the fee on top.</li>
+          <li><b>Bitcoin network only.</b> Not Lightning, and not wrapped “BTC” on other networks such as BEP-20 or ERC-20.</li>
+          <li><b>Come back any time.</b> The link to this page is in your order email, <?= h($o['email']) ?>.</li>
+        </ul>
+        <details class="txform"<?= $st === 'reported' ? ' open' : '' ?>><summary>Paid already? Add your transaction ID</summary>
+          <form method="post" action="index.php">
+            <input type="hidden" name="action" value="btc_txid"><input type="hidden" name="ref" value="<?= h($o['ref']) ?>"><input type="hidden" name="k" value="<?= h($key) ?>">
+            <label for="txid">Transaction ID (or a link to it on a block explorer)</label>
+            <div class="txrow"><input id="txid" name="txid" autocomplete="off" spellcheck="false" placeholder="e.g. 4a5e1e4baab89f3a32518a88c31bc87f…" required>
+              <button class="btn" type="submit">Check payment</button></div>
+          </form>
+        </details>
+      <?php else: $short = $st === 'short'; ?>
+        <ol class="timeline">
+          <li class="ok"><b>Order placed</b><span><?= h($o['time']) ?></span></li>
+          <li class="ok"><b>Payment sent</b><span><?= btc_amount($b['paid_sats']) ?> BTC<?= $short ? ' — less than the '.btc_amount($b['expected_sats']).' BTC due' : '' ?></span></li>
+          <li class="<?= $conf >= $need ? 'ok' : 'now' ?>"><b>Confirmed on the blockchain</b><span><?= $conf >= $need ? 'Confirmed' : 'Waiting for confirmation, usually 10–60 minutes' ?></span></li>
+          <li class="<?= ($o['status'] ?? '') === 'shipped' ? 'ok' : ($conf >= $need && !$short ? 'now' : '') ?>"><b>Shipped from Japan</b><span><?= ($o['status'] ?? '') === 'shipped' ? 'On its way — tracking is in your email' : 'Within '.(int)$CONFIG['hold_hours'].' hours of confirmation, with tracking' ?></span></li>
+        </ol>
+        <?php if($short): ?><div class="errs" style="margin-top:16px">Your payment was less than the amount due. Please email <a href="mailto:<?= h($CONFIG['email']) ?>"><?= h($CONFIG['email']) ?></a> and we’ll sort out the difference.</div><?php endif; ?>
+        <div class="txbox"><div class="l">Transaction</div><code><?= h($b['txid']) ?></code>
+          <a href="<?= h(btc_tx_url($b['txid'])) ?>" target="_blank" rel="noopener">Track it on mempool.space ↗</a></div>
+      <?php endif; ?>
+      </div>
+
+      <aside class="summary">
+        <h3>Your order</h3>
+        <?php foreach($o['lines'] as $l): ?>
+          <div class="sl"><span><?= h($l['name']) ?><br><span class="q"><?= (int)$l['qty'] ?> × <?= h($l['unit']) ?></span></span><span><?= h($l['total']) ?></span></div>
+        <?php endforeach; ?>
+        <div class="sl"><span style="color:var(--muted)">Goods</span><span><?= h($o['goods']) ?></span></div>
+        <div class="sl"><span style="color:var(--muted)">Shipping · <?= h($o['ship_label']) ?></span><span><?= !empty($o['free_shipping']) && (float)$o['shipping_usd'] == 0 ? 'Free' : h($o['shipping']) ?></span></div>
+        <div class="tot"><span>Order total</span><span><?= h($o['total']) ?></span></div>
+        <p class="n">Ships to <?= h($o['city']) ?>, <?= h($o['country_name']) ?>.<?= $o['currency'] !== 'USD' ? ' The BTC amount is worked out from the US-dollar total, $'.number_format($o['total_usd'], 2).'.' : '' ?></p>
+        <p class="n">Questions? <a href="mailto:<?= h($CONFIG['email']) ?>?subject=<?= rawurlencode('Order '.$o['ref']) ?>"><?= h($CONFIG['email']) ?></a></p>
+      </aside>
+    </div>
+  </div></section>
+  <?php if($open): ?><script src="assets/qrcode.min.js?v=<?= @filemtime(FK_ROOT.'/assets/qrcode.min.js') ?>" defer></script><?php endif; ?>
+
 <?php elseif($page==='how'): ?>
   <section style="padding-top:22px"><div class="wrap">
     <div class="sechead"><div><h1><?= h($h1) ?></h1>
-      <p>Four steps from cart to courier. Nothing is charged on this site — you settle an invoice from your own bank or payment app.</p></div></div>
+      <p>Four steps from cart to courier. Pay by Bitcoin straight from your wallet on your order page, or settle an invoice from your own bank or payment app.</p></div></div>
     <?php steps_block($CONFIG); ?>
     <div style="margin-top:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px" class="cats">
       <a href="<?= url('payment') ?>"><h3>Payment methods</h3><p>What we accept, by country.</p></a>
-      <a href="<?= url('shipping') ?>"><h3>Shipping &amp; customs</h3><p>Carriers, timings, duty and taxes.</p></a>
+      <a href="<?= url('shipping') ?>"><h3>Shipping &amp; Returns</h3><p>Rates, timings, duty, returns and refunds.</p></a>
       <a href="<?= url('faq') ?>"><h3>Wholesale FAQ</h3><p>MOQs, preorders, returns and more.</p></a>
     </div>
   </div></section>
@@ -1679,7 +1965,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
 <?php elseif($page==='payment'): ?>
   <section style="padding-top:22px"><div class="wrap" style="max-width:820px">
     <div class="sechead"><div><h1><?= h($h1) ?></h1>
-      <p>Choose your method at checkout. We send the details for it to your email and phone within <?= (int)$CONFIG['reply_hours'] ?> hours, together with your invoice.</p></div></div>
+      <p>Choose your method at checkout. <?= array_filter($PAYMENTS, 'btc_method') ? 'Bitcoin is paid on your order page the moment you order. For other methods, we' : 'We' ?> send the details to your email and phone within <?= (int)$CONFIG['reply_hours'] ?> hours, together with your invoice.</p></div></div>
     <table class="tbl">
       <thead><tr><th>Method</th><th>Available to</th><th>Notes</th></tr></thead>
       <tbody>
@@ -1690,45 +1976,64 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
         <?php endforeach; ?>
       </tbody>
     </table>
+    <?php if(array_filter($PAYMENTS, 'btc_method')): ?>
+    <h2 class="sub2">Paying with Bitcoin</h2>
+    <div class="prose">
+      <ol>
+        <li><b>Place your order</b> and choose Bitcoin at checkout.</li>
+        <li><b>Scan the QR code</b> on your order page with any Bitcoin wallet, or copy the exact amount and our address. The amount is held for <?= (int)btc_settings()['minutes'] ?> minutes at the current rate.</li>
+        <li><b>Get your receipt.</b> The page spots your payment on the blockchain and we email a receipt with a link to follow it.</li>
+        <li><b>We ship</b> within <?= (int)$CONFIG['hold_hours'] ?> hours of it confirming, usually 10–60 minutes after you pay.</li>
+      </ol>
+      <p>Always check that the address on your order page is <code><?= h(btc_settings()['address']) ?></code>. We never send a different Bitcoin address by email or chat.</p>
+    </div>
+    <?php endif; ?>
     <div class="notice" style="margin-top:22px">
-      <b>No payment is taken on this site.</b> There is no card form and no wallet credential to enter here.
-      You place the order, we send the payment details, and stock is held for <?= (int)$CONFIG['hold_hours'] ?> hours
-      while that happens. Always check the payment details against the email we send from
-      <?= h($CONFIG['email']) ?> and quote your order reference.
+      <b>We never ask for card details, passwords or wallet keys.</b> For methods other than Bitcoin, you place the order and
+      we send the payment details, holding your stock for <?= (int)$CONFIG['hold_hours'] ?> hours in the meantime. Always check
+      payment details against the email we send from <?= h($CONFIG['email']) ?> and quote your order reference.
     </div>
     <p style="font-size:14px;color:var(--ink2);margin-top:18px">Invoices are issued in the currency you had selected at checkout. Shipping is calculated at checkout. Prices exclude import duty, VAT or GST and customs clearance fees.</p>
   </div></section>
 
-<?php elseif($page==='shipping'): ?>
-  <section style="padding-top:22px"><div class="wrap" style="max-width:820px">
-    <div class="sechead"><div><h1><?= h($h1) ?></h1>
-      <p>Everything ships from Japan with tracking on every consignment.</p></div></div>
-    <table class="tbl">
-      <thead><tr><th>Detail</th><th>What to expect</th></tr></thead>
-      <tbody>
-        <tr><td class="nm">Carriers</td><td>Japan Post EMS, DHL Express and FedEx. We choose on weight, destination and your instructions.</td></tr>
-        <tr><td class="nm">Dispatch</td><td>Within <?= (int)$CONFIG['hold_hours'] ?> hours of payment clearing.</td></tr>
-        <?php foreach(ship_methods($STORE) as $mm): ?><tr><td class="nm"><?= h($mm['label']) ?> delivery</td><td><?= h($mm['days']) ?>, tracked.</td></tr><?php endforeach; ?>
-        <tr><td class="nm">Shipping cost</td><td>Priced by the weight of your order and your destination, and shown at checkout before you order — see the rates below.</td></tr>
-        <tr><td class="nm">Minimum order</td><td><?= money($MIN_ORDER) ?> including shipping.</td></tr>
-        <tr><td class="nm">Duty and taxes</td><td>Excluded from our prices. US orders of any value can be charged import duty and carrier fees on delivery; elsewhere your carrier collects import duty, VAT or GST and clearance fees.</td></tr>
-        <tr><td class="nm">Damage or shortage</td><td>Report within seven days of delivery and we replace, credit or refund the affected lines and their shipping.</td></tr>
-      </tbody>
-    </table>
-    <h2 class="sub2">Shipping rates</h2>
-    <?php $SM = ship_methods($STORE); ?>
-    <table class="tbl">
-      <thead><tr><th>Destination</th><?php foreach($SM as $mm): ?><th class="r"><?= h($mm['label']) ?> per order</th><th class="r">+ per kg</th><?php endforeach; ?></tr></thead>
-      <tbody>
-        <?php foreach(array_merge($STORE['shipping']['zones'], [['name'=>'Rest of world']+$STORE['shipping']['rest']]) as $z): $zr = zone_rates($z); ?>
-          <tr><td class="nm"><?= h($z['name']) ?></td><?php foreach(array_keys($SM) as $mk): ?><td class="r"><?= money($zr[$mk]['base']) ?></td><td class="r"><?= money($zr[$mk]['per_kg']) ?></td><?php endforeach; ?></tr>
-        <?php endforeach; ?>
-      </tbody>
-    </table>
-    <p style="font-size:13.5px;color:var(--muted);margin-top:12px">Totals are rounded up to the next whole dollar. For example, six Japanese booster boxes (about 2.4 kg) to the USA cost
-      <?= money(shipping_usd($STORE, 'US', 2.4, 'standard')) ?> Standard or <?= money(shipping_usd($STORE, 'US', 2.4, 'express')) ?> Express; a single card costs
-      <?= money(shipping_usd($STORE, 'US', 0.05, 'standard')) ?> Standard. As a guide, a sealed booster box weighs about 0.4 kg and an Elite Trainer Box about 0.9 kg packed.</p>
+<?php elseif($page==='shipping'):
+  $SM = ship_methods($STORE); $fs = free_ship_usd($STORE);
+  $policy = str_replace("\r", '', (string)($CONFIG['shipping_policy'] ?? ''));
+  $parts = preg_split('/^[ \t]*\{rates\}[ \t]*$/m', $policy, 2);
+  preg_match_all('/^##\s+(.+)$/m', fill($policy), $heads); ?>
+  <section style="padding-top:22px"><div class="wrap">
+    <div class="srhead">
+      <h1><?= h($h1) ?></h1>
+      <p class="lede">Shipped from Japan with tracking, packed with care, and clearly priced before you pay.</p>
+    </div>
+    <div class="srcards">
+      <?php if($fs): ?><div class="k1"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 6.5A1.5 1.5 0 0 1 4.5 5h9A1.5 1.5 0 0 1 15 6.5V8h2.6a1.5 1.5 0 0 1 1.2.6l2.4 3.2c.2.26.3.58.3.9V16a1.5 1.5 0 0 1-1.5 1.5h-.6a2.75 2.75 0 0 1-5.3 0H9.9a2.75 2.75 0 0 1-5.3 0h-.1A1.5 1.5 0 0 1 3 16V6.5Zm12 3V13h4.5l-1.9-2.5a1.5 1.5 0 0 0-1.2-.6H15ZM7.25 18.25a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm9.4 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/></svg></span><b>Free shipping</b><span>On orders over <?= money_whole($fs) ?></span></div><?php endif; ?>
+      <div class="k2"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg></span><b><?= h($SM['standard']['label']) ?></b><span><?= h($SM['standard']['days']) ?>, tracked</span></div>
+      <div class="k3"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.5 2 4 13.5h6.5L9.5 22 20 9.5h-6.6L13.5 2Z"/></svg></span><b><?= h($SM['express']['label']) ?></b><span><?= h($SM['express']['days']) ?>, tracked</span></div>
+      <div class="k4"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5v-9ZM3.5 7.5 12 12m0 0 8.5-4.5M12 12v9"/></svg></span><b>Dispatched fast</b><span>Within <?= (int)$CONFIG['hold_hours'] ?> hours of payment</span></div>
+    </div>
+    <div class="srgrid">
+      <?php if(count($heads[1]) >= 3): ?>
+      <nav class="srtoc" aria-label="On this page"><b>On this page</b><ol>
+        <?php foreach($heads[1] as $hd): ?><li><a href="<?= h(url('shipping')) ?>#<?= h(slugify($hd)) ?>"><?= h(preg_replace('/\[([^\]]+)\]\([^)]*\)|\*\*/', '$1', $hd)) ?></a></li><?php endforeach; ?>
+      </ol></nav>
+      <?php endif; ?>
+      <article class="prose sr">
+        <?= rich($parts[0]) ?>
+        <?php if(count($parts) === 2): ship_rates_block(); echo rich($parts[1]); endif; ?>
+        <div class="srcontact">
+          <div><b>Still have a question?</b><span>We reply within <?= (int)$CONFIG['reply_hours'] ?> hours.</span></div>
+          <div class="row2">
+            <a class="btn" href="mailto:<?= h($CONFIG['email']) ?>">Email <?= h($CONFIG['email']) ?></a>
+            <?php if(trim($CONFIG['chat_code'] ?? '') !== ''): ?><button type="button" class="btn g" data-open-chat hidden>Chat with us</button><?php endif; ?>
+          </div>
+        </div>
+      </article>
+    </div>
   </div></section>
+  <?php $qa = policy_questions($policy);
+  if($qa): ?><script type="application/ld+json"><?= json_encode(['@context'=>'https://schema.org','@type'=>'FAQPage','mainEntity'=>array_map(fn($x)=>
+    ['@type'=>'Question','name'=>$x[0],'acceptedAnswer'=>['@type'=>'Answer','text'=>$x[1]]], $qa)], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_HEX_TAG) ?></script><?php endif; ?>
 
 <?php elseif($page==='faq'): ?>
   <section style="padding-top:22px"><div class="wrap" style="max-width:860px">
@@ -1870,7 +2175,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
     <div><h4>Ordering</h4><ul>
       <li><a href="<?= url('how') ?>">How it works</a></li>
       <li><a href="<?= url('payment') ?>">Payment methods</a></li>
-      <li><a href="<?= url('shipping') ?>">Shipping &amp; customs</a></li>
+      <li><a href="<?= url('shipping') ?>">Shipping &amp; Returns</a></li>
       <li><a href="<?= url('cart') ?>">Your order</a></li>
     </ul></div>
     <div><h4>Support</h4><ul>
@@ -1887,6 +2192,11 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
   </div>
 </div></footer>
 
+<?php if(($chat = trim($CONFIG['chat_code'] ?? '')) !== ''): ?>
+<template id="chatCode"><?= $chat ?></template>
+<?php if($who = ($pay ?: ($_SESSION['last_order'] ?? null))): /* lets the chat show which customer you're talking to */ ?>
+<script>window.Tawk_API = window.Tawk_API || {}; Tawk_API.visitor = <?= json_encode(['name'=>$who['name'], 'email'=>$who['email']], JSON_HEX_TAG|JSON_HEX_AMP) ?>;</script>
+<?php endif; endif; ?>
 <script>
 /* catalogue filters: drop empty fields so shared links stay short */
 function fsub(f){
@@ -1900,18 +2210,19 @@ function bump(btn, delta, min){
 function fmt(usd){
   return CO.sym + (usd * CO.rate).toLocaleString('en-US', {minimumFractionDigits: CO.dec, maximumFractionDigits: CO.dec});
 }
+function fmtShip(usd){ return usd > 0 ? fmt(usd) : 'Free'; }
 /* shipping, total and the minimum-order check follow the selected country; the server re-checks all of it */
 function updateTotals(country){
   if(!window.CO) return;
   const rates = CO.ship[country], warn = document.getElementById('minWarn'), btn = document.getElementById('placeBtn');
   const cost = document.getElementById('shipCost');
   const picked = (document.querySelector('input[name=ship_method]:checked') || {}).value || 'standard';
-  document.querySelectorAll('[data-ship-price]').forEach(el => { el.textContent = rates ? fmt(rates[el.dataset.shipPrice]) : ''; });
+  document.querySelectorAll('[data-ship-price]').forEach(el => { el.textContent = rates ? fmtShip(rates[el.dataset.shipPrice]) : ''; });
   document.getElementById('shipLabel').textContent = 'Shipping · ' + (CO.labels[picked] || '');
   if(rates === undefined){ cost.textContent = 'Select your country'; document.getElementById('grandTotal').textContent = fmt(CO.goods); warn.hidden = true; btn.disabled = false; return; }
   const ship = rates[picked];
   const total = Math.round((CO.goods + ship) * 100) / 100;
-  cost.textContent = fmt(ship); cost.style.color = '';
+  cost.textContent = fmtShip(ship); cost.style.color = '';
   document.getElementById('grandTotal').textContent = fmt(total);
   const short = total < CO.min;
   warn.hidden = !short; btn.disabled = short;
@@ -1934,6 +2245,67 @@ function filterPay(country){
 const c = document.getElementById('country');
 if(c){ c.addEventListener('change', ()=>updateTotals(c.value)); if(c.value){ filterPay(c.value); updateTotals(c.value); } }
 document.querySelectorAll('input[name=ship_method]').forEach(r => r.addEventListener('change', ()=>updateTotals(c ? c.value : '')));
+/* the button says what happens next when Bitcoin is chosen */
+document.querySelectorAll('input[name=payment]').forEach(r => r.addEventListener('change', () => {
+  const b = document.getElementById('placeBtn'); if(!b || !window.CO) return;
+  b.textContent = CO.btc.includes(r.value) ? b.dataset.btcLabel : 'Place order';
+}));
+
+/* Bitcoin order page: QR code, copy buttons, the countdown on the quoted amount, and a quiet check for the payment */
+(function(){
+  const box = document.getElementById('payBox'); if(!box) return;
+  document.querySelectorAll('.copy').forEach(b => b.addEventListener('click', () => {
+    const v = b.dataset.copy, done = () => { b.textContent = 'Copied ✓'; setTimeout(() => b.textContent = 'Copy', 1800); };
+    if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(v).then(done, () => prompt('Copy:', v)); else prompt('Copy:', v);
+  }));
+  const qrEl = document.getElementById('qr');
+  const draw = () => {
+    if(!qrEl || !window.qrcode) return;
+    const qr = qrcode(0, 'M'); qr.addData(qrEl.dataset.uri); qr.make();
+    const n = qr.getModuleCount(), q = 3, w = n + q * 2; let d = '';
+    for(let r = 0; r < n; r++) for(let c = 0; c < n; c++) if(qr.isDark(r, c)) d += 'M' + (c + q) + ' ' + (r + q) + 'h1v1h-1z';
+    qrEl.innerHTML = '<svg viewBox="0 0 ' + w + ' ' + w + '" role="img" aria-label="QR code with our Bitcoin address and the amount" shape-rendering="crispEdges">'
+      + '<rect width="' + w + '" height="' + w + '" fill="#fff"/><path d="' + d + '" fill="#000"/></svg>';
+  };
+  const lib = document.querySelector('script[src*="qrcode.min.js"]');
+  if(qrEl && lib){ if(window.qrcode) draw(); else lib.addEventListener('load', draw); }
+
+  const cd = document.getElementById('countdown');
+  if(cd){
+    const t0 = Date.now(), end = t0 + (+cd.dataset.expires - <?= time() ?>) * 1000;   /* measured from the server's clock */
+    const tick = () => {
+      const left = Math.max(0, Math.round((end - Date.now()) / 1000));
+      cd.textContent = String(Math.floor(left / 60)).padStart(2, '0') + ':' + String(left % 60).padStart(2, '0');
+      if(left > 0) setTimeout(tick, 1000);
+      else if(end > t0) location.reload();          /* ran out while open: fetch the new amount */
+      else cd.textContent = 'updating…';
+    };
+    tick();
+  }
+
+  const started = Date.now(); let fails = 0;
+  const poll = () => fetch(box.dataset.status, {cache: 'no-store'}).then(r => r.json()).then(d => {
+    if(d.state !== box.dataset.state || String(d.quoted) !== box.dataset.quoted){ location.reload(); return; }
+    if(['confirmed','short'].includes(d.state) || d.status === 'cancelled') return;
+    if(Date.now() - started < 3 * 3600e3) setTimeout(poll, d.state === 'seen' ? 30000 : 15000);
+  }).catch(() => { if(++fails < 20) setTimeout(poll, 30000); });
+  setTimeout(poll, 1500);
+})();
+
+/* live chat: added once the page has finished loading, so it never slows the shop down */
+(function(){
+  const t = document.getElementById('chatCode'); if(!t) return;
+  window.Tawk_API = window.Tawk_API || {};
+  Tawk_API.onLoad = function(){ document.querySelectorAll('[data-open-chat]').forEach(b => { b.hidden = false; b.onclick = () => Tawk_API.maximize(); }); };
+  const go = () => [...t.content.childNodes].forEach(n => {
+    if(n.nodeName !== 'SCRIPT'){ if(n.nodeType === 1) document.body.appendChild(n.cloneNode(true)); return; }
+    const s = document.createElement('script');
+    [...n.attributes].forEach(a => s.setAttribute(a.name, a.value));
+    s.text = n.textContent; document.body.appendChild(s);
+  });
+  const later = () => 'requestIdleCallback' in window ? requestIdleCallback(go, {timeout: 2500}) : setTimeout(go, 1200);
+  if(document.readyState === 'complete') later(); else addEventListener('load', later);
+})();
 </script>
 </body>
 </html>
@@ -1980,6 +2352,67 @@ function include_card($p){
 }
 
 /* quantity stepper; $min is the input floor (0 in the cart so a line can be cleared) */
+/* Shipping & Returns: delivery options, rates by destination and worked examples (the {rates} line in the page text) */
+function ship_rates_block(){
+  global $STORE, $CONFIG;
+  $SM = ship_methods($STORE); $fs = free_ship_usd($STORE);
+  $cell = fn($r)=>money($r['base']).($r['per_kg'] > 0 ? ' <small>+ '.money($r['per_kg']).'/kg</small>' : ''); ?>
+  <div class="tblwrap"><table class="tbl">
+    <thead><tr><th>Option</th><th>Delivery time</th><th>Tracking</th></tr></thead>
+    <tbody>
+      <?php foreach($SM as $mm): ?><tr><td class="nm"><?= h($mm['label']) ?></td><td><?= h($mm['days']) ?> after dispatch</td><td>Door to door</td></tr><?php endforeach; ?>
+    </tbody>
+  </table></div>
+  <p>We ship with Japan Post EMS, DHL Express and FedEx, choosing the best carrier for your parcel's weight, destination and delivery option. Shipping is priced by the weight of your order and where it's going: a price per order plus a price per kilogram, rounded up to the next whole dollar.<?php if($fs): ?> Orders over <?= money_whole($fs) ?> ship free with <?= h($SM['standard']['label']) ?>.<?php endif; ?></p>
+  <div class="tblwrap"><table class="tbl">
+    <thead><tr><th>Destination</th><?php foreach($SM as $mm): ?><th class="r"><?= h($mm['label']) ?></th><?php endforeach; ?></tr></thead>
+    <tbody>
+      <?php foreach(array_merge($STORE['shipping']['zones'], [['name'=>'Rest of world']+$STORE['shipping']['rest']]) as $z): $zr = zone_rates($z); ?>
+        <tr><td class="nm"><?= h($z['name']) ?></td><?php foreach(array_keys($SM) as $mk): ?><td class="r"><?= $cell($zr[$mk]) ?></td><?php endforeach; ?></tr>
+      <?php endforeach; ?>
+    </tbody>
+  </table></div>
+  <?php $ex = [['A single card', 0.05, 30], ['6 booster boxes (about 2.4 kg)', 2.4, 900], ['6 Elite Trainer Boxes (about 5.4 kg)', 5.4, 250]];
+  if($fs) $ex[] = ['36 booster boxes (about 14.4 kg), over '.money_whole($fs), 14.4, $fs]; ?>
+  <div class="tblwrap"><table class="tbl ex">
+    <thead><tr><th>Examples to the USA</th><?php foreach($SM as $mm): ?><th class="r"><?= h($mm['label']) ?></th><?php endforeach; ?></tr></thead>
+    <tbody>
+      <?php foreach($ex as [$label, $kg, $goods]): ?>
+        <tr><td><?= h($label) ?></td><?php foreach(array_keys($SM) as $mk): $v = shipping_usd($STORE, 'US', $kg, $mk, $goods); ?><td class="r"><?= $v > 0 ? money($v) : '<b class="free">Free</b>' ?></td><?php endforeach; ?></tr>
+      <?php endforeach; ?>
+    </tbody>
+  </table></div>
+  <p class="small">As a guide, a sealed Japanese booster box weighs about 0.4 kg packed and an Elite Trainer Box about 0.9 kg. Checkout shows the exact price for your order before you pay.</p>
+<?php }
+
+/* the "### question" / answer pairs under "## Questions", for Google's FAQ data */
+function policy_questions($text){
+  $out = []; $in = false; $q = null; $a = [];
+  foreach(explode("\n", fill($text)) as $line){
+    if(preg_match('/^##\s+(.+)$/', $line, $m)){ if($q && $a) $out[] = [$q, implode(' ', $a)]; $q = null; $a = []; $in = stripos($m[1], 'question') !== false; continue; }
+    if(!$in) continue;
+    if(preg_match('/^###\s+(.+)$/', $line, $m)){ if($q && $a) $out[] = [$q, implode(' ', $a)]; $q = trim($m[1]); $a = []; continue; }
+    if($q && trim($line) !== '') $a[] = trim(preg_replace(['/\[([^\]]+)\]\([^)]*\)/', '/\*\*/'], ['$1', ''], $line));
+  }
+  if($q && $a) $out[] = [$q, implode(' ', $a)];
+  return $out;
+}
+
+/* "Add $X more for free shipping" / "Your order ships free" */
+function free_ship_meter($goods, $compact=false){
+  global $STORE;
+  $t = free_ship_usd($STORE); if(!$t) return;
+  $sm = ship_methods($STORE); $pct = min(100, round($goods / $t * 100)); ?>
+  <div class="fsm<?= $compact ? ' c' : '' ?>">
+    <?php if($goods >= $t): ?>
+      <div class="t"><b>Your order ships free.</b> Free <?= h($sm['standard']['label']) ?> shipping applied — <?= h($sm['express']['label']) ?> costs only the difference.</div>
+    <?php else: ?>
+      <div class="t">Add <b><?= money($t - $goods) ?></b> more for free <?= h($sm['standard']['label']) ?> shipping (orders over <?= money_whole($t) ?>).</div>
+    <?php endif; ?>
+    <div class="meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?= (int)$pct ?>" aria-label="Progress to free shipping"><i style="width:<?= (int)$pct ?>%"></i></div>
+  </div>
+<?php }
+
 function stepper($p, $name, $value, $min){ ?>
   <div class="step">
     <button type="button" onclick="bump(this,-<?= (int)$p['step'] ?>,<?= (int)$p['moq'] ?>)">−</button>
@@ -2008,8 +2441,8 @@ function steps_block($CONFIG){ ?>
       <p>Every listing shows its full break ladder to everyone. No application, no approval wait, no quote round-trip for standard volumes.</p></div>
     <div><div class="n">02</div><h3>Place the order</h3>
       <p>Add to cart, enter your shipping address and pick a payment method. Stock is reserved in your name for <?= (int)$CONFIG['hold_hours'] ?> hours.</p></div>
-    <div><div class="n">03</div><h3>We send payment details</h3>
-      <p>Within <?= (int)$CONFIG['reply_hours'] ?> hours you get the details for your chosen method by email or text, with your invoice.</p></div>
+    <div><div class="n">03</div><h3>Pay your way</h3>
+      <p>Pay by Bitcoin straight away on your order page, or get the details for another method by email or text within <?= (int)$CONFIG['reply_hours'] ?> hours.</p></div>
     <div><div class="n">04</div><h3>Ship tracked from Japan</h3>
       <p>Payment clears, stock is allocated, and we dispatch within <?= (int)$CONFIG['hold_hours'] ?> hours by EMS, DHL or FedEx with tracking.</p></div>
   </div>

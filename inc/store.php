@@ -176,17 +176,58 @@ function zone_rates($z){
   return ['standard'=>$std, 'express'=>$exp];
 }
 
-/* USD: the zone's per-order price + per-kg price × order weight, rounded up to a whole dollar */
-function shipping_usd($store, $country, $kg, $method='standard'){
-  $r = zone_rates(ship_zone($store, $country))[$method === 'express' ? 'express' : 'standard'];
-  $v = round((float)$r['base'] + (float)$r['per_kg'] * $kg, 2);
-  return empty($store['shipping']['round_up']) ? $v : ceil($v);
+/* USD: the zone's per-order price + per-kg price × order weight, rounded up to a whole dollar.
+   Pass the goods total to apply free shipping: Standard becomes free and Express costs only the difference. */
+function shipping_usd($store, $country, $kg, $method='standard', $goods=null){
+  $z = zone_rates(ship_zone($store, $country));
+  $price = function($m) use($z, $kg, $store){
+    $v = round((float)$z[$m]['base'] + (float)$z[$m]['per_kg'] * $kg, 2);
+    return empty($store['shipping']['round_up']) ? $v : ceil($v);
+  };
+  $m = $method === 'express' ? 'express' : 'standard';
+  if($goods !== null && free_shipping($store, $goods)) return $m === 'express' ? max(0, round($price('express') - $price('standard'), 2)) : 0;
+  return $price($m);
 }
+
+/* free Standard shipping once the goods total reaches this (USD; 0 = off) */
+function free_ship_usd($store){ return max(0, (float)($store['settings']['free_ship_usd'] ?? 0)); }
+function free_shipping($store, $goods){ $t = free_ship_usd($store); return $t > 0 && round($goods, 2) >= $t; }
 
 /* "3–6 working days" → [3, 6], for Google's delivery-time data */
 function ship_day_range($days){ return preg_match('/(\d+)\D+(\d+)/', (string)$days, $m) ? [(int)$m[1], (int)$m[2]] : [3, 6]; }
 
+/* ---------------- email ---------------- */
+/* =?UTF-8?B?…?= so names like “Pokémon” and dashes survive in subjects and sender names */
+function mail_header($s){ return preg_match('/[^\x20-\x7E]/', $s) ? '=?UTF-8?B?'.base64_encode($s).'?=' : $s; }
+
+/* UTF-8 plain-text mail from the shop address. The envelope sender (-f) is set to the same
+   address so SPF checks line up; hosts that refuse -f get a second try without it. */
+function shop_mail($to, $subject, $body, $reply_to=''){
+  $cfg = $GLOBALS['STORE']['settings'];
+  $from = filter_var($cfg['email'], FILTER_VALIDATE_EMAIL) ? $cfg['email'] : $cfg['order_email'];
+  $headers = implode("\r\n", array_filter([
+    'From: '.mail_header($cfg['brand']).' <'.$from.'>',
+    $reply_to ? 'Reply-To: '.$reply_to : '',
+    'MIME-Version: 1.0',
+    'Content-Type: text/plain; charset=UTF-8',
+    'Content-Transfer-Encoding: quoted-printable',
+  ]));
+  $subject = mail_header($subject);
+  $body = quoted_printable_encode($body);
+  return @mail($to, $subject, $body, $headers, '-f'.$from) || @mail($to, $subject, $body, $headers);
+}
+
 /* ---------------- orders (data/orders/{ref}.php) ---------------- */
+/* a random key made on first use, for links that only the customer should be able to open */
+function site_secret(){
+  $s = data_read('secret');
+  if(empty($s['key'])){ $s = ['key'=>bin2hex(random_bytes(32))]; data_write('secret', $s); }
+  return $s['key'];
+}
+/* the key in a customer's payment link, so order pages can't be opened by guessing references */
+function order_key($ref){ return substr(hash_hmac('sha256', 'order|'.$ref, site_secret()), 0, 24); }
+function order_key_ok($ref, $k){ return valid_ref($ref) && is_string($k) && hash_equals(order_key($ref), $k); }
+
 function valid_ref($ref){ return is_string($ref) && preg_match('/^FK-\d{2}-[A-F0-9]{5}$/', $ref); }
 
 function new_order_ref(){

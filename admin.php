@@ -10,6 +10,7 @@
 
 define('FK_ROOT', __DIR__);
 require FK_ROOT.'/inc/store.php';
+require FK_ROOT.'/inc/bitcoin.php';
 start_session();
 error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 header('X-Frame-Options: DENY');
@@ -70,6 +71,7 @@ function save($msg){
 const FORMAT_HELP = 'Blank line = new paragraph · "## " heading · "- " bullet · **bold** · links: [text](product:ID), category:KEY, set:SLUG, cards:SLUG, guide:SLUG, page:shipping, or a full https:// address · {min_order} fills in your minimum order.';
 /* first path segments the shop uses itself, so categories can't take them */
 const RESERVED_SLUGS = ['shop','products','sets','cards','guides','cart','checkout','order-received','how-it-works','shipping',
+                        'shipping-returns','returns','pay','pay-status',
                         'payment-methods','faq','contact','sitemap-xml','admin-php','index-php','assets','data','inc'];
 
 function unique_slug($slug, $taken){
@@ -447,6 +449,12 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     }
     $STORE['shipping'] = ['methods'=>$methods, 'round_up'=>!empty($_POST['round_up']), 'zones'=>$zones, 'rest'=>$rest];
     $STORE['settings']['shipping_reviewed'] = true;
+    $free = num(in_str('free_ship_usd'), 0);
+    if($free !== null) $STORE['settings']['free_ship_usd'] = round($free, 2); else note('Free shipping: enter an amount in USD, or 0 to turn it off. The old amount was kept.', 'err');
+    $policy = in_str('shipping_policy');
+    if($policy !== '') $STORE['settings']['shipping_policy'] = str_replace("\r", '', $policy);
+    else note('The Shipping & Returns page text was empty, so the old text was kept.', 'err');
+    if($policy !== '' && strpos($policy, '{rates}') === false) note('The Shipping & Returns text has no {rates} line, so the rate tables won’t show on that page.', 'err');
     save('Shipping rates saved.');
     go('shipping');
   }
@@ -464,8 +472,14 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
       $pays[$key] = ['label'=>$label, 'note'=>str($row['note'] ?? ''),
                      'countries'=>($where === '' || $where === '*') ? '*' : codes($where),
                      'enabled'=>!empty($row['enabled'])];
+      if(($row['type'] ?? '') === 'bitcoin') $pays[$key]['type'] = 'bitcoin';
     }
     $STORE['payments'] = $pays;
+    $addr = btc_norm(in_str('btc_address'));
+    if($addr === '' || btc_valid_address($addr)) $STORE['settings']['btc_address'] = $addr;
+    else note("“{$addr}” isn’t a valid Bitcoin address (check for a missing or mistyped character), so the old address was kept.", 'err');
+    foreach(['btc_quote_minutes'=>[10, 1440], 'btc_confirmations'=>[1, 6]] as $k=>[$lo, $hi]){ $n = num(in_str($k), $lo); if($n !== null) $STORE['settings'][$k] = (int)min($hi, $n); }
+    if(array_filter($pays, fn($m)=>btc_method($m) && !empty($m['enabled'])) && !btc_ready()) note('A Bitcoin payment method is on, but there’s no valid wallet address, so it’s hidden from checkout.', 'err');
     save('Payment methods saved.');
     go('payments');
   }
@@ -485,6 +499,8 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     $s['home_seo_desc']  = str(in_arr('home')['seo_desc'] ?? '');
     $s['home_intro']     = in_str('home_intro');
     $s['pretty_urls']    = !empty($_POST['pretty_urls']);
+    $s['chat_code']      = str_replace("\r", '', (string)($_POST['chat_code'] ?? ''));
+    if(trim($s['chat_code']) !== '' && stripos($s['chat_code'], '<script') === false) note('The live chat code has no <script> tag, so it probably won’t work. Paste the whole snippet from your chat provider.', 'err');
     unset($s);
 
     $curs = [];
@@ -532,6 +548,29 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
       if(array_key_exists(in_str('status'), ORDER_STATUSES)) $o['status'] = in_str('status');
       $o['admin_note'] = in_str('admin_note');
       if(order_save($o)) note("Order {$o['ref']} updated."); else note('Could not save the order.', 'err');
+      go('order', ['ref'=>$o['ref']]);
+    }
+    go('orders');
+  }
+
+  if($do === 'btc_check' || $do === 'btc_attach'){
+    $o = order_load(in_str('ref'));
+    if($o && !empty($o['btc'])){
+      if($do === 'btc_attach'){
+        $txid = strtolower(in_str('txid'));
+        if(preg_match('#/tx/([0-9a-f]{64})#i', $txid, $m)) $txid = strtolower($m[1]);
+        $claims = btc_claims();
+        if(!preg_match('/^[0-9a-f]{64}$/', $txid)) note('That isn’t a transaction ID (64 letters and numbers).', 'err');
+        elseif(isset($claims[$txid]) && $claims[$txid] !== $o['ref']) note("That transaction is already matched to order {$claims[$txid]}.", 'err');
+        elseif(!($r = btc_lookup_tx($txid, $o['btc']['address']))) note('The block explorers didn’t answer. Try again in a minute.', 'err');
+        elseif(!$r['exists']) note('That transaction isn’t on the Bitcoin network (yet).', 'err');
+        elseif(!$r['found']) note('That transaction doesn’t pay '.$o['btc']['address'].'.', 'err');
+        else { $before = btc_state($o); btc_attach($o, $r['found'], $r['tip']); $after = btc_state($o);
+               if($after === 'seen') btc_mail($o, 'received');
+               elseif($after !== $before){ if($after === 'confirmed' && in_array($o['status'] ?? 'new', ['new','invoiced'], true)) $o['status'] = 'paid'; btc_mail($o, $after); }
+               note('Transaction attached and receipts emailed.'); }
+      } else { btc_quote($o); btc_sync($o, true); note('Checked the blockchain: '.btc_state_label(btc_state($o)).'.'); }
+      order_save($o);
       go('order', ['ref'=>$o['ref']]);
     }
     go('orders');
@@ -745,6 +784,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 
 <?php elseif($v === 'order'):
   $o = order_load(str($_GET['ref'] ?? ''));
+  if($o && !empty($o['btc']) && in_array(btc_state($o), ['awaiting','reported','seen'], true) && btc_sync($o)) order_save($o);
   if(!$o): ?><p>That order doesn’t exist. <a href="<?= h(self_url('orders')) ?>">Back to orders</a></p>
   <?php else: $st = $o['status'] ?? 'new'; ?>
   <p class="small"><a href="<?= h(self_url('orders')) ?>">← Orders</a></p>
@@ -769,6 +809,29 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
       </form>
     </div>
   </div>
+  <?php if(!empty($o['btc'])): $b = $o['btc']; $bst = btc_state($o); ?>
+  <div class="card"><h2>Bitcoin payment <span class="pill <?= in_array($bst, ['confirmed'], true) ? 's-paid' : ($bst === 'short' ? 's-low' : ($bst === 'seen' ? 's-invoiced' : 's-new')) ?>"><?= h(btc_state_label($bst)) ?></span></h2>
+    <dl class="kv">
+      <dt>Amount due</dt><dd><?= !empty($b['sats']) ? h(btc_amount($b['expected_sats'] ?? $b['sats'])).' BTC <span class="muted small">at $'.number_format($b['rate'], 2).' ('.h($b['rate_source']).')'.(!empty($b['txid']) ? '' : ', held until '.h(gmdate('H:i', $b['expires'])).' UTC').'</span>' : '<span class="muted">not quoted yet (price feeds unavailable)</span>' ?></dd>
+      <dt>To address</dt><dd><a href="<?= h(btc_addr_url($b['address'])) ?>" target="_blank" rel="noopener"><code><?= h($b['address']) ?></code></a></dd>
+      <?php if(!empty($b['txid'])): ?>
+        <dt>Paid</dt><dd><b><?= h(btc_amount($b['paid_sats'])) ?> BTC</b> · <?= (int)($b['confirmations'] ?? 0) ?> confirmation<?= ($b['confirmations'] ?? 0) == 1 ? '' : 's' ?></dd>
+        <dt>Transaction</dt><dd><a href="<?= h(btc_tx_url($b['txid'])) ?>" target="_blank" rel="noopener"><code><?= h($b['txid']) ?></code> ↗</a></dd>
+      <?php elseif(!empty($b['reported'])): ?>
+        <dt>Customer says</dt><dd>paid with <a href="<?= h(btc_tx_url($b['reported'])) ?>" target="_blank" rel="noopener"><code><?= h($b['reported']) ?></code> ↗</a> (not checked yet)</dd>
+      <?php endif; ?>
+      <dt>Payment page</dt><dd><a href="<?= h(btc_pay_link($o)) ?>" target="_blank" rel="noopener">Customer’s payment page ↗</a> <span class="muted small">— the link from their email</span></dd>
+      <?php if(!empty($b['mails'])): ?><dt>Receipts</dt><dd class="small"><?php foreach($b['mails'] as [$kind, $t, $ok1, $ok2]) echo h(ucfirst($kind)).' · '.h(gmdate('j M H:i', $t)).' UTC'.($ok1 && $ok2 ? '' : ' <span style="color:var(--seal)">(email failed)</span>').'<br>'; ?></dd><?php endif; ?>
+    </dl>
+    <div class="row" style="margin-top:12px">
+      <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="btc_check"><input type="hidden" name="ref" value="<?= h($o['ref']) ?>"><button class="btn s" type="submit">Check the blockchain now</button></form>
+      <?php if(empty($b['txid'])): ?>
+      <form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="btc_attach"><input type="hidden" name="ref" value="<?= h($o['ref']) ?>">
+        <input type="text" name="txid" placeholder="Transaction ID the customer sent you" style="width:340px;max-width:100%;font-family:ui-monospace,Menlo,monospace;font-size:13px" aria-label="Transaction ID"><button class="btn g s" type="submit">Attach</button></form>
+      <?php endif; ?>
+    </div>
+  </div>
+  <?php endif; ?>
   <div class="card"><h2>Items</h2><div class="scroll"><table class="t">
     <thead><tr><th>Product</th><th>SKU</th><th class="r">Qty</th><th class="r">Unit (USD)</th><th class="r">Total (USD)</th><th class="r">Customer saw</th></tr></thead><tbody>
     <?php foreach($o['lines'] as $l): ?>
@@ -1089,6 +1152,11 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
       </div>
       <label class="row small"><input type="checkbox" name="round_up" value="1" <?= !empty($sh['round_up'])?'checked':'' ?>> Round shipping totals up to the next whole dollar</label>
     </div>
+    <div class="card"><h2>Free shipping</h2>
+      <div class="fld" style="max-width:320px"><label class="f" for="free_ship_usd">Free <?= h($SM['standard']['label']) ?> shipping on orders over (USD)</label>
+        <input type="number" id="free_ship_usd" name="free_ship_usd" min="0" step="1" value="<?= h($S['free_ship_usd'] ?? 0) ?>">
+        <div class="hint">Counts the goods total, before shipping. <?= h($SM['express']['label']) ?> then costs only the difference. 0 turns it off. It shows in the bar at the top of every page.</div></div>
+    </div>
     <div class="card scroll"><table class="t">
       <thead><tr><th>Zone name</th><th>Country codes</th>
         <?php foreach($SM as $mm): ?><th><?= h($mm['label']) ?><br>per order $</th><th><?= h($mm['label']) ?><br>per kg $</th><?php endforeach; ?><th>Delete</th></tr></thead><tbody>
@@ -1110,30 +1178,51 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
       </tbody></table>
       <p class="small muted">Country codes are the two-letter codes from your country list in <a href="<?= h(self_url('settings')) ?>">Settings</a> (US, GB, DE…), separated by commas.</p>
     </div>
-    <div class="card"><h2>What customers pay to the US (current rates)</h2>
+    <div class="card"><h2>What customers pay to the US (current rates, before free shipping)</h2>
       <table class="t"><thead><tr><th>Order</th><th class="r">Weight</th><?php foreach($SM as $mm): ?><th class="r"><?= h($mm['label']) ?></th><?php endforeach; ?></tr></thead><tbody>
         <?php foreach([['1 single card', 0.05], ['24 packs of sleeves', 1.44], ['6 booster boxes', 2.4], ['6 Elite Trainer Boxes', 5.4], ['12-box case', 5.6], ['36 booster boxes', 14.4]] as [$lbl, $kg]): ?>
           <tr><td><?= h($lbl) ?></td><td class="r"><?= h($kg) ?> kg</td><?php foreach(array_keys($SM) as $m): ?><td class="r"><?= $ex('US', $kg, $m) ?></td><?php endforeach; ?></tr>
         <?php endforeach; ?>
       </tbody></table>
     </div>
-    <button class="btn" type="submit">Save shipping rates</button>
+    <div class="card"><h2>Shipping &amp; Returns page</h2>
+      <p class="small muted" style="margin-top:0">The text of your <a href="index.php?p=shipping" target="_blank" rel="noopener">Shipping &amp; Returns page</a>. Keep the line <b>{rates}</b> where the delivery options and rate tables should appear.
+        Numbered steps start with “1. ”, and questions under “## Questions” start with “### ” (Google reads those as FAQs).
+        {free_ship} {standard} {express} {standard_days} {express_days} {hold_hours} {reply_hours} {min_order} {email} {company} {address} are filled in for you.</p>
+      <textarea name="shipping_policy" rows="26" style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px"><?= h($S['shipping_policy'] ?? '') ?></textarea>
+      <div class="hint small muted"><?= h(FORMAT_HELP) ?></div>
+    </div>
+    <button class="btn" type="submit">Save shipping</button>
   </form>
 
 <?php elseif($v === 'payments'): ?>
   <h1>Payment methods</h1>
-  <p class="sub">Customers pick one at checkout; you then send them the details. Leave “Countries” as * for everywhere, or list country codes (e.g. US, GB).</p>
+  <p class="sub">Customers pick one at checkout. <b>Bitcoin</b> methods are paid on the site, straight to your wallet; for the others, you send the customer the details. Leave “Countries” as * for everywhere, or list country codes (e.g. US, GB).</p>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="payments_save">
+    <div class="card"><h2>Bitcoin wallet</h2>
+      <?php $ba = $S['btc_address'] ?? ''; ?>
+      <div class="fld"><label class="f" for="btc_address">Your Bitcoin address (receives every Bitcoin payment)</label>
+        <input type="text" id="btc_address" name="btc_address" value="<?= h($ba) ?>" spellcheck="false" autocomplete="off" style="font-family:ui-monospace,Menlo,Consolas,monospace">
+        <div class="hint"><?php if($ba !== '' && btc_valid_address($ba)): ?>✓ Valid address. <a href="<?= h(btc_addr_url(btc_norm($ba))) ?>" target="_blank" rel="noopener">See its payments on mempool.space ↗</a><?php else: ?>Paste a receiving address from your wallet (bc1…, 1… or 3…). It’s checked before saving, so a typo can’t get through.<?php endif; ?>
+          Only the address is ever stored here, never your wallet’s keys or recovery words.</div></div>
+      <div class="grid2">
+        <div class="fld"><label class="f" for="btc_quote_minutes">Hold the BTC amount for (minutes)</label><input type="number" id="btc_quote_minutes" name="btc_quote_minutes" min="10" max="1440" value="<?= (int)($S['btc_quote_minutes'] ?? 60) ?>"><div class="hint">Then it’s renewed at the current price if still unpaid.</div></div>
+        <div class="fld"><label class="f" for="btc_confirmations">Confirmations before an order is marked Paid</label><input type="number" id="btc_confirmations" name="btc_confirmations" min="1" max="6" value="<?= (int)($S['btc_confirmations'] ?? 1) ?>"><div class="hint">1 is usually enough for orders like yours; use 2–3 for very large ones.</div></div>
+      </div>
+      <p class="small muted" style="margin:0">When a payment shows up, you and the customer get a receipt email with a link to follow the transaction, and another when it confirms. Prices come from mempool.space, Coinbase or Kraken.</p>
+    </div>
     <div class="card scroll"><table class="t">
-      <thead><tr><th>Name</th><th>Note shown to customers</th><th>Countries</th><th>On</th><th>Delete</th></tr></thead><tbody>
+      <thead><tr><th>Name</th><th>Type</th><th>Note shown to customers</th><th>Countries</th><th>On</th><th>Delete</th></tr></thead><tbody>
       <?php $i = 0; foreach($STORE['payments'] as $k=>$m): ?>
         <tr><td><input type="hidden" name="pays[<?= $i ?>][key]" value="<?= h($k) ?>"><input type="text" name="pays[<?= $i ?>][label]" value="<?= h($m['label']) ?>" aria-label="Name"></td>
+            <td><select name="pays[<?= $i ?>][type]" aria-label="Type"><option value="">You send details</option><option value="bitcoin" <?= btc_method($m)?'selected':'' ?>>Bitcoin, paid on the site</option></select></td>
             <td><input type="text" name="pays[<?= $i ?>][note]" value="<?= h($m['note']) ?>" aria-label="Note" style="min-width:240px"></td>
             <td><input type="text" name="pays[<?= $i ?>][countries]" value="<?= h($m['countries']==='*' ? '*' : implode(', ', $m['countries'])) ?>" aria-label="Countries"></td>
             <td><input type="checkbox" name="pays[<?= $i ?>][enabled]" value="1" <?= !empty($m['enabled'])?'checked':'' ?> aria-label="Enabled"></td>
             <td><input type="checkbox" name="pays[<?= $i ?>][delete]" value="1" aria-label="Delete"></td></tr>
       <?php $i++; endforeach; ?>
         <tr><td><input type="text" name="pays[<?= $i ?>][label]" placeholder="New method" aria-label="Name"></td>
+            <td><select name="pays[<?= $i ?>][type]" aria-label="Type"><option value="">You send details</option><option value="bitcoin">Bitcoin, paid on the site</option></select></td>
             <td><input type="text" name="pays[<?= $i ?>][note]" aria-label="Note"></td>
             <td><input type="text" name="pays[<?= $i ?>][countries]" value="*" aria-label="Countries"></td>
             <td><input type="checkbox" name="pays[<?= $i ?>][enabled]" value="1" checked aria-label="Enabled"></td><td></td></tr>
@@ -1197,6 +1286,13 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
       <input type="file" name="hero[]" accept="image/jpeg,image/png,image/webp"><div class="hint small muted">Landscape, about 1600×1200. Until you upload one, the home page shows the 30th Celebration Elite Trainer Box.</div>
     </div>
 
+    <div class="card"><h2>Live chat</h2>
+      <div class="fld"><label class="f" for="chat_code">Chat code from your chat provider</label>
+        <textarea id="chat_code" name="chat_code" rows="9" spellcheck="false" style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px"><?= h($S['chat_code'] ?? '') ?></textarea>
+        <div class="hint">Paste the whole snippet (Tawk.to: Administration → Channels → Chat Widget). It loads after each page has finished loading, so it never slows the shop down. Leave it empty to turn chat off.
+          To see visitors live and get new-chat alerts on your phone, install the Tawk.to app (iPhone or Android) and sign in.</div></div>
+    </div>
+
     <div class="card"><h2>Currencies</h2>
       <p class="small muted" style="margin-top:0">Prices are set in USD; other currencies are converted with these rates. Update the rates now and then.</p>
       <div class="scroll"><table class="t"><thead><tr><th>Code</th><th>Symbol</th><th>1 USD =</th><th>Decimals</th><th>Delete</th></tr></thead><tbody>
@@ -1255,7 +1351,7 @@ function orders_table($orders){ ?>
           <td class="small"><?= h($o['time']) ?></td>
           <td><?= h($o['name']) ?><?php if($o['company']): ?><br><span class="muted small"><?= h($o['company']) ?></span><?php endif; ?></td>
           <td><?= h($o['country_name']) ?></td>
-          <td><?= h($o['payment_label']) ?></td>
+          <td><?= h($o['payment_label']) ?><?php if(!empty($o['btc'])): ?><br><span class="muted small">₿ <?= h(btc_state_label(btc_state($o))) ?></span><?php endif; ?></td>
           <td class="r"><?= usd($o['total_usd'] ?? 0) ?></td>
           <td><span class="pill s-<?= h($st) ?>"><?= h(status_label(ORDER_STATUSES, $st)) ?></span></td></tr>
     <?php endforeach; ?>

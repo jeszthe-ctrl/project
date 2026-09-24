@@ -12,6 +12,7 @@ Wholesale Japanese Pokémon TCG shop in plain PHP. It needs no database and runs
 | `data/` | Created automatically. Holds your edits (`store.php`), orders (`orders/`), the admin login (`auth.php`) and the last 30 versions of your data (`backups/`). Blocked from the web. |
 | `assets/products/` | Product photos uploaded from the admin. Smaller copies for grids are kept in `thumbs/` and rebuilt automatically. |
 | `assets/site/` | Site photos (home page hero, 30th Celebration feature, link-preview image). These are not product photos. |
+| `assets/qrcode.min.js` | Draws the Bitcoin QR code on the payment page (MIT-licensed qrcode-generator). |
 
 You shouldn't need to edit any code. Day-to-day changes are made in `admin.php` and saved to `data/`, so uploading a newer version of the code never overwrites your products or orders.
 
@@ -22,7 +23,8 @@ You shouldn't need to edit any code. Day-to-day changes are made in `admin.php` 
 3. **Straight away**, open `https://your-domain/admin.php` and create your admin password. The first person to open that page sets the password, so don't leave this step for later.
 4. In the admin:
    - **Settings**: your registered company name, full business address, emails and website address.
-   - **Shipping**: your real shipping rates. The site ships with placeholder rates, and the dashboard warns you until you save this page.
+   - **Shipping**: your real shipping rates, the free-shipping amount and the Shipping & Returns page text. The site ships with starting rates, and the dashboard warns you until you save this page.
+   - **Payments**: check the Bitcoin address is yours (it's checked for typos before saving).
    - **Products**: add photos, check prices and add the rest of your range.
 
 ## How the shop works
@@ -32,7 +34,23 @@ You shouldn't need to edit any code. Day-to-day changes are made in `admin.php` 
 - **Shipping** is by weight, with two options at checkout: **Standard** (3–6 working days) and **Express** (1–2 working days). For each zone and option, the price is the per-order amount + the per-kg rate × the order weight (each product's weight × quantity). It is rounded up to a whole dollar unless you untick that in **Shipping**. Set per-kg to 0 for flat-rate shipping. Countries not in any zone use the "Rest of world" rates. The Shipping tab previews what US customers pay for typical orders.
 - **No stock limits.** Customers can order any quantity (in the product's multiples, from its minimum). To stop orders for a product, set its status to **Sold out**, or tick **Hide from the shop**.
 - **Orders** are saved in `data/orders/` and listed under **Orders** in the admin. Each one is also emailed to your order address and to the customer. Order statuses are: New → Payment details sent → Paid → Shipped (or Cancelled).
-- **Payments** aren't taken on the site. The customer picks a method (each can be limited to certain countries) and you send them the details.
+- **Free shipping**: orders whose goods total reaches the amount in **Shipping** ($2,000 by default) get free Standard shipping, and Express costs only the difference. It's shown in the bar at the top of every page, in the cart and at checkout. Set it to 0 to turn it off.
+- **Payments**: the customer picks a method (each can be limited to certain countries). For ordinary methods you send them the details. **Bitcoin** is paid on the site — see below.
+- **Shipping & Returns page**: one page with the delivery options, live rate tables and your policies. Edit the text in **Shipping**; the line `{rates}` is where the rate tables go, and questions under `## Questions` written as `### Question` are given to Google as FAQs. Old `/shipping` and `/returns` addresses redirect to it.
+
+## Bitcoin payments
+
+Customers who choose Bitcoin are taken straight to their order's payment page. It shows the exact BTC amount (worked out from the US-dollar total at the live price, held for 60 minutes and then renewed if unpaid), a QR code for their wallet, your address and copy buttons. The same page link is in their order email.
+
+The page watches the blockchain for the payment. When it appears, you and the customer each get a **receipt email** with a link to follow the transaction on mempool.space, and a second email when it **confirms**; the order is then marked **Paid**. If a customer pays a different amount (for example an exchange took its fee from it), they can paste their transaction ID on the page, and you can attach one yourself on the order in the admin. Payments that come up short are flagged, never marked Paid.
+
+- Set the address, how long an amount is held and how many confirmations to wait for in **Payments**. Only your address is stored: never your wallet's keys or recovery words.
+- The server needs to reach the public price and blockchain services (mempool.space, blockstream.info, Coinbase, Kraken). Every normal host allows this (PHP's cURL, or `allow_url_fopen`).
+- Every order uses the same address, so anyone who looks it up on a block explorer can see the payments it has received.
+
+## Live chat
+
+The Tawk.to chat code is in **Settings → Live chat**. It loads after each page has finished loading, so it doesn't slow the shop down. To see visitors live and answer chats on your phone, install the Tawk.to app and sign in. To use a different chat service, paste its code instead; leave the box empty to turn chat off.
 
 ## Search engines (SEO)
 

@@ -5,7 +5,8 @@
    Formatting (intros and guides): blank line = new paragraph, "## " heading, "- " bullet, **bold**,
    [text](link). Links can be full URLs or shop pages: product:ID, category:KEY, set:SLUG (sets and
    series), cards:SLUG (collections), guide:SLUG, page:shop|sets|guides|faq|shipping|payment|how|contact.
-   {min_order} {reply_hours} {hold_hours} {countries} are filled in with current values. */
+   {min_order} {reply_hours} {hold_hours} {countries} {free_ship} {standard} {express} {standard_days} {express_days}
+   {brand} {company} {address} {email} are filled in with current values. */
 if(!defined('FK_ROOT')){ http_response_code(404); exit; }
 
 return [
@@ -26,6 +27,183 @@ Everything we sell is sourced in Japan and shipped to the USA sealed, exactly as
 ## Buying in bulk?
 
 Every listing shows its full quantity-break ladder, so card shops and resellers can price a complete order up front. Orders start at {min_order} including shipping, and shipping to the USA is calculated at checkout.
+MD,
+    /* the Shipping & Returns page ({rates} = the delivery options and rate tables) */
+    'shipping_policy' => <<<'MD'
+Every {brand} order ships from Japan with tracking. This page explains how we ship, what it costs, how long it takes and what happens if something goes wrong, in plain English. The price at checkout is always the final word on shipping for your order.
+
+## Delivery options and rates
+
+{rates}
+
+## Free shipping
+
+Orders with a goods total over **{free_ship}** ship free with {standard} delivery, to every country we ship to. It's applied automatically at checkout, with no code to enter. Want it faster? Choose {express} and you pay only the difference between {express} and {standard}.
+
+The threshold counts the goods in your order (after quantity breaks, before shipping) in US dollars. Import duty and taxes are never included.
+
+## From order to doorstep
+
+1. **You place your order** and get an email with your order reference straight away.
+2. **You pay.** Bitcoin is paid on your order page the moment you order. For other methods, we send payment details within {reply_hours} hours.
+3. **Your payment clears** and your stock is allocated to you.
+4. **We pack and dispatch** your order from Japan within {hold_hours} hours.
+5. **We email your tracking number** as soon as the label is created.
+6. **Your parcel is delivered.** Check it over as soon as you can (see below).
+
+Delivery times start when your parcel leaves us, not when you order.
+
+## Tracking your parcel
+
+Every parcel is tracked, and we email your tracking number the day the label is created. A new tracking number can take 24–48 hours to show its first scan, which is normal. Tracking usually runs: label created → accepted in Japan → export customs → in transit → import customs → out for delivery → delivered.
+
+If tracking hasn't changed for 5 working days, email us and we'll chase the carrier.
+
+## Delivery times and delays
+
+Delivery times are estimates in working days after dispatch, not guarantees. They can stretch when:
+
+- customs in your country holds a parcel for inspection
+- it's a holiday in Japan (New Year, Golden Week in early May, Obon in mid-August) or where you are
+- severe weather or natural disasters disrupt flights and roads
+- carriers are backlogged, for example in the run-up to Christmas
+- the address is remote, incomplete or hard to reach
+
+Planning a store launch, a release event or a stream? Choose {express} and give yourself a few spare days.
+
+## Customs, duty and taxes
+
+Your order ships from Japan, so it clears customs in your country. Import duty, VAT/GST, sales tax and carrier clearance fees are **not included** in our prices or shipping, and are paid by the buyer. Your carrier collects them before or on delivery. US orders of any value can be charged import duty and carrier fees.
+
+We declare every parcel honestly, with its true contents and value. We can't mark orders as gifts or declare a lower value.
+
+If import charges are refused, the parcel comes back to Japan. See [returned to sender](page:shipping#returned-to-sender).
+
+## Your delivery address
+
+Please double-check the recipient's name, street address, apartment or suite number, city, state or region, ZIP or postal code and phone number before you order. Carriers use your phone number for customs questions and to arrange delivery.
+
+Need to change the address? Email us straight away with your order reference. We can change it until your parcel is handed to the carrier. After that, it usually can't be redirected.
+
+## How we pack
+
+- **Sealed product** ships in its factory shrink wrap, boxed with padding so it can't move around.
+- **Cases** ship in their original distributor carton, inside an outer box where size allows.
+- **Single cards** ship sleeved and toploaded, sealed against moisture, in a rigid mailer or box.
+- **Graded cards** ship with the slab wrapped and boxed so the case can't take a knock.
+
+## If something goes wrong
+
+### Check your order when it arrives
+
+Open your parcel as soon as you can and check:
+
+- the outer box for crushing, tears or water damage
+- the number of items against your order confirmation
+- the shrink wrap and seals on sealed product
+- the condition of single cards, and the labels on graded slabs
+
+If anything is wrong, **keep everything**: the outer box and its label, the packing and the items. Take photos before you throw anything away, because carriers ask for them. For valuable orders, film the unboxing.
+
+### Damaged in transit
+
+Email [{email}](mailto:{email}) within **7 days of delivery** with your order reference and photos of the parcel (all sides, and the label), the packing and the damage. We'll replace, credit or refund the damaged items and their shipping.
+
+Light shelf wear on sealed boxes, such as a small dent, scuff or crease in the shrink wrap from factory and distributor handling, is normal and isn't transit damage. If you're not sure, send us photos and ask.
+
+### Missing or wrong items
+
+Compare what arrived with your order confirmation. If something is missing, or you received a different item, keep the wrong item unopened. Email us within 7 days with your order reference, what's missing or wrong, and photos of what arrived. We'll send what you ordered or refund it, and when the mistake is ours we cover the return shipping too.
+
+### Lost in transit
+
+If your parcel hasn't arrived 10 working days after the latest delivery estimate, or tracking hasn't moved for 7 working days, email us and we'll open a trace with the carrier. If the carrier confirms it's lost, we'll reship your order or refund it in full.
+
+### Marked delivered but not received
+
+Check around your property, with neighbours and with your building's reception or mailroom, and look for a delivery photo or signature on the tracking page. Still missing after 48 hours? Email us. We'll open a claim with the carrier and help however we can.
+
+### Returned to sender
+
+Parcels come back to us when the address is wrong or incomplete, delivery attempts fail, the parcel isn't collected or import charges are refused. We'll get in touch: we can reship once the new shipping is paid, or refund your order less the shipping both ways and any charges we're billed.
+
+## Returns
+
+Pokémon cards and sealed product are collectibles. Their value depends on their condition and on knowing exactly what's inside. So:
+
+- **Contact us before sending anything back.** We can't accept returns we haven't agreed.
+- **Sealed product** can come back only unopened, in its original shrink wrap and in the condition it arrived.
+- **Opened product** (boxes, packs, cases or tins) can't be returned, because its contents can no longer be verified.
+- **Single cards and graded slabs** must come back in the same holder or slab, in the same condition. We check slab certification numbers against what we shipped.
+- **Change-of-mind returns** are at our discretion. If we agree to one, you pay the return shipping and any import charges, and we refund the goods once they're back and checked.
+- **Our mistakes are free to fix.** Damaged, wrong and missing items never cost you return shipping.
+
+## Refunds
+
+Once we approve a refund, we send it within 5 working days, the same way you paid:
+
+- **Bitcoin and other crypto:** sent to a wallet address you confirm by email, for the US-dollar value of the refunded items, converted at the rate on the day we refund. Network fees come out of the amount sent.
+- **Other methods:** back through the same method where it allows refunds, or by bank transfer.
+
+Your bank, card or wallet may take a few more days to show it. Shipping is refunded when the problem was ours.
+
+## Cancellations and preorders
+
+You can cancel free of charge any time before your order is dispatched: email us with your order reference. Once it has shipped, the returns rules above apply.
+
+Preorders are invoiced when stock is allocated, not when you order, and ship as soon as stock arrives, usually on or just after the Japanese release date. Release dates are set by The Pokémon Company and sometimes move. If we can't fill a preorder, we refund it in full.
+
+## Authenticity guarantee
+
+Everything we sell is genuine, bought through Japanese distribution and shipped exactly as it left the factory. If you ever doubt an item, keep it as it arrived and email us with photos. We'll look into it straight away and make it right.
+
+## Questions
+
+### Do you ship Pokémon cards to the USA?
+
+Yes. Everything ships from Japan to the USA with tracking: {standard} takes {standard_days} and {express} takes {express_days}.
+
+### Do you offer free shipping?
+
+Yes. Orders over {free_ship} ship free with {standard} delivery, anywhere we ship. {express} costs only the difference.
+
+### How much is shipping?
+
+It depends on your order's weight and where it's going. The exact price shows at checkout before you order, and the rate table on this page shows how it's worked out.
+
+### How do I track my order?
+
+We email your tracking number when your order ships. New tracking numbers can take 24–48 hours to show their first scan.
+
+### Will I pay import duty or taxes?
+
+Possibly. Import duty, taxes and carrier fees aren't included in our prices, and your carrier collects them before or on delivery.
+
+### My order arrived damaged. What do I do?
+
+Keep the parcel, the packing and the items, take photos, and email us within 7 days of delivery. We'll replace, credit or refund the damaged items.
+
+### Can I return a booster box I've opened?
+
+No. Opened boxes, packs and cases can't be returned, because their contents can no longer be verified. Unopened sealed product can be returned by agreement.
+
+### Can I change my delivery address?
+
+Yes, until your parcel is handed to the carrier. Email us with your order reference as soon as possible.
+
+### Can I cancel my order?
+
+Yes, free of charge until it's dispatched. Email us with your order reference.
+
+### How are Bitcoin payments refunded?
+
+To a wallet address you confirm by email, for the US-dollar value of the refunded items at that day's rate, less network fees.
+
+## Contact us
+
+Email [{email}](mailto:{email}) with your order reference, your tracking number if you have one, what went wrong, and photos where they help. We reply within {reply_hours} hours.
+
+{company} · {address}
 MD,
   ],
 
@@ -402,28 +580,6 @@ Sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:
 
 {company} · {address} · [{email}](mailto:{email})
 MD],
-    ['slug'=>'returns', 'title'=>'Returns, damage & missing items',
-     'seo_title'=>'Returns & Damaged Items Policy',
-     'seo_desc'=>'What to do if your Pokémon card order arrives damaged, short or wrong: report it within seven days and we replace, credit or refund the affected items.',
-     'body'=><<<'MD'
-We want every order to arrive exactly as you ordered it. Here's what happens if it doesn't.
-
-## Damaged, short or wrong items
-
-If your order arrives damaged in transit, short, or with a wrong item, email [{email}](mailto:{email}) within **seven days of delivery** with your order reference and photos of the parcel and the items. We will replace, credit or refund the affected items and their shipping.
-
-## Anything else
-
-Pokémon cards and sealed product are collectibles, so please contact us before sending anything back and we'll tell you how to proceed.
-
-## Preorders
-
-Preorders are invoiced when stock is allocated, not when you order.
-
-## Import duty and taxes
-
-Import duty, taxes and carrier fees charged on delivery are the buyer's responsibility — see [shipping](page:shipping).
-MD],
     ['slug'=>'privacy-policy', 'title'=>'Privacy policy',
      'seo_title'=>'Privacy Policy',
      'seo_desc'=>'What information FUDAKURA collects when you order, how it is used, and how to ask us to see, correct or delete it.',
@@ -434,7 +590,9 @@ This policy explains what information {brand} collects and how it is used.
 
 - **Order details** you enter at checkout: name, company, email, phone, shipping address, notes and your chosen payment method.
 - **Technical details:** your IP address is stored with each order to help prevent fraud and spam.
-- **Cookies:** one session cookie keeps your order basket and currency choice while you browse. We don't use advertising or tracking cookies.
+- **Cookies:** one session cookie keeps your order basket and currency choice while you browse. We don't use advertising cookies.
+- **Live chat:** our chat window is provided by [tawk.to](https://www.tawk.to/privacy-policy/). It sets its own cookies and shows us the page you're on, your approximate location and your browser while you're on the site, so we can help. Messages you send in chat are stored by tawk.to.
+- **Bitcoin payments:** we store the transaction ID and amount of your payment with your order. Bitcoin transactions are public on the Bitcoin blockchain, as with any Bitcoin payment.
 
 ## How we use it
 
@@ -442,7 +600,7 @@ We use your details only to process and deliver your order, send payment details
 
 ## Sharing
 
-We share your name, address and phone number with the carrier delivering your order. We don't sell your information or share it for marketing.
+We share your name, address and phone number with the carrier delivering your order. To check Bitcoin payments, our server looks up our own wallet address on public block explorers (mempool.space and blockstream.info); no personal details are sent. We don't sell your information or share it for marketing.
 
 ## How long we keep it
 
@@ -472,7 +630,7 @@ Placing an order reserves stock for {hold_hours} hours while we send payment det
 
 ## Payment
 
-No payment is taken on this site. We send payment details for your chosen method within {reply_hours} hours. Always quote your order reference, and check payment details against our email from {email}.
+**Bitcoin** is paid from your order page, straight after you order, to the wallet address shown there. The BTC amount is fixed for a limited time and renewed at the current rate if it runs out before you pay; send the exact amount shown. For **other methods**, we send payment details within {reply_hours} hours: always quote your order reference, and check payment details against our email from {email}. We never ask for card details, passwords or wallet keys.
 
 ## Preorders
 
@@ -480,11 +638,11 @@ Preorders are invoiced when stock is allocated, not when you order.
 
 ## Shipping and duties
 
-Orders ship from Japan with tracking, and shipping is calculated at checkout. Import duty, taxes and carrier fees charged on delivery are the buyer's responsibility.
+Orders ship from Japan with tracking, and shipping is calculated at checkout. Orders over {free_ship} (goods total) ship free with Standard delivery. Import duty, taxes and carrier fees charged on delivery are the buyer's responsibility. See [Shipping & Returns](page:shipping).
 
 ## Damage and shortages
 
-Report damage, shortages or wrong items within seven days of delivery — see [returns](page:returns).
+Report damage, shortages or wrong items within seven days of delivery. Returns, refunds and cancellations follow our [Shipping & Returns policy](page:shipping#returns).
 
 ## Authenticity and trademarks
 
@@ -497,11 +655,12 @@ MD],
     ['Do I need an account to see pricing?', 'No. Every product shows its full quantity-break ladder publicly, so you can price a complete order before contacting anyone. There is no application form and no approval wait.'],
     ['What is the minimum order?', 'Every order must total at least {min_order} including shipping. Sealed product is sold in cases (usually multiples of four or six); single cards start at one.'],
     ['Are Japanese Pokémon cards the same size as English cards?', 'Yes. Both are 63 × 88 mm (about 2.5 × 3.5 inches), so they fit standard sleeves, toploaders and binders.'],
-    ['How do I pay?', 'Select a method at checkout. We send the details for your chosen method to your email and phone within {reply_hours} hours, together with your invoice.'],
+    ['How do I pay?', 'Choose a method at checkout. Bitcoin is paid on your order page straight after you order: scan the QR code, or copy the amount and address into your wallet. For other methods, we send the details to your email and phone within {reply_hours} hours, together with your invoice.'],
+    ['Do you offer free shipping?', 'Yes. Orders with a goods total over {free_ship} ship free with Standard delivery to every country we ship to, applied automatically at checkout. Choose Express and you pay only the difference.'],
     ['When is my stock allocated?', 'Placing an order reserves your stock for {hold_hours} hours. Once payment clears, the allocation is confirmed and we dispatch within {hold_hours} hours. If payment does not clear inside the window, high-demand stock returns to general availability.'],
     ['Will I pay import duty in the USA?', 'Possibly. US imports of any value can be charged import duty and carrier fees, which your carrier collects on delivery. These are not included in our prices.'],
     ['Can I preorder an upcoming set?', 'Yes. Preorder lines commit an allocation ahead of release at the same published prices, and are invoiced at allocation rather than at request.'],
     ['Are your Pokémon cards authentic?', 'Yes. Everything is sourced through Japanese distribution and ships sealed in its original factory packaging. We do not deal in resealed, reprinted or fake product.'],
-    ['What if something arrives damaged or short?', 'Report transit damage, a short shipment or a wrong item within seven days of delivery and we replace, credit or refund the affected lines and their shipping.'],
+    ['What if something arrives damaged or short?', 'Report transit damage, a short shipment or a wrong item within seven days of delivery, with photos, and we replace, credit or refund the affected items and their shipping. Our Shipping & Returns page has the details.'],
   ],
 ];

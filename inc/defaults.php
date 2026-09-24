@@ -26,6 +26,29 @@ $d = [
     'footer_blurb'  => 'Wholesale Japanese Pokémon TCG, shipped worldwide from Japan to retailers, resellers and card shops. Pricing published on every product — order direct, no account needed.',
     'shipping_reviewed' => false,
     'pretty_urls'   => false,            /* clean addresses like /products/151-booster-box; turn on in Admin → Settings */
+    'free_ship_usd' => 2000,             /* free Standard shipping from this goods total (USD); 0 = off */
+
+    /* Bitcoin: orders paid with a "Bitcoin" payment method are paid to this address from the order page */
+    'btc_address'       => 'bc1qhvgghjapwsugh4nnckh0skqar7jcg5xmu36jpl',
+    'btc_quote_minutes' => 60,           /* how long a BTC amount is held before it is renewed at the current price */
+    'btc_confirmations' => 1,            /* blockchain confirmations before an order is marked Paid */
+
+    /* live chat (Tawk.to): loaded after the page has finished loading, so it never slows the shop down */
+    'chat_code' => <<<'HTML'
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/6ab599650aebd43443ef66b2/default';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
+HTML,
   ],
 
   'currencies' => [
@@ -620,8 +643,10 @@ Terastal Festival ex is built around Terastal Pokémon and all of the Eevee evol
   ],
 
   /* countries: '*' = everywhere, or a list of country codes */
+  /* type 'bitcoin' = paid on the site to btc_address above; any other method = you send the details */
   'payments' => [
-    'crypto'   => ['label'=>'Cryptocurrency',   'note'=>'BTC, ETH or USDT (TRC-20 / ERC-20). Network fees are the sender\'s.', 'countries'=>'*', 'enabled'=>true],
+    'bitcoin'  => ['label'=>'Bitcoin (BTC) — pay now', 'note'=>'Pay from any Bitcoin wallet as soon as you order. The exact amount and a QR code appear on the next page.', 'countries'=>'*', 'enabled'=>true, 'type'=>'bitcoin'],
+    'crypto'   => ['label'=>'Other crypto (ETH, USDT)', 'note'=>'ETH or USDT (TRC-20 / ERC-20). We send the wallet address with your invoice. Network fees are the sender\'s.', 'countries'=>'*', 'enabled'=>true],
     'cashapp'  => ['label'=>'Cash App',         'note'=>'US customers only.', 'countries'=>['US'], 'enabled'=>true],
     'applepay' => ['label'=>'Apple Pay',        'note'=>'US customers only.', 'countries'=>['US'], 'enabled'=>true],
     'ukbank'   => ['label'=>'UK bank transfer', 'note'=>'UK customers only. Faster Payments to a UK account in our business name.', 'countries'=>['GB'], 'enabled'=>true],
