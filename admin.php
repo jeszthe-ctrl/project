@@ -550,6 +550,8 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   <p class="sub">Everything you change here updates the shop straight away.</p>
   <?php if(empty($S['shipping_reviewed'])): ?><div class="msg warn">Shipping rates are still the <b>placeholder values</b> the site shipped with. Set your real rates in <a href="<?= h(self_url('shipping')) ?>">Shipping</a> — they decide the order total and the <?= usd($S['min_order_usd']) ?> minimum.</div><?php endif; ?>
   <?php if(in_array(trim($S['address']), ['', 'Japan'], true)): ?><div class="msg warn">Your business address is just “<?= h($S['address'] ?: 'blank') ?>”. Add the full address in <a href="<?= h(self_url('settings')) ?>">Settings</a> — buyers look for it before ordering.</div><?php endif; ?>
+  <?php $failed = array_filter(array_slice($orders, 0, 20), fn($o)=>isset($o['mail_shop']) && !$o['mail_shop']);
+  if($failed): ?><div class="msg err"><?= count($failed) ?> recent order email<?= count($failed)===1?'':'s' ?> to <?= h($S['order_email']) ?> failed to send. The orders are safe here, but check with your host that PHP can send mail from <?= h($S['email']) ?>.</div><?php endif; ?>
   <?php if($no_photo): ?><div class="msg warn"><?= count($no_photo) ?> product<?= count($no_photo)===1?' has':'s have' ?> no photo yet. Add photos from <a href="<?= h(self_url('products')) ?>">Products</a>.</div><?php endif; ?>
   <div class="stats">
     <div><b><?= (int)($by['new'] ?? 0) ?></b><span>New orders</span></div>
@@ -582,6 +584,8 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   <p class="small"><a href="<?= h(self_url('orders')) ?>">← Orders</a></p>
   <h1>Order <?= h($o['ref']) ?> <span class="pill s-<?= h($st) ?>"><?= h(status_label(ORDER_STATUSES, $st)) ?></span></h1>
   <p class="sub">Placed <?= h($o['time']) ?> · pays by <b><?= h($o['payment_label']) ?></b> · shown to customer in <?= h($o['currency']) ?></p>
+  <?php if(isset($o['mail_shop']) && (!$o['mail_shop'] || !$o['mail_customer'])): ?><div class="msg err">
+    <?= !$o['mail_shop'] ? 'The new-order email to you did not send. ' : '' ?><?= !$o['mail_customer'] ? 'The customer’s confirmation email did not send, so contact them directly.' : '' ?></div><?php endif; ?>
   <div class="grid2">
     <div class="card"><h2>Customer</h2><dl class="kv">
       <dt>Name</dt><dd><?= h($o['name']) ?></dd>
@@ -800,7 +804,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
         <div class="fld"><label class="f" for="order_email">Send new orders to</label><input type="email" id="order_email" name="order_email" value="<?= h($S['order_email']) ?>"></div>
         <div class="fld"><label class="f" for="phone">Phone (optional)</label><input type="text" id="phone" name="phone" value="<?= h($S['phone']) ?>"></div>
       </div>
-      <div class="fld"><label class="f" for="domain">Website address</label><input type="url" id="domain" name="domain" value="<?= h($S['domain']) ?>"><div class="hint">Used for Google and link previews, e.g. https://fudakura.com</div></div>
+      <div class="fld"><label class="f" for="domain">Website address</label><input type="url" id="domain" name="domain" value="<?= h($S['domain']) ?>"><div class="hint">Used for Google and link previews, e.g. https://fudakura.store</div></div>
     </div>
 
     <div class="card"><h2>Store rules</h2>

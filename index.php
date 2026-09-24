@@ -89,6 +89,27 @@ function fill($text){
                        '{countries}'=>count($COUNTRIES), '{min_order}'=>money($MIN_ORDER)]);
 }
 
+/* =?UTF-8?B?…?= so names like “Pokémon” and dashes survive in subjects and sender names */
+function mail_header($s){ return preg_match('/[^\x20-\x7E]/', $s) ? '=?UTF-8?B?'.base64_encode($s).'?=' : $s; }
+
+/* UTF-8 plain-text mail from the shop address. The envelope sender (-f) is set to the same
+   address so SPF checks line up; hosts that refuse -f get a second try without it. */
+function shop_mail($to, $subject, $body, $reply_to=''){
+  global $CONFIG;
+  $from = filter_var($CONFIG['email'], FILTER_VALIDATE_EMAIL) ? $CONFIG['email'] : $CONFIG['order_email'];
+  $headers = implode("\r\n", array_filter([
+    'From: '.mail_header($CONFIG['brand']).' <'.$from.'>',
+    $reply_to ? 'Reply-To: '.$reply_to : '',
+    'MIME-Version: 1.0',
+    'Content-Type: text/plain; charset=UTF-8',
+    'Content-Transfer-Encoding: quoted-printable',
+  ]));
+  $subject = mail_header($subject);
+  $body = quoted_printable_encode($body);
+  return @mail($to, $subject, $body, $headers, '-f'.$from) || @mail($to, $subject, $body, $headers);
+}
+
+/* returns which emails went out, so a failure shows up in the admin instead of vanishing */
 function send_order_mail($order){
   global $CONFIG;
   $body  = "NEW ORDER  {$order['ref']}\n";
@@ -117,9 +138,7 @@ function send_order_mail($order){
   if($order['notes']) $body .= "NOTES\n  {$order['notes']}\n\n";
   $body .= "Submitted: {$order['time']}\n";
 
-  $headers = "From: {$CONFIG['brand']} <{$CONFIG['order_email']}>\r\n";
-  $headers .= "Reply-To: {$order['email']}\r\n";
-  @mail($CONFIG['order_email'], "New order {$order['ref']} — {$order['payment_label']}", $body, $headers);
+  $to_shop = shop_mail($CONFIG['order_email'], "New order {$order['ref']} — {$order['payment_label']}", $body, $order['email']);
 
   /* customer confirmation */
   $c  = "Thank you — we have your order.\n\n";
@@ -137,8 +156,8 @@ function send_order_mail($order){
   $c .= "with tracking.\n\n";
   $c .= "Questions: {$CONFIG['email']}\n";
   $c .= "{$CONFIG['legal_name']} — {$CONFIG['address']}\n";
-  @mail($order['email'], "Order {$order['ref']} received — {$CONFIG['brand']}", $c,
-        "From: {$CONFIG['brand']} <{$CONFIG['order_email']}>\r\n");
+  $to_customer = shop_mail($order['email'], "Order {$order['ref']} received — {$CONFIG['brand']}", $c, $CONFIG['email']);
+  return ['shop'=>$to_shop, 'customer'=>$to_customer];
 }
 
 /* ---------------- ACTIONS (POST / redirect) ---------------- */
@@ -238,7 +257,10 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         'ip'            => $_SERVER['REMOTE_ADDR'] ?? '',
       ];
       if(!order_save($order)) error_log("fudakura: could not save order {$order['ref']} to data/orders");
-      send_order_mail($order);
+      $sent = send_order_mail($order);
+      $order['mail_shop'] = $sent['shop']; $order['mail_customer'] = $sent['customer'];
+      order_save($order);
+      if(!$sent['shop']) error_log("fudakura: order email for {$order['ref']} to {$CONFIG['order_email']} failed");
       $_SESSION['last_order'] = $order;
       $_SESSION['cart'] = [];
       header('Location: '.url('received')); exit;
@@ -1009,7 +1031,7 @@ footer .bl{font-size:14px;opacity:.8;margin-top:11px;max-width:44ch}
       <div style="font-size:13px;color:var(--muted);letter-spacing:.08em">ORDER RECEIVED</div>
       <div class="ref"><?= h($o['ref']) ?></div>
       <h1 style="font-size:clamp(24px,3.4vw,34px);margin-top:10px">Thank you — we have your order.</h1>
-      <p class="lede" style="margin:14px auto 0">A confirmation is on its way to <b><?= h($o['email']) ?></b>. Your stock is reserved for <?= (int)$CONFIG['hold_hours'] ?> hours.</p>
+      <p class="lede" style="margin:14px auto 0"><?php if($o['mail_customer'] ?? true): ?>A confirmation is on its way to <b><?= h($o['email']) ?></b>.<?php else: ?>We couldn’t send a confirmation email just now, so please note your order reference. We have your order and will contact you at <b><?= h($o['email']) ?></b>.<?php endif; ?> Your stock is reserved for <?= (int)$CONFIG['hold_hours'] ?> hours.</p>
 
       <div class="card2">
         <h3 style="font-size:19px">What happens next</h3>
