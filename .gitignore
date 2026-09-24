@@ -1,5 +1,3 @@
 data/*
 !data/.htaccess
 !data/index.html
-assets/products/*
-!assets/products/.gitkeep

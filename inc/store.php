@@ -90,6 +90,36 @@ function photos($id){
   return $out;
 }
 
+/* Shrinks photos over $max px (phone photos are often 4000px and several MB) and turns
+   sideways phone JPEGs upright. Needs GD; skipped quietly without it, or when the host's
+   memory limit is too small to open the image. */
+function shrink_image($file, $max=1600){
+  $i = @getimagesize($file);
+  if(!$i || !function_exists('imagecreatetruecolor')) return;
+  $type = $i[2];
+  $orient = ($type === IMAGETYPE_JPEG && function_exists('exif_read_data')) ? (int)(@exif_read_data($file)['Orientation'] ?? 1) : 1;
+  if(max($i[0], $i[1]) <= $max && !in_array($orient, [3,6,8], true)) return;
+  $load = [IMAGETYPE_JPEG=>'imagecreatefromjpeg', IMAGETYPE_PNG=>'imagecreatefrompng', IMAGETYPE_WEBP=>'imagecreatefromwebp'][$type] ?? '';
+  if(!$load || !function_exists($load)) return;
+  $limit = ini_get('memory_limit');
+  $bytes = (int)$limit * (['g'=>1073741824, 'm'=>1048576, 'k'=>1024][strtolower(substr($limit, -1))] ?? 1);
+  if($bytes > 0 && memory_get_usage() + $i[0] * $i[1] * 5 * 2 > $bytes) return;
+  $src = @$load($file);
+  if(!$src) return;
+  if($orient === 3) $src = imagerotate($src, 180, 0);
+  if($orient === 6) $src = imagerotate($src, -90, 0);
+  if($orient === 8) $src = imagerotate($src, 90, 0);
+  $w0 = imagesx($src); $h0 = imagesy($src);
+  $r = min(1, $max / max($w0, $h0)); $w = (int)round($w0 * $r); $h = (int)round($h0 * $r);
+  $dst = imagecreatetruecolor($w, $h);
+  if($type !== IMAGETYPE_JPEG){ imagealphablending($dst, false); imagesavealpha($dst, true); }
+  imagecopyresampled($dst, $src, 0, 0, 0, 0, $w, $h, $w0, $h0);
+  if($type === IMAGETYPE_JPEG) imagejpeg($dst, $file, 85);
+  elseif($type === IMAGETYPE_PNG) imagepng($dst, $file, 6);
+  elseif(function_exists('imagewebp')) imagewebp($dst, $file, 85);
+  imagedestroy($src); imagedestroy($dst);
+}
+
 function slugify($s){
   $s = strtolower(strtr(trim((string)$s), ['é'=>'e','è'=>'e','ê'=>'e','É'=>'e','á'=>'a','à'=>'a','ä'=>'a','ó'=>'o','ö'=>'o','ú'=>'u','ü'=>'u','í'=>'i','ñ'=>'n','—'=>'-','–'=>'-']));
   return trim(preg_replace('/[^a-z0-9]+/', '-', $s), '-');

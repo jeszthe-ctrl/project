@@ -117,7 +117,7 @@ function take_uploads($field, $limit){
     $ext = image_ext($f['tmp_name'][$i]);
     if(!$ext){ note("Skipped “{$name}”: use a JPG, PNG or WebP image.", 'err'); continue; }
     $dest = "$dir/.up-".bin2hex(random_bytes(5)).".$ext";
-    if(move_uploaded_file($f['tmp_name'][$i], $dest)) $out[] = $dest;
+    if(move_uploaded_file($f['tmp_name'][$i], $dest)){ shrink_image($dest); $out[] = $dest; }
     else note("Could not store “{$name}”. Make sure assets/products is writable.", 'err');
   }
   return $out;
