@@ -393,7 +393,7 @@ Japanese Pokémon cards are the original version of every modern Pokémon Tradin
 
 ## Japanese sets come out first
 
-New Pokémon card sets are designed and released in Japan first. English versions usually follow months later, and are often built by combining or reworking Japanese sets, so set names don't always match. The Japanese [151](set:151) set became "Scarlet & Violet—151" in English, and [Terastal Festival ex](set:terastal-festival-ex) became "Prismatic Evolutions". If you want the newest cards as early as possible, Japanese is the way to get them.
+New Pokémon card sets are designed and released in Japan first. English versions usually follow months later, and are often built by combining or reworking Japanese sets, so set names don't always match. The Japanese [151](set:151) set became "Scarlet & Violet—151" in English, and [Terastal Festival ex](set:terastal-festival-ex) became "Prismatic Evolutions". If you want the newest cards as early as possible, Japanese is the way to get them. Every Japanese set we stock, with its set code, is listed in our [Pokémon card database](guide:pokemon-card-database).
 
 ## Same size, different packs
 
@@ -409,11 +409,13 @@ Many collectors say Japanese cards have more consistent printing, cutting and ce
 
 ## Can you play with Japanese cards?
 
-Japanese cards work exactly like English ones in casual play — the attacks, HP and rules are the same, just written in Japanese. Official tournaments have their own rules on card language, so check with your organiser before bringing Japanese cards to an event.
+Japanese cards work exactly like English ones in casual play — the attacks, HP and rules are the same, just written in Japanese. Official tournaments have their own rules on card language, so check with your organiser before bringing Japanese cards to an event. Our guides to [how to read a Pokémon card](guide:how-to-read-a-pokemon-card) and [how to play Pokémon cards](guide:how-to-play-pokemon-cards) work for both languages.
 
 ## Buying Japanese Pokémon cards in the USA
 
-We source every [booster box](category:boxes) and [single card](category:singles) in Japan and ship it to the USA with tracking. Shipping is calculated at checkout, orders start at {min_order} including shipping, and US import duty may be charged on delivery — see [shipping](page:shipping) for details.
+US stores such as Walmart and Target sell English cards ([where to buy Pokémon cards](guide:where-to-buy-pokemon-cards)), so Japanese cards mostly come from importers. Official Chinese-language cards are a different product again: see [Chinese Pokémon cards](guide:chinese-pokemon-cards).
+
+We source every [booster box](category:boxes) and [single card](category:singles) in Japan and ship it to the USA with tracking. Shipping is calculated at checkout and free on orders over {free_ship}, orders start at {min_order} including shipping, and US import duty may be charged on delivery — see [Shipping & Returns](page:shipping) for details.
 MD],
     ['slug'=>'most-expensive-pokemon-cards', 'updated'=>'2026-09-25',
      'title'=>'The most expensive Pokémon cards ever sold',
@@ -874,6 +876,7 @@ The Pokémon Trading Card Game is a game for two players. Each player uses a dec
 
 - **A 60-card deck for each player.** The easiest start is a ready-made deck, such as the [Eevee ex starter set](product:starter-set-ex-eevee-ex) or the [MEGA Start Deck 100](product:mega-start-deck-100-battle-collection).
 - **Damage counters, a coin or dice, and a playmat.** [Elite Trainer Boxes](category:etb) include counters and dice, and our [playmats](product:pokemon-playmat-assorted-designs) mark out where everything goes.
+- **Sleeves and a deck box** to keep your deck together: [deck protector sleeves](product:ultra-pro-pikachu-deck-protector-sleeves-65-ct) and a [deck box](product:pokemon-deck-box-assorted), or the [Pikachu Alcove Tower deck box](product:ultra-pro-pikachu-alcove-tower-deck-box).
 
 ## The three kinds of Pokémon cards
 
@@ -1131,7 +1134,7 @@ Tag Team cards show two, and sometimes three, Pokémon together on one card: Pik
 
 ## Cute Pokémon cards
 
-Cute cards are a collecting category of their own. Pikachu, Eevee and its evolutions, Jigglypuff, Snorlax and Psyduck appear on many of the most popular illustration rares. Japanese Art Rares (AR), which show a single Pokémon in a charming everyday scene, are an affordable way to build a cute binder. The [Terastal Festival ex](set:terastal-festival-ex) set, built around all the Eevee evolutions, is full of them, and our [Pikachu Pokémon cards](cards:pikachu-pokemon-cards) page collects Pikachu.
+Cute cards are a collecting category of their own. Pikachu, Eevee and its evolutions, Jigglypuff, Snorlax and Psyduck appear on many of the most popular illustration rares. Japanese Art Rares (AR), which show a single Pokémon in a charming everyday scene, are an affordable way to build a cute binder. The [Terastal Festival ex](set:terastal-festival-ex) set, built around all the Eevee evolutions, is full of them, and our [Pikachu Pokémon cards](cards:pikachu-pokemon-cards) page collects Pikachu, including this [Pikachu ex Special Illustration Rare](product:pikachu-ex-special-illustration-rare-277-217).
 
 ## Pokémon pictures: the art on the cards
 
@@ -1276,6 +1279,8 @@ A standard Pokémon card measures **63 × 88 mm**, or about **2.48 × 3.46 inche
 - Thickness: roughly 0.3 mm — a stack of about 30 cards is around 1 cm tall
 - Corners: rounded
 
+Making your own card? Our free [Pokémon card template](guide:pokemon-card-template) is set up at exactly this size, with bleed and a safe area for printing.
+
 ## Are Japanese Pokémon cards the same size?
 
 Yes. Japanese Pokémon cards are the same 63 × 88 mm as English cards. This catches people out because Japanese Yu-Gi-Oh! cards are smaller, so sleeves sold as "Japanese size" (about 62 × 89 mm) are made for Yu-Gi-Oh! and are too narrow for Pokémon cards.
@@ -1292,7 +1297,7 @@ A [9-pocket Pokémon card binder](product:pokemon-tcg-9-pocket-binder-mega-evolu
 
 ## Oversized and graded cards
 
-Jumbo promo cards are much larger than standard cards and need their own oversized sleeves or binders. Graded cards sit in a slab from the grading company — see our [PSA graded Pokémon cards](cards:psa-graded-pokemon-cards).
+Jumbo promo cards are much larger than standard cards and need their own oversized sleeves or binders. Graded cards sit in a slab from the grading company — see our [PSA graded Pokémon cards](cards:psa-graded-pokemon-cards) and [how much it costs to grade a Pokémon card](guide:how-much-does-it-cost-to-grade-a-pokemon-card).
 MD],
     ['slug'=>'how-to-tell-if-a-pokemon-card-is-fake', 'updated'=>'2026-09-24',
      'title'=>'How to tell if a Pokémon card is fake',
@@ -1341,7 +1346,9 @@ HP and attack damage that don't make sense — like an attack doing 1,000 damage
 
 The safest way to avoid fake and imitation Pokémon cards is to buy sealed product from a trusted seller. Check that booster boxes and packs are properly sealed, and treat prices far below market as a red flag.
 
-Everything we sell is sourced through Japanese distribution and ships sealed as it left the factory — browse our [booster boxes](category:boxes), or see [graded cards](cards:psa-graded-pokemon-cards), which have been authenticated by the grading company.
+A [Pokémon card scanner](guide:pokemon-card-scanner) app can tell you which card you're holding, but not whether it's real. Graded cards have been checked by the grading company: see [how much it costs to grade a Pokémon card](guide:how-much-does-it-cost-to-grade-a-pokemon-card).
+
+Everything we sell is sourced through Japanese distribution and ships sealed as it left the factory — browse our [booster boxes](category:boxes), see [where to buy Pokémon cards](guide:where-to-buy-pokemon-cards) safely, or see [graded cards](cards:psa-graded-pokemon-cards), which have been authenticated by the grading company.
 MD],
     ['slug'=>'pokemon-card-rarities', 'updated'=>'2026-09-24',
      'title'=>'Pokémon card rarities explained: rare, full art and gold cards',
@@ -1363,7 +1370,7 @@ The Mega Evolution series adds its own top-end rarities, such as the [Mega Rayqu
 
 ## What are full art Pokémon cards?
 
-A full art Pokémon card has artwork that covers the whole card instead of sitting in a frame. SR, SAR and gold cards are all full art. Special Illustration Rares are the most sought-after full arts in modern sets because each one is a unique illustration — see our [rare single cards](category:singles).
+A full art Pokémon card has artwork that covers the whole card instead of sitting in a frame. SR, SAR and gold cards are all full art. Special Illustration Rares are the most sought-after full arts in modern sets because each one is a unique illustration — see our [rare single cards](category:singles) and collectors' favourites in [cool Pokémon cards](guide:coolest-pokemon-cards).
 
 ## What are gold Pokémon cards?
 
@@ -1375,7 +1382,7 @@ The rarest Pokémon cards were never sold in packs at all: prize cards from cont
 
 ## Rarity isn't the whole story
 
-Two cards of the same rarity can be worth very different amounts. The Pokémon on the card matters — [Charizard](cards:charizard-pokemon-cards), [Pikachu](cards:pikachu-pokemon-cards) and [Gengar](cards:gengar-pokemon-cards) are always in demand — and so do condition and grading.
+Two cards of the same rarity can be worth very different amounts. The Pokémon on the card matters — [Charizard](cards:charizard-pokemon-cards), [Pikachu](cards:pikachu-pokemon-cards) and [Gengar](cards:gengar-pokemon-cards) are always in demand — and so do condition and grading. To see what cards sell for, use our [Pokémon card price checker](guide:pokemon-card-price-checker), or read about [the most expensive Pokémon cards](guide:most-expensive-pokemon-cards).
 MD],
     ['slug'=>'pokemon-card-values', 'updated'=>'2026-09-24',
      'title'=>'Pokémon card values: how much are Pokémon cards worth?',
@@ -1399,7 +1406,7 @@ As a rough guide: common and uncommon cards are usually worth a few cents; holo 
 
 ## How to check Pokémon card values
 
-The best guide to what a card is worth is what the same card has actually sold for recently. Search for the exact card — name, set number and language — and filter for sold listings on marketplaces, or use a price guide site. Always compare like for like: a raw card and a PSA 10 of the same card are different items, and so are Japanese and English versions.
+The best guide to what a card is worth is what the same card has actually sold for recently. Search for the exact card — name, set number and language — and filter for sold listings on marketplaces, or use a price guide site. Always compare like for like: a raw card and a PSA 10 of the same card are different items, and so are Japanese and English versions. A [Pokémon card scanner](guide:pokemon-card-scanner) app gives a quick first estimate.
 
 ## Pokémon card prices: price vs value
 
@@ -1411,7 +1418,7 @@ A card's price is what a seller asks; its value is what buyers actually pay. Whe
 
 ## Are modern Pokémon cards worth money?
 
-Modern cards can be valuable too. Chase cards from recent Japanese sets — like the [Mega Rayquaza ex Master Ultra Rare](product:mega-rayquaza-ex-mur) or the [Mega Gengar ex Special Illustration Rare](product:mega-gengar-ex-sir) — can sell for hundreds or even thousands of dollars soon after release. Our [rare single cards](category:singles) show current prices on every listing, with lower prices when you buy more.
+Modern cards can be valuable too. Chase cards from recent Japanese sets — like the [Mega Rayquaza ex Master Ultra Rare](product:mega-rayquaza-ex-mur) or the [Mega Gengar ex Special Illustration Rare](product:mega-gengar-ex-sir) — can sell for hundreds or even thousands of dollars soon after release. Our [rare single cards](category:singles) show current prices on every listing, with lower prices when you buy more. Ready to sell some of yours? See [where to sell Pokémon cards](guide:where-to-sell-pokemon-cards) and [how much it costs to grade a Pokémon card](guide:how-much-does-it-cost-to-grade-a-pokemon-card).
 MD],
   ],
 

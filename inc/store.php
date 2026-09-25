@@ -68,17 +68,20 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 2;
+const CONTENT_VERSION = 3;
 function content_upgrade($s, $d, $version){
-  if($version < 2){   /* keyword guides (September 2026) */
-    $untouched = ['pokemon-card-values'=>'e1c8e64401879ebcac7b241e90fae22f', 'how-to-tell-if-a-pokemon-card-is-fake'=>'76d9a8000302730c1310037025f38a90',
-                  'pokemon-card-rarities'=>'e521c0cb0e9db5519b7ee1e7a71f2e76'];
-    $new = array_column($d['guides'], null, 'slug');
+  $new = array_column($d['guides'], null, 'slug');
+  /* replace a guide with today's default, but only if it still matches the default it shipped with */
+  $refresh = function($untouched) use(&$s, $new){
     foreach($s['guides'] ?? [] as $i=>$g){
       $slug = $g['slug'] ?? '';
       if(isset($untouched[$slug], $new[$slug]) && md5(json_encode([$g['title'] ?? '', $g['seo_title'] ?? '', $g['seo_desc'] ?? '', $g['body'] ?? ''])) === $untouched[$slug])
         $s['guides'][$i] = $new[$slug];
     }
+  };
+  if($version < 2){   /* keyword guides (September 2026) */
+    $refresh(['pokemon-card-values'=>'e1c8e64401879ebcac7b241e90fae22f', 'how-to-tell-if-a-pokemon-card-is-fake'=>'76d9a8000302730c1310037025f38a90',
+              'pokemon-card-rarities'=>'e521c0cb0e9db5519b7ee1e7a71f2e76']);
     $have = array_column($s['guides'] ?? [], 'slug');
     $add = array_values(array_filter($d['guides'], fn($g)=>!in_array($g['slug'], $have, true)));
     $at = array_search('japanese-pokemon-cards', $have, true);
@@ -86,6 +89,12 @@ function content_upgrade($s, $d, $version){
     foreach(['mega'=>'Pokémon TCG Mega Evolution sets (Japanese)', 'sv'=>'Pokémon TCG Scarlet & Violet sets (Japanese)'] as $k=>$old)
       if(($s['series'][$k]['h1'] ?? '') === $old && isset($d['series'][$k])) $s['series'][$k]['h1'] = $d['series'][$k]['h1'];
     if(isset($s['sets']['151'], $d['sets']['151']) && md5($s['sets']['151']['intro'] ?? '') === 'f5fcaf3d3354a7554c4bc324e1733a6e') $s['sets']['151']['intro'] = $d['sets']['151']['intro'];
+  }
+  if($version < 3){   /* links from the original guides to the keyword guides */
+    $refresh(['japanese-pokemon-cards'=>'a8fd982a383ce3bdcc5ab6e036190916', 'pokemon-card-size'=>'1234128d8b1cbbee998b58fe1e6efc36',
+              'pokemon-card-rarities'=>'73fc2cb21f9ba24cc5ce4fef927e2bd9', 'pokemon-card-values'=>'477ebb8b3fb7c80b7daefe58f72801a3',
+              'how-to-tell-if-a-pokemon-card-is-fake'=>'23aa0b44bf81b80c8383baccf145b71f',
+              'how-to-play-pokemon-cards'=>'b45490267d5e4fccd47b333d7f20026c', 'coolest-pokemon-cards'=>'88e6f3ed3e446bc3ec6b73d30d13246d']);
   }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;

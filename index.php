@@ -256,13 +256,95 @@ function desc_parts($text){
   return [trim($parts[0] ?? ''), trim($parts[1] ?? '')];
 }
 /* guides that suit each product type, if they exist */
-function guides_for($cat){
-  $map = ['boxes'=>['japanese-pokemon-cards','how-to-tell-if-a-pokemon-card-is-fake','pokemon-card-values'],
-          'etb'=>['japanese-pokemon-cards','pokemon-card-size'], 'premium'=>['japanese-pokemon-cards','pokemon-card-size'],
-          'singles'=>['pokemon-card-rarities','pokemon-card-values','how-to-tell-if-a-pokemon-card-is-fake'],
-          'accessories'=>['pokemon-card-size']];
-  return array_values(array_filter(array_map('guide_by_slug', $map[$cat] ?? ['japanese-pokemon-cards'])));
+/* ---------------- internal links ----------------
+   The short link text for each guide (the keyword it targets), the guides that go together, and the
+   guides each kind of page links to. Guides added in the admin simply use their title. */
+const GUIDE_ANCHORS = [
+  'japanese-pokemon-cards'=>'Japanese Pokémon cards explained', 'most-expensive-pokemon-cards'=>'Most expensive Pokémon cards',
+  'rarest-pokemon-cards'=>'Rarest Pokémon cards', 'pokemon-card-price-checker'=>'Pokémon card price checker',
+  'pokemon-card-database'=>'Pokémon card database & card lists', 'where-to-buy-pokemon-cards'=>'Where to buy Pokémon cards',
+  'pokemon-card-shops-near-me'=>'Pokémon card shops near me', 'pokemon-card-scanner'=>'Pokémon card scanner apps',
+  'pokemon-card-template'=>'Free Pokémon card template', 'how-to-play-pokemon-cards'=>'How to play Pokémon cards',
+  'how-to-read-a-pokemon-card'=>'How to read a Pokémon card', 'how-much-does-it-cost-to-grade-a-pokemon-card'=>'How much it costs to grade a Pokémon card',
+  'chinese-pokemon-cards'=>'Chinese Pokémon cards', 'coolest-pokemon-cards'=>'Cool Pokémon cards',
+  'mew-mewtwo-arceus-pokemon-cards'=>'Mew, Mewtwo & Arceus cards', 'where-to-sell-pokemon-cards'=>'Where to sell Pokémon cards',
+  'pokemon-card-size'=>'Pokémon card size', 'how-to-tell-if-a-pokemon-card-is-fake'=>'How to tell if a Pokémon card is fake',
+  'pokemon-card-rarities'=>'Pokémon card rarities', 'pokemon-card-values'=>'Pokémon card values',
+];
+const GUIDE_RELATED = [
+  'japanese-pokemon-cards'=>['where-to-buy-pokemon-cards','pokemon-card-database','chinese-pokemon-cards','how-to-read-a-pokemon-card'],
+  'most-expensive-pokemon-cards'=>['rarest-pokemon-cards','pokemon-card-values','pokemon-card-price-checker','how-much-does-it-cost-to-grade-a-pokemon-card'],
+  'rarest-pokemon-cards'=>['most-expensive-pokemon-cards','pokemon-card-rarities','coolest-pokemon-cards','mew-mewtwo-arceus-pokemon-cards'],
+  'pokemon-card-price-checker'=>['pokemon-card-values','pokemon-card-scanner','where-to-sell-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card'],
+  'pokemon-card-database'=>['pokemon-card-rarities','pokemon-card-price-checker','japanese-pokemon-cards','how-to-read-a-pokemon-card'],
+  'where-to-buy-pokemon-cards'=>['pokemon-card-shops-near-me','japanese-pokemon-cards','pokemon-card-price-checker','how-to-tell-if-a-pokemon-card-is-fake'],
+  'pokemon-card-shops-near-me'=>['where-to-buy-pokemon-cards','where-to-sell-pokemon-cards','pokemon-card-scanner','how-to-play-pokemon-cards'],
+  'pokemon-card-scanner'=>['pokemon-card-price-checker','pokemon-card-values','how-to-tell-if-a-pokemon-card-is-fake','where-to-sell-pokemon-cards'],
+  'pokemon-card-template'=>['pokemon-card-size','how-to-read-a-pokemon-card','how-to-tell-if-a-pokemon-card-is-fake','how-to-play-pokemon-cards'],
+  'how-to-play-pokemon-cards'=>['how-to-read-a-pokemon-card','pokemon-card-shops-near-me','coolest-pokemon-cards','pokemon-card-database'],
+  'how-to-read-a-pokemon-card'=>['how-to-play-pokemon-cards','pokemon-card-rarities','pokemon-card-template','japanese-pokemon-cards'],
+  'how-much-does-it-cost-to-grade-a-pokemon-card'=>['pokemon-card-values','most-expensive-pokemon-cards','how-to-tell-if-a-pokemon-card-is-fake','where-to-sell-pokemon-cards'],
+  'chinese-pokemon-cards'=>['how-to-tell-if-a-pokemon-card-is-fake','japanese-pokemon-cards','where-to-buy-pokemon-cards','pokemon-card-database'],
+  'coolest-pokemon-cards'=>['rarest-pokemon-cards','mew-mewtwo-arceus-pokemon-cards','pokemon-card-rarities','most-expensive-pokemon-cards'],
+  'mew-mewtwo-arceus-pokemon-cards'=>['coolest-pokemon-cards','rarest-pokemon-cards','most-expensive-pokemon-cards','pokemon-card-values'],
+  'where-to-sell-pokemon-cards'=>['pokemon-card-price-checker','pokemon-card-values','how-much-does-it-cost-to-grade-a-pokemon-card','pokemon-card-shops-near-me'],
+  'pokemon-card-size'=>['pokemon-card-template','how-to-read-a-pokemon-card','how-to-play-pokemon-cards','japanese-pokemon-cards'],
+  'how-to-tell-if-a-pokemon-card-is-fake'=>['chinese-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','where-to-buy-pokemon-cards','pokemon-card-values'],
+  'pokemon-card-rarities'=>['rarest-pokemon-cards','coolest-pokemon-cards','how-to-read-a-pokemon-card','pokemon-card-database'],
+  'pokemon-card-values'=>['pokemon-card-price-checker','most-expensive-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','where-to-sell-pokemon-cards'],
+];
+const PAGE_GUIDES = [
+  'cat:boxes'=>['japanese-pokemon-cards','pokemon-card-database','pokemon-card-price-checker','where-to-buy-pokemon-cards','chinese-pokemon-cards'],
+  'cat:etb'=>['how-to-play-pokemon-cards','where-to-buy-pokemon-cards','japanese-pokemon-cards','pokemon-card-database','pokemon-card-shops-near-me'],
+  'cat:premium'=>['how-to-play-pokemon-cards','how-to-read-a-pokemon-card','coolest-pokemon-cards','japanese-pokemon-cards','mew-mewtwo-arceus-pokemon-cards'],
+  'cat:singles'=>['pokemon-card-values','most-expensive-pokemon-cards','rarest-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','how-to-tell-if-a-pokemon-card-is-fake'],
+  'cat:accessories'=>['pokemon-card-size','pokemon-card-template','how-to-play-pokemon-cards','where-to-sell-pokemon-cards','pokemon-card-scanner'],
+  'shop'=>['where-to-buy-pokemon-cards','pokemon-card-price-checker','pokemon-card-database','japanese-pokemon-cards','pokemon-card-shops-near-me','chinese-pokemon-cards'],
+  'set'=>['pokemon-card-database','pokemon-card-price-checker','pokemon-card-rarities','japanese-pokemon-cards'],
+  'set:151'=>['most-expensive-pokemon-cards','pokemon-card-database','mew-mewtwo-arceus-pokemon-cards','pokemon-card-price-checker'],
+  'set:30th-celebration'=>['mew-mewtwo-arceus-pokemon-cards','pokemon-card-database','coolest-pokemon-cards','pokemon-card-price-checker'],
+  'series'=>['pokemon-card-database','how-to-play-pokemon-cards','pokemon-card-rarities','pokemon-card-price-checker'],
+  'coll'=>['pokemon-card-values','rarest-pokemon-cards','pokemon-card-price-checker'],
+  'coll:charizard-pokemon-cards'=>['most-expensive-pokemon-cards','pokemon-card-values','how-much-does-it-cost-to-grade-a-pokemon-card','pokemon-card-price-checker'],
+  'coll:pikachu-pokemon-cards'=>['most-expensive-pokemon-cards','coolest-pokemon-cards','rarest-pokemon-cards','pokemon-card-values'],
+  'coll:gengar-pokemon-cards'=>['coolest-pokemon-cards','pokemon-card-rarities','pokemon-card-price-checker','pokemon-card-values'],
+  'coll:psa-graded-pokemon-cards'=>['how-much-does-it-cost-to-grade-a-pokemon-card','pokemon-card-values','how-to-tell-if-a-pokemon-card-is-fake','where-to-sell-pokemon-cards'],
+  'faq'=>['how-to-play-pokemon-cards','where-to-buy-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','how-to-tell-if-a-pokemon-card-is-fake','pokemon-card-price-checker','japanese-pokemon-cards','pokemon-card-shops-near-me','chinese-pokemon-cards'],
+  'home'=>['most-expensive-pokemon-cards','pokemon-card-price-checker','where-to-buy-pokemon-cards','pokemon-card-database','how-to-play-pokemon-cards','rarest-pokemon-cards'],
+];
+/* where each group of guides sends readers to shop */
+const GUIDE_SHOP = [
+  'collect'=>'Shop [rare Pokémon cards](category:singles), [PSA graded Pokémon cards](cards:psa-graded-pokemon-cards) and [Charizard Pokémon cards](cards:charizard-pokemon-cards), shipped from Japan.',
+  'play'=>'Shop [Elite Trainer Boxes](category:etb), [starter decks and premium sets](category:premium) and [card sleeves, binders and playmats](category:accessories), shipped from Japan.',
+  'buy'=>'Shop [Japanese booster boxes](category:boxes), [Elite Trainer Boxes](category:etb) and [rare single cards](category:singles), shipped from Japan to the USA.',
+];
+const GUIDE_GROUP = ['most-expensive-pokemon-cards'=>'collect','rarest-pokemon-cards'=>'collect','pokemon-card-values'=>'collect','pokemon-card-price-checker'=>'collect',
+  'how-much-does-it-cost-to-grade-a-pokemon-card'=>'collect','where-to-sell-pokemon-cards'=>'collect','pokemon-card-scanner'=>'collect','coolest-pokemon-cards'=>'collect',
+  'mew-mewtwo-arceus-pokemon-cards'=>'collect','pokemon-card-rarities'=>'collect','how-to-play-pokemon-cards'=>'play','how-to-read-a-pokemon-card'=>'play',
+  'pokemon-card-template'=>'play','pokemon-card-size'=>'play'];
+
+function guide_anchor($g){ return GUIDE_ANCHORS[$g['slug']] ?? $g['title']; }
+function guides_list($slugs){ return array_values(array_filter(array_map('guide_by_slug', $slugs))); }
+function guides_for($cat){ return guides_list(PAGE_GUIDES['cat:'.$cat] ?? PAGE_GUIDES['shop']); }
+/* related guides: the hand-picked ones first, topped up with the next guides in the list */
+function guides_related($slug, $n=4){
+  global $GUIDES;
+  $out = guides_list(GUIDE_RELATED[$slug] ?? []);
+  $at = (int)array_search($slug, array_column($GUIDES, 'slug'), true);
+  for($i = 1; $i < count($GUIDES) && count($out) < $n; $i++){
+    $g = $GUIDES[($at + $i) % count($GUIDES)];
+    if($g['slug'] !== $slug && !in_array($g['slug'], array_column($out, 'slug'), true)) $out[] = $g;
+  }
+  return array_slice($out, 0, $n);
 }
+/* a row of guide links, e.g. at the foot of a category or set page */
+function guide_links($slugs, $title='Helpful guides', $extra=[]){
+  $gs = guides_list($slugs); if(!$gs && !$extra) return; ?>
+  <div class="glinks"><h2 class="sub2"><?= h($title) ?></h2><div class="gchips">
+    <?php foreach($gs as $g): ?><a href="<?= h(url('guide', ['g'=>$g['slug']])) ?>"><?= h(guide_anchor($g)) ?> →</a><?php endforeach; ?>
+    <?php foreach($extra as [$label, $href]): ?><a href="<?= h($href) ?>"><?= h($label) ?> →</a><?php endforeach; ?>
+  </div></div>
+<?php }
 
 /* plain text of admin-written text, for meta descriptions */
 function plain($text, $len=155){
@@ -1242,6 +1324,12 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
 .txbox a{color:var(--link);font-weight:700;font-size:14px;text-decoration:none}
 .summary .n{font-size:12.5px;color:var(--muted);margin-top:10px}.summary .n a{color:var(--link)}
 
+/* guide links on category, set, collection and FAQ pages */
+.glinks{margin-top:8px}
+.gchips{display:flex;flex-wrap:wrap;gap:10px}
+.gchips a{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:600;color:var(--ink);text-decoration:none}
+.gchips a:hover{border-color:var(--teal);color:#fff}
+
 /* guide tools */
 .pcheck{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
 .pcheck label{font-weight:800;color:#fff}
@@ -1453,7 +1541,8 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
     <div>
       <h2>Sealed in its original factory packaging.</h2>
       <p>Everything is bought through Japanese distribution and ships exactly as it left the factory. We do not deal in resealed, reprinted or counterfeit product, and the price on the listing is the price on your invoice.</p>
-      <p style="margin-top:22px"><a class="btn gold" href="<?= url('how') ?>">How ordering works</a></p>
+      <p style="margin-top:22px"><a class="btn gold" href="<?= url('how') ?>">How ordering works</a>
+        <?php if(info_page('about')): ?><a class="btn g" href="<?= h(url('page', ['pg'=>'about'])) ?>" style="margin-left:8px">About FUDAKURA</a><?php endif; ?></p>
     </div>
     <div class="spec">
       <div><span>Sourcing</span><span>Japanese distribution</span></div>
@@ -1477,9 +1566,9 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
   <?php if($GUIDES): ?>
   <section style="padding-top:0"><div class="wrap">
     <div class="sechead"><div><h2>Pokémon card guides</h2>
-      <p>What cards are worth, how rarities work, card sizes and how to spot fakes.</p></div>
-      <a href="<?= url('guides') ?>">All guides →</a></div>
-    <?php guide_cards(array_slice($GUIDES, 0, 3)); ?>
+      <p>The most expensive and rarest cards, live prices, where to buy, and how to play.</p></div>
+      <a href="<?= url('guides') ?>">All <?= count($GUIDES) ?> guides →</a></div>
+    <?php guide_cards(guides_list(PAGE_GUIDES['home']) ?: array_slice($GUIDES, 0, 6)); ?>
   </div></section>
   <?php endif; ?>
 
@@ -1553,6 +1642,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       <p class="empty">Nothing matches that. Try a set name, a card name or an SKU — or <a href="<?= url('catalog') ?>">browse everything</a>.</p>
     <?php endif; ?>
     <?php if($cinfo && !$filtered && trim($cinfo['intro'] ?? '') !== ''): ?><div class="prose after"><?= rich($cinfo['intro']) ?></div><?php endif; ?>
+    <?php if(!$filtered) guide_links(PAGE_GUIDES[$cinfo ? 'cat:'.$cat : 'shop'] ?? [], $cinfo ? 'Guides for '.strtolower($cinfo['label']) : 'Pokémon card guides'); ?>
   </div></section>
 
 <?php elseif($page==='product'):
@@ -1642,12 +1732,12 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
             <?php if(free_ship_usd($STORE)): ?><b>Free <?= h($SM['standard']['label']) ?> shipping on orders over <?= money_whole(free_ship_usd($STORE)) ?>.</b><?php endif; ?>
             Orders start at <?= money($MIN_ORDER) ?> including shipping.</p>
           <p><?php if(array_filter($PAYMENTS, 'btc_method')): ?>Pay with Bitcoin straight after you order, or choose another method and we send the details within <?= (int)$CONFIG['reply_hours'] ?> hours.<?php else: ?>We send payment details for your chosen method within <?= (int)$CONFIG['reply_hours'] ?> hours.<?php endif; ?>
-            <a href="<?= url('shipping') ?>">Shipping &amp; Returns</a> · <a href="<?= url('payment') ?>">Payment methods</a></p>
+            <a href="<?= url('shipping') ?>">Shipping &amp; Returns</a> · <a href="<?= url('payment') ?>">Payment methods</a> · <a href="<?= url('how') ?>">How ordering works</a> · <a href="<?= url('faq') ?>">FAQ</a> · <a href="<?= url('contact') ?>">Contact us</a></p>
         </div>
       </div>
       <?php $pg = guides_for($prod['cat']); if($pg): ?>
       <div class="panel"><h2>Helpful guides</h2>
-        <div class="plinks"><?php foreach($pg as $g): ?><a href="<?= h(url('guide', ['g'=>$g['slug']])) ?>"><?= h($g['title']) ?> →</a><?php endforeach; ?></div>
+        <div class="plinks"><?php foreach($pg as $g): ?><a href="<?= h(url('guide', ['g'=>$g['slug']])) ?>"><?= h(guide_anchor($g)) ?> →</a><?php endforeach; ?></div>
       </div>
       <?php endif; ?>
     </div>
@@ -2041,7 +2131,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
         <?= rich($parts[0]) ?>
         <?php if(count($parts) === 2): ship_rates_block(); echo rich($parts[1]); endif; ?>
         <div class="srcontact">
-          <div><b>Still have a question?</b><span>We reply within <?= (int)$CONFIG['reply_hours'] ?> hours.</span></div>
+          <div><b>Still have a question?</b><span>We reply within <?= (int)$CONFIG['reply_hours'] ?> hours. See the <a href="<?= url('faq') ?>">FAQ</a> or <a href="<?= url('contact') ?>">contact us</a>.</span></div>
           <div class="row2">
             <a class="btn" href="mailto:<?= h($CONFIG['email']) ?>">Email <?= h($CONFIG['email']) ?></a>
             <?php if(trim($CONFIG['chat_code'] ?? '') !== ''): ?><button type="button" class="btn g" data-open-chat hidden>Chat with us</button><?php endif; ?>
@@ -2063,6 +2153,10 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
         <details <?= $i===0?'open':'' ?>><summary><?= h($fq[0]) ?></summary><p><?= h($fq[1]) ?></p></details>
       <?php endforeach; ?>
     </div>
+    <?php $more = [['Shipping & Returns', url('shipping')], ['How ordering works', url('how')], ['Payment methods', url('payment')]];
+    foreach(['about'=>'About FUDAKURA', 'terms'=>'Terms of sale', 'privacy-policy'=>'Privacy policy'] as $pg_=>$lb_) if(info_page($pg_)) $more[] = [$lb_, url('page', ['pg'=>$pg_])];
+    $more[] = ['Contact us', url('contact')];
+    guide_links(PAGE_GUIDES['faq'], 'More answers', $more); ?>
   </div></section>
   <script type="application/ld+json">
   <?= json_encode(['@context'=>'https://schema.org','@type'=>'FAQPage','mainEntity'=>array_map(fn($f)=>
@@ -2107,6 +2201,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
     <?php if(trim($series['intro'] ?? '') !== ''): ?><div class="prose lead"><?= rich($series['intro']) ?></div><?php endif; ?>
     <?php if($ss): ?><h2 class="sub2">Sets</h2><?php set_tiles($ss); endif; ?>
     <?php if($sp): ?><h2 class="sub2">All <?= h($series['name']) ?> products</h2><div class="grid"><?php foreach($sp as $p) include_card($p); ?></div><?php endif; ?>
+    <?php guide_links(PAGE_GUIDES['series'], 'Guides to '.$series['name'].' cards'); ?>
   </div></section>
 
 <?php elseif($page==='set'):
@@ -2117,6 +2212,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
     <?php if(trim($set['intro']) !== ''): ?><div class="prose lead"><?= rich($set['intro']) ?></div><?php endif; ?>
     <div class="grid"><?php foreach($sp as $p) include_card($p); ?></div>
     <?php if($others): ?><h2 class="sub2">More <?= h($SERIES[$set['series']]['name']) ?> sets</h2><?php set_tiles($others); endif; ?>
+    <?php guide_links(PAGE_GUIDES['set:'.$set['slug']] ?? PAGE_GUIDES['set'], 'Guides to '.$set['name'].' and more'); ?>
   </div></section>
 
 <?php elseif($page==='collection'):
@@ -2126,6 +2222,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
     <?php if(trim($coll['intro'] ?? '') !== ''): ?><div class="prose lead"><?= rich($coll['intro']) ?></div><?php endif; ?>
     <?php if($cp): ?><div class="grid"><?php foreach($cp as $p) include_card($p); ?></div>
     <?php else: ?><p class="empty">Nothing in stock here right now — see all <a href="<?= url('catalog', ['cat'=>'singles']) ?>">single cards</a>.</p><?php endif; ?>
+    <?php guide_links(PAGE_GUIDES['coll:'.$coll['slug']] ?? PAGE_GUIDES['coll'], 'Helpful guides'); ?>
   </div></section>
 
 <?php elseif($page==='guides'): ?>
@@ -2149,11 +2246,10 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       </ol></nav>
       <?php endif; ?>
       <div class="prose"><?php guide_body($guide['body'] ?? ''); ?></div>
-      <div class="notice" style="margin-top:28px">Shop <a href="<?= url('catalog', ['cat'=>'boxes']) ?>">Japanese booster boxes</a>, <a href="<?= url('catalog', ['cat'=>'singles']) ?>">rare single cards</a> or <a href="<?= url('catalog', ['cat'=>'accessories']) ?>">binders and sleeves</a> — shipped from Japan to the USA.</div>
+      <div class="notice" style="margin-top:28px"><?= rich_inline(GUIDE_SHOP[GUIDE_GROUP[$guide['slug']] ?? 'buy']) ?></div>
     </article>
-    <?php $gi = array_search($guide['slug'], array_column($GUIDES, 'slug'), true); $more = [];
-    for($i = 1; $i < count($GUIDES) && count($more) < 3; $i++) $more[] = $GUIDES[($gi + $i) % count($GUIDES)];
-    if($more): ?><h2 class="sub2">More guides</h2><?php guide_cards($more); endif; ?>
+    <?php $more = guides_related($guide['slug']);
+    if($more): ?><h2 class="sub2">Related guides</h2><?php guide_cards($more); endif; ?>
   </div></section>
   <?php $qa = policy_questions($guide['body'] ?? '');
   if($qa): ?><script type="application/ld+json"><?= json_encode(['@context'=>'https://schema.org','@type'=>'FAQPage','mainEntity'=>array_map(fn($x)=>
