@@ -58,8 +58,36 @@ function store_load(){
   $d = store_defaults();
   $s = data_read('store');
   if(!$s){ $s = $d; data_write('store', $s); }   // first run: seed from defaults
+  $version = (int)($s['settings']['content_version'] ?? 1);
   $s += $d;                                       // sections added by later versions
   $s['settings'] += $d['settings'];
+  if($version < CONTENT_VERSION){ $s = content_upgrade($s, $d, $version); store_save($s); }
+  return $s;
+}
+
+/* Content that a newer version of the shop adds or improves, applied once to shops installed
+   earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
+   replaced item is checked against the exact default text it shipped with. */
+const CONTENT_VERSION = 2;
+function content_upgrade($s, $d, $version){
+  if($version < 2){   /* keyword guides (September 2026) */
+    $untouched = ['pokemon-card-values'=>'e1c8e64401879ebcac7b241e90fae22f', 'how-to-tell-if-a-pokemon-card-is-fake'=>'76d9a8000302730c1310037025f38a90',
+                  'pokemon-card-rarities'=>'e521c0cb0e9db5519b7ee1e7a71f2e76'];
+    $new = array_column($d['guides'], null, 'slug');
+    foreach($s['guides'] ?? [] as $i=>$g){
+      $slug = $g['slug'] ?? '';
+      if(isset($untouched[$slug], $new[$slug]) && md5(json_encode([$g['title'] ?? '', $g['seo_title'] ?? '', $g['seo_desc'] ?? '', $g['body'] ?? ''])) === $untouched[$slug])
+        $s['guides'][$i] = $new[$slug];
+    }
+    $have = array_column($s['guides'] ?? [], 'slug');
+    $add = array_values(array_filter($d['guides'], fn($g)=>!in_array($g['slug'], $have, true)));
+    $at = array_search('japanese-pokemon-cards', $have, true);
+    array_splice($s['guides'], $at === false ? count($have) : $at + 1, 0, $add);
+    foreach(['mega'=>'Pokémon TCG Mega Evolution sets (Japanese)', 'sv'=>'Pokémon TCG Scarlet & Violet sets (Japanese)'] as $k=>$old)
+      if(($s['series'][$k]['h1'] ?? '') === $old && isset($d['series'][$k])) $s['series'][$k]['h1'] = $d['series'][$k]['h1'];
+    if(isset($s['sets']['151'], $d['sets']['151']) && md5($s['sets']['151']['intro'] ?? '') === 'f5fcaf3d3354a7554c4bc324e1733a6e') $s['sets']['151']['intro'] = $d['sets']['151']['intro'];
+  }
+  $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;
 }
 

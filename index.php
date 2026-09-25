@@ -680,8 +680,8 @@ switch($page){
     break;
   case 'guides':
     $crumbs[] = ['Guides', '', []];
-    $page_title = 'Pokémon Card Guides — Values, Rarities, Size & Fakes';
-    $page_desc  = 'Plain-English guides to Pokémon cards: what they are worth, rarities, card size, spotting fakes and buying Japanese Pokémon cards.';
+    $page_title = 'Pokémon Card Guides: Values, Rare Cards, How to Play';
+    $page_desc  = 'Plain-English Pokémon card guides: values and prices, the most expensive and rarest cards, how to play and read cards, grading, fakes and where to buy.';
     $h1 = 'Pokémon card guides';
     break;
   case 'page':
@@ -1241,6 +1241,19 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
 .txbox code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;color:#fff;word-break:break-all}
 .txbox a{color:var(--link);font-weight:700;font-size:14px;text-decoration:none}
 .summary .n{font-size:12.5px;color:var(--muted);margin-top:10px}.summary .n a{color:var(--link)}
+
+/* guide tools */
+.pcheck{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
+.pcheck label{font-weight:800;color:#fff}
+.pcheck input{flex:1;min-width:220px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:11px 16px;font-size:15px;color:var(--ink)}
+.pcheck input:focus{border-color:var(--teal);outline:none}
+.pcheck span{font-size:13px;color:var(--muted)}
+.tbl.pc .sk{font-weight:500}
+.tplbox{display:grid;grid-template-columns:200px minmax(0,1fr);gap:22px;align-items:center;border:1px solid var(--line);border-radius:14px;background:var(--card);padding:18px;margin:6px 0 20px}
+.tplbox img{width:100%;height:auto;background:#fff;border-radius:10px}
+.tplbox b{color:#fff;font-size:17px}.tplbox p{margin:8px 0 0}
+.prose .tplbox .btn{color:#fff;border-bottom:0;margin:4px 6px 0 0}.prose .tplbox .btn.g{color:var(--ink)}
+@media(max-width:560px){.tplbox{grid-template-columns:1fr}.tplbox img{max-width:220px}}
 
 /* Shipping & Returns */
 .srhead h1{font-size:clamp(30px,4vw,46px)}
@@ -2135,12 +2148,16 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
         <?php endforeach; ?>
       </ol></nav>
       <?php endif; ?>
-      <div class="prose"><?= rich($guide['body'] ?? '') ?></div>
+      <div class="prose"><?php guide_body($guide['body'] ?? ''); ?></div>
       <div class="notice" style="margin-top:28px">Shop <a href="<?= url('catalog', ['cat'=>'boxes']) ?>">Japanese booster boxes</a>, <a href="<?= url('catalog', ['cat'=>'singles']) ?>">rare single cards</a> or <a href="<?= url('catalog', ['cat'=>'accessories']) ?>">binders and sleeves</a> — shipped from Japan to the USA.</div>
     </article>
-    <?php $more = array_values(array_filter($GUIDES, fn($g)=>$g['slug'] !== $guide['slug']));
-    if($more): ?><h2 class="sub2">More guides</h2><?php guide_cards(array_slice($more, 0, 3)); endif; ?>
+    <?php $gi = array_search($guide['slug'], array_column($GUIDES, 'slug'), true); $more = [];
+    for($i = 1; $i < count($GUIDES) && count($more) < 3; $i++) $more[] = $GUIDES[($gi + $i) % count($GUIDES)];
+    if($more): ?><h2 class="sub2">More guides</h2><?php guide_cards($more); endif; ?>
   </div></section>
+  <?php $qa = policy_questions($guide['body'] ?? '');
+  if($qa): ?><script type="application/ld+json"><?= json_encode(['@context'=>'https://schema.org','@type'=>'FAQPage','mainEntity'=>array_map(fn($x)=>
+    ['@type'=>'Question','name'=>$x[0],'acceptedAnswer'=>['@type'=>'Answer','text'=>$x[1]]], $qa)], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_HEX_TAG) ?></script><?php endif; ?>
 
 <?php elseif($page==='page'): ?>
   <section class="top"><div class="wrap">
@@ -2176,7 +2193,9 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       <li><a href="<?= url('sets') ?>">Pokémon card sets</a></li>
       <?php foreach($SERIES as $k=>$sr): if(series_sets($k)): ?><li><a href="<?= h(url('series', ['s'=>$sr['slug']])) ?>"><?= h($sr['name']) ?> sets</a></li><?php endif; endforeach; ?>
       <?php foreach($COLLECTIONS as $c): if(collection_products($c)): ?><li><a href="<?= h(url('collection', ['c'=>$c['slug']])) ?>"><?= h($c['title']) ?></a></li><?php endif; endforeach; ?>
-      <?php if($GUIDES): ?><li><a href="<?= url('guides') ?>">Pokémon card guides</a></li><?php endif; ?>
+      <?php foreach(['where-to-buy-pokemon-cards'=>'Where to buy Pokémon cards', 'pokemon-card-price-checker'=>'Pokémon card price checker', 'most-expensive-pokemon-cards'=>'Most expensive Pokémon cards', 'pokemon-card-database'=>'Pokémon card database'] as $gs_=>$gl_):
+        if(guide_by_slug($gs_)): ?><li><a href="<?= h(url('guide', ['g'=>$gs_])) ?>"><?= h($gl_) ?></a></li><?php endif; endforeach; ?>
+      <?php if($GUIDES): ?><li><a href="<?= url('guides') ?>">All Pokémon card guides</a></li><?php endif; ?>
     </ul></div>
     <div><h4>Ordering</h4><ul>
       <li><a href="<?= url('how') ?>">How it works</a></li>
@@ -2233,6 +2252,12 @@ function updateTotals(country){
   const short = total < CO.min;
   warn.hidden = !short; btn.disabled = short;
   if(short) warn.textContent = 'The minimum order is ' + fmt(CO.min) + ' including shipping. Your total is ' + fmt(total) + ', so add ' + fmt(CO.min - total) + ' more to place this order.';
+}
+/* price checker: show rows that contain every word typed */
+function pcFilter(v){
+  const words = v.toLowerCase().split(/\s+/).filter(Boolean); let n = 0;
+  document.querySelectorAll('#pcTable tbody tr').forEach(r => { const ok = words.every(w => r.dataset.q.includes(w)); r.hidden = !ok; if(ok) n++; });
+  document.getElementById('pcCount').textContent = n + (n === 1 ? ' product' : ' products');
 }
 function galPick(btn, src){
   const m = document.getElementById('galMain');
@@ -2389,6 +2414,61 @@ function ship_rates_block(){
     </tbody>
   </table></div>
   <p class="small">As a guide, a sealed Japanese booster box weighs about 0.4 kg packed and an Elite Trainer Box about 0.9 kg. Checkout shows the exact price for your order before you pay.</p>
+<?php }
+
+/* A guide's text, with tool blocks where a line says {price_list}, {set_table} or {card_template} */
+function guide_body($text){
+  $parts = preg_split('/^[ \t]*\{(price_list|set_table|card_template)\}[ \t]*$/m', str_replace("\r", '', (string)$text), -1, PREG_SPLIT_DELIM_CAPTURE);
+  foreach($parts as $i=>$part){
+    if($i % 2 === 0){ echo rich($part); continue; }
+    ['price_list'=>'price_list_block', 'set_table'=>'set_table_block', 'card_template'=>'card_template_block'][$part]();
+  }
+}
+
+/* price checker: every product with its price at the minimum quantity and its best quantity price, searchable */
+function price_list_block(){
+  global $PRODUCTS, $CATEGORIES; ?>
+  <div class="pcheck"><label for="pcq">Check a price</label>
+    <input id="pcq" type="search" placeholder="Try 151, Charizard, Elite Trainer Box, sleeves…" oninput="pcFilter(this.value)" autocomplete="off">
+    <span id="pcCount"><?= count($PRODUCTS) ?> products</span></div>
+  <div class="tblwrap"><table class="tbl pc" id="pcTable">
+    <thead><tr><th>Product</th><th class="r">Price</th><th class="r">Best price</th></tr></thead><tbody>
+    <?php foreach($CATEGORIES as $ck=>$c): foreach($PRODUCTS as $p): if($p['cat'] !== $ck) continue;
+      $top = end($p['ladder']); ?>
+      <tr data-q="<?= h(strtolower($p['name'].' '.$p['set'].' '.$p['sku'].' '.$c['label'])) ?>">
+        <td class="nm"><a href="<?= h(url('product', ['id'=>$p['id']])) ?>"><?= h($p['name']) ?></a>
+          <div class="sk"><?= h(implode(' · ', array_filter([$c['label'], $p['set'], $p['cond'], status_label(PRODUCT_STATUSES, $p['status'])]))) ?></div></td>
+        <td class="r"><?= money(unit_price($p, $p['moq'])) ?><div class="sk">each, from <?= (int)$p['moq'] ?></div></td>
+        <td class="r"><?= money($top[1]) ?><div class="sk">each at <?= (int)max($p['moq'], $top[0]) ?>+</div></td></tr>
+    <?php endforeach; endforeach; ?>
+    </tbody></table></div>
+  <p class="small">Live prices from our catalogue in <?= h(cur_code()) ?> (change the currency at the top of the page). Shipping is extra, and free on orders over <?= money_whole(free_ship_usd($GLOBALS['STORE'])) ?>.</p>
+<?php }
+
+/* card database: every Japanese set we carry, by series */
+function set_table_block(){
+  global $SERIES;
+  foreach($SERIES as $k=>$sr): $sets = series_sets($k); if(!$sets) continue; ?>
+  <div class="tblwrap"><table class="tbl">
+    <thead><tr><th><?= h($sr['name']) ?> set</th><th>Set code</th><th class="r">Products</th></tr></thead><tbody>
+    <?php foreach($sets as $st): ?>
+      <tr><td class="nm"><a href="<?= h(url('set', ['s'=>$st['slug']])) ?>"><?= h($st['name']) ?></a></td><td><?= h(($st['code'] ?? '') ?: '—') ?></td><td class="r"><?= count(set_products($st['name'])) ?></td></tr>
+    <?php endforeach; ?>
+    </tbody></table></div>
+  <?php endforeach;
+}
+
+/* free printable template: exact card size, bleed and safe area */
+function card_template_block(){ ?>
+  <div class="tplbox">
+    <img src="assets/site/trading-card-template-63x88mm.svg" width="276" height="376" alt="Blank trading card template, 63 × 88 mm with 3 mm bleed and a safe area" loading="lazy">
+    <div>
+      <b>Free printable card template</b>
+      <p>63 × 88 mm (2.5 × 3.5 in), the size of a Pokémon card, with 3 mm bleed, the trim line, rounded corners and a safe area for text. Vector files: print at 100% (“actual size”), not “fit to page”.</p>
+      <p><a class="btn" href="assets/site/trading-card-template-63x88mm.svg" download>Download one card (SVG)</a>
+         <a class="btn g" href="assets/site/trading-card-template-sheet-letter.svg" download>Download a sheet of 9 (US Letter)</a></p>
+    </div>
+  </div>
 <?php }
 
 /* the "### question" / answer pairs under "## Questions", for Google's FAQ data */

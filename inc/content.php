@@ -288,7 +288,7 @@ MD,
   'series' => [
     'mega' => [
       'name' => 'Mega Evolution', 'slug' => 'mega-evolution',
-      'h1' => 'Pokémon TCG Mega Evolution sets (Japanese)',
+      'h1' => 'Pokémon Trading Card Game Mega Evolution sets & booster packs',
       'seo_title' => 'Pokémon TCG Mega Evolution Sets & Booster Packs',
       'seo_desc' => 'Japanese Pokémon TCG Mega Evolution sets — Mega Brave, Mega Symphonia, Inferno X, Mega Dream ex, Nihil Zero, Ninja Spinner, Abyss Eye, Storm Emeralda and more.',
       'intro' => <<<'MD'
@@ -299,7 +299,7 @@ MD,
     ],
     'sv' => [
       'name' => 'Scarlet & Violet', 'slug' => 'scarlet-violet',
-      'h1' => 'Pokémon TCG Scarlet & Violet sets (Japanese)',
+      'h1' => 'Pokémon Trading Card Game: Scarlet & Violet sets',
       'seo_title' => 'Pokémon TCG Scarlet & Violet Sets — Japanese Boxes',
       'seo_desc' => 'Japanese Pokémon TCG Scarlet & Violet sets: 151, Terastal Festival ex, Heat Wave Arena and Glory of Team Rocket booster boxes and singles, shipped to the USA.',
       'intro' => <<<'MD'
@@ -341,7 +341,7 @@ MD,
     '151' => ['slug'=>'151', 'series'=>'sv', 'code'=>'SV2a',
       'seo_title'=>'151 Pokémon Cards — Japanese 151 Booster Box & Charizard',
       'seo_desc'=>'Japanese 151 Pokémon cards (SV2a): sealed 151 booster boxes and the Charizard ex Special Illustration Rare, shipped from Japan to the USA.',
-      'intro'=>"Pokémon Card 151 (SV2a) is the Japanese special set that revisits the original 151 Pokémon from Red and Green, from Bulbasaur to Mew. It is one of the most collected sets of the Scarlet & Violet era, released in English as Scarlet & Violet—151. Japanese 151 booster boxes hold 20 packs of 7 cards, and the chase cards include the Charizard ex Special Illustration Rare.\n\nWe stock sealed 151 booster boxes and the 151 Charizard ex SAR. Looking for more? See all our [Charizard Pokémon cards](cards:charizard-pokemon-cards)."],
+      'intro'=>"Pokémon Card 151 (SV2a) is the Japanese special set that revisits the original 151 Pokémon from Red and Green, from Bulbasaur to Mew. It is one of the most collected sets of the Scarlet & Violet era, released in English as Scarlet & Violet—151. Japanese 151 booster boxes hold 20 packs of 7 cards, and the chase cards include the Charizard ex Special Illustration Rare.\n\n## Pokémon 151 card list\n\nJapanese 151 (released on 16 June 2023) has 210 cards: a 165-card main set covering the original 151 Pokémon plus Trainer and Energy cards, and 45 secret rares: 18 Art Rares (AR), 16 Super Rares (SR), 8 Special Art Rares (SAR) and 3 gold Ultra Rares (UR). More in our [Pokémon card database](guide:pokemon-card-database).\n\nWe stock sealed 151 booster boxes and the 151 Charizard ex SAR. Looking for more 151 Pokémon cards? See all our [Charizard Pokémon cards](cards:charizard-pokemon-cards)."],
   ],
 
   /* products are included if their id is listed, or their name contains a match term
@@ -415,6 +415,853 @@ Japanese cards work exactly like English ones in casual play — the attacks, HP
 
 We source every [booster box](category:boxes) and [single card](category:singles) in Japan and ship it to the USA with tracking. Shipping is calculated at checkout, orders start at {min_order} including shipping, and US import duty may be charged on delivery — see [shipping](page:shipping) for details.
 MD],
+    ['slug'=>'most-expensive-pokemon-cards', 'updated'=>'2026-09-25',
+     'title'=>'The most expensive Pokémon cards ever sold',
+     'seo_title'=>'Most Expensive Pokémon Card Ever Sold: Top Cards (2026)',
+     'seo_desc'=>'What is the most expensive Pokémon card? A PSA 10 Pikachu Illustrator sold for $16.49M in 2026. The record sales, first edition cards and why they cost so much.',
+     'body'=><<<'MD'
+The most expensive Pokémon card ever sold is a **PSA 10 Pikachu Illustrator**. It sold at Goldin Auctions in February 2026 for **$16,492,000**, one of the highest prices ever paid for any trading card. Here's what makes it, and the other most expensive Pokémon cards, worth so much.
+
+## What is the most expensive Pokémon card?
+
+The Pikachu Illustrator. It was never sold in packs: it was a prize for winners of illustration contests run by the Japanese magazine CoroCoro Comic in 1997–98, and only 39 copies were awarded. Only one has ever been graded PSA 10 (Gem Mint), and that single card holds the record.
+
+## The Pokémon Illustrator card (Pikachu Illustrator)
+
+The card's artwork is by Atsuko Nishida, the artist who drew the original Pikachu, and it's the only Pokémon card that says "Illustrator" where other cards say "Trainer" — a nod to the contest winners it was made for. It has never been reprinted.
+
+## Logan Paul's Pokémon card
+
+The record copy belonged to YouTuber and wrestler Logan Paul. He bought it privately for **$5,275,000**, which Guinness World Records recognised as the most expensive Pokémon card sold in a private sale, and wore it to WrestleMania 38 in 2022. He sold it through Goldin in February 2026 for $16.49 million, roughly three times what he paid.
+
+## The most expensive Pokémon cards sold
+
+- **Pikachu Illustrator, PSA 10:** $16,492,000 at Goldin, February 2026.
+- **Pikachu Illustrator, PSA 10:** $5,275,000 in a private sale to Logan Paul.
+- **1st Edition Base Set Charizard, PSA 10:** $420,000 at PWCC in March 2022; another copy was reported sold for $550,000 at Heritage Auctions in late 2025.
+- **Trophy cards** from the first official tournaments, such as the Pikachu No. 3 Trainer card from Japan's first official Pokémon card tournament in June 1997. Only a handful exist, and they rarely come up for sale.
+
+Prices for cards this rare only move when a copy is sold, so records change every few years rather than every season.
+
+## First edition Pokémon cards (1st Edition)
+
+First edition cards come from the first print run of the early English sets, marked with a small black **Edition 1** stamp just below the left corner of the artwork. The 1999 Base Set comes in three main prints:
+
+- **1st Edition:** stamped, with no shadow along the right side of the art box. Worth the most.
+- **Shadowless:** no stamp and no shadow. Worth the most after 1st Edition.
+- **Unlimited:** the later print, with a shadow on the art box.
+
+The holo rares, above all Charizard, Blastoise and Venusaur, carry most of the value. Condition decides the rest: a PSA 10 can be worth many times a PSA 8 of the same card. First edition stamps are also faked, so buy graded copies from reputable sellers ([how to tell if a Pokémon card is fake](guide:how-to-tell-if-a-pokemon-card-is-fake)).
+
+## Why are some Pokémon cards so expensive?
+
+- **Rarity:** contest and tournament prizes were made in tiny numbers ([the rarest Pokémon cards](guide:rarest-pokemon-cards)).
+- **Condition:** top grades are scarce for older cards.
+- **The Pokémon:** Pikachu and Charizard lead almost every price list.
+- **History:** the first print runs of the original sets carry decades of nostalgia.
+
+## Expensive modern Pokémon cards
+
+You don't need a 1990s card for a valuable collection. Modern chase cards — Special Illustration Rares, gold Hyper Rares and the Mega Evolution series' top rarities — can sell for hundreds or thousands of dollars in top condition. Examples we stock include the [151 Charizard ex Special Illustration Rare](product:151-charizard-ex-special-illustration-rare), the [Mega Rayquaza ex Master Ultra Rare](product:mega-rayquaza-ex-mur) and a [PSA 10 Pikachu ex Special Illustration Rare](product:pikachu-ex-sar-240-191-psa-10-gem-mint). See all [rare Pokémon cards](category:singles), check prices with our [Pokémon card price checker](guide:pokemon-card-price-checker), or read [how much Pokémon cards are worth](guide:pokemon-card-values).
+
+## Questions
+
+### What is the most expensive Pokémon card?
+
+A PSA 10 Pikachu Illustrator, which sold for $16,492,000 at Goldin Auctions in February 2026.
+
+### How much did Logan Paul pay for his Pokémon card?
+
+$5,275,000, for the PSA 10 Pikachu Illustrator. He sold it in February 2026 for $16.49 million.
+
+### Are first edition Pokémon cards worth money?
+
+Yes, especially the holo rares from the 1999 Base Set in high grades. Condition and authenticity decide the price, so graded copies are the safest to buy.
+
+### What is the most expensive Charizard card?
+
+A 1st Edition Base Set holo Charizard graded PSA 10, which sold for $420,000 in 2022; a copy was reported sold for $550,000 in late 2025.
+MD],
+    ['slug'=>'rarest-pokemon-cards', 'updated'=>'2026-09-25',
+     'title'=>'The rarest Pokémon cards, and the gold cards collectors chase',
+     'seo_title'=>'Rarest Pokémon Cards & Gold Pokémon Cards Explained',
+     'seo_desc'=>'What is the rarest Pokémon card? From the 39-copy Pikachu Illustrator to trophy cards and Gold Stars, plus modern gold Pokémon cards and how rare they are.',
+     'body'=><<<'MD'
+Rare Pokémon cards come in two kinds: cards that were made in tiny numbers, and cards that are hard to pull from a pack. The first kind are the rarest Pokémon cards in the world. The second kind, including today's gold cards, are the chase cards of every new set.
+
+## What is the rarest Pokémon card?
+
+The **Pikachu Illustrator**. Only 39 were awarded, as prizes in CoroCoro Comic illustration contests in Japan in 1997–98, and it has never been reprinted. It's also the most expensive: a PSA 10 copy sold for $16.49 million in 2026 ([the most expensive Pokémon cards](guide:most-expensive-pokemon-cards)).
+
+## The rarest Pokémon cards ever made
+
+- **Trophy cards.** Prize cards from early official tournaments, such as the Pikachu "No. 1", "No. 2" and "No. 3 Trainer" cards, were given to a handful of winners each.
+- **Contest and event promos.** Cards handed out at one-off events in the late 1990s and 2000s, mostly in Japan, in very small numbers.
+- **Gold Star cards.** Printed from 2004 to 2007, marked with a gold star after the Pokémon's name. Most sets had just one to three, and they were very hard to pull.
+- **First edition holos.** 1999 Base Set holo rares with the 1st Edition stamp, especially in top grades.
+- **Crystal and Shining cards.** Rare holo variants from the e-Card and Neo eras.
+
+Because so few of these exist, their prices only appear when a copy is sold.
+
+## Gold Pokémon cards
+
+"Gold Pokémon cards" can mean three different things:
+
+- **Gold rare cards in modern sets.** In today's sets the hardest pull is often a gold card, with gold borders and a textured foil finish. It's called a **Hyper Rare** in English sets and **UR** in Japanese sets. The [Mega Charizard Y ex Hyper Rare](product:mega-charizard-y-ex-hyper-rare) is one example.
+- **Gold Star cards** from 2004–2007 (above).
+- **Gold-plated cards** (below).
+
+Modern gold cards are hard to pull, but they're printed for every copy of a set, so they're far easier to find than a Gold Star or a trophy card.
+
+### Golden Pokémon cards (gold-plated)
+
+In 1999 Burger King gave away 23-karat gold-plated metal Pokémon cards, each in a Poké Ball, with kids' meals. They're collectible souvenirs rather than playable cards. Gold metal "cards" sold online today are novelties, not official Pokémon TCG cards.
+
+## How rare are modern chase cards?
+
+In Japanese sets, the rarest cards are marked **SAR** (Special Art Rare) and **UR** (gold), and the Mega Evolution series adds its own top rarities, like the [Mega Rayquaza ex Master Ultra Rare](product:mega-rayquaza-ex-mur). These can turn up less than once per booster box, and a sealed box never guarantees a particular card. Read [Pokémon card rarities explained](guide:pokemon-card-rarities) for every symbol, or shop [rare Pokémon cards](category:singles) if you'd rather buy the exact card you want.
+
+## Questions
+
+### What is the rarest Pokémon card?
+
+The Pikachu Illustrator: only 39 were ever awarded, in Japan in 1997–98.
+
+### Are gold Pokémon cards rare?
+
+Modern gold cards (Hyper Rares, or UR in Japanese sets) are among the hardest pulls in a set. Vintage Gold Star cards from 2004–2007 are much rarer.
+
+### What are gold Pokémon cards worth?
+
+It depends on the card, the set and the condition. Modern gold cards range from a few dollars to hundreds, popular Pokémon in top grades sell for more, and Gold Star cards can reach thousands.
+MD],
+    ['slug'=>'pokemon-card-price-checker', 'updated'=>'2026-09-25',
+     'title'=>'Pokémon card price checker: live Japanese Pokémon card prices',
+     'seo_title'=>'Pokémon Card Price Checker: Japanese Card & Box Prices',
+     'seo_desc'=>'Check Pokémon card prices: live prices for Japanese booster boxes, Elite Trainer Boxes and rare singles, and how to price check any Pokémon card in 2026.',
+     'body'=><<<'MD'
+Type a set, product or card below to check our live prices for Japanese Pokémon booster boxes, Elite Trainer Boxes, rare singles and accessories. Each price is what you pay per unit at checkout, with quantity breaks.
+
+## Check Pokémon card prices
+
+{price_list}
+
+## How to price check any Pokémon card
+
+For a card we don't list, check what it has actually **sold** for, not what sellers are asking:
+
+1. **Identify the card exactly:** its name, set, card number (in the bottom corner) and language. Japanese and English prints of the same card are priced separately.
+2. **Check recent sold prices** on a marketplace: sold listings on eBay, or TCGplayer's market price for English cards.
+3. **Match the condition.** Near Mint, played and graded copies sell for very different amounts, and a PSA 10 can be worth several times an ungraded card ([what grading costs](guide:how-much-does-it-cost-to-grade-a-pokemon-card)).
+4. **Scan it** with a [Pokémon card scanner](guide:pokemon-card-scanner) app for a quick first estimate.
+
+## Pokémon card prices: what moves them
+
+Pokémon card prices follow demand for the Pokémon (Charizard, Pikachu and Umbreon lead), the rarity, the condition and supply. Prices often dip just after a set releases, while boxes are easy to find, and rise once a set stops being printed. Read [Pokémon card values](guide:pokemon-card-values) for the full picture.
+
+## A Pokémon price checker for sealed product
+
+Sealed booster boxes are priced per box, and we publish every quantity break: the **Best price** column shows the unit price at our largest break. Switch currency at the top of any page, and see the [shipping rates](page:shipping) for delivery to your country.
+
+## Questions
+
+### How do I check how much my Pokémon card is worth?
+
+Find the exact card (set, number and language), then look at what it has recently sold for in the same condition. A scanner app gives a quick estimate.
+
+### Are these prices for Japanese or English cards?
+
+Our prices are for the Japanese products we sell, shipped from Japan.
+
+### Why is the same card cheaper in quantity?
+
+Our sealed product is sold by the case, and every listing shows its quantity breaks, so the unit price drops as you buy more.
+MD],
+    ['slug'=>'pokemon-card-database', 'updated'=>'2026-09-25',
+     'title'=>'Pokémon card database: Japanese sets, set codes and card lists',
+     'seo_title'=>'Pokémon Card Database: Japanese Sets & Card Lists (2026)',
+     'seo_desc'=>'A Pokémon card database of Japanese sets: Mega Evolution and Scarlet & Violet set codes, the 151 card list, and the Perfect Order and Ascended Heroes sets.',
+     'body'=><<<'MD'
+This is our database of the Japanese Pokémon Trading Card Game sets we carry, with their set codes, what's in them and the English sets they match.
+
+## Japanese Pokémon card sets
+
+{set_table}
+
+Each set page lists its booster boxes, Elite Trainer Boxes and singles with live prices.
+
+## Pokémon database or Pokémon DB?
+
+If you're looking up a Pokémon itself — its Pokédex entry, types, moves and stats — you want a Pokémon games database, such as the official Pokédex on pokemon.com or the fan site Pokémon DB. For the cards (which set a card is from, how rare it is and what it's worth) you're in the right place: a card database is organised by set, card number and rarity.
+
+## Pokémon Mega Evolution card list
+
+The **Mega Evolution** series began in 2025 and brings back Mega Evolution as **Mega Evolution Pokémon ex**: when one is Knocked Out, the opponent takes 3 Prize cards. The Japanese sets, in order: [Mega Brave](set:mega-brave) (M1L) and [Mega Symphonia](set:mega-symphonia) (M1S), [Inferno X](set:inferno-x) (M2), [Mega Dream ex](set:mega-dream-ex) (M2a), [Nihil Zero](set:nihil-zero) (M3), [Ninja Spinner](set:ninja-spinner) (M4), [Abyss Eye](set:abyss-eye) (M5), [Storm Emeralda](set:storm-emeralda) (M6), [30th Celebration](set:30th-celebration) (M6a) and [Aura Seeker](set:aura-seeker). See the whole [Mega Evolution series](set:mega-evolution).
+
+## Pokémon Trading Card Game Mega Evolution: Perfect Order card list
+
+**Mega Evolution—Perfect Order** is the English expansion released on 27 March 2026. It's themed on Pokémon Legends: Z-A, with **Mega Zygarde ex** as its headline card. Its Japanese counterpart in our range is [Nihil Zero](set:nihil-zero), and we stock the [Perfect Order Elite Trainer Box](product:perfect-order-elite-trainer-box).
+
+## Pokémon Trading Card Game Mega Evolution: Ascended Heroes card list
+
+**Mega Evolution—Ascended Heroes** was released in English on 30 January 2026 with more than 290 cards, including over 30 Trainer cards. Its Japanese counterpart is the special set [Mega Dream ex](set:mega-dream-ex) (M2a), home of the [Mega Gengar ex Special Illustration Rare](product:mega-gengar-ex-sir). We stock the [Ascended Heroes Elite Trainer Box](product:mega-evolution-ascended-heroes-elite-trainer-box).
+
+## Pokémon 151 card list
+
+Japanese **Pokémon Card 151 (SV2a)**, released on 16 June 2023, has **210 cards**: a 165-card main set covering the original 151 Pokémon plus Trainer and Energy cards, and 45 secret rares: 18 Art Rares (AR), 16 Super Rares (SR), 8 Special Art Rares (SAR) and 3 gold Ultra Rares (UR). The star card is the [Charizard ex Special Art Rare](product:151-charizard-ex-special-illustration-rare). See the [151 set](set:151) and the [151 booster box](product:151-booster-box).
+
+## Pokémon Trading Card Game: Scarlet & Violet
+
+The **Scarlet & Violet** series ran from 2023 to 2025. It introduced Pokémon ex (with a lowercase "ex"), Tera Pokémon ex, and the Illustration Rare and Special Illustration Rare rarities. Japanese Scarlet & Violet sets we stock include [151](set:151) (SV2a), [Terastal Festival ex](set:terastal-festival-ex) (SV8a), [Heat Wave Arena](set:heat-wave-arena) (SV9a) and [Glory of Team Rocket](set:glory-of-team-rocket) (SV10). See the whole [Scarlet & Violet series](set:scarlet-violet).
+
+## Using a trading card database
+
+A good trading card database answers three questions: what's in a set, how rare each card is, and what it's worth. Use the set pages for the first, our [rarity guide](guide:pokemon-card-rarities) for the second, and the [Pokémon card price checker](guide:pokemon-card-price-checker) for the third.
+
+## Questions
+
+### How many cards are in Pokémon 151?
+
+The Japanese 151 set (SV2a) has 210 cards: 165 in the main set and 45 secret rares.
+
+### When was Perfect Order released?
+
+Mega Evolution—Perfect Order was released in English on 27 March 2026.
+
+### How many cards are in Ascended Heroes?
+
+More than 290, including over 30 Trainer cards. It was released in English on 30 January 2026.
+MD],
+    ['slug'=>'where-to-buy-pokemon-cards', 'updated'=>'2026-09-25',
+     'title'=>'Where to buy Pokémon cards: Walmart, Target, Costco, GameStop and more',
+     'seo_title'=>'Where to Buy Pokémon Cards: Walmart, Target & GameStop',
+     'seo_desc'=>'Pokémon cards at Walmart, Target, Costco, GameStop, Best Buy, CVS, Walgreens, Dollar General, Barnes & Noble and TCGplayer, and buying Japanese cards online.',
+     'body'=><<<'MD'
+Pokémon cards are sold almost everywhere in the USA: big-box stores, pharmacies, game stores and online marketplaces. Here's what each kind of store usually carries, how restocks work, and when it's better to buy online.
+
+FUDAKURA is an independent online shop and isn't affiliated with any retailer on this page. Store names are used only to describe where Pokémon cards are sold, and are trademarks of their owners.
+
+## Walmart Pokémon cards
+
+Walmart sells English Pokémon TCG products, from booster packs, blister packs and tins to collection boxes and Elite Trainer Boxes, in the trading card section of most stores and on its website. Online, check who the seller is: many listings come from third-party Marketplace sellers, often above retail price, so look for items sold and shipped by Walmart itself.
+
+## Target Pokémon cards
+
+Target carries English Pokémon cards in stores, often in the trading card aisle near electronics, and online. New sets and popular products sell out quickly and can come with purchase limits.
+
+## When does Target restock Pokémon cards?
+
+Target doesn't publish a restock schedule. Trading cards in stores are usually stocked by third-party vendors on a weekly route, so every store has its own restock day. The most reliable tip is to ask staff which day the card vendor comes in. Online restocks appear without notice and sell out fast.
+
+## Costco Pokémon cards
+
+Costco sells Pokémon cards mostly as bundles, with several collection boxes, tins or Elite Trainer Boxes packed together, online and in some warehouses from time to time. Stock comes and goes, and you need a membership to buy.
+
+## GameStop Pokémon cards
+
+GameStop sells sealed Pokémon products in stores and online, including preorders for new sets.
+
+## GameStop Pokémon drops
+
+A "drop" is a limited release that goes live online at a set time: a new set, a special collection or an exclusive. Drops often sell out in minutes, so follow the store's announcements and be signed in with your payment details saved before it starts.
+
+## Best Buy Pokémon cards
+
+Best Buy sells Pokémon TCG products online, often as preorders and drops for popular releases.
+
+## Walgreens, CVS and Dollar General Pokémon cards
+
+Pharmacies and discount stores such as **Walgreens**, **CVS** and **Dollar General** usually carry a small range of single booster packs, blister packs and mini tins, near the checkout or in the toy aisle. They're handy for a pack or two, but stock varies a lot from store to store.
+
+## Barnes and Noble Pokémon cards
+
+Barnes & Noble carries Pokémon TCG products, such as booster bundles, collection boxes and Elite Trainer Boxes, in many stores and online, next to its Pokémon books.
+
+## TCGplayer Pokémon cards
+
+TCGplayer is an online marketplace where many sellers list Pokémon singles and sealed product, with market prices based on recent sales. It's a good place to find a specific English single: check each seller's rating and shipping cost.
+
+## Buying Japanese Pokémon cards online
+
+Every store above sells **English** cards. Japanese sets come out first, often months before their English versions, and many collectors prefer their print quality ([why collectors buy Japanese Pokémon cards](guide:japanese-pokemon-cards)). We ship sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb) and [rare singles](category:singles) from Japan with tracking, publish every quantity break on the listing, and ship free on orders over {free_ship}. Compare prices with our [Pokémon card price checker](guide:pokemon-card-price-checker).
+
+## Questions
+
+### Does Walmart sell Pokémon cards?
+
+Yes, in most stores and online. Online, check whether the seller is Walmart or a third-party Marketplace seller.
+
+### When does Target restock Pokémon cards?
+
+There's no published schedule. Vendors restock each store on their own weekly route, so ask your store which day. Online restocks are unannounced.
+
+### Does Costco sell Pokémon cards?
+
+Sometimes, usually as multi-product bundles online and in some warehouses.
+
+### Where can I buy Japanese Pokémon cards in the USA?
+
+From shops that import them from Japan. We ship Japanese booster boxes, Elite Trainer Boxes and singles from Japan to the USA with tracking.
+MD],
+    ['slug'=>'pokemon-card-shops-near-me', 'updated'=>'2026-09-25',
+     'title'=>'Pokémon card shops near me: local stores, card shows and buying online',
+     'seo_title'=>'Pokémon Card Shops Near Me: Stores, Card Shows & Online',
+     'seo_desc'=>'How to find Pokémon card shops and trading card stores near you, what to expect at Pokémon card shows, and how to shop Japanese Pokémon cards online instead.',
+     'body'=><<<'MD'
+Looking for a Pokémon card shop near you? Here's how to find local trading card stores and card shows, what to look for when you get there, and when ordering online is the better option. FUDAKURA is an online shop, so we don't have a store to visit, but we deliver to every US state.
+
+## How to find Pokémon card shops near me
+
+- **Search a map app** for "trading card store", "card shop" or "game store" and read recent reviews.
+- **Use the Play! Pokémon event locator** on pokemon.com. Stores that run official Pokémon TCG leagues and prereleases are listed there, and nearly all of them are card shops.
+- **Ask local collectors** in community groups on Facebook or Discord; they'll know which shops are fairly priced.
+- **Ask at a card show**, where local shop owners often have tables.
+
+## Trading card shops near me: what they sell
+
+Local trading card shops, often called local game stores, usually sell sealed English booster packs and boxes at or near retail price, keep a case of singles, stock sleeves and binders, and run weekly play events. Many also buy cards, which makes them a good place to trade in duplicates.
+
+## Trading card stores near me: what to check
+
+- **Sealed product** should be factory sealed, with no loose or resealed wrapping.
+- **Prices for singles** should be close to recent sold prices; check with a [price checker](guide:pokemon-card-price-checker) or a [scanner app](guide:pokemon-card-scanner).
+- **Graded cards** should have an intact slab and a certification number you can look up on the grading company's website.
+
+## Trading card store near me or online?
+
+A local trading card store is great for playing, trading and seeing cards in person. Online shops usually have a far bigger range, especially of Japanese product, which few local stores carry, and deliver to your door.
+
+## Card shops: what to expect
+
+Card shops range from small counters in a game store to large stores with hundreds of graded cards. Expect to pay around retail for new English product, and expect more choice (and more negotiating) on singles.
+
+## Pokémon card shows near me
+
+Card shows are events where many sellers set up tables to buy, sell and trade cards, usually for a day or a weekend, in convention centres, hotel ballrooms or community halls. To find Pokémon card shows near you, check local card shops and collector groups, and search for trading card shows in your city on event listing sites and social media.
+
+## Pokémon card shows: tips
+
+- **Know prices before you go:** a scanner app helps you check a card on the spot.
+- **Bring cash and a card;** many sellers take both.
+- **Inspect before you buy,** especially graded cards and expensive singles.
+- **Negotiate politely,** and bundle several cards for a better price.
+
+## Shop Pokémon cards near me, delivered from Japan
+
+If there's no card shop near you, or you want Japanese cards, shop online. We ship sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb), [rare singles](category:singles) and [accessories](category:accessories) from Japan to the USA with tracking: {standard} delivery in {standard_days}, or {express} in {express_days}, free on orders over {free_ship}. See [Shipping & Returns](page:shipping).
+
+## Questions
+
+### How do I find a Pokémon card shop near me?
+
+Search a map app for trading card or game stores, and check the Play! Pokémon event locator on pokemon.com for stores that run official events.
+
+### Do you have a store I can visit?
+
+No. FUDAKURA is online only. We ship from Japan to every US state with tracking.
+
+### How do I find Pokémon card shows near me?
+
+Ask local card shops and collector groups, and search event listings and social media for trading card shows in your area.
+MD],
+    ['slug'=>'pokemon-card-scanner', 'updated'=>'2026-09-25',
+     'title'=>'Pokémon card scanner: how to scan and price your cards',
+     'seo_title'=>'Pokémon Card Scanner Apps: Scan & Price Your Cards (2026)',
+     'seo_desc'=>'How a Pokémon card scanner works, the apps collectors use, like TCGplayer and Collectr, how accurate they are, and how to scan Japanese Pokémon cards.',
+     'body'=><<<'MD'
+A Pokémon card scanner is a phone app that recognises a card from your camera and shows its name, set and market price in seconds. It's the fastest way to sort a pile of cards and find the valuable ones.
+
+## How a Pokémon card scanner works
+
+You point your phone's camera at a card. The app matches the image against its card database, identifies the exact card and set, then shows a price based on recent sales. Most apps let you add scanned cards to a collection that tracks its total value over time.
+
+## Pokémon card scanner apps
+
+- **TCGplayer app:** scans cards and shows TCGplayer market prices, and lets you buy and sell on its marketplace.
+- **Collectr:** built around tracking a collection's value, with card scanning.
+- **Newer scanner apps** compete on speed, and some can scan a whole binder page at once.
+
+Accuracy varies by app, set and language, so it's worth trying two and comparing.
+
+## Pokémon card scanner tips for accurate scans
+
+- Scan in bright, even light, without glare on holo or foil cards.
+- Lay the card flat on a plain, dark surface.
+- Take the card out of a shiny toploader, or tilt it to avoid reflections.
+- Scan one card at a time, then check the set number the app found against the card.
+
+## Scanning Japanese Pokémon cards
+
+Not every app recognises Japanese cards, and some match them to the English version, which can be priced very differently. Check that the result shows the Japanese set code and card number. For sealed Japanese product, use our [Pokémon card price checker](guide:pokemon-card-price-checker).
+
+## What a scan can't tell you
+
+A scanner identifies the card, but it can't judge condition or spot a fake. Check the card yourself ([how to tell if a Pokémon card is fake](guide:how-to-tell-if-a-pokemon-card-is-fake)), and remember that a graded card is priced by its grade ([what grading costs](guide:how-much-does-it-cost-to-grade-a-pokemon-card)).
+
+## Questions
+
+### What is the best Pokémon card scanner app?
+
+The TCGplayer app is the most widely used, and Collectr is popular for tracking a collection's value. Try more than one, because accuracy varies.
+
+### Are Pokémon card scanner apps free?
+
+Most are free to download and scan with, and some charge for extra features.
+
+### Can a scanner tell if a Pokémon card is fake?
+
+No. A scanner identifies which card it is, not whether it's genuine or what condition it's in.
+MD],
+    ['slug'=>'pokemon-card-template', 'updated'=>'2026-09-25',
+     'title'=>'Pokémon card template: make your own custom Pokémon cards',
+     'seo_title'=>'Pokémon Card Template: Free Printable for Custom Cards',
+     'seo_desc'=>'A free printable Pokémon card template at the exact card size (63 × 88 mm) with bleed and safe area, and how to design, print and sleeve custom Pokémon cards.',
+     'body'=><<<'MD'
+Making a custom Pokémon card, for a birthday, a school project or just for fun, starts with the right size. Our free template below is the exact size of a Pokémon card, so your custom cards fit standard sleeves, toploaders and binders.
+
+## Free Pokémon card template
+
+{card_template}
+
+The template is blank, with no logos or artwork, so it works in any design app: import the SVG into Canva, Photoshop, Illustrator, Affinity or Inkscape and design on top of it.
+
+## Pokémon card size for your template
+
+- **Finished size:** 63 × 88 mm (2.5 × 3.5 inches).
+- **Bleed:** add 3 mm on every side (69 × 94 mm) so the background runs past the cut line.
+- **Safe area:** keep text at least 4 mm inside the edge.
+- **Corners:** rounded, with a radius of about 3 mm.
+- **Resolution:** design at 300 dpi, which is 744 × 1039 pixels, or 815 × 1110 pixels with bleed.
+
+More detail in our guide to [Pokémon card size](guide:pokemon-card-size).
+
+## How to make a custom Pokémon card
+
+1. **Pick a Pokémon, or invent one,** and add its name and HP to the top bar.
+2. **Add artwork** to the art window: your own drawing, a photo of your pet, or a picture you have the right to use.
+3. **Write attacks** with an Energy cost and damage, then Weakness, Resistance and Retreat. See [how to read a Pokémon card](guide:how-to-read-a-pokemon-card) for where everything goes.
+4. **Print at 100% (actual size)** on heavy card stock (300 gsm or more) or matte photo paper.
+5. **Cut on the trim line,** round the corners with a corner punch, and slide the card into a [sleeve](product:pokemon-card-sleeves-64-ct-assorted-designs) with a real card behind it for stiffness.
+
+## Custom Pokémon cards: the rules
+
+- Custom cards are for fun: they can't be used at official Pokémon tournaments.
+- Don't sell custom cards made with Pokémon names or artwork, or pass them off as real ones. That's counterfeiting ([how to spot a fake Pokémon card](guide:how-to-tell-if-a-pokemon-card-is-fake)).
+- Only use artwork you made yourself or have permission to use.
+
+## Questions
+
+### What size is a Pokémon card template?
+
+63 × 88 mm (2.5 × 3.5 inches), plus 3 mm of bleed on each side for printing: 69 × 94 mm.
+
+### What paper should I print custom Pokémon cards on?
+
+Heavy card stock (300 gsm or more) or matte photo paper. A real card behind it in the sleeve makes it feel like the real thing.
+
+### Can I use custom Pokémon cards in a tournament?
+
+No. Only official Pokémon cards can be used at Play! Pokémon events.
+MD],
+    ['slug'=>'how-to-play-pokemon-cards', 'updated'=>'2026-09-25',
+     'title'=>'How to play Pokémon cards: the rules for beginners',
+     'seo_title'=>'How to Play Pokémon Cards: Pokémon Card Game Rules',
+     'seo_desc'=>'How to play the Pokémon card game step by step: decks, setup, taking a turn, attacking, Trainer cards, Prize cards and the three ways to win.',
+     'body'=><<<'MD'
+The Pokémon Trading Card Game is a game for two players. Each player uses a deck of 60 cards and tries to Knock Out the other player's Pokémon. Here's how to play Pokémon cards, from setting up to your first win.
+
+## What you need to play
+
+- **A 60-card deck for each player.** The easiest start is a ready-made deck, such as the [Eevee ex starter set](product:starter-set-ex-eevee-ex) or the [MEGA Start Deck 100](product:mega-start-deck-100-battle-collection).
+- **Damage counters, a coin or dice, and a playmat.** [Elite Trainer Boxes](category:etb) include counters and dice, and our [playmats](product:pokemon-playmat-assorted-designs) mark out where everything goes.
+
+## The three kinds of Pokémon cards
+
+- **Pokémon:** Basic Pokémon go straight into play; Stage 1 and Stage 2 Pokémon evolve from them.
+- **Energy:** attached to your Pokémon to pay for their attacks.
+- **Trainer cards:** Items, Supporters, Stadiums and Pokémon Tools that help you (below).
+
+## How to set up the Pokémon card game
+
+1. Shuffle your deck and draw 7 cards.
+2. Put one Basic Pokémon face down as your **Active Pokémon**, and up to 5 more Basic Pokémon face down on your **Bench**. No Basic Pokémon in your hand? Show it, shuffle it back and draw 7 again; your opponent may draw an extra card.
+3. Put the top 6 cards of your deck aside, face down, as your **Prize cards**.
+4. Flip a coin. The winner chooses who goes first. Then both players turn their Pokémon face up.
+
+## Taking a turn
+
+1. **Draw a card.**
+2. **As often as you like:** put Basic Pokémon on your Bench, evolve your Pokémon, play Item cards and use Abilities. You can't evolve a Pokémon on the turn it was played, or on either player's first turn.
+3. **Once per turn:** attach one Energy card, play one Supporter card, play one Stadium card, and retreat your Active Pokémon by discarding Energy equal to its Retreat Cost.
+4. **Attack** to end your turn. The player who goes first can't attack, or play a Supporter, on their very first turn.
+
+## Attacking and Knock Outs
+
+Each attack shows the Energy it needs and the damage it does. Put damage counters on the Defending Pokémon: double the damage if it's Weak to your Pokémon's type, and less if it has Resistance. When a Pokémon's damage reaches its HP, it's **Knocked Out**. Its owner discards it and moves a Benched Pokémon into the Active spot, and you take a Prize card: one for most Pokémon, two for a Pokémon ex and three for a Mega Evolution Pokémon ex.
+
+## Pokémon Trainer cards
+
+Trainer cards are the tools of your deck:
+
+- **Item:** play as many as you like in your turn, for example to search your deck or heal.
+- **Supporter:** one per turn, usually with the strongest effects, like drawing several cards.
+- **Stadium:** stays in play and affects both players until another Stadium replaces it.
+- **Pokémon Tool:** attach one to a Pokémon for an ongoing effect.
+
+## How to win a Pokémon card game
+
+You win when:
+
+- you take all 6 of your Prize cards;
+- your opponent has no Pokémon left in play; or
+- your opponent has no cards left to draw at the start of their turn.
+
+## Special Conditions
+
+Some attacks leave the Defending Pokémon **Asleep**, **Burned**, **Confused**, **Paralyzed** or **Poisoned**. Asleep and Paralyzed Pokémon can't attack or retreat; Burned and Poisoned Pokémon take damage between turns; a Confused Pokémon's attack may fail. Moving a Pokémon to the Bench removes them all.
+
+## Where to play
+
+Play at home with a friend, join a league at a local card shop ([Pokémon card shops near me](guide:pokemon-card-shops-near-me)), or practise with Pokémon TCG Live, the official app.
+
+## Questions
+
+### How many cards are in a Pokémon deck?
+
+Exactly 60, with no more than 4 copies of any card with the same name, except basic Energy.
+
+### How do you win at Pokémon cards?
+
+Take all 6 of your Prize cards, Knock Out your opponent's last Pokémon in play, or leave them with no cards to draw at the start of their turn.
+
+### Can I play with Japanese Pokémon cards?
+
+At home, yes: Japanese and English cards follow the same rules and layout, and you can [read a Japanese card](guide:how-to-read-a-pokemon-card) by its numbers and symbols. Official tournaments have their own language rules.
+MD],
+    ['slug'=>'how-to-read-a-pokemon-card', 'updated'=>'2026-09-25',
+     'title'=>'How to read a Pokémon card: every part explained',
+     'seo_title'=>'How to Read a Pokémon Card: Every Symbol Explained',
+     'seo_desc'=>'How to read a Pokémon card: name, HP, type, stage, attacks, Energy cost, Weakness, Resistance, Retreat, set symbol, card number, rarity and regulation mark.',
+     'body'=><<<'MD'
+Every Pokémon card follows the same layout, whether it's English or Japanese. Once you know where to look, you can read any card at a glance. Here's each part, from top to bottom.
+
+## The top of the card
+
+- **Stage:** Basic, Stage 1 or Stage 2. Evolved Pokémon also show the Pokémon they evolve from.
+- **Name:** including any extra label, like "ex" or "Mega".
+- **HP:** Hit Points, the damage the Pokémon can take before it's Knocked Out.
+- **Type:** the coloured symbol next to the HP: Grass, Fire, Water, Lightning, Psychic, Fighting, Darkness, Metal, Dragon or Colorless.
+
+## The artwork and the illustrator
+
+The picture takes up the middle of the card. The illustrator's name is printed near the bottom, after "Illus." Many collectors follow favourite artists; see [cool Pokémon cards](guide:coolest-pokemon-cards).
+
+## Abilities and attacks
+
+- **Abilities** are marked "Ability" and can usually be used without attacking.
+- **Attacks** show the Energy symbols needed on the left, the attack name, and the damage on the right. The text below explains any extra effect. A white star symbol means Colorless: any type of Energy can pay for it.
+
+## Weakness, Resistance and Retreat Cost
+
+Along the bottom of the text box:
+
+- **Weakness:** a type that does double damage to this Pokémon.
+- **Resistance:** a type that does less damage to it.
+- **Retreat Cost:** how many Energy you discard to move it to the Bench.
+
+## Rule boxes
+
+Special Pokémon have a rule box at the bottom. For example, when a Pokémon ex is Knocked Out, the opponent takes 2 Prize cards, and 3 for a Mega Evolution Pokémon ex.
+
+## The bottom of the card
+
+- **Regulation mark:** a small letter in a box that shows which tournament formats the card can be played in.
+- **Set symbol or set code:** which set the card is from. Japanese cards show a set code, such as SV2a for [151](set:151).
+- **Card number:** such as 185/165. A number higher than the set total means a secret rare.
+- **Rarity:** on English cards a symbol (a circle for common, a diamond for uncommon, stars for rare cards); on Japanese cards a letter code like C, U, R, RR, AR, SR, SAR or UR. See [Pokémon card rarities](guide:pokemon-card-rarities).
+
+## Trainer and Energy cards
+
+Trainer cards say which kind they are at the top: Item, Supporter, Stadium or Pokémon Tool, followed by their effect. Energy cards show their type. See [how to play Pokémon cards](guide:how-to-play-pokemon-cards) for how each is used.
+
+## Reading Japanese Pokémon cards
+
+Japanese cards use the same layout, numbers and symbols, so HP, damage, Energy costs and card numbers read exactly the same. Only the names and effect text are in Japanese. More in our guide to [Japanese Pokémon cards](guide:japanese-pokemon-cards).
+
+## Questions
+
+### What does HP mean on a Pokémon card?
+
+Hit Points: how much damage the Pokémon can take before it's Knocked Out.
+
+### What do the numbers at the bottom of a Pokémon card mean?
+
+The card's number in its set, such as 185/165. A first number higher than the second means a secret rare.
+
+### What is the letter at the bottom of a Pokémon card?
+
+The regulation mark, which shows which tournament formats the card is legal in.
+MD],
+    ['slug'=>'how-much-does-it-cost-to-grade-a-pokemon-card', 'updated'=>'2026-09-25',
+     'title'=>'How much does it cost to grade a Pokémon card?',
+     'seo_title'=>'How Much Does It Cost to Grade a Pokémon Card? (2026)',
+     'seo_desc'=>'What grading a Pokémon card costs in 2026 at PSA, CGC and Beckett, the hidden costs like shipping and insurance, and when grading a card is worth it.',
+     'body'=><<<'MD'
+Grading means sending a card to a company that checks it's genuine, grades its condition from 1 to 10 and seals it in a tamper-evident case, called a slab. Here's what it costs in 2026, and when it's worth paying.
+
+## How much does it cost to grade a Pokémon card?
+
+As of September 2026, the cheapest grading at the main companies starts at roughly **$15–25 per card**. Add shipping both ways and insurance, and a single card sent on its own costs more like **$30–60** in total. Faster service and higher-value cards cost more: express tiers run to hundreds of dollars per card.
+
+Grading prices change often, so check the grading company's current price list before you send anything.
+
+## PSA grading cost
+
+PSA is the biggest grading company, and PSA 10s usually sell for the most. Its fees depend on the card's declared value and how fast you want it back. PSA's cheapest **Value** tiers (from about $20–25 a card) were paused on 2 June 2026 because of a backlog of millions of cards. Until they reopen, PSA submissions start at its more expensive **Regular** tier, well over $50 a card. Some tiers also need a paid Collectors Club membership.
+
+## CGC and Beckett grading cost
+
+- **CGC:** from about $15 a card on its slowest tier, with no membership needed.
+- **Beckett (BGS):** from about $20 a card on its slowest tier. Its sub-grades for centering, corners, edges and surface appeal to many collectors.
+
+## The hidden costs of grading
+
+- **Insured shipping** to the grader and back, often $20 or more per order.
+- **Card savers and packing** materials.
+- **Upcharges** if the graded card turns out to be worth more than your tier's declared-value limit.
+- **Waiting time:** from days on express tiers to months on bulk tiers.
+
+## Is grading a Pokémon card worth it?
+
+Grade a card when its graded value is clearly more than its ungraded value plus the cost:
+
+- valuable cards in near-perfect condition, such as Special Illustration Rares, gold cards and vintage holos;
+- cards you want authenticated and protected for resale.
+
+Skip grading common cards, and cards with visible whitening, scratches or off-centre borders: a low grade can be worth less than the cost of grading.
+
+## Graded Pokémon cards you can buy now
+
+If you'd rather buy a card that's already graded, see our [PSA graded Pokémon cards](cards:psa-graded-pokemon-cards), such as this [PSA 10 Pikachu ex Special Illustration Rare](product:pikachu-ex-sar-240-191-psa-10-gem-mint).
+
+## Questions
+
+### How much does PSA charge to grade a card?
+
+From about $20–25 per card on its cheapest Value tiers when they're open (they were paused in June 2026), and more for faster tiers and higher-value cards, plus shipping.
+
+### What's the cheapest way to grade Pokémon cards?
+
+Send several cards together on the slowest tier at a grader such as CGC or Beckett, so the shipping cost is shared.
+
+### How long does grading take?
+
+From around a week on express tiers to several months on bulk tiers.
+MD],
+    ['slug'=>'chinese-pokemon-cards', 'updated'=>'2026-09-25',
+     'title'=>'Chinese Pokémon cards: official releases vs imitation cards',
+     'seo_title'=>'Chinese Pokémon Cards: Official vs Imitation Explained',
+     'seo_desc'=>'Are Chinese Pokémon cards real? Official Simplified and Traditional Chinese Pokémon cards explained, how they differ from Japanese cards, and imitation cards.',
+     'body'=><<<'MD'
+"Chinese Pokémon cards" can mean two very different things: **official** Pokémon cards printed in Chinese, and **imitation** cards made without permission. Here's how to tell them apart.
+
+## Official Chinese Pokémon cards
+
+There are two official Chinese versions of the Pokémon Trading Card Game:
+
+- **Traditional Chinese,** for Taiwan and Hong Kong, printed since 2019. Its sets closely follow the Japanese releases, with the same structure and numbering.
+- **Simplified Chinese,** for mainland China, announced in September 2022, with the first three sets released on 28 October 2022. These sets often combine cards from several Japanese expansions, with their own box sizes and pull rates.
+
+Both are genuine, licensed Pokémon cards, collected for their unique products and exclusive cards.
+
+## Imitation Pokémon cards
+
+Imitation Pokémon cards are counterfeits. They're sold cheaply online and in bulk lots, and many come from unlicensed factories, which is why fake cards are often loosely called "Chinese cards". Signs of an imitation card:
+
+- wrong fonts, spelling mistakes or odd wording;
+- washed-out or oversaturated colours;
+- flimsy or very glossy card stock, with no dark layer visible along the edge;
+- HP or damage numbers that make no sense;
+- a price far below market.
+
+Read our full guide on [how to tell if a Pokémon card is fake](guide:how-to-tell-if-a-pokemon-card-is-fake).
+
+## Chinese vs Japanese Pokémon cards
+
+- Every set is released in Japan first.
+- Traditional Chinese sets mirror the Japanese sets closely; Simplified Chinese sets are rearranged.
+- Japanese cards are the most widely collected non-English Pokémon cards.
+
+We sell [Japanese Pokémon cards](guide:japanese-pokemon-cards) bought through Japanese distribution and sealed in their original factory packaging: see our [booster boxes](category:boxes).
+
+## Questions
+
+### Are Chinese Pokémon cards real?
+
+Official Simplified and Traditional Chinese cards are real. Cheap "Chinese" cards sold in bulk lots, with odd text or colours, are usually imitations.
+
+### Are Chinese Pokémon cards worth anything?
+
+Official ones are collectible, and some exclusive cards sell well. Imitation cards have no collector value.
+
+### How can I tell if a Pokémon card is an imitation?
+
+Compare it with a genuine card: check the text, colours, texture and edges, and shine a light through it. Our [fake card guide](guide:how-to-tell-if-a-pokemon-card-is-fake) covers nine checks.
+MD],
+    ['slug'=>'coolest-pokemon-cards', 'updated'=>'2026-09-25',
+     'title'=>'Cool Pokémon cards: the best, coolest and cutest cards to collect',
+     'seo_title'=>'Cool Pokémon Cards: Best, Coolest & Cutest Cards to Collect',
+     'seo_desc'=>'The coolest Pokémon cards to collect: full art cards, Special Illustration Rares, Tag Team cards, gold cards and cute Pokémon card art, with Japanese picks.',
+     'body'=><<<'MD'
+What makes a Pokémon card cool is personal, but collectors agree on a few kinds of cards that look better, feel special and hold their value. Here are the best Pokémon cards to collect, and where to find them.
+
+## The coolest Pokémon cards right now
+
+- **Special Illustration Rares (SIR, or SAR in Japanese).** Full-card artwork that tells a small story, often showing the Pokémon in its habitat. They're the most wanted cards in modern sets: see the [Mega Gengar ex Special Illustration Rare](product:mega-gengar-ex-sir) or the [151 Charizard ex](product:151-charizard-ex-special-illustration-rare).
+- **Gold cards.** Gold borders and textured foil, and often the hardest pull in a set ([gold Pokémon cards](guide:rarest-pokemon-cards)).
+- **Mega Evolution Pokémon ex.** The new Mega Pokémon ex of the [Mega Evolution sets](set:mega-evolution), such as [Mega Greninja ex](product:mega-greninja-ex-japanese) and [Mega Darkrai ex](product:mega-darkrai-ex-japanese).
+
+## Full art Pokémon cards
+
+A full art card's artwork covers the whole card instead of sitting in a frame, usually with a textured surface you can feel. Full arts first appeared in the Black & White era in the early 2010s and have been in nearly every set since, as full art Pokémon, full art Trainers and alternate arts. Japanese full arts are prized for their print quality and colour.
+
+## Tag Team Pokémon cards
+
+Tag Team cards show two, and sometimes three, Pokémon together on one card: Pikachu & Zekrom-GX, Mewtwo & Mew-GX and Charizard & Braixen-GX are famous examples. They were printed in 2019, in the Sun & Moon era. In play they're powerful, and the opponent takes 3 Prize cards when one is Knocked Out. Their alternate-art versions are some of the best-loved cards of the era.
+
+## Cute Pokémon cards
+
+Cute cards are a collecting category of their own. Pikachu, Eevee and its evolutions, Jigglypuff, Snorlax and Psyduck appear on many of the most popular illustration rares. Japanese Art Rares (AR), which show a single Pokémon in a charming everyday scene, are an affordable way to build a cute binder. The [Terastal Festival ex](set:terastal-festival-ex) set, built around all the Eevee evolutions, is full of them, and our [Pikachu Pokémon cards](cards:pikachu-pokemon-cards) page collects Pikachu.
+
+## Pokémon pictures: the art on the cards
+
+Every Pokémon card credits its illustrator near the bottom, and many collectors follow favourite artists the way others follow favourite Pokémon. If you're after Pokémon pictures to collect rather than just look at, Art Rares and Special Art Rares are the cards made for the artwork. Show them off in a [9-pocket binder](product:pokemon-tcg-9-pocket-binder-mega-evolution-series).
+
+## Best Pokémon cards for new collectors
+
+1. Pick a Pokémon or a set you love, rather than chasing prices.
+2. Buy the chase card you want as a single: it's usually cheaper than opening packs for it.
+3. Open a [booster box](category:boxes) for the fun of pulling cards.
+4. Protect everything in [sleeves](product:pokemon-card-sleeves-64-ct-assorted-designs) and a binder.
+
+## Questions
+
+### What is the best Pokémon card?
+
+By value, the Pikachu Illustrator, the most expensive Pokémon card ever sold. For collecting today, the Special Illustration Rares and gold cards of your favourite Pokémon are the best cards in each set.
+
+### What are full art Pokémon cards?
+
+Cards whose artwork covers the whole card, usually with a textured finish. They've been printed since the early 2010s.
+
+### What are Tag Team Pokémon cards?
+
+Cards showing two or three Pokémon together, printed in 2019. When one is Knocked Out, the opponent takes 3 Prize cards.
+MD],
+    ['slug'=>'mew-mewtwo-arceus-pokemon-cards', 'updated'=>'2026-09-25',
+     'title'=>'Mew, Mewtwo and Arceus Pokémon cards worth collecting',
+     'seo_title'=>'Mew, Mewtwo & Arceus Pokémon Cards: Best Cards to Collect',
+     'seo_desc'=>'The Mew, Mewtwo and Arceus Pokémon cards collectors want, from Base Set Mewtwo and Ancient Mew to Arceus VSTAR and the new Mewtwo ex and Mew ex.',
+     'body'=><<<'MD'
+Mew, Mewtwo and Arceus are three of the most collected Legendary and Mythical Pokémon. Here are their best-known cards, and where to find the newest ones.
+
+## Mewtwo Pokémon card
+
+Mewtwo has been a chase card since the very first set:
+
+- **Base Set Mewtwo (1999):** the original holo rare, card 10/102. 1st Edition copies in top grades are the most valuable.
+- **Mewtwo & Mew-GX (2019):** a Tag Team card from Unified Minds, with a much-loved alternate art.
+- **Mewtwo ex in 30th Celebration:** the Japanese 30th anniversary set (M6a) features Mewtwo ex alongside Mew ex. See the [30th Celebration set](set:30th-celebration) and its [booster box](product:30th-celebration-m6a-booster-box).
+
+## Mew Pokémon card
+
+Mew is the Mythical Pokémon Mewtwo was cloned from, and its cards are just as collected:
+
+- **Ancient Mew:** a promo card given out with Pokémon: The Movie 2000, printed in an invented "ancient" script.
+- **Mew ex in 151:** the [151 set](set:151) covers the original 151 Pokémon, ending with Mew, and its Mew ex cards are fan favourites.
+- **Mew ex in 30th Celebration:** a new Mew ex for the 30th anniversary.
+
+## Arceus Pokémon card
+
+Arceus is the Mythical Pokémon said to have shaped the Pokémon universe. It was introduced in the Diamond & Pearl games:
+
+- **Arceus LV.X (2009):** from the Platinum-era set Arceus, which printed many different Arceus cards that could be played together.
+- **Arceus VSTAR (2022):** from Brilliant Stars (Star Birth in Japan), released around the time of the game Pokémon Legends: Arceus. Its gold version is a favourite.
+
+## Buying Mew, Mewtwo and Arceus cards
+
+Singles are the surest way to get a specific card; sealed boxes are the fun way to chase one. Browse our [rare Pokémon cards](category:singles) and [Pokémon card sets](page:sets), and check condition carefully before you buy: see [what grading costs](guide:how-much-does-it-cost-to-grade-a-pokemon-card).
+
+## Questions
+
+### What is the most valuable Mewtwo card?
+
+Among regular cards, the 1st Edition Base Set holo Mewtwo in top grades. Early prize and promo Mewtwo cards made in small numbers are rarer still.
+
+### What is Ancient Mew?
+
+A promotional Mew card given out with Pokémon: The Movie 2000, printed with an invented ancient-looking script instead of normal text.
+
+### Is Arceus Legendary or Mythical?
+
+Mythical, like Mew.
+MD],
+    ['slug'=>'where-to-sell-pokemon-cards', 'updated'=>'2026-09-25',
+     'title'=>'Where to sell Pokémon cards for the best price',
+     'seo_title'=>'Where to Sell Pokémon Cards for the Best Price (2026)',
+     'seo_desc'=>'Where to sell Pokémon cards: local card shops, card shows, eBay, TCGplayer, collector groups and auction houses, with the pros, cons and tips for each.',
+     'body'=><<<'MD'
+Where you sell Pokémon cards decides how much you get and how fast. Here are the main options, from quick cash to top prices.
+
+## Before you sell: know what you have
+
+- **Identify each card:** set, card number and language. A [scanner app](guide:pokemon-card-scanner) speeds this up.
+- **Check what it has recently sold for,** in the same condition ([price checker tips](guide:pokemon-card-price-checker)).
+- **Be honest about condition:** whitening, scratches and bends lower the price.
+- **Consider grading** your best cards first ([what grading costs](guide:how-much-does-it-cost-to-grade-a-pokemon-card)).
+
+## Local card shops
+
+The fastest way to sell. A shop pays on the spot, in cash or store credit, but usually below market price, because it needs room to resell. Get offers from more than one shop, and ask whether store credit is worth more than cash. See [Pokémon card shops near me](guide:pokemon-card-shops-near-me).
+
+## Card shows
+
+Many buyers in one room, so you can compare offers table by table. Bring your cards sorted, know your prices, and expect to negotiate.
+
+## eBay
+
+The biggest audience of buyers. You set the price or run an auction, and eBay takes a fee from each sale. Take clear photos of the front and back, describe the condition honestly, and ship with tracking.
+
+## TCGplayer
+
+A marketplace built for trading cards, where you list singles against TCGplayer's market prices. You'll need a seller account, and fees apply to each sale.
+
+## Collector groups
+
+Facebook groups and Discord servers can mean lower fees and keen buyers, but more risk. Check the buyer's references, and use a payment method with protection.
+
+## Auction houses for valuable cards
+
+For high-value graded cards, auction houses such as Goldin and Heritage Auctions reach serious collectors, and set many of the hobby's record prices. They charge the seller a commission, and the buyer pays a premium on top.
+
+## How to ship Pokémon cards you've sold
+
+Put each card in a sleeve and a toploader, sandwich it between cardboard in a bubble mailer, and use tracked, insured shipping for anything valuable.
+
+## Questions
+
+### Where can I sell Pokémon cards for the most money?
+
+Usually online (eBay or TCGplayer) or, for high-value graded cards, an auction house. Local shops pay less, but they pay at once.
+
+### Do card shops buy Pokémon cards?
+
+Many do, usually at a discount to market price, in cash or store credit.
+
+### Should I grade my Pokémon cards before selling?
+
+Only valuable cards in near-perfect condition, where a high grade will add more than the cost of grading.
+MD],
     ['slug'=>'pokemon-card-size', 'updated'=>'2026-09-24',
      'title'=>'Pokémon card size: dimensions in mm and inches',
      'seo_title'=>'Pokémon Card Size & Dimensions (mm and inches)',
@@ -453,6 +1300,10 @@ MD],
      'seo_desc'=>'Fake Pokémon cards are common. Nine quick checks — text, colour, texture, the light test, edges and more — to spot fake or imitation Pokémon cards before you buy.',
      'body'=><<<'MD'
 Fake Pokémon cards are everywhere, from obvious imitation packs to convincing copies of expensive cards sold online. Most fakes fail at least one of these checks — and the more expensive the card, the more of them you should run.
+
+## Imitation Pokémon cards
+
+Imitation Pokémon cards are unlicensed copies. Some are sold openly as cheap bulk lots or novelty "gold" cards; others are made to pass as real cards and sold at real prices. Official cards printed in other languages, such as Chinese, are genuine, so don't confuse them with imitations: see [Chinese Pokémon cards](guide:chinese-pokemon-cards).
 
 ## 1. Compare it with a real card
 
@@ -520,20 +1371,20 @@ Gold Pokémon cards — UR in Japanese, Hyper Rare in English — are printed wi
 
 ## What are the rarest Pokémon cards?
 
-The rarest Pokémon cards were never sold in packs at all: prize cards from contests and tournaments, awarded to a handful of people. The best known is Pikachu Illustrator, a 1998 contest prize — see [how much Pokémon cards are worth](guide:pokemon-card-values). In modern sets the rarest cards are the SAR, gold and top-rarity cards, which can turn up less than once per booster box.
+The rarest Pokémon cards were never sold in packs at all: prize cards from contests and tournaments, awarded to a handful of people. The best known is Pikachu Illustrator, a 1997–98 contest prize: see [the rarest Pokémon cards](guide:rarest-pokemon-cards). In modern sets the rarest cards are the SAR, gold and top-rarity cards, which can turn up less than once per booster box.
 
 ## Rarity isn't the whole story
 
 Two cards of the same rarity can be worth very different amounts. The Pokémon on the card matters — [Charizard](cards:charizard-pokemon-cards), [Pikachu](cards:pikachu-pokemon-cards) and [Gengar](cards:gengar-pokemon-cards) are always in demand — and so do condition and grading.
 MD],
     ['slug'=>'pokemon-card-values', 'updated'=>'2026-09-24',
-     'title'=>'How much are Pokémon cards worth?',
-     'seo_title'=>'How Much Are Pokémon Cards Worth? Card Values Explained',
+     'title'=>'Pokémon card values: how much are Pokémon cards worth?',
+     'seo_title'=>'Pokémon Card Values: How Much Are Pokémon Cards Worth?',
      'seo_desc'=>'What makes a Pokémon card worth money: rarity, condition, PSA grading and language. How to check Pokémon card values, and the most expensive card sold.',
      'body'=><<<'MD'
 Most Pokémon cards are worth very little — but the right card, in the right condition, can be worth hundreds or thousands of dollars. Here's what decides a Pokémon card's value, and how to check what yours is worth.
 
-## What makes a Pokémon card worth money?
+## Pokémon cards worth money: what makes a card valuable?
 
 - **Rarity.** Special Illustration Rares, gold cards and top-rarity cards are printed in far smaller numbers than commons. See [Pokémon card rarities](guide:pokemon-card-rarities).
 - **The Pokémon.** Fan favourites sell for more. [Charizard](cards:charizard-pokemon-cards) cards are often the most valuable in a set, followed by the likes of [Pikachu](cards:pikachu-pokemon-cards), Umbreon and [Gengar](cards:gengar-pokemon-cards).
@@ -542,13 +1393,21 @@ Most Pokémon cards are worth very little — but the right card, in the right c
 - **Set and age.** Popular and out-of-print sets hold their value, and sealed booster boxes of sought-after sets like [151](set:151) are collected in their own right.
 - **Language.** Japanese and English versions of the same card are priced separately, and either can be worth more depending on the card.
 
+## How much is a Pokémon Trading Card Game card worth?
+
+As a rough guide: common and uncommon cards are usually worth a few cents; holo rares and regular Pokémon ex a few dollars; full arts and Illustration Rares a few dollars to tens of dollars; and Special Illustration Rares, gold cards and chase cards of popular Pokémon tens to hundreds of dollars, or more in a high grade. Vintage holos, first edition cards and graded gems can be worth thousands.
+
 ## How to check Pokémon card values
 
 The best guide to what a card is worth is what the same card has actually sold for recently. Search for the exact card — name, set number and language — and filter for sold listings on marketplaces, or use a price guide site. Always compare like for like: a raw card and a PSA 10 of the same card are different items, and so are Japanese and English versions.
 
+## Pokémon card prices: price vs value
+
+A card's price is what a seller asks; its value is what buyers actually pay. When you look up Pokémon card prices, compare recent sold prices for the same card, set, language and condition, and ignore unsold listings. For the Japanese booster boxes, Elite Trainer Boxes and singles we sell, our [Pokémon card price checker](guide:pokemon-card-price-checker) shows live prices with every quantity break.
+
 ## What is the most expensive Pokémon card?
 
-The most famous is **Pikachu Illustrator**, a promo card awarded to winners of a 1998 illustration contest in Japan. Only a few dozen copies exist. In 2022 Logan Paul bought a PSA 10 copy for $5,275,000, which Guinness World Records recognised as the most expensive Pokémon card sold at the time. Other high-value cards include first edition Base Set Charizards in top grades and rare tournament prize cards.
+**Pikachu Illustrator**, a prize card from Japanese illustration contests in 1997–98; only 39 were awarded. A PSA 10 copy sold for $16,492,000 at Goldin Auctions in February 2026. Its seller, Logan Paul, had bought it privately for $5,275,000. Other high-value cards include first edition Base Set Charizards in top grades and rare tournament prize cards. See [the most expensive Pokémon cards](guide:most-expensive-pokemon-cards) and [the rarest Pokémon cards](guide:rarest-pokemon-cards).
 
 ## Are modern Pokémon cards worth money?
 

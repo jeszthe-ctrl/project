@@ -68,7 +68,7 @@ function save($msg){
 }
 
 /* formatting accepted in intros and guides (rendered by the shop) */
-const FORMAT_HELP = 'Blank line = new paragraph · "## " heading · "- " bullet · **bold** · links: [text](product:ID), category:KEY, set:SLUG, cards:SLUG, guide:SLUG, page:shipping, or a full https:// address · {min_order} fills in your minimum order.';
+const FORMAT_HELP = 'Blank line = new paragraph · "## " heading, "### " subheading · "- " bullet, "1. " numbered step · **bold** · links: [text](product:ID), category:KEY, set:SLUG, cards:SLUG, guide:SLUG, page:shipping, or a full https:// address · {min_order} {free_ship} fill in your current values · in guides, a line with just {price_list}, {set_table} or {card_template} shows that tool · questions under "## Questions" written as "### Question" become FAQs for Google.';
 /* first path segments the shop uses itself, so categories can't take them */
 const RESERVED_SLUGS = ['shop','products','sets','cards','guides','cart','checkout','order-received','how-it-works','shipping',
                         'shipping-returns','returns','pay','pay-status',
