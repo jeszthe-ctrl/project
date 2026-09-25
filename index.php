@@ -633,7 +633,7 @@ switch($page){
       $h1 = ($cinfo['h1'] ?? '') ?: $cinfo['label'];
     } else {
       $page_title = 'Shop Japanese Pokémon Cards — All Products';
-      $page_desc  = 'Every Japanese Pokémon product we stock: sealed booster boxes, Elite Trainer Boxes, collection boxes, rare singles, PSA graded cards and accessories, shipped to the USA.';
+      $page_desc  = 'Shop Japanese Pokémon cards: sealed booster boxes, Elite Trainer Boxes, rare singles, PSA graded cards and accessories, shipped from Japan to the USA.';
       $h1 = 'Shop Japanese Pokémon cards';
     }
     if($q !== '') $h1 = 'Results for “'.$q.'”';
@@ -652,7 +652,7 @@ switch($page){
     break;
   case 'sets':
     $crumbs[] = ['Sets', '', []];
-    $page_title = 'Pokémon Card Sets — Japanese Mega Evolution & Scarlet & Violet';
+    $page_title = 'Pokémon Card Sets — Mega Evolution & Scarlet & Violet';
     $page_desc  = 'Every Japanese Pokémon card set we stock, from the Mega Evolution series back to Scarlet & Violet favourites like 151 and Terastal Festival ex.';
     $h1 = 'Pokémon card sets';
     break;
@@ -701,8 +701,12 @@ switch($page){
     if($page === 'checkout') $crumbs[] = ['Order', 'cart', []];
     if($h1 !== '') $crumbs[] = [$h1, '', []]; else $crumbs = [];
     if($page === 'notfound') $crumbs = [];
-    if($page === 'shipping') $page_desc = (free_ship_usd($STORE) ? 'Free shipping on orders over '.money_whole(free_ship_usd($STORE)).'. ' : '')
-      .'Japanese Pokémon cards shipped from Japan with tracking: delivery times, rates, customs and duty, and how returns, refunds and damage claims work.';
+    $page_desc = ['shipping'=>(free_ship_usd($STORE) ? 'Free shipping over '.money_whole(free_ship_usd($STORE)).'. ' : '')
+                    .'Japanese Pokémon cards shipped from Japan with tracking: delivery times, rates, duty, returns and refunds.',
+                  'faq'=>'Answers to common questions about buying Japanese Pokémon cards from Japan: shipping to the USA, payment, minimum order, duty and returns.',
+                  'how'=>'How to order Japanese Pokémon cards from FUDAKURA: published bulk prices, pay by Bitcoin or invoice, and tracked shipping from Japan to the USA.',
+                  'payment'=>'How to pay for Japanese Pokémon cards at FUDAKURA: Bitcoin straight from your wallet, or the method that suits you, with an invoice by email.',
+                  'contact'=>'Contact FUDAKURA about Japanese Pokémon card orders, bulk pricing, shipping from Japan or an existing order. We reply within '.(int)$CONFIG['reply_hours'].' hours.'][$page] ?? '';
 }
 if($page_desc === '') $page_desc = 'Japanese Pokémon cards shipped from Japan to the USA: sealed booster boxes, Elite Trainer Boxes, rare singles and PSA graded cards.';
 
@@ -738,6 +742,8 @@ $in_stock = array_values(array_filter($PRODUCTS, fn($p)=>!in_array($p['status'],
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#050507">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<?php if($page === 'home'): foreach(['google_verify'=>'google-site-verification', 'bing_verify'=>'msvalidate.01'] as $k=>$nm) if(($CONFIG[$k] ?? '') !== ''): ?><meta name="<?= $nm ?>" content="<?= h($CONFIG[$k]) ?>">
+<?php endif; endif; ?>
 
 <?php
 $org_id = rtrim($CONFIG['domain'], '/').'/#org';

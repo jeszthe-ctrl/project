@@ -200,12 +200,14 @@ function ship_day_range($days){ return preg_match('/(\d+)\D+(\d+)/', (string)$da
 /* =?UTF-8?B?…?= so names like “Pokémon” and dashes survive in subjects and sender names */
 function mail_header($s){ return preg_match('/[^\x20-\x7E]/', $s) ? '=?UTF-8?B?'.base64_encode($s).'?=' : $s; }
 
-/* UTF-8 plain-text mail from the shop address. The envelope sender (-f) is set to the same
-   address so SPF checks line up; hosts that refuse -f get a second try without it. */
+/* UTF-8 plain-text mail from the shop address. With an SMTP server set in Admin → Settings → Email
+   (e.g. your mailbox provider), mail goes out through it and lands in inboxes more reliably;
+   otherwise PHP's mail() is used, with the envelope sender (-f) set to the shop address so SPF
+   checks line up (hosts that refuse -f get a second try without it). */
 function shop_mail($to, $subject, $body, $reply_to=''){
   $cfg = $GLOBALS['STORE']['settings'];
   $from = filter_var($cfg['email'], FILTER_VALIDATE_EMAIL) ? $cfg['email'] : $cfg['order_email'];
-  $headers = implode("\r\n", array_filter([
+  $headers = array_values(array_filter([
     'From: '.mail_header($cfg['brand']).' <'.$from.'>',
     $reply_to ? 'Reply-To: '.$reply_to : '',
     'MIME-Version: 1.0',
@@ -213,8 +215,59 @@ function shop_mail($to, $subject, $body, $reply_to=''){
     'Content-Transfer-Encoding: quoted-printable',
   ]));
   $subject = mail_header($subject);
-  $body = quoted_printable_encode($body);
-  return @mail($to, $subject, $body, $headers, '-f'.$from) || @mail($to, $subject, $body, $headers);
+  $body = quoted_printable_encode(str_replace("\n", "\r\n", str_replace("\r\n", "\n", $body)));   /* real line breaks, not =0A */
+  $GLOBALS['FK_MAIL_ERROR'] = '';
+  if(trim($cfg['smtp_host'] ?? '') !== '') return smtp_send($cfg, $from, $to, $subject, $body, $headers);
+  $ok = @mail($to, $subject, $body, implode("\r\n", $headers), '-f'.$from) || @mail($to, $subject, $body, implode("\r\n", $headers));
+  if(!$ok) $GLOBALS['FK_MAIL_ERROR'] = 'PHP mail() failed: the host may not allow sending mail from PHP. Set an SMTP server in Settings → Email.';
+  return $ok;
+}
+
+/* a small SMTP client: SSL (port 465) or STARTTLS (587), AUTH PLAIN/LOGIN, certificate checked */
+function smtp_send($cfg, $from, $to, $subject, $body, $headers){
+  $host = trim($cfg['smtp_host']); $secure = $cfg['smtp_secure'] ?? 'tls';
+  $port = (int)($cfg['smtp_port'] ?? 0) ?: ($secure === 'ssl' ? 465 : 587);
+  $ctx = stream_context_create(['ssl'=>['verify_peer'=>true, 'verify_peer_name'=>true, 'peer_name'=>$host, 'SNI_enabled'=>true]]);
+  $fp = @stream_socket_client(($secure === 'ssl' ? 'ssl://' : 'tcp://').$host.':'.$port, $errno, $errstr, 15, STREAM_CLIENT_CONNECT, $ctx);
+  if(!$fp){ $GLOBALS['FK_MAIL_ERROR'] = "Couldn’t connect to $host:$port ($errstr)."; error_log('fudakura smtp: '.$GLOBALS['FK_MAIL_ERROR']); return false; }
+  stream_set_timeout($fp, 20);
+  $talk = function($line, $want) use($fp){
+    if($line !== null) fwrite($fp, $line."\r\n");
+    $reply = '';
+    while(($l = fgets($fp, 2048)) !== false){ $reply .= $l; if(strlen($l) < 4 || $l[3] !== '-') break; }
+    if(!in_array((int)substr($reply, 0, 3), (array)$want, true)) throw new RuntimeException(trim($reply) ?: 'no answer from the server');
+    return $reply;
+  };
+  $me = preg_replace('/[^a-z0-9.-]/i', '', parse_url($cfg['domain'] ?? '', PHP_URL_HOST) ?: 'localhost');
+  try {
+    $talk(null, 220);
+    $caps = $talk("EHLO $me", 250);
+    if($secure === 'tls'){
+      $talk('STARTTLS', 220);
+      $method = STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT | (defined('STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT') ? STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT : 0);
+      if(!@stream_socket_enable_crypto($fp, true, $method)) throw new RuntimeException('STARTTLS failed (certificate or TLS version)');
+      $caps = $talk("EHLO $me", 250);
+    }
+    if(($cfg['smtp_user'] ?? '') !== ''){
+      if(preg_match('/AUTH[ =][^\r\n]*PLAIN/i', $caps)) $talk('AUTH PLAIN '.base64_encode("\0".$cfg['smtp_user']."\0".($cfg['smtp_pass'] ?? '')), 235);
+      else { $talk('AUTH LOGIN', 334); $talk(base64_encode($cfg['smtp_user']), 334); $talk(base64_encode($cfg['smtp_pass'] ?? ''), 235); }
+    }
+    $talk("MAIL FROM:<$from>", 250);
+    $talk("RCPT TO:<$to>", [250, 251]);
+    $talk('DATA', 354);
+    $msg = implode("\r\n", array_merge(['Date: '.date('r'), 'Message-ID: <'.bin2hex(random_bytes(12)).'@'.$me.'>', "To: <$to>", "Subject: $subject"], $headers))
+         ."\r\n\r\n".preg_replace("/\r?\n/", "\r\n", $body);
+    fwrite($fp, preg_replace('/^\./m', '..', $msg)."\r\n.\r\n");
+    $talk(null, 250);
+    try { $talk('QUIT', 221); } catch(RuntimeException $e){}
+    fclose($fp);
+    return true;
+  } catch(RuntimeException $e){
+    $GLOBALS['FK_MAIL_ERROR'] = "The mail server said: ".$e->getMessage();
+    error_log('fudakura smtp: '.$GLOBALS['FK_MAIL_ERROR']);
+    @fclose($fp);
+    return false;
+  }
 }
 
 /* ---------------- orders (data/orders/{ref}.php) ---------------- */

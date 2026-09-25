@@ -229,7 +229,7 @@ MD,
       'label' => 'Elite Trainer Boxes', 'slug' => 'elite-trainer-boxes',
       'blurb' => 'Elite Trainer Boxes and cases, with packs, sleeves and accessories inside.',
       'h1' => 'Pokémon Elite Trainer Boxes',
-      'seo_title' => 'Pokémon Elite Trainer Boxes: Perfect Order & Ascended Heroes',
+      'seo_title' => 'Pokémon Elite Trainer Boxes: Perfect Order, Ascended Heroes',
       'seo_desc' => 'Sealed Pokémon TCG Elite Trainer Boxes, including Mega Evolution Perfect Order, Ascended Heroes, Chaos Rising and 30th Celebration, with bulk pricing by the case.',
       'intro' => <<<'MD'
 ## Elite Trainer Boxes
@@ -529,7 +529,7 @@ MD],
     ['slug'=>'pokemon-card-values', 'updated'=>'2026-09-24',
      'title'=>'How much are Pokémon cards worth?',
      'seo_title'=>'How Much Are Pokémon Cards Worth? Card Values Explained',
-     'seo_desc'=>'What makes a Pokémon card worth money — rarity, the Pokémon, condition, PSA grading and language — how to check Pokémon card values, and the most expensive card sold.',
+     'seo_desc'=>'What makes a Pokémon card worth money: rarity, condition, PSA grading and language. How to check Pokémon card values, and the most expensive card sold.',
      'body'=><<<'MD'
 Most Pokémon cards are worth very little — but the right card, in the right condition, can be worth hundreds or thousands of dollars. Here's what decides a Pokémon card's value, and how to check what yours is worth.
 

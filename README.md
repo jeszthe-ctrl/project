@@ -18,11 +18,13 @@ You shouldn't need to edit any code. Day-to-day changes are made in `admin.php` 
 
 ## Install
 
+**One file:** upload the single `index.php` built by `php tools/build-installer.php [admin-password]` (it lands in `dist/`) to your web space and open your site. It unpacks everything below next to itself, keeps your host's own `.htaccess` rules, moves a placeholder `index.html` aside, and then becomes the shop's normal `index.php`. Your data in `data/` is never overwritten, so uploading a newer one later updates the shop. If PHP can't create files in the folder, use the zip instead:
+
 1. Upload everything to your web space. Keep the folder structure.
 2. Make sure PHP can write to `data/` and `assets/products/` (most hosts allow this by default; otherwise set them to 755 or 775).
-3. **Straight away**, open `https://your-domain/admin.php` and create your admin password. The first person to open that page sets the password, so don't leave this step for later.
+3. Open `https://your-domain/admin.php`. If the installer was built with a password, sign in with it and change it under **Password**. Otherwise, **straight away**, create your admin password there: the first person to open that page sets it.
 4. In the admin:
-   - **Settings**: your registered company name, full business address, emails and website address.
+   - **Settings**: your registered company name, full business address, emails and website address. Then **Send a test email** (Settings, bottom) to your business address and to a personal one to check order emails arrive. If they don't, or land in spam, enter your mailbox's SMTP details under **Email**.
    - **Shipping**: your real shipping rates, the free-shipping amount and the Shipping & Returns page text. The site ships with starting rates, and the dashboard warns you until you save this page.
    - **Payments**: check the Bitcoin address is yours (it's checked for typos before saving).
    - **Products**: add photos, check prices and add the rest of your range.
@@ -56,6 +58,7 @@ The Tawk.to chat code is in **Settings → Live chat**. It loads after each page
 
 - **Clean addresses:** most hosts (Apache or LiteSpeed) support addresses like `/products/151-booster-box`. Open `https://your-domain/shop`. If the shop appears, tick **Clean page addresses** in **Settings**. Old `index.php?p=…` links then redirect permanently to the clean ones.
 - **What Google sees:** every product, category, set, collection, guide and page has its own title, description and main heading. You can edit all of them in the admin; blank fields fall back to sensible defaults.
+- **Google Search Console:** turn on clean addresses first (below), then add your site as a *URL prefix* property, choose *HTML tag*, paste the tag into **Settings → Google Search Console verification**, save and press Verify. Bing has a matching box, or can import from Search Console.
 - **Sitemap:** `index.php?p=sitemap` (or `/sitemap.xml` with clean addresses). Submit it in Google Search Console. `robots.txt` already points to it; if your domain changes, update the Sitemap line in `robots.txt`.
 - **Content tabs in the admin:** **Sets** (a page per set and series), **Collections** (e.g. Charizard cards), **Guides** (articles), and **Pages** (About, Returns, Privacy, Terms, all linked in the footer).
 - **Formatting in intros, guides and descriptions:** a blank line starts a new paragraph, `## ` makes a heading, `- ` makes a bullet, `**bold**`. Links look like `[text](product:ID)`; you can also link to `category:KEY`, `set:SLUG`, `cards:SLUG`, `guide:SLUG`, `page:about` or a full `https://` address. In product descriptions, the first paragraph is the summary shown under the title.

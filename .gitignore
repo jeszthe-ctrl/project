@@ -1,3 +1,6 @@
 data/*
 !data/.htaccess
 !data/index.html
+
+# one-file installer built by tools/build-installer.php (may contain the admin login)
+dist/

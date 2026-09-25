@@ -27,6 +27,9 @@ $d = [
     'shipping_reviewed' => false,
     'pretty_urls'   => false,            /* clean addresses like /products/151-booster-box; turn on in Admin → Settings */
     'free_ship_usd' => 2000,             /* free Standard shipping from this goods total (USD); 0 = off */
+    'google_verify' => '', 'bing_verify' => '',   /* Search Console / Bing verification codes (Admin → Settings) */
+    /* SMTP for order emails (Admin → Settings → Email); blank host = the web host's mail() */
+    'smtp_host' => '', 'smtp_port' => 465, 'smtp_secure' => 'ssl', 'smtp_user' => '', 'smtp_pass' => '',
 
     /* Bitcoin: orders paid with a "Bitcoin" payment method are paid to this address from the order page */
     'btc_address'       => 'bc1qhvgghjapwsugh4nnckh0skqar7jcg5xmu36jpl',

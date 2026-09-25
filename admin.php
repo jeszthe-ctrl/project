@@ -500,6 +500,16 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     $s['home_intro']     = in_str('home_intro');
     $s['pretty_urls']    = !empty($_POST['pretty_urls']);
     $s['chat_code']      = str_replace("\r", '', (string)($_POST['chat_code'] ?? ''));
+    foreach(['google_verify', 'bing_verify'] as $k){   /* the whole <meta> tag or just its code */
+      $vv = in_str($k); if(preg_match('/content=["\']([^"\']+)["\']/i', $vv, $m)) $vv = $m[1];
+      $s[$k] = preg_replace('/[^A-Za-z0-9_\-]/', '', $vv);
+    }
+    $s['smtp_host']   = preg_replace('/[^A-Za-z0-9.\-]/', '', in_str('smtp_host'));
+    $s['smtp_secure'] = in_array(in_str('smtp_secure'), ['ssl', 'tls', 'none'], true) ? in_str('smtp_secure') : 'tls';
+    $s['smtp_port']   = (int)(num(in_str('smtp_port'), 1) ?? 0);
+    $s['smtp_user']   = in_str('smtp_user');
+    if((string)($_POST['smtp_pass'] ?? '') !== '') $s['smtp_pass'] = (string)$_POST['smtp_pass'];   /* blank keeps the saved one */
+    if(!empty($_POST['smtp_clear'])) $s['smtp_pass'] = '';
     if(trim($s['chat_code']) !== '' && stripos($s['chat_code'], '<script') === false) note('The live chat code has no <script> tag, so it probably won’t work. Paste the whole snippet from your chat provider.', 'err');
     unset($s);
 
@@ -525,6 +535,22 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     if($up = take_uploads('hero', 1)){ foreach(photo_paths('hero') as $f) @unlink($f); photos_arrange('hero', $up); foreach(photos('hero') as $rel) thumb($rel); }
 
     save('Settings saved.');
+    go('settings');
+  }
+
+  /* ----- test email ----- */
+  if($do === 'mail_test'){
+    $to = in_str('to') ?: $STORE['settings']['order_email'];
+    if(!filter_var($to, FILTER_VALIDATE_EMAIL)) note('Enter a valid email address to send the test to.', 'err');
+    else {
+      $how = trim($STORE['settings']['smtp_host'] ?? '') !== '' ? 'your SMTP server ('.$STORE['settings']['smtp_host'].')' : 'your web host’s mail (PHP mail)';
+      $ok = shop_mail($to, 'Test email from your '.$STORE['settings']['brand'].' shop',
+        "This is a test from your shop admin.\n\nIf you're reading this, order emails reach this address: new orders are sent to "
+        .$STORE['settings']['order_email']." and confirmations to each customer, the moment an order is placed.\n\nSent through $how at ".gmdate('Y-m-d H:i')." UTC.\n");
+      data_write('mail-test', ['time'=>time(), 'to'=>$to, 'ok'=>$ok, 'error'=>$GLOBALS['FK_MAIL_ERROR'] ?? '']);
+      if($ok) note("Test email handed to $how for $to. Check that inbox (and the spam folder) in the next minute or two.");
+      else note('The test email couldn’t be sent. '.($GLOBALS['FK_MAIL_ERROR'] ?? ''), 'err');
+    }
     go('settings');
   }
 
@@ -756,6 +782,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   <?php if(in_array(trim($S['address']), ['', 'Japan'], true)): ?><div class="msg warn">Your business address is just “<?= h($S['address'] ?: 'blank') ?>”. Add the full address in <a href="<?= h(self_url('settings')) ?>">Settings</a> — buyers look for it before ordering.</div><?php endif; ?>
   <?php $failed = array_filter(array_slice($orders, 0, 20), fn($o)=>isset($o['mail_shop']) && !$o['mail_shop']);
   if($failed): ?><div class="msg err"><?= count($failed) ?> recent order email<?= count($failed)===1?'':'s' ?> to <?= h($S['order_email']) ?> failed to send. The orders are safe here, but check with your host that PHP can send mail from <?= h($S['email']) ?>.</div><?php endif; ?>
+  <?php if(!data_read('mail-test')): ?><div class="msg warn">Send yourself a test email in <a href="<?= h(self_url('settings')) ?>#email-settings">Settings → Email</a> to check that order emails reach <?= h($S['order_email']) ?> and your customers.</div><?php endif; ?>
   <?php if(empty($S['pretty_urls'])): ?><div class="msg warn">Clean page addresses are off. They help Google — see <a href="<?= h(self_url('settings')) ?>">Settings → Google &amp; web addresses</a> to test and turn them on.</div><?php endif; ?>
   <?php if($no_photo): ?><div class="msg warn"><?= count($no_photo) ?> product<?= count($no_photo)===1?' has':'s have' ?> no photo yet. Add photos from <a href="<?= h(self_url('products')) ?>">Products</a>.</div><?php endif; ?>
   <div class="stats">
@@ -1266,6 +1293,13 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
       <div class="fld"><label class="f" for="home_intro">Home page text (shown near the bottom of the home page)</label>
         <textarea id="home_intro" name="home_intro" rows="10"><?= h($S['home_intro'] ?? '') ?></textarea>
         <div class="hint"><?= h(FORMAT_HELP) ?></div></div>
+      <div class="grid2">
+        <div class="fld"><label class="f" for="google_verify">Google Search Console verification</label><input type="text" id="google_verify" name="google_verify" value="<?= h($S['google_verify'] ?? '') ?>" placeholder="Paste the HTML tag or its code">
+          <div class="hint">In Search Console: Add property → URL prefix → HTML tag. Paste it here, save, then press Verify there.</div></div>
+        <div class="fld"><label class="f" for="bing_verify">Bing Webmaster Tools verification (optional)</label><input type="text" id="bing_verify" name="bing_verify" value="<?= h($S['bing_verify'] ?? '') ?>" placeholder="Paste the meta tag or its code">
+          <div class="hint">Or skip this and import your site from Search Console in Bing.</div></div>
+      </div>
+      <p class="small muted" style="margin-top:0">Your sitemap to submit: <b><?= h(rtrim($S['domain'], '/')) ?>/<?= !empty($S['pretty_urls']) ? 'sitemap.xml' : 'index.php?p=sitemap' ?></b></p>
       <label class="row small" style="align-items:flex-start"><input type="checkbox" name="pretty_urls" value="1" <?= !empty($S['pretty_urls'])?'checked':'' ?> style="margin-top:4px">
         <span><b>Clean page addresses</b>, like /products/151-booster-box instead of index.php?p=product&amp;id=…
         First open <a href="shop" target="_blank" rel="noopener">your-domain/shop</a>: if it shows the shop, your host supports them and you can tick this.
@@ -1284,6 +1318,22 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
       <label class="f">Home page photo</label>
       <?php if($hero): ?><div class="photos"><figure><img src="<?= h($hero[0]) ?>?v=<?= @filemtime(FK_ROOT.'/'.$hero[0]) ?>" alt=""><label><input type="checkbox" name="hero_remove" value="1"> Remove</label></figure></div><?php endif; ?>
       <input type="file" name="hero[]" accept="image/jpeg,image/png,image/webp"><div class="hint small muted">Landscape, about 1600×1200. Until you upload one, the home page shows the 30th Celebration Elite Trainer Box.</div>
+    </div>
+
+    <div class="card" id="email-settings"><h2>Email</h2>
+      <p class="small muted" style="margin-top:0">New orders go to <b><?= h($S['order_email']) ?></b> and a confirmation to the customer the moment an order is placed, from <b><?= h($S['email']) ?></b>.
+        By default the shop sends through your web host. For the best delivery, enter your mailbox’s SMTP details (your email provider lists them, often as “IMAP/SMTP settings”).</p>
+      <div class="grid3">
+        <div class="fld"><label class="f" for="smtp_host">SMTP server</label><input type="text" id="smtp_host" name="smtp_host" value="<?= h($S['smtp_host'] ?? '') ?>" placeholder="e.g. smtp.hostinger.com — blank = web host mail"></div>
+        <div class="fld"><label class="f" for="smtp_secure">Security</label><select id="smtp_secure" name="smtp_secure">
+          <?php foreach(['ssl'=>'SSL (usually port 465)', 'tls'=>'STARTTLS (usually port 587)', 'none'=>'None (not recommended)'] as $k=>$lbl): ?><option value="<?= $k ?>" <?= ($S['smtp_secure'] ?? 'ssl')===$k?'selected':'' ?>><?= h($lbl) ?></option><?php endforeach; ?></select></div>
+        <div class="fld"><label class="f" for="smtp_port">Port</label><input type="number" id="smtp_port" name="smtp_port" min="1" max="65535" value="<?= (int)($S['smtp_port'] ?? 0) ?: '' ?>" placeholder="465"></div>
+      </div>
+      <div class="grid2">
+        <div class="fld"><label class="f" for="smtp_user">Username (usually the full email address)</label><input type="text" id="smtp_user" name="smtp_user" value="<?= h($S['smtp_user'] ?? '') ?>" autocomplete="off" placeholder="<?= h($S['email']) ?>"></div>
+        <div class="fld"><label class="f" for="smtp_pass">Password</label><input type="password" id="smtp_pass" name="smtp_pass" value="" autocomplete="new-password" placeholder="<?= !empty($S['smtp_pass']) ? 'saved — leave blank to keep it' : 'your mailbox password' ?>">
+          <?php if(!empty($S['smtp_pass'])): ?><label class="row small"><input type="checkbox" name="smtp_clear" value="1"> Remove the saved password</label><?php endif; ?></div>
+      </div>
     </div>
 
     <div class="card"><h2>Live chat</h2>
@@ -1312,6 +1362,13 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
     </div>
     <button class="btn" type="submit">Save settings</button>
   </form>
+  <?php $mt = data_read('mail-test'); ?>
+  <div class="card" style="margin-top:16px"><h2>Send a test email</h2>
+    <p class="small muted" style="margin-top:0">Order emails use exactly this route. Send one to your business address and to a personal one (e.g. Gmail) to check both arrive, and not in spam.
+      <?php if($mt): ?><br>Last test: <?= h(gmdate('j M H:i', $mt['time'])) ?> UTC to <?= h($mt['to']) ?> — <?= $mt['ok'] ? 'sent' : '<b style="color:var(--seal)">failed</b> ('.h($mt['error']).')' ?>.<?php endif; ?></p>
+    <form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="mail_test">
+      <input type="email" name="to" value="<?= h($S['order_email']) ?>" style="max-width:320px" aria-label="Send the test to"><button class="btn" type="submit">Send test email</button></form>
+  </div>
 
 <?php elseif($v === 'faq'): ?>
   <h1>FAQ</h1>
