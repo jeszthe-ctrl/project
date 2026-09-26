@@ -24,10 +24,11 @@ $d = [
     'hero_title'    => 'Wholesale Japanese Pokémon cards, shipped worldwide from Japan.',
     'hero_lede'     => 'Sealed booster boxes, Elite Trainer Boxes, premium sets and singles, bought through Japanese distribution and priced by the case. Every quantity break is published — price a full order before you talk to anyone.',
     'footer_blurb'  => 'Wholesale Japanese Pokémon TCG, shipped worldwide from Japan to retailers, resellers and card shops. Pricing published on every product — order direct, no account needed.',
-    'shipping_reviewed' => false,
-    'pretty_urls'   => false,            /* clean addresses like /products/151-booster-box; turn on in Admin → Settings */
+    'shipping_reviewed' => true,         /* the TCGplayer-based starting rates below are the shop's rates (Admin → Shipping) */
+    'pretty_urls'   => false,            /* clean addresses like /products/151-booster-box: switched on by themselves when the host supports them */
+    'pretty_auto'   => false,            /* set once that automatic switch has happened, so turning them off in the admin sticks */
     'free_ship_usd' => 2000,             /* free Standard shipping from this goods total (USD); 0 = off */
-    'content_version' => 4,              /* set by the shop: which built-in content updates are applied */
+    'content_version' => 5,              /* set by the shop: which built-in content updates are applied */
     'moved_to'      => '',               /* an old domain running this code can send every visitor here (301) */
     'google_verify' => '', 'bing_verify' => '',   /* Search Console / Bing verification codes (Admin → Settings) */
     /* SMTP for order emails (Admin → Settings → Email); blank host = the web host's mail() */

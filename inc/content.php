@@ -131,7 +131,7 @@ Parcels come back to us when the address is wrong or incomplete, delivery attemp
 
 Pokémon cards and sealed product are collectibles. Their value depends on their condition and on knowing exactly what's inside. So:
 
-- **Contact us before sending anything back.** We can't accept returns we haven't agreed.
+- **Contact us within 7 days of delivery, before sending anything back.** We can't accept returns we haven't agreed.
 - **Sealed product** can come back only unopened, in its original shrink wrap and in the condition it arrived.
 - **Opened product** (boxes, packs, cases or tins) can't be returned, because its contents can no longer be verified.
 - **Single cards and graded slabs** must come back in the same holder or slab, in the same condition. We check slab certification numbers against what we shipped.

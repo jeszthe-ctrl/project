@@ -142,6 +142,7 @@ function route_from_path(){
   if(strpos($path, $BASE) === 0) $path = substr($path, strlen($BASE));
   $path = trim($path, '/');
   if($path === '' || $path === 'index.php') return null;
+  if($path === 'rewrite-check') return ['p'=>'rewritecheck'];
   $seg = explode('/', $path);
   if(count($seg) === 1){
     if($path === 'shop') return ['p'=>'catalog'];
@@ -603,6 +604,17 @@ if($from_path) $_GET = $from_path + $_GET;
 $page = $_GET['p'] ?? 'home';
 if(!is_string($page)) $page = 'home';
 if($_SERVER['REQUEST_METHOD']==='POST' && ($_POST['action']??'')==='order' && $errors) $page = 'checkout';
+/* Clean addresses switch themselves on: the installer and the admin ask for /rewrite-check, an address that can only
+   reach the shop through the host's rewrite rules. That happens once, so turning them off in the admin sticks. */
+if($page === 'rewritecheck' && $from_path){
+  header('Content-Type: application/json; charset=utf-8'); header('Cache-Control: no-store'); header('X-Robots-Tag: noindex');
+  if(empty($CONFIG['pretty_urls']) && empty($CONFIG['pretty_auto']) && (string)($_SERVER['REDIRECT_STATUS'] ?? '200') === '200'){
+    $STORE['settings']['pretty_urls'] = $STORE['settings']['pretty_auto'] = true;
+    if(store_save($STORE)) $CONFIG['pretty_urls'] = true;
+  }
+  echo json_encode(['clean_urls'=>!empty($CONFIG['pretty_urls'])]);
+  exit;
+}
 $PAGES = ['home','catalog','product','sets','set','series','collection','guides','guide','page','cart','checkout','received',
           'how','shipping','payment','faq','contact','sitemap','pay','paystatus','notfound'];
 if(!in_array($page, $PAGES, true)) $page = 'notfound';
@@ -858,6 +870,14 @@ if($prod){
                     : (can_order($prod) ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'),
     'seller'=>['@id'=>$org_id]];
   if(($prod['cond'] ?? 'Sealed') === 'Sealed') $offer['itemCondition'] = 'https://schema.org/NewCondition';
+  /* the Returns section of Shipping & Returns: agreed returns within 7 days, back to Japan by post; the buyer pays
+     return shipping on a change of mind, and damaged, wrong or missing items cost nothing to return */
+  $offer['hasMerchantReturnPolicy'] = ['@type'=>'MerchantReturnPolicy', 'url'=>abs_url('shipping').'#returns',
+    'applicableCountry'=>array_slice(array_keys($COUNTRIES), 0, 50), 'returnPolicyCountry'=>'JP',
+    'returnPolicyCategory'=>'https://schema.org/MerchantReturnFiniteReturnWindow', 'merchantReturnDays'=>7,
+    'returnMethod'=>'https://schema.org/ReturnByMail',
+    'customerRemorseReturnFees'=>'https://schema.org/ReturnFeesCustomerResponsibility',
+    'itemDefectReturnFees'=>'https://schema.org/FreeReturn'];
   if(!empty($CONFIG['shipping_reviewed'])){   /* only once real rates are set */
     $offer['shippingDetails'] = [];
     foreach(ship_methods($STORE) as $mk=>$mm){

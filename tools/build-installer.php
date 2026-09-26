@@ -92,7 +92,9 @@ if(@file_put_contents($tmp, $files['index.php']) === false || !@rename($tmp, __F
 if(function_exists('opcache_invalidate')) @opcache_invalidate(__FILE__, true);
 $page('Shop installed', '<h1>Your shop is installed ✓</h1><p class="n">'.count($done).' files unpacked'.($kept ? ', '.count($kept).' of your existing files kept as they were' : '').'.</p>'.$moved.
   '<p><a class="b" href="./">Open the shop</a><a class="b" href="admin.php">Open the admin</a></p>'.
-  '<p class="n">Next, in the admin: check <b>Settings</b> (business details, test email) and <b>Shipping</b>, then add your product photos.</p>');
+  '<p class="n" id="cu">Checking clean page addresses…</p>'.
+  '<p class="n">Next, in the admin: check <b>Settings</b> (business details, test email) and <b>Shipping</b>, then add your product photos.</p>'.
+  '<script>var cu=document.getElementById("cu");fetch("rewrite-check",{cache:"no-store"}).then(function(r){return r.ok?r.json():{}}).then(function(j){cu.innerHTML=j.clean_urls?"Clean page addresses (like <code>/products/…</code>) are <b>on</b> ✓":"Your host doesn’t support clean page addresses, so the shop uses <code>index.php?p=…</code> addresses. Everything works either way."}).catch(function(){cu.textContent="Your host doesn’t support clean page addresses. Everything works either way."});</script>');
 __halt_compiler();
 PHP;
 

@@ -57,7 +57,7 @@ function store_defaults(){ return require FK_ROOT.'/inc/defaults.php'; }
 function store_load(){
   $d = store_defaults();
   $s = data_read('store');
-  if(!$s){ $s = $d; data_write('store', $s); }   // first run: seed from defaults
+  if(!$s){ $s = $d; data_write('store', $s); starter_photos(); }   // first run: seed from defaults
   $version = (int)($s['settings']['content_version'] ?? 1);
   $s += $d;                                       // sections added by later versions
   $s['settings'] += $d['settings'];
@@ -68,7 +68,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 4;
+const CONTENT_VERSION = 5;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -117,6 +117,9 @@ function content_upgrade($s, $d, $version){
       if(isset($d['settings'][$k]) && md5((string)($s['settings'][$k] ?? '')) === $old) $s['settings'][$k] = $d['settings'][$k];
     if(md5(json_encode($s['faqs'] ?? [])) === '0f9897f07b6679311ae3226baed0dd1b') $s['faqs'] = $d['faqs'];
   }
+  if($version < 5){   /* Shipping & Returns: a stated 7-day window for returns */
+    if(md5((string)($s['settings']['shipping_policy'] ?? '')) === '6fc5100a55b8ac83dbc3673897fc6bce') $s['settings']['shipping_policy'] = $d['settings']['shipping_policy'];
+  }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;
 }
@@ -137,6 +140,17 @@ function store_save($s){
 
 /* ---------------- products ---------------- */
 function photo_slots(){ return ['', '-2', '-3', '-4']; }
+
+/* photos a fresh install starts with (the site photos of products the shop sells); replace them in the admin */
+const STARTER_PHOTOS = ['30th-celebration-elite-trainer-box' => ['assets/site/pokemon-30th-celebration-elite-trainer-box.webp',
+                                                                 'assets/site/pokemon-30th-celebration-elite-trainer-box-contents.webp']];
+function starter_photos(){
+  foreach(STARTER_PHOTOS as $id=>$files){
+    if(photos($id)) continue;
+    foreach(array_values($files) as $k=>$src)
+      if(is_file(FK_ROOT.'/'.$src)) @copy(FK_ROOT.'/'.$src, FK_ROOT."/assets/products/{$id}".photo_slots()[$k].'.'.pathinfo($src, PATHINFO_EXTENSION));
+  }
+}
 
 function photos($id){
   $out = [];

@@ -786,7 +786,8 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   <?php $failed = array_filter(array_slice($orders, 0, 20), fn($o)=>isset($o['mail_shop']) && !$o['mail_shop']);
   if($failed): ?><div class="msg err"><?= count($failed) ?> recent order email<?= count($failed)===1?'':'s' ?> to <?= h($S['order_email']) ?> failed to send. The orders are safe here, but check with your host that PHP can send mail from <?= h($S['email']) ?>.</div><?php endif; ?>
   <?php if(!data_read('mail-test')): ?><div class="msg warn">Send yourself a test email in <a href="<?= h(self_url('settings')) ?>#email-settings">Settings → Email</a> to check that order emails reach <?= h($S['order_email']) ?> and your customers.</div><?php endif; ?>
-  <?php if(empty($S['pretty_urls'])): ?><div class="msg warn">Clean page addresses are off. They help Google — see <a href="<?= h(self_url('settings')) ?>">Settings → Google &amp; web addresses</a> to test and turn them on.</div><?php endif; ?>
+  <?php if(empty($S['pretty_urls'])): ?><div class="msg warn">Clean page addresses are off. They help Google — see <a href="<?= h(self_url('settings')) ?>">Settings → Google &amp; web addresses</a> to test and turn them on.</div>
+  <?php if(empty($S['pretty_auto'])): /* they switch on by themselves once the host is seen to support them */ ?><script>fetch('rewrite-check', {cache:'no-store'}).then(function(r){ return r.ok ? r.json() : {}; }).then(function(j){ if(j.clean_urls) location.reload(); }).catch(function(){});</script><?php endif; endif; ?>
   <?php if($no_photo): ?><div class="msg warn"><?= count($no_photo) ?> product<?= count($no_photo)===1?' has':'s have' ?> no photo yet. Add photos from <a href="<?= h(self_url('products')) ?>">Products</a>.</div><?php endif; ?>
   <div class="stats">
     <div><b><?= (int)($by['new'] ?? 0) ?></b><span>New orders</span></div>
@@ -1307,7 +1308,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
       <p class="small muted" style="margin-top:0">Your sitemap to submit: <b><?= h(rtrim($S['domain'], '/')) ?>/<?= !empty($S['pretty_urls']) ? 'sitemap.xml' : 'index.php?p=sitemap' ?></b></p>
       <label class="row small" style="align-items:flex-start"><input type="checkbox" name="pretty_urls" value="1" <?= !empty($S['pretty_urls'])?'checked':'' ?> style="margin-top:4px">
         <span><b>Clean page addresses</b>, like /products/151-booster-box instead of index.php?p=product&amp;id=…
-        First open <a href="shop" target="_blank" rel="noopener">your-domain/shop</a>: if it shows the shop, your host supports them and you can tick this.
+        They switch on by themselves when your host supports them. To check yours, open <a href="shop" target="_blank" rel="noopener">your-domain/shop</a>: if it shows the shop, you can tick this.
         If it shows an error, leave it off (the shop works either way).</span></label>
     </div>
 
