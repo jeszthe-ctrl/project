@@ -11,26 +11,26 @@ if(!defined('FK_ROOT')){ http_response_code(404); exit; }
 
 return [
   'settings' => [
-    'strip_text'    => 'Sourced in Japan · Shipped to the USA with tracking · Bulk pricing on every listing',
-    'hero_title'    => 'Japanese Pokémon cards, shipped from Japan to the USA.',
-    'hero_lede'     => 'Sealed Japanese booster boxes, Elite Trainer Boxes, rare singles and PSA graded cards, sourced in Japan and shipped with tracking. Every quantity break is published, so collectors and card shops see the price before they order.',
-    'footer_blurb'  => 'Japanese Pokémon cards shipped from Japan to collectors, resellers and card shops across the USA. Prices published on every listing — no account needed.',
-    'home_seo_title'=> 'Japanese Pokémon Cards — Booster Boxes & Singles',
-    'home_seo_desc' => 'Authentic Japanese Pokémon cards shipped from Japan to the USA: sealed booster boxes, ETBs, rare singles and PSA graded cards, with bulk pricing published.',
+    'strip_text'    => 'Sourced in Japan · Shipped to the UK with tracking · Prices in pounds on every listing',
+    'hero_title'    => 'Japanese Pokémon cards, shipped from Japan to the UK.',
+    'hero_lede'     => 'Sealed Japanese booster boxes, Elite Trainer Boxes, rare singles and PSA graded cards, sourced in Japan and shipped to the UK with tracking. Every quantity break is published in pounds, so collectors and card shops see the price before they order.',
+    'footer_blurb'  => 'Japanese Pokémon cards shipped from Japan to collectors, resellers and card shops across the UK. Prices in pounds on every listing — no account needed.',
+    'home_seo_title'=> 'Japanese Pokémon Cards UK — Booster Boxes & Singles',
+    'home_seo_desc' => 'Authentic Japanese Pokémon cards shipped from Japan to the UK: sealed booster boxes, ETBs, rare singles and PSA graded cards, priced in pounds with bulk pricing.',
     'home_intro'    => <<<'MD'
 ## Why buy Japanese Pokémon cards?
 
 Japanese sets come out first, often months before their English versions, so Japanese booster boxes are how collectors get the newest cards early. Many collectors also prefer Japanese printing and card quality, and Japanese special sets like [151](set:151) and [Terastal Festival ex](set:terastal-festival-ex) are some of the most sought-after boxes in the hobby.
 
-Everything we sell is sourced in Japan and shipped to the USA sealed, exactly as it left the factory. Browse [booster boxes](category:boxes), [rare single cards](category:singles), [PSA graded cards](cards:psa-graded-pokemon-cards) or [card binders and sleeves](category:accessories), or start with our guide to [Japanese Pokémon cards](guide:japanese-pokemon-cards).
+Everything we sell is sourced in Japan and shipped to the UK sealed, exactly as it left the factory. Browse [booster boxes](category:boxes), [rare single cards](category:singles), [PSA graded cards](cards:psa-graded-pokemon-cards) or [card binders and sleeves](category:accessories), or start with our guide to [Japanese Pokémon cards](guide:japanese-pokemon-cards).
 
 ## Buying in bulk?
 
-Every listing shows its full quantity-break ladder, so card shops and resellers can price a complete order up front. Orders start at {min_order} including shipping, and shipping to the USA is calculated at checkout.
+Every listing shows its full quantity-break ladder in pounds, so card shops and resellers can price a complete order up front. Orders start at {min_order} including shipping, and shipping to the UK is calculated at checkout.
 MD,
     /* the Shipping & Returns page ({rates} = the delivery options and rate tables) */
     'shipping_policy' => <<<'MD'
-Every {brand} order ships from Japan with tracking. This page explains how we ship, what it costs, how long it takes and what happens if something goes wrong, in plain English. The price at checkout is always the final word on shipping for your order.
+Every {brand} order ships from Japan to the UK with tracking. This page explains how we ship, what it costs, how long it takes, your right to cancel and what happens if something goes wrong, in plain English. The price at checkout is always the final word on shipping for your order.
 
 ## Delivery options and rates
 
@@ -40,12 +40,12 @@ Every {brand} order ships from Japan with tracking. This page explains how we sh
 
 Orders with a goods total over **{free_ship}** ship free with {standard} delivery, to every country we ship to. It's applied automatically at checkout, with no code to enter. Want it faster? Choose {express} and you pay only the difference between {express} and {standard}.
 
-The threshold counts the goods in your order (after quantity breaks, before shipping) in US dollars. Import duty and taxes are never included.
+The threshold counts the goods in your order (after quantity breaks, before shipping) in pounds sterling.
 
 ## From order to doorstep
 
 1. **You place your order** and get an email with your order reference straight away.
-2. **You pay.** Bitcoin is paid on your order page the moment you order. For other methods, we send payment details within {reply_hours} hours.
+2. **You pay.** Bitcoin is paid on your order page the moment you order. For UK bank transfer and other methods, we send payment details within {reply_hours} hours.
 3. **Your payment clears** and your stock is allocated to you.
 4. **We pack and dispatch** your order from Japan within {hold_hours} hours.
 5. **We email your tracking number** as soon as the label is created.
@@ -55,7 +55,9 @@ Delivery times start when your parcel leaves us, not when you order.
 
 ## Tracking your parcel
 
-Every parcel is tracked, and we email your tracking number the day the label is created. A new tracking number can take 24–48 hours to show its first scan, which is normal. Tracking usually runs: label created → accepted in Japan → export customs → in transit → import customs → out for delivery → delivered.
+Every parcel is tracked, and we email your tracking number the day the label is created. A new tracking number can take 24–48 hours to show its first scan, which is normal. Tracking usually runs: label created → accepted in Japan → export customs → in transit → UK customs → out for delivery → delivered.
+
+In the UK, {standard} parcels sent by Japan Post EMS are delivered by Parcelforce Worldwide, and {express} parcels by DHL or FedEx. You can follow your parcel on the delivering carrier's own website with the same tracking number.
 
 If tracking hasn't changed for 5 working days, email us and we'll chase the carrier.
 
@@ -63,25 +65,29 @@ If tracking hasn't changed for 5 working days, email us and we'll chase the carr
 
 Delivery times are estimates in working days after dispatch, not guarantees. They can stretch when:
 
-- customs in your country holds a parcel for inspection
-- it's a holiday in Japan (New Year, Golden Week in early May, Obon in mid-August) or where you are
+- UK customs holds a parcel for inspection
+- it's a holiday in Japan (New Year, Golden Week in early May, Obon in mid-August) or a UK bank holiday
 - severe weather or natural disasters disrupt flights and roads
 - carriers are backlogged, for example in the run-up to Christmas
-- the address is remote, incomplete or hard to reach
+- the address is remote, incomplete or hard to reach, such as the Scottish Highlands and islands
 
-Planning a store launch, a release event or a stream? Choose {express} and give yourself a few spare days.
+Planning a shop launch, a release event or a stream? Choose {express} and give yourself a few spare days.
 
-## Customs, duty and taxes
+## Import VAT, duty and customs
 
-Your order ships from Japan, so it clears customs in your country. Import duty, VAT/GST, sales tax and carrier clearance fees are **not included** in our prices or shipping, and are paid by the buyer. Your carrier collects them before or on delivery. US orders of any value can be charged import duty and carrier fees.
+Your order ships from Japan, so it clears UK customs. Unless your order confirmation shows UK VAT included, import VAT (20%), any customs duty and the carrier's handling fee are **not included** in our prices or shipping and are paid by the buyer. The carrier (Parcelforce, DHL or FedEx) usually asks for them by text or email before delivering, and delivers once they're paid.
+
+Business buyers who are VAT-registered can usually reclaim import VAT as input tax; add your EORI number in the order notes if you have one.
 
 We declare every parcel honestly, with its true contents and value. We can't mark orders as gifts or declare a lower value.
 
 If import charges are refused, the parcel comes back to Japan. See [returned to sender](page:shipping#returned-to-sender).
 
+Shipping outside the UK? The same applies in your country: import duty, VAT or GST and carrier fees are paid by the buyer.
+
 ## Your delivery address
 
-Please double-check the recipient's name, street address, apartment or suite number, city, state or region, ZIP or postal code and phone number before you order. Carriers use your phone number for customs questions and to arrange delivery.
+Please double-check the recipient's name, street address, flat or unit number, town, postcode and phone number before you order. Carriers use your phone number for customs questions and to arrange delivery.
 
 Need to change the address? Email us straight away with your order reference. We can change it until your parcel is handed to the carrier. After that, it usually can't be redirected.
 
@@ -107,13 +113,13 @@ If anything is wrong, **keep everything**: the outer box and its label, the pack
 
 ### Damaged in transit
 
-Email [{email}](mailto:{email}) within **7 days of delivery** with your order reference and photos of the parcel (all sides, and the label), the packing and the damage. We'll replace, credit or refund the damaged items and their shipping.
+Email [{email}](mailto:{email}) as soon as you can, ideally within **7 days of delivery**, with your order reference and photos of the parcel (all sides, and the label), the packing and the damage. We'll replace, repair or refund the damaged items and their shipping.
 
 Light shelf wear on sealed boxes, such as a small dent, scuff or crease in the shrink wrap from factory and distributor handling, is normal and isn't transit damage. If you're not sure, send us photos and ask.
 
 ### Missing or wrong items
 
-Compare what arrived with your order confirmation. If something is missing, or you received a different item, keep the wrong item unopened. Email us within 7 days with your order reference, what's missing or wrong, and photos of what arrived. We'll send what you ordered or refund it, and when the mistake is ours we cover the return shipping too.
+Compare what arrived with your order confirmation. If something is missing, or you received a different item, keep the wrong item unopened. Email us with your order reference, what's missing or wrong, and photos of what arrived. We'll send what you ordered or refund it, and when the mistake is ours we cover the return shipping too.
 
 ### Lost in transit
 
@@ -121,7 +127,7 @@ If your parcel hasn't arrived 10 working days after the latest delivery estimate
 
 ### Marked delivered but not received
 
-Check around your property, with neighbours and with your building's reception or mailroom, and look for a delivery photo or signature on the tracking page. Still missing after 48 hours? Email us. We'll open a claim with the carrier and help however we can.
+Check around your property, with neighbours and with your building's reception or post room, and look for a delivery photo or signature on the tracking page. Still missing after 48 hours? Email us. We'll open a claim with the carrier and help however we can.
 
 ### Returned to sender
 
@@ -129,27 +135,36 @@ Parcels come back to us when the address is wrong or incomplete, delivery attemp
 
 ## Returns
 
-Pokémon cards and sealed product are collectibles. Their value depends on their condition and on knowing exactly what's inside. So:
+### Your right to cancel (UK consumers)
 
-- **Contact us before sending anything back.** We can't accept returns we haven't agreed.
-- **Sealed product** can come back only unopened, in its original shrink wrap and in the condition it arrived.
-- **Opened product** (boxes, packs, cases or tins) can't be returned, because its contents can no longer be verified.
-- **Single cards and graded slabs** must come back in the same holder or slab, in the same condition. We check slab certification numbers against what we shipped.
-- **Change-of-mind returns** are at our discretion. If we agree to one, you pay the return shipping and any import charges, and we refund the goods once they're back and checked.
-- **Our mistakes are free to fix.** Damaged, wrong and missing items never cost you return shipping.
+If you're buying as a consumer (not for a business), UK law gives you **14 days to change your mind**. The 14 days start the day after you, or someone you name, receive your goods. To cancel, email [{email}](mailto:{email}) with your order reference and the items you're returning before the 14 days are up. You don't have to give a reason.
+
+- **Send the items back** within 14 days of telling us, to the return address we give you. You pay the return postage and any costs of sending them from the UK to us, unless the item is faulty or we sent the wrong thing.
+- **Your refund** covers the price of the items and the original standard delivery charge (if you chose {express}, we refund the {standard} price). We refund within 14 days of getting the items back, or of you showing us proof you sent them, whichever is sooner.
+- **Handle items only as you would in a shop.** Pokémon cards and sealed product are collectibles, and their value depends on their condition and on knowing exactly what's inside. If you open sealed product, take cards out of their sleeves or holders, or otherwise handle items more than you would in a shop, we can reduce your refund by the loss in value — for opened booster boxes, packs and cases that can be the full price, because their contents can no longer be verified.
+- **Single cards and graded slabs** must come back in the same holder or slab. We check slab certification numbers against what we shipped.
+
+### Business and trade buyers
+
+Business and trade buyers don't have this right to cancel, but can return unopened sealed product by agreement: contact us first, you pay the return shipping and any import charges, and we refund the goods once they're back and checked.
+
+## Faulty items and your statutory rights
+
+Everything we sell must be as described, of satisfactory quality and fit for purpose. If an item is faulty or not as described, tell us within 30 days of delivery for a full refund, or after that for a repair, replacement or refund. We cover return costs for faulty and wrong items. Nothing on this page affects your statutory rights under the Consumer Rights Act 2015.
 
 ## Refunds
 
-Once we approve a refund, we send it within 5 working days, the same way you paid:
+Once we approve a refund, we send it within 14 days, the same way you paid:
 
-- **Bitcoin and other crypto:** sent to a wallet address you confirm by email, for the US-dollar value of the refunded items, converted at the rate on the day we refund. Network fees come out of the amount sent.
-- **Other methods:** back through the same method where it allows refunds, or by bank transfer.
+- **UK bank transfer:** back to the account you paid from, in pounds.
+- **Bitcoin and other crypto:** sent to a wallet address you confirm by email, for the pound value of the refunded items, converted at the rate on the day we refund. Network fees come out of the amount sent.
+- **Other methods:** back through the same method where it allows refunds, or by UK bank transfer.
 
-Your bank, card or wallet may take a few more days to show it. Shipping is refunded when the problem was ours.
+Your bank or wallet may take a few more days to show it. Shipping is refunded when the problem was ours, and as described above when you cancel.
 
-## Cancellations and preorders
+## Cancellations before dispatch and preorders
 
-You can cancel free of charge any time before your order is dispatched: email us with your order reference. Once it has shipped, the returns rules above apply.
+You can cancel free of charge any time before your order is dispatched: email us with your order reference and we refund everything you've paid. Once it has shipped, the cancellation and returns rules above apply.
 
 Preorders are invoiced when stock is allocated, not when you order, and ship as soon as stock arrives, usually on or just after the Japanese release date. Release dates are set by The Pokémon Company and sometimes move. If we can't fill a preorder, we refund it in full.
 
@@ -159,9 +174,9 @@ Everything we sell is genuine, bought through Japanese distribution and shipped 
 
 ## Questions
 
-### Do you ship Pokémon cards to the USA?
+### Do you ship Pokémon cards to the UK?
 
-Yes. Everything ships from Japan to the USA with tracking: {standard} takes {standard_days} and {express} takes {express_days}.
+Yes. Everything ships from Japan to the UK with tracking: {standard} takes {standard_days} and {express} takes {express_days}.
 
 ### Do you offer free shipping?
 
@@ -173,19 +188,19 @@ It depends on your order's weight and where it's going. The exact price shows at
 
 ### How do I track my order?
 
-We email your tracking number when your order ships. New tracking numbers can take 24–48 hours to show their first scan.
+We email your tracking number when your order ships. New tracking numbers can take 24–48 hours to show their first scan. In the UK, Parcelforce, DHL or FedEx delivers it.
 
-### Will I pay import duty or taxes?
+### Will I pay import VAT or customs charges?
 
-Possibly. Import duty, taxes and carrier fees aren't included in our prices, and your carrier collects them before or on delivery.
+Unless your order confirmation shows UK VAT included, yes: the carrier collects import VAT (20%), any duty and a handling fee before delivering. VAT-registered businesses can usually reclaim the import VAT.
 
 ### My order arrived damaged. What do I do?
 
-Keep the parcel, the packing and the items, take photos, and email us within 7 days of delivery. We'll replace, credit or refund the damaged items.
+Keep the parcel, the packing and the items, take photos, and email us as soon as you can. We'll replace, repair or refund the damaged items.
 
-### Can I return a booster box I've opened?
+### Can I return an order if I change my mind?
 
-No. Opened boxes, packs and cases can't be returned, because their contents can no longer be verified. Unopened sealed product can be returned by agreement.
+Yes, if you're a UK consumer: tell us within 14 days of delivery and send the items back within 14 days after that. Opened booster boxes and packs lose their value, so the refund on them can be reduced by up to the full price.
 
 ### Can I change my delivery address?
 
@@ -197,7 +212,7 @@ Yes, free of charge until it's dispatched. Email us with your order reference.
 
 ### How are Bitcoin payments refunded?
 
-To a wallet address you confirm by email, for the US-dollar value of the refunded items at that day's rate, less network fees.
+To a wallet address you confirm by email, for the pound value of the refunded items at that day's rate, less network fees.
 
 ## Contact us
 
@@ -214,7 +229,7 @@ MD,
       'blurb' => 'Sealed Japanese Pokémon booster boxes and cases, straight from Japan.',
       'h1' => 'Japanese Pokémon booster boxes & card packs',
       'seo_title' => 'Japanese Pokémon Booster Boxes & Card Packs',
-      'seo_desc' => 'Sealed Japanese Pokémon booster boxes and cases — 151, Terastal Festival ex, Mega Evolution sets and more — shipped from Japan to the USA with bulk pricing.',
+      'seo_desc' => 'Sealed Japanese Pokémon booster boxes and cases — 151, Terastal Festival ex, Mega Evolution sets and more — shipped from Japan to the UK with bulk pricing.',
       'intro' => <<<'MD'
 ## Pokémon booster boxes from Japan
 
@@ -246,7 +261,7 @@ MD,
       'blurb' => 'Collection boxes, starter decks, premium sets and 30th Celebration specials.',
       'h1' => 'Pokémon collection boxes, starter sets & premium sets',
       'seo_title' => 'Pokémon Collection Boxes, Starter Sets & Premium Sets',
-      'seo_desc' => 'Pokémon collection boxes, Starter Set ex decks, Premium Trainer Box MEGA and 30th Celebration special sets, shipped from Japan to the USA with bulk pricing.',
+      'seo_desc' => 'Pokémon collection boxes, Starter Set ex decks, Premium Trainer Box MEGA and 30th Celebration special sets, shipped from Japan to the UK with bulk pricing.',
       'intro' => <<<'MD'
 ## Pokémon boxes beyond the booster box
 
@@ -301,7 +316,7 @@ MD,
       'name' => 'Scarlet & Violet', 'slug' => 'scarlet-violet',
       'h1' => 'Pokémon Trading Card Game: Scarlet & Violet sets',
       'seo_title' => 'Pokémon TCG Scarlet & Violet Sets — Japanese Boxes',
-      'seo_desc' => 'Japanese Pokémon TCG Scarlet & Violet sets: 151, Terastal Festival ex, Heat Wave Arena and Glory of Team Rocket booster boxes and singles, shipped to the USA.',
+      'seo_desc' => 'Japanese Pokémon TCG Scarlet & Violet sets: 151, Terastal Festival ex, Heat Wave Arena and Glory of Team Rocket booster boxes and singles, shipped to the UK.',
       'intro' => <<<'MD'
 The Pokémon Trading Card Game Scarlet & Violet era ran from 2023 until the Mega Evolution series began in 2025, and produced some of the most collected Japanese sets ever — including [151](set:151), which revisits the original 151 Pokémon, and [Terastal Festival ex](set:terastal-festival-ex).
 
@@ -340,7 +355,7 @@ MD,
       'intro'=>'Terastal Festival ex (SV8a) is the Scarlet & Violet special set built around Terastal Pokémon and the Eevee evolutions, released in English as Prismatic Evolutions. Japanese boxes hold 10 packs of 10 cards.'],
     '151' => ['slug'=>'151', 'series'=>'sv', 'code'=>'SV2a',
       'seo_title'=>'151 Pokémon Cards — Japanese 151 Booster Box & Charizard',
-      'seo_desc'=>'Japanese 151 Pokémon cards (SV2a): sealed 151 booster boxes and the Charizard ex Special Illustration Rare, shipped from Japan to the USA.',
+      'seo_desc'=>'Japanese 151 Pokémon cards (SV2a): sealed 151 booster boxes and the Charizard ex Special Illustration Rare, shipped from Japan to the UK.',
       'intro'=>"Pokémon Card 151 (SV2a) is the Japanese special set that revisits the original 151 Pokémon from Red and Green, from Bulbasaur to Mew. It is one of the most collected sets of the Scarlet & Violet era, released in English as Scarlet & Violet—151. Japanese 151 booster boxes hold 20 packs of 7 cards, and the chase cards include the Charizard ex Special Illustration Rare.\n\n## Pokémon 151 card list\n\nJapanese 151 (released on 16 June 2023) has 210 cards: a 165-card main set covering the original 151 Pokémon plus Trainer and Energy cards, and 45 secret rares: 18 Art Rares (AR), 16 Super Rares (SR), 8 Special Art Rares (SAR) and 3 gold Ultra Rares (UR). More in our [Pokémon card database](guide:pokemon-card-database).\n\nWe stock sealed 151 booster boxes and the 151 Charizard ex SAR. Looking for more 151 Pokémon cards? See all our [Charizard Pokémon cards](cards:charizard-pokemon-cards)."],
   ],
 
@@ -350,7 +365,7 @@ MD,
     ['slug'=>'charizard-pokemon-cards', 'title'=>'Charizard Pokémon cards', 'h1'=>'Charizard Pokémon cards (Japanese)',
      'match'=>'charizard', 'ids'=>[], 'cond'=>'',
      'seo_title'=>'Charizard Pokémon Cards — Japanese SAR & Hyper Rare',
-     'seo_desc'=>'Japanese Charizard Pokémon cards: the 151 Charizard ex Special Illustration Rare and Mega Charizard Y ex Hyper Rare, Near Mint and shipped from Japan to the USA.',
+     'seo_desc'=>'Japanese Charizard Pokémon cards: the 151 Charizard ex Special Illustration Rare and Mega Charizard Y ex Hyper Rare, Near Mint and shipped from Japan to the UK.',
      'intro'=><<<'MD'
 Charizard is one of the most collected Pokémon in the Trading Card Game, and its cards are often the most valuable in a set. Our Japanese Charizard cards include the Charizard ex Special Illustration Rare from [151](set:151) and the gold Mega Charizard Y ex Hyper Rare from the Mega Evolution series.
 
@@ -375,7 +390,7 @@ MD],
     ['slug'=>'psa-graded-pokemon-cards', 'title'=>'PSA graded Pokémon cards', 'h1'=>'PSA graded Pokémon cards',
      'match'=>'', 'ids'=>[], 'cond'=>'Graded',
      'seo_title'=>'PSA Graded Pokémon Cards — PSA 10 Gem Mint',
-     'seo_desc'=>'PSA graded Pokémon cards, including a PSA 10 Gem Mint Pikachu ex Special Illustration Rare, shipped in the original PSA slab from Japan to the USA.',
+     'seo_desc'=>'PSA graded Pokémon cards, including a PSA 10 Gem Mint Pikachu ex Special Illustration Rare, shipped in the original PSA slab from Japan to the UK.',
      'intro'=><<<'MD'
 Graded Pokémon cards have been assessed and sealed in a tamper-evident case by a grading company. PSA grades on a 1–10 scale: PSA 10 (Gem Mint) is a virtually perfect card, PSA 9 is Mint and PSA 8 is Near Mint–Mint. Because a grade takes the guesswork out of condition, graded cards — especially PSA 10s — usually sell for a significant premium over raw copies.
 
@@ -387,7 +402,7 @@ MD],
     ['slug'=>'japanese-pokemon-cards', 'updated'=>'2026-09-24',
      'title'=>'Japanese Pokémon cards: what\'s different and why collectors buy them',
      'seo_title'=>'Japanese Pokémon Cards: Differences, Sets & Where to Buy',
-     'seo_desc'=>'Why collectors buy Japanese Pokémon cards: earlier releases, print quality, how Japanese booster boxes compare with English ones, and buying them in the USA.',
+     'seo_desc'=>'Why collectors buy Japanese Pokémon cards: earlier releases, print quality, how Japanese booster boxes compare with English ones, and buying them in the UK.',
      'body'=><<<'MD'
 Japanese Pokémon cards are the original version of every modern Pokémon Trading Card Game set. The same cards are later released in English, but many collectors — and plenty of players — prefer to buy Japanese. Here's what's different, and what to know before you buy.
 
@@ -405,17 +420,17 @@ Japanese and English Pokémon cards are exactly the same size — 63 × 88 mm �
 
 ## Why collectors choose Japanese cards
 
-Many collectors say Japanese cards have more consistent printing, cutting and centering, which matters when a card is sent for grading. Some cards and promos only ever appear in Japanese. And because Japanese sets release first, the newest Mega Evolution cards are often only available in Japanese for months.
+Many collectors say Japanese cards have more consistent printing, cutting and centring, which matters when a card is sent for grading. Some cards and promos only ever appear in Japanese. And because Japanese sets release first, the newest Mega Evolution cards are often only available in Japanese for months.
 
 ## Can you play with Japanese cards?
 
 Japanese cards work exactly like English ones in casual play — the attacks, HP and rules are the same, just written in Japanese. Official tournaments have their own rules on card language, so check with your organiser before bringing Japanese cards to an event. Our guides to [how to read a Pokémon card](guide:how-to-read-a-pokemon-card) and [how to play Pokémon cards](guide:how-to-play-pokemon-cards) work for both languages.
 
-## Buying Japanese Pokémon cards in the USA
+## Buying Japanese Pokémon cards in the UK
 
-US stores such as Walmart and Target sell English cards ([where to buy Pokémon cards](guide:where-to-buy-pokemon-cards)), so Japanese cards mostly come from importers. Official Chinese-language cards are a different product again: see [Chinese Pokémon cards](guide:chinese-pokemon-cards).
+UK shops such as Smyths, Argos and the supermarkets sell English cards ([where to buy Pokémon cards](guide:where-to-buy-pokemon-cards)), so Japanese cards mostly come from importers. Official Chinese-language cards are a different product again: see [Chinese Pokémon cards](guide:chinese-pokemon-cards).
 
-We source every [booster box](category:boxes) and [single card](category:singles) in Japan and ship it to the USA with tracking. Shipping is calculated at checkout and free on orders over {free_ship}, orders start at {min_order} including shipping, and US import duty may be charged on delivery — see [Shipping & Returns](page:shipping) for details.
+We source every [booster box](category:boxes) and [single card](category:singles) in Japan and ship it to the UK with tracking, priced in pounds. Shipping is calculated at checkout and free on orders over {free_ship}, orders start at {min_order} including shipping, and import VAT may be collected by the carrier on delivery — see [Shipping & Returns](page:shipping) for details.
 MD],
     ['slug'=>'most-expensive-pokemon-cards', 'updated'=>'2026-09-25',
      'title'=>'The most expensive Pokémon cards ever sold',
@@ -464,7 +479,7 @@ The holo rares, above all Charizard, Blastoise and Venusaur, carry most of the v
 
 ## Expensive modern Pokémon cards
 
-You don't need a 1990s card for a valuable collection. Modern chase cards — Special Illustration Rares, gold Hyper Rares and the Mega Evolution series' top rarities — can sell for hundreds or thousands of dollars in top condition. Examples we stock include the [151 Charizard ex Special Illustration Rare](product:151-charizard-ex-special-illustration-rare), the [Mega Rayquaza ex Master Ultra Rare](product:mega-rayquaza-ex-mur) and a [PSA 10 Pikachu ex Special Illustration Rare](product:pikachu-ex-sar-240-191-psa-10-gem-mint). See all [rare Pokémon cards](category:singles), check prices with our [Pokémon card price checker](guide:pokemon-card-price-checker), or read [how much Pokémon cards are worth](guide:pokemon-card-values).
+You don't need a 1990s card for a valuable collection. Modern chase cards — Special Illustration Rares, gold Hyper Rares and the Mega Evolution series' top rarities — can sell for hundreds or thousands of pounds in top condition. Examples we stock include the [151 Charizard ex Special Illustration Rare](product:151-charizard-ex-special-illustration-rare), the [Mega Rayquaza ex Master Ultra Rare](product:mega-rayquaza-ex-mur) and a [PSA 10 Pikachu ex Special Illustration Rare](product:pikachu-ex-sar-240-191-psa-10-gem-mint). See all [rare Pokémon cards](category:singles), check prices with our [Pokémon card price checker](guide:pokemon-card-price-checker), or read [how much Pokémon cards are worth](guide:pokemon-card-values).
 
 ## Questions
 
@@ -535,7 +550,7 @@ Modern gold cards (Hyper Rares, or UR in Japanese sets) are among the hardest pu
 
 ### What are gold Pokémon cards worth?
 
-It depends on the card, the set and the condition. Modern gold cards range from a few dollars to hundreds, popular Pokémon in top grades sell for more, and Gold Star cards can reach thousands.
+It depends on the card, the set and the condition. Modern gold cards range from a few pounds to hundreds, popular Pokémon in top grades sell for more, and Gold Star cards can reach thousands.
 MD],
     ['slug'=>'pokemon-card-price-checker', 'updated'=>'2026-09-25',
      'title'=>'Pokémon card price checker: live Japanese Pokémon card prices',
@@ -553,7 +568,7 @@ Type a set, product or card below to check our live prices for Japanese Pokémon
 For a card we don't list, check what it has actually **sold** for, not what sellers are asking:
 
 1. **Identify the card exactly:** its name, set, card number (in the bottom corner) and language. Japanese and English prints of the same card are priced separately.
-2. **Check recent sold prices** on a marketplace: sold listings on eBay, or TCGplayer's market price for English cards.
+2. **Check recent sold prices** on a marketplace: sold listings on eBay, or Cardmarket's price trend.
 3. **Match the condition.** Near Mint, played and graded copies sell for very different amounts, and a PSA 10 can be worth several times an ungraded card ([what grading costs](guide:how-much-does-it-cost-to-grade-a-pokemon-card)).
 4. **Scan it** with a [Pokémon card scanner](guide:pokemon-card-scanner) app for a quick first estimate.
 
@@ -634,89 +649,86 @@ Mega Evolution—Perfect Order was released in English on 27 March 2026.
 
 More than 290, including over 30 Trainer cards. It was released in English on 30 January 2026.
 MD],
-    ['slug'=>'where-to-buy-pokemon-cards', 'updated'=>'2026-09-25',
-     'title'=>'Where to buy Pokémon cards: Walmart, Target, Costco, GameStop and more',
-     'seo_title'=>'Where to Buy Pokémon Cards: Walmart, Target & GameStop',
-     'seo_desc'=>'Pokémon cards at Walmart, Target, Costco, GameStop, Best Buy, CVS, Walgreens, Dollar General, Barnes & Noble and TCGplayer, and buying Japanese cards online.',
+    ['slug'=>'where-to-buy-pokemon-cards', 'updated'=>'2026-09-26',
+     'title'=>'Where to buy Pokémon cards in the UK: Smyths, Argos, Tesco, GAME and more',
+     'seo_title'=>'Where to Buy Pokémon Cards UK: Smyths, Argos, Tesco & More',
+     'seo_desc'=>'Where to buy Pokémon cards in the UK: Smyths Toys, Argos, Tesco and supermarkets, WHSmith, GAME, the Pokémon Center, card shops, Cardmarket and eBay, and buying Japanese cards online.',
      'body'=><<<'MD'
-Pokémon cards are sold almost everywhere in the USA: big-box stores, pharmacies, game stores and online marketplaces. Here's what each kind of store usually carries, how restocks work, and when it's better to buy online.
+Pokémon cards are sold all over the UK: toy shops, supermarkets, high-street chains, local card shops and online marketplaces. Here's what each kind of shop usually carries, how new releases sell, and when it's better to buy online.
 
-FUDAKURA is an independent online shop and isn't affiliated with any retailer on this page. Store names are used only to describe where Pokémon cards are sold, and are trademarks of their owners.
+FUDAKURA is an independent online shop and isn't affiliated with any retailer on this page. Shop names are used only to describe where Pokémon cards are sold, and are trademarks of their owners. Ranges vary from store to store and change often.
 
-## Walmart Pokémon cards
+## Smyths Toys Pokémon cards
 
-Walmart sells English Pokémon TCG products, from booster packs, blister packs and tins to collection boxes and Elite Trainer Boxes, in the trading card section of most stores and on its website. Online, check who the seller is: many listings come from third-party Marketplace sellers, often above retail price, so look for items sold and shipped by Walmart itself.
+Smyths Toys carries one of the widest high-street ranges of English Pokémon TCG products — booster packs, tins, collection boxes and Elite Trainer Boxes — in its stores and online, often with click and collect. Popular new releases can sell out on launch day.
 
-## Target Pokémon cards
+## Argos Pokémon cards
 
-Target carries English Pokémon cards in stores, often in the trading card aisle near electronics, and online. New sets and popular products sell out quickly and can come with purchase limits.
+Argos sells English Pokémon products online and in its stores, including inside some Sainsbury's. Check stock at your nearest store before you travel, and reserve for collection where you can.
 
-## When does Target restock Pokémon cards?
+## Supermarket Pokémon cards: Tesco, Asda and Sainsbury's
 
-Target doesn't publish a restock schedule. Trading cards in stores are usually stocked by third-party vendors on a weekly route, so every store has its own restock day. The most reliable tip is to ask staff which day the card vendor comes in. Online restocks appear without notice and sell out fast.
+Larger supermarkets such as **Tesco**, **Asda** and **Sainsbury's** usually stock booster packs, blister packs and small tins in the toy or card aisle, and sometimes collection boxes around Christmas. They're handy for a pack or two, but stock varies a lot from store to store.
 
-## Costco Pokémon cards
+## WHSmith, Waterstones and The Entertainer
 
-Costco sells Pokémon cards mostly as bundles, with several collection boxes, tins or Elite Trainer Boxes packed together, online and in some warehouses from time to time. Stock comes and goes, and you need a membership to buy.
+High-street shops such as **WHSmith**, **Waterstones** and **The Entertainer** often carry a small range of booster packs and tins, usually near the tills or next to Pokémon books and toys.
 
-## GameStop Pokémon cards
+## GAME Pokémon cards
 
-GameStop sells sealed Pokémon products in stores and online, including preorders for new sets.
+GAME sells sealed Pokémon products in some stores and online, and takes preorders for some new sets.
 
-## GameStop Pokémon drops
+## Pokémon Center UK
 
-A "drop" is a limited release that goes live online at a set time: a new set, a special collection or an exclusive. Drops often sell out in minutes, so follow the store's announcements and be signed in with your payment details saved before it starts.
+The official Pokémon Center online shop delivers to the UK and sells English Pokémon TCG products, including exclusive Pokémon Center Elite Trainer Boxes. Popular releases can sell out quickly, so sign in and save your details before a launch.
 
-## Best Buy Pokémon cards
+## Pokémon card drops and new releases
 
-Best Buy sells Pokémon TCG products online, often as preorders and drops for popular releases.
+A "drop" is a limited release that goes live online at a set time: a new set, a special collection or an exclusive. Drops often sell out in minutes, so follow the shop's announcements and be signed in with your payment details saved before it starts.
 
-## Walgreens, CVS and Dollar General Pokémon cards
+## Local card shops
 
-Pharmacies and discount stores such as **Walgreens**, **CVS** and **Dollar General** usually carry a small range of single booster packs, blister packs and mini tins, near the checkout or in the toy aisle. They're handy for a pack or two, but stock varies a lot from store to store.
+Independent trading card shops, often called local game stores, sell booster boxes and packs, keep a case of singles, and run league nights and prereleases. They're the best place to see cards in person and meet other players — see [Pokémon card shops near me](guide:pokemon-card-shops-near-me).
 
-## Barnes and Noble Pokémon cards
+## Cardmarket and eBay
 
-Barnes & Noble carries Pokémon TCG products, such as booster bundles, collection boxes and Elite Trainer Boxes, in many stores and online, next to its Pokémon books.
-
-## TCGplayer Pokémon cards
-
-TCGplayer is an online marketplace where many sellers list Pokémon singles and sealed product, with market prices based on recent sales. It's a good place to find a specific English single: check each seller's rating and shipping cost.
+**Cardmarket** is Europe's biggest online marketplace for trading cards, where many UK and European sellers list Pokémon singles and sealed product, with price trends based on recent sales. **eBay** is useful for sold prices and hard-to-find items. On both, check each seller's rating, postage cost and where they ship from, and be wary of sealed product priced far below the going rate.
 
 ## Buying Japanese Pokémon cards online
 
-Every store above sells **English** cards. Japanese sets come out first, often months before their English versions, and many collectors prefer their print quality ([why collectors buy Japanese Pokémon cards](guide:japanese-pokemon-cards)). We ship sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb) and [rare singles](category:singles) from Japan with tracking, publish every quantity break on the listing, and ship free on orders over {free_ship}. Compare prices with our [Pokémon card price checker](guide:pokemon-card-price-checker).
+Almost every shop above sells **English** cards. Japanese sets come out first, often months before their English versions, and many collectors prefer their print quality ([why collectors buy Japanese Pokémon cards](guide:japanese-pokemon-cards)). We ship sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb) and [rare singles](category:singles) from Japan to the UK with tracking, publish every quantity break in pounds on the listing, and ship free on orders over {free_ship}. Compare prices with our [Pokémon card price checker](guide:pokemon-card-price-checker).
 
 ## Questions
 
-### Does Walmart sell Pokémon cards?
+### Where can I buy Pokémon cards in the UK?
 
-Yes, in most stores and online. Online, check whether the seller is Walmart or a third-party Marketplace seller.
+At toy shops like Smyths, at Argos, in larger supermarkets such as Tesco, Asda and Sainsbury's, at WHSmith and GAME, from the Pokémon Center online, at local card shops, and on Cardmarket and eBay.
 
-### When does Target restock Pokémon cards?
+### Does Smyths sell Pokémon cards?
 
-There's no published schedule. Vendors restock each store on their own weekly route, so ask your store which day. Online restocks are unannounced.
+Yes, in its stores and online, usually with one of the widest high-street ranges of English Pokémon products.
 
-### Does Costco sell Pokémon cards?
+### Does Tesco sell Pokémon cards?
 
-Sometimes, usually as multi-product bundles online and in some warehouses.
+Many larger Tesco stores stock booster packs, blister packs and tins, but the range varies from store to store.
 
-### Where can I buy Japanese Pokémon cards in the USA?
+### Where can I buy Japanese Pokémon cards in the UK?
 
-From shops that import them from Japan. We ship Japanese booster boxes, Elite Trainer Boxes and singles from Japan to the USA with tracking.
+From shops that import them from Japan. We ship Japanese booster boxes, Elite Trainer Boxes and singles from Japan to the UK with tracking, priced in pounds.
 MD],
     ['slug'=>'pokemon-card-shops-near-me', 'updated'=>'2026-09-25',
      'title'=>'Pokémon card shops near me: local stores, card shows and buying online',
      'seo_title'=>'Pokémon Card Shops Near Me: Stores, Card Shows & Online',
      'seo_desc'=>'How to find Pokémon card shops and trading card stores near you, what to expect at Pokémon card shows, and how to shop Japanese Pokémon cards online instead.',
      'body'=><<<'MD'
-Looking for a Pokémon card shop near you? Here's how to find local trading card stores and card shows, what to look for when you get there, and when ordering online is the better option. FUDAKURA is an online shop, so we don't have a store to visit, but we deliver to every US state.
+Looking for a Pokémon card shop near you? Here's how to find local trading card stores and card shows, what to look for when you get there, and when ordering online is the better option. FUDAKURA is an online shop, so we don't have a shop to visit, but we deliver anywhere in the UK.
 
 ## How to find Pokémon card shops near me
 
 - **Search a map app** for "trading card store", "card shop" or "game store" and read recent reviews.
 - **Use the Play! Pokémon event locator** on pokemon.com. Stores that run official Pokémon TCG leagues and prereleases are listed there, and nearly all of them are card shops.
 - **Ask local collectors** in community groups on Facebook or Discord; they'll know which shops are fairly priced.
+- **Look for independent card shops** in your town or city centre; many of the UK's card shops are small independents that don't show up under big chains.
 - **Ask at a card show**, where local shop owners often have tables.
 
 ## Trading card shops near me: what they sell
@@ -739,18 +751,18 @@ Card shops range from small counters in a game store to large stores with hundre
 
 ## Pokémon card shows near me
 
-Card shows are events where many sellers set up tables to buy, sell and trade cards, usually for a day or a weekend, in convention centres, hotel ballrooms or community halls. To find Pokémon card shows near you, check local card shops and collector groups, and search for trading card shows in your city on event listing sites and social media.
+Card shows are events where many sellers set up tables to buy, sell and trade cards, usually for a day or a weekend, in exhibition centres, hotels or community halls. To find Pokémon card shows near you, check local card shops and collector groups, and search for trading card shows and collector fairs in your town or city on event listing sites and social media.
 
 ## Pokémon card shows: tips
 
 - **Know prices before you go:** a scanner app helps you check a card on the spot.
-- **Bring cash and a card;** many sellers take both.
+- **Bring cash and a card;** many sellers take both, and some take contactless only.
 - **Inspect before you buy,** especially graded cards and expensive singles.
 - **Negotiate politely,** and bundle several cards for a better price.
 
 ## Shop Pokémon cards near me, delivered from Japan
 
-If there's no card shop near you, or you want Japanese cards, shop online. We ship sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb), [rare singles](category:singles) and [accessories](category:accessories) from Japan to the USA with tracking: {standard} delivery in {standard_days}, or {express} in {express_days}, free on orders over {free_ship}. See [Shipping & Returns](page:shipping).
+If there's no card shop near you, or you want Japanese cards, shop online. We ship sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb), [rare singles](category:singles) and [accessories](category:accessories) from Japan to the UK with tracking: {standard} delivery in {standard_days}, or {express} in {express_days}, free on orders over {free_ship}. See [Shipping & Returns](page:shipping).
 
 ## Questions
 
@@ -760,7 +772,7 @@ Search a map app for trading card or game stores, and check the Play! Pokémon e
 
 ### Do you have a store I can visit?
 
-No. FUDAKURA is online only. We ship from Japan to every US state with tracking.
+No. FUDAKURA is online only. We ship from Japan to anywhere in the UK with tracking.
 
 ### How do I find Pokémon card shows near me?
 
@@ -779,7 +791,7 @@ You point your phone's camera at a card. The app matches the image against its c
 
 ## Pokémon card scanner apps
 
-- **TCGplayer app:** scans cards and shows TCGplayer market prices, and lets you buy and sell on its marketplace.
+- **TCGplayer app:** scans cards and shows TCGplayer market prices, and lets you buy and sell on its marketplace. Its prices are US-dollar prices from the US market, so for UK values compare them with Cardmarket's price trend or eBay UK sold listings.
 - **Collectr:** built around tracking a collection's value, with card scanning.
 - **Newer scanner apps** compete on speed, and some can scan a whole binder page at once.
 
@@ -1014,7 +1026,9 @@ Grading means sending a card to a company that checks it's genuine, grades its c
 
 ## How much does it cost to grade a Pokémon card?
 
-As of September 2026, the cheapest grading at the main companies starts at roughly **$15–25 per card**. Add shipping both ways and insurance, and a single card sent on its own costs more like **$30–60** in total. Faster service and higher-value cards cost more: express tiers run to hundreds of dollars per card.
+As of September 2026, the cheapest grading at the main companies starts at roughly **$15–25 per card** (about £12–20). Add shipping both ways and insurance, and a single card sent on its own from the UK costs more like **£30–60** in total. Faster service and higher-value cards cost more: express tiers run to hundreds of pounds per card.
+
+The big graders (PSA, CGC and Beckett) set their fees in US dollars, so the prices below are in dollars.
 
 Grading prices change often, so check the grading company's current price list before you send anything.
 
@@ -1027,9 +1041,13 @@ PSA is the biggest grading company, and PSA 10s usually sell for the most. Its f
 - **CGC:** from about $15 a card on its slowest tier, with no membership needed.
 - **Beckett (BGS):** from about $20 a card on its slowest tier. Its sub-grades for centering, corners, edges and surface appeal to many collectors.
 
+## Grading Pokémon cards from the UK
+
+UK collectors can send cards to the big graders directly or through a submission service, which groups many customers' cards into one shipment to cut postage and customs paperwork. UK-based graders such as **Ace Grading** are another option, with no international shipping. When graded cards come back into the UK, import VAT can be charged on the grading fee, so budget for it.
+
 ## The hidden costs of grading
 
-- **Insured shipping** to the grader and back, often $20 or more per order.
+- **Insured shipping** to the grader and back, often £20 or more per order from the UK.
 - **Card savers and packing** materials.
 - **Upcharges** if the graded card turns out to be worth more than your tier's declared-value limit.
 - **Waiting time:** from days on express tiers to months on bulk tiers.
@@ -1055,7 +1073,7 @@ From about $20–25 per card on its cheapest Value tiers when they're open (they
 
 ### What's the cheapest way to grade Pokémon cards?
 
-Send several cards together on the slowest tier at a grader such as CGC or Beckett, so the shipping cost is shared.
+Send several cards together on the slowest tier, or use a UK submission service or a UK-based grader, so the shipping cost is shared.
 
 ### How long does grading take?
 
@@ -1212,7 +1230,7 @@ MD],
     ['slug'=>'where-to-sell-pokemon-cards', 'updated'=>'2026-09-25',
      'title'=>'Where to sell Pokémon cards for the best price',
      'seo_title'=>'Where to Sell Pokémon Cards for the Best Price (2026)',
-     'seo_desc'=>'Where to sell Pokémon cards: local card shops, card shows, eBay, TCGplayer, collector groups and auction houses, with the pros, cons and tips for each.',
+     'seo_desc'=>'Where to sell Pokémon cards in the UK: local card shops, card shows, eBay, Cardmarket, collector groups and auction houses, with the pros, cons and tips for each.',
      'body'=><<<'MD'
 Where you sell Pokémon cards decides how much you get and how fast. Here are the main options, from quick cash to top prices.
 
@@ -1235,9 +1253,9 @@ Many buyers in one room, so you can compare offers table by table. Bring your ca
 
 The biggest audience of buyers. You set the price or run an auction, and eBay takes a fee from each sale. Take clear photos of the front and back, describe the condition honestly, and ship with tracking.
 
-## TCGplayer
+## Cardmarket
 
-A marketplace built for trading cards, where you list singles against TCGplayer's market prices. You'll need a seller account, and fees apply to each sale.
+Europe's biggest marketplace built for trading cards, used by many UK sellers. You list singles and sealed product against Cardmarket's price trends, it holds the buyer's payment until the order arrives, and it takes a fee from each sale. You'll need a seller account.
 
 ## Collector groups
 
@@ -1249,13 +1267,13 @@ For high-value graded cards, auction houses such as Goldin and Heritage Auctions
 
 ## How to ship Pokémon cards you've sold
 
-Put each card in a sleeve and a toploader, sandwich it between cardboard in a bubble mailer, and use tracked, insured shipping for anything valuable.
+Put each card in a sleeve and a toploader, sandwich it between cardboard in a padded envelope, and use tracked, insured postage for anything valuable, such as Royal Mail Special Delivery.
 
 ## Questions
 
 ### Where can I sell Pokémon cards for the most money?
 
-Usually online (eBay or TCGplayer) or, for high-value graded cards, an auction house. Local shops pay less, but they pay at once.
+Usually online (eBay or Cardmarket) or, for high-value graded cards, an auction house. Local shops pay less, but they pay at once.
 
 ### Do card shops buy Pokémon cards?
 
@@ -1389,7 +1407,7 @@ MD],
      'seo_title'=>'Pokémon Card Values: How Much Are Pokémon Cards Worth?',
      'seo_desc'=>'What makes a Pokémon card worth money: rarity, condition, PSA grading and language. How to check Pokémon card values, and the most expensive card sold.',
      'body'=><<<'MD'
-Most Pokémon cards are worth very little — but the right card, in the right condition, can be worth hundreds or thousands of dollars. Here's what decides a Pokémon card's value, and how to check what yours is worth.
+Most Pokémon cards are worth very little — but the right card, in the right condition, can be worth hundreds or thousands of pounds. Here's what decides a Pokémon card's value, and how to check what yours is worth.
 
 ## Pokémon cards worth money: what makes a card valuable?
 
@@ -1402,7 +1420,7 @@ Most Pokémon cards are worth very little — but the right card, in the right c
 
 ## How much is a Pokémon Trading Card Game card worth?
 
-As a rough guide: common and uncommon cards are usually worth a few cents; holo rares and regular Pokémon ex a few dollars; full arts and Illustration Rares a few dollars to tens of dollars; and Special Illustration Rares, gold cards and chase cards of popular Pokémon tens to hundreds of dollars, or more in a high grade. Vintage holos, first edition cards and graded gems can be worth thousands.
+As a rough guide: common and uncommon cards are usually worth a few pence; holo rares and regular Pokémon ex a pound or two; full arts and Illustration Rares a few pounds to tens of pounds; and Special Illustration Rares, gold cards and chase cards of popular Pokémon tens to hundreds of dollars, or more in a high grade. Vintage holos, first edition cards and graded gems can be worth thousands.
 
 ## How to check Pokémon card values
 
@@ -1418,18 +1436,18 @@ A card's price is what a seller asks; its value is what buyers actually pay. Whe
 
 ## Are modern Pokémon cards worth money?
 
-Modern cards can be valuable too. Chase cards from recent Japanese sets — like the [Mega Rayquaza ex Master Ultra Rare](product:mega-rayquaza-ex-mur) or the [Mega Gengar ex Special Illustration Rare](product:mega-gengar-ex-sir) — can sell for hundreds or even thousands of dollars soon after release. Our [rare single cards](category:singles) show current prices on every listing, with lower prices when you buy more. Ready to sell some of yours? See [where to sell Pokémon cards](guide:where-to-sell-pokemon-cards) and [how much it costs to grade a Pokémon card](guide:how-much-does-it-cost-to-grade-a-pokemon-card).
+Modern cards can be valuable too. Chase cards from recent Japanese sets — like the [Mega Rayquaza ex Master Ultra Rare](product:mega-rayquaza-ex-mur) or the [Mega Gengar ex Special Illustration Rare](product:mega-gengar-ex-sir) — can sell for hundreds or even thousands of pounds soon after release. Our [rare single cards](category:singles) show current prices on every listing, with lower prices when you buy more. Ready to sell some of yours? See [where to sell Pokémon cards](guide:where-to-sell-pokemon-cards) and [how much it costs to grade a Pokémon card](guide:how-much-does-it-cost-to-grade-a-pokemon-card).
 MD],
   ],
 
-  /* About, Returns, Privacy and Terms. Shown at /{slug} (or index.php?p=page&pg={slug}) and linked in the footer.
+  /* About, Privacy and Terms. Shown at /{slug} (or index.php?p=page&pg={slug}) and linked in the footer.
      Extra placeholders here: {brand} {company} {address} {email}. Review the policies for your own business. */
   'pages' => [
     ['slug'=>'about', 'title'=>'About FUDAKURA',
-     'seo_title'=>'About FUDAKURA — Japanese Pokémon Cards from Japan',
-     'seo_desc'=>'FUDAKURA sources Japanese Pokémon cards in Japan and ships them sealed to collectors, resellers and card shops in the USA. How we work and who we are.',
+     'seo_title'=>'About FUDAKURA — Japanese Pokémon Cards from Japan to the UK',
+     'seo_desc'=>'FUDAKURA sources Japanese Pokémon cards in Japan and ships them sealed to collectors, resellers and card shops in the UK. How we work and who we are.',
      'body'=><<<'MD'
-FUDAKURA takes its name from two Japanese words: **fuda** (札), a card, and **kura** (蔵), a storehouse — a card storehouse. We source Japanese Pokémon cards in Japan and ship them to collectors, resellers and card shops in the USA and worldwide.
+FUDAKURA takes its name from two Japanese words: **fuda** (札), a card, and **kura** (蔵), a storehouse — a card storehouse. We source Japanese Pokémon cards in Japan and ship them to collectors, resellers and card shops in the UK, and to Ireland and Europe too.
 
 ## What we sell
 
@@ -1438,7 +1456,7 @@ Sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:
 ## How we work
 
 - **Sourced in Japan.** Everything is bought through Japanese distribution and ships sealed in its original factory packaging. We don't sell resealed, reprinted or fake product.
-- **Prices in the open.** Every listing shows its full quantity-break ladder, so you can price an order before you contact us.
+- **Prices in pounds, in the open.** Every listing shows its full quantity-break ladder in pounds sterling, so you can price an order before you contact us.
 - **Careful packing.** Singles ship sleeved and toploaded; sealed product ships as it left the factory, with tracking on every parcel.
 - **Straight answers.** Questions go to a real person at [{email}](mailto:{email}).
 
@@ -1448,33 +1466,48 @@ Sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:
 MD],
     ['slug'=>'privacy-policy', 'title'=>'Privacy policy',
      'seo_title'=>'Privacy Policy',
-     'seo_desc'=>'What information FUDAKURA collects when you order, how it is used, and how to ask us to see, correct or delete it.',
+     'seo_desc'=>'What personal data FUDAKURA collects when you order, why, how long we keep it, and your rights under UK data protection law.',
      'body'=><<<'MD'
-This policy explains what information {brand} collects and how it is used.
+This policy explains what personal data {company} ("{brand}", "we") collects when you use this site or order from us, and how we use it. We are the controller of your data under the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018. Contact us about your data at [{email}](mailto:{email}).
 
 ## What we collect
 
 - **Order details** you enter at checkout: name, company, email, phone, shipping address, notes and your chosen payment method.
 - **Technical details:** your IP address is stored with each order to help prevent fraud and spam.
-- **Cookies:** one session cookie keeps your order basket and currency choice while you browse. We don't use advertising cookies.
+- **Cookies:** one session cookie keeps your order basket and currency choice while you browse. It's strictly necessary for the shop to work, so it doesn't need your consent. We don't use advertising or analytics cookies.
 - **Live chat:** our chat window is provided by [tawk.to](https://www.tawk.to/privacy-policy/). It sets its own cookies and shows us the page you're on, your approximate location and your browser while you're on the site, so we can help. Messages you send in chat are stored by tawk.to.
 - **Bitcoin payments:** we store the transaction ID and amount of your payment with your order. Bitcoin transactions are public on the Bitcoin blockchain, as with any Bitcoin payment.
 
-## How we use it
+## Why we use it (our lawful bases)
 
-We use your details only to process and deliver your order, send payment details and invoices, and answer your questions. Orders are emailed to us and stored on our server.
+- **To take, deliver and support your order** — to perform our contract with you: processing and shipping your order, sending payment details, invoices and tracking, and answering your questions.
+- **To keep accounting and tax records** — to meet our legal obligations.
+- **To prevent fraud and spam** — our legitimate interest in keeping the shop safe.
 
-## Sharing
+We don't send marketing emails, and we don't make automated decisions about you.
 
-We share your name, address and phone number with the carrier delivering your order. To check Bitcoin payments, our server looks up our own wallet address on public block explorers (mempool.space and blockstream.info); no personal details are sent. We don't sell your information or share it for marketing.
+## Who we share it with
+
+- **Carriers** (Japan Post, Parcelforce Worldwide, DHL or FedEx) get your name, address and phone number to deliver your order and deal with customs.
+- **Our email and hosting providers** store orders and send order emails for us.
+- **tawk.to** handles live chat, if you use it.
+- To check Bitcoin payments, our server looks up our own wallet address on public block explorers (mempool.space and blockstream.info); no personal details are sent.
+
+We don't sell your data or share it for marketing.
+
+## International transfers
+
+We ship from Japan, so your order details are used in Japan to pack and ship your order, and by carriers and service providers outside the UK. The UK recognises Japan as providing adequate protection for personal data. Where data goes elsewhere, we use providers that protect it to UK standards.
 
 ## How long we keep it
 
-We keep order records for as long as we need them for accounting and legal obligations.
+We keep order records for six years after the end of the financial year of the order, as UK tax law requires, and then delete them. Chat messages are kept by tawk.to until we delete them.
 
-## Your choices
+## Your rights
 
-You can ask for a copy of the information we hold about you, or ask us to correct or delete it, by emailing [{email}](mailto:{email}).
+You can ask us for a copy of your data, and ask us to correct it, delete it, restrict how we use it, or object to our using it. You can also ask for data you gave us in a portable format. Email [{email}](mailto:{email}); we reply within one month.
+
+If you're unhappy with how we've handled your data, you can complain to the Information Commissioner's Office (ICO) at [ico.org.uk](https://ico.org.uk/make-a-complaint/) or on 0303 123 1113. We'd appreciate the chance to put it right first.
 
 ## Contact
 
@@ -1482,51 +1515,65 @@ You can ask for a copy of the information we hold about you, or ask us to correc
 MD],
     ['slug'=>'terms', 'title'=>'Terms of sale',
      'seo_title'=>'Terms of Sale',
-     'seo_desc'=>'Terms for ordering Japanese Pokémon cards from FUDAKURA: prices, minimum order, payment, preorders, shipping, duties and authenticity.',
+     'seo_desc'=>'Terms for ordering Japanese Pokémon cards from FUDAKURA in the UK: prices in pounds, minimum order, payment, preorders, shipping, import VAT, cancellation and returns.',
      'body'=><<<'MD'
-These terms apply to orders placed on {brand}.
+These terms apply to orders placed on {brand}. The seller is {company}, {address}, [{email}](mailto:{email}). If you're buying as a consumer, nothing in these terms affects your statutory rights.
 
 ## Prices and currency
 
-Prices are set in US dollars. Prices shown in other currencies are converted at our current rates for guidance, and your invoice is issued in the currency you selected at checkout.
+Prices are set in pounds sterling (GBP). Prices shown in other currencies are converted at our current rates for guidance, and your invoice is issued in the currency you selected at checkout. Shipping is shown at checkout before you order.
 
 ## Orders
 
-Placing an order reserves stock for {hold_hours} hours while we send payment details, and an order is confirmed once payment clears. Orders must total at least {min_order} including shipping.
+Placing an order reserves stock for {hold_hours} hours while we send payment details. Our contract with you starts when we confirm your payment has cleared; if we can't supply an item, we tell you and refund anything you've paid for it. Orders must total at least {min_order} including shipping.
 
 ## Payment
 
-**Bitcoin** is paid from your order page, straight after you order, to the wallet address shown there. The BTC amount is fixed for a limited time and renewed at the current rate if it runs out before you pay; send the exact amount shown. For **other methods**, we send payment details within {reply_hours} hours: always quote your order reference, and check payment details against our email from {email}. We never ask for card details, passwords or wallet keys.
+**UK bank transfer** is paid by Faster Payments to the account on your invoice, quoting your order reference. **Bitcoin** is paid from your order page, straight after you order, to the wallet address shown there. The BTC amount is fixed for a limited time and renewed at the current rate if it runs out before you pay; send the exact amount shown. For **other methods**, we send payment details within {reply_hours} hours: always quote your order reference, and check payment details against our email from {email}. We never ask for card details, passwords or wallet keys.
 
 ## Preorders
 
-Preorders are invoiced when stock is allocated, not when you order.
+Preorders are invoiced when stock is allocated, not when you order. Release dates are set by The Pokémon Company and can change; if we can't fill a preorder, we refund it in full.
 
-## Shipping and duties
+## Delivery, import VAT and duty
 
-Orders ship from Japan with tracking, and shipping is calculated at checkout. Orders over {free_ship} (goods total) ship free with Standard delivery. Import duty, taxes and carrier fees charged on delivery are the buyer's responsibility. See [Shipping & Returns](page:shipping).
+Orders ship from Japan with tracking, and shipping is calculated at checkout. Orders over {free_ship} (goods total) ship free with Standard delivery. Unless your order shows UK VAT included, import VAT, duty and carrier handling fees charged on delivery are paid by the buyer. The goods are your responsibility once they're delivered to you or someone you name. See [Shipping & Returns](page:shipping).
 
-## Damage and shortages
+## Cancelling and returns
 
-Report damage, shortages or wrong items within seven days of delivery. Returns, refunds and cancellations follow our [Shipping & Returns policy](page:shipping#returns).
+UK consumers can cancel within 14 days of delivery without giving a reason, as set out in our [Shipping & Returns policy](page:shipping#returns). We may reduce a refund for loss in value where goods have been handled more than necessary — including opened booster boxes and packs, whose contents can no longer be verified. Business buyers can return unopened sealed product by agreement.
+
+## Faulty or wrong items
+
+Please report damage, shortages or wrong items as soon as you can, ideally within seven days of delivery, with photos. Faulty and wrong items are replaced, repaired or refunded under the Consumer Rights Act 2015, and we cover the return costs.
+
+## Business customers
+
+If you buy for a business, our liability for any order is limited to the price of that order, and we're not liable for loss of profit or business. The consumer rights described above apply to consumers only.
 
 ## Authenticity and trademarks
 
 All product is genuine and sourced through Japanese distribution. {company} is an independent reseller and is not affiliated with, endorsed by or licensed by The Pokémon Company, Nintendo, Creatures Inc. or GAME FREAK Inc.
+
+## Law and disputes
+
+These terms are governed by the law of England and Wales. If you're a consumer living in Scotland or Northern Ireland, you can also bring proceedings in your local courts. Tell us first about any problem at [{email}](mailto:{email}) and we'll do our best to sort it out.
 MD],
   ],
 
   'faqs' => [
-    ['Do you ship Japanese Pokémon cards to the USA?', 'Yes. Everything ships from Japan to the USA with tracking. Choose Standard delivery (3–6 working days) or Express (1–2 working days) at checkout; shipping is priced by the weight of your order, and orders start at {min_order} including shipping.'],
+    ['Do you ship Japanese Pokémon cards to the UK?', 'Yes. Everything ships from Japan to the UK with tracking. Choose {standard} delivery ({standard_days}) or {express} ({express_days}) at checkout; shipping is priced by the weight of your order, and orders start at {min_order} including shipping.'],
+    ['Are your prices in pounds?', 'Yes. Every price is set in pounds sterling, and you can pay in pounds by UK bank transfer. You can also view prices in euros, dollars and other currencies using the currency menu at the top of the page.'],
     ['Do I need an account to see pricing?', 'No. Every product shows its full quantity-break ladder publicly, so you can price a complete order before contacting anyone. There is no application form and no approval wait.'],
     ['What is the minimum order?', 'Every order must total at least {min_order} including shipping. Sealed product is sold in cases (usually multiples of four or six); single cards start at one.'],
-    ['Are Japanese Pokémon cards the same size as English cards?', 'Yes. Both are 63 × 88 mm (about 2.5 × 3.5 inches), so they fit standard sleeves, toploaders and binders.'],
-    ['How do I pay?', 'Choose a method at checkout. Bitcoin is paid on your order page straight after you order: scan the QR code, or copy the amount and address into your wallet. For other methods, we send the details to your email and phone within {reply_hours} hours, together with your invoice.'],
-    ['Do you offer free shipping?', 'Yes. Orders with a goods total over {free_ship} ship free with Standard delivery to every country we ship to, applied automatically at checkout. Choose Express and you pay only the difference.'],
+    ['Are Japanese Pokémon cards the same size as English cards?', 'Yes. Both are 63 × 88 mm, so they fit standard sleeves, toploaders and binders.'],
+    ['How do I pay?', 'Choose a method at checkout. UK customers can pay by bank transfer (Faster Payments): we email the account details with your invoice within {reply_hours} hours. Bitcoin is paid on your order page straight after you order: scan the QR code, or copy the amount and address into your wallet.'],
+    ['Do you offer free shipping?', 'Yes. Orders with a goods total over {free_ship} ship free with {standard} delivery to every country we ship to, applied automatically at checkout. Choose {express} and you pay only the difference.'],
     ['When is my stock allocated?', 'Placing an order reserves your stock for {hold_hours} hours. Once payment clears, the allocation is confirmed and we dispatch within {hold_hours} hours. If payment does not clear inside the window, high-demand stock returns to general availability.'],
-    ['Will I pay import duty in the USA?', 'Possibly. US imports of any value can be charged import duty and carrier fees, which your carrier collects on delivery. These are not included in our prices.'],
+    ['Will I pay import VAT or customs charges in the UK?', 'Your order ships from Japan, so unless your order confirmation shows UK VAT included, the carrier collects import VAT (20%), any customs duty and a handling fee before delivering. These are not included in our prices. VAT-registered businesses can usually reclaim the import VAT.'],
+    ['Can I return something if I change my mind?', 'Yes, if you are a UK consumer: tell us within 14 days of delivery and send the items back within 14 days after that. Opened booster boxes and packs lose their value, so the refund on them can be reduced by up to the full price. Business buyers can return unopened sealed product by agreement.'],
     ['Can I preorder an upcoming set?', 'Yes. Preorder lines commit an allocation ahead of release at the same published prices, and are invoiced at allocation rather than at request.'],
     ['Are your Pokémon cards authentic?', 'Yes. Everything is sourced through Japanese distribution and ships sealed in its original factory packaging. We do not deal in resealed, reprinted or fake product.'],
-    ['What if something arrives damaged or short?', 'Report transit damage, a short shipment or a wrong item within seven days of delivery, with photos, and we replace, credit or refund the affected items and their shipping. Our Shipping & Returns page has the details.'],
+    ['What if something arrives damaged or short?', 'Tell us as soon as you can, ideally within seven days of delivery, with photos, and we replace, repair or refund the affected items and their shipping. Our Shipping & Returns page has the details.'],
   ],
 ];

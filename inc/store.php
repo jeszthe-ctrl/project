@@ -59,6 +59,8 @@ function store_load(){
   $s = data_read('store');
   if(!$s){ $s = $d; data_write('store', $s); }   // first run: seed from defaults
   $version = (int)($s['settings']['content_version'] ?? 1);
+  /* shops saved before the shop currency was a setting priced everything in US dollars, and still do */
+  if(!isset($s['settings']['base_currency'])) $s['settings']['base_currency'] = 'USD';
   $s += $d;                                       // sections added by later versions
   $s['settings'] += $d['settings'];
   if($version < CONTENT_VERSION){ $s = content_upgrade($s, $d, $version); store_save($s); }
@@ -113,6 +115,55 @@ function store_save($s){
   }
   return data_write('store', $s);
 }
+
+/* ---------------- shop currency ----------------
+   Prices, shipping rates, the minimum order and the free-shipping amount are all stored in the shop
+   currency (GBP on a new install). Some stored names still end in _usd from when the shop was USD-only:
+   min_order_usd, free_ship_usd, and the goods_usd / shipping_usd / total_usd amounts on each order. */
+function base_cur($store=null){ $s = $store ?? $GLOBALS['STORE']; return (string)($s['settings']['base_currency'] ?? 'USD'); }
+/* an order's own currency: orders placed before the setting existed were in US dollars */
+function order_base($o){ return (string)($o['base'] ?? 'USD'); }
+/* "£1,234.50" in a given currency, using its symbol from the currency table */
+function money_in($v, $code, $store=null){
+  $s = $store ?? $GLOBALS['STORE'];
+  $m = $s['currencies'][$code] ?? ['sym'=>$code.' ', 'dec'=>2];
+  return $m['sym'].number_format((float)$v, (int)$m['dec']);
+}
+
+/* Switches the shop to another currency: every price, shipping rate, the minimum order and the
+   free-shipping amount are converted at the rate in the currency table, and the table is rebased
+   so the new currency is 1. Returns the changed store, or null if the currency isn't in the table. */
+function store_rebase($s, $to){
+  $from = base_cur($s);
+  $r = (float)($s['currencies'][$to]['rate'] ?? 0);
+  if($to === $from || $r <= 0) return $to === $from ? $s : null;
+  $c = fn($v)=>round((float)$v * $r, 2);
+  foreach($s['products'] as &$p) foreach($p['ladder'] as &$t) $t[1] = $c($t[1]);
+  unset($p, $t);
+  foreach(['min_order_usd', 'free_ship_usd'] as $k) $s['settings'][$k] = $c($s['settings'][$k] ?? 0);
+  $conv = function($z) use($c){
+    foreach(array_merge([''], SHIP_METHODS) as $m){
+      $x = $m === '' ? $z : ($z[$m] ?? null); if(!is_array($x)) continue;
+      foreach(['base', 'per_kg'] as $k) if(isset($x[$k])) $x[$k] = $c($x[$k]);
+      if($m === '') $z = $x; else $z[$m] = $x;
+    }
+    return $z;
+  };
+  foreach($s['shipping']['zones'] as $i=>$z) $s['shipping']['zones'][$i] = $conv($z);
+  $s['shipping']['rest'] = $conv($s['shipping']['rest']);
+  foreach($s['currencies'] as $k=>$m) $s['currencies'][$k]['rate'] = $k === $to ? 1 : round((float)$m['rate'] / $r, 6);
+  $s['currencies'] = [$to=>$s['currencies'][$to]] + $s['currencies'];
+  $s['settings']['base_currency'] = $to;
+  return $s;
+}
+
+/* ---------------- VAT ----------------
+   Off until a VAT number is entered in Admin → Settings. Prices are then VAT-inclusive at vat_rate %,
+   and checkout, order emails and the admin show the VAT included in each order. */
+function vat_on($store=null){ $s = ($store ?? $GLOBALS['STORE'])['settings']; return trim((string)($s['vat_number'] ?? '')) !== '' && (float)($s['vat_rate'] ?? 0) > 0; }
+function vat_rate($store=null){ return (float)(($store ?? $GLOBALS['STORE'])['settings']['vat_rate'] ?? 20); }
+/* the VAT inside a VAT-inclusive amount */
+function vat_part($gross, $store=null){ $r = vat_rate($store); return round($gross - $gross / (1 + $r / 100), 2); }
 
 /* ---------------- products ---------------- */
 function photo_slots(){ return ['', '-2', '-3', '-4']; }
@@ -213,9 +264,10 @@ function zone_rates($z){
   return ['standard'=>$std, 'express'=>$exp];
 }
 
-/* USD: the zone's per-order price + per-kg price × order weight, rounded up to a whole dollar.
-   Pass the goods total to apply free shipping: Standard becomes free and Express costs only the difference. */
-function shipping_usd($store, $country, $kg, $method='standard', $goods=null){
+/* In the shop currency: the zone's per-order price + per-kg price × order weight, rounded up to a whole
+   pound (or dollar). Pass the goods total to apply free shipping: Standard becomes free and Express costs
+   only the difference. */
+function shipping_cost($store, $country, $kg, $method='standard', $goods=null){
   $z = zone_rates(ship_zone($store, $country));
   $price = function($m) use($z, $kg, $store){
     $v = round((float)$z[$m]['base'] + (float)$z[$m]['per_kg'] * $kg, 2);
@@ -226,9 +278,9 @@ function shipping_usd($store, $country, $kg, $method='standard', $goods=null){
   return $price($m);
 }
 
-/* free Standard shipping once the goods total reaches this (USD; 0 = off) */
-function free_ship_usd($store){ return max(0, (float)($store['settings']['free_ship_usd'] ?? 0)); }
-function free_shipping($store, $goods){ $t = free_ship_usd($store); return $t > 0 && round($goods, 2) >= $t; }
+/* free Standard shipping once the goods total reaches this (shop currency; 0 = off) */
+function free_ship_min($store){ return max(0, (float)($store['settings']['free_ship_usd'] ?? 0)); }
+function free_shipping($store, $goods){ $t = free_ship_min($store); return $t > 0 && round($goods, 2) >= $t; }
 
 /* "3–6 working days" → [3, 6], for Google's delivery-time data */
 function ship_day_range($days){ return preg_match('/(\d+)\D+(\d+)/', (string)$days, $m) ? [(int)$m[1], (int)$m[2]] : [3, 6]; }

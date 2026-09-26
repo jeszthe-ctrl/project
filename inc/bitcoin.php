@@ -89,21 +89,24 @@ function btc_get($url, $timeout=6){
 }
 
 /* ---------------- price ---------------- */
-/* ['usd'=>price of 1 BTC, 'source'=>…, 'time'=>…] — refreshed every 5 minutes, null if no feed answers */
-function btc_usd_rate(){
+/* ['price'=>price of 1 BTC in $cur, 'cur'=>…, 'source'=>…, 'time'=>…] — refreshed every 5 minutes, null if no feed answers.
+   $cur is the shop currency (GBP, USD, EUR, JPY, CAD, AUD and CHF are quoted by every feed). */
+function btc_rate($cur){
+  $cur = strtoupper(preg_replace('/[^A-Za-z]/', '', (string)$cur));
   $c = data_read('btc-rate') ?: [];
-  if(!empty($c['usd']) && time() - ($c['time'] ?? 0) < 300) return $c;
-  $feeds = ($e = getenv('FK_PRICE_API')) ? [[$e, fn($j)=>$j['USD'] ?? 0, 'test feed']] : [
-    ['https://mempool.space/api/v1/prices', fn($j)=>$j['USD'] ?? 0, 'mempool.space'],
-    ['https://api.coinbase.com/v2/prices/BTC-USD/spot', fn($j)=>$j['data']['amount'] ?? 0, 'Coinbase'],
-    ['https://api.kraken.com/0/public/Ticker?pair=XBTUSD', fn($j)=>$j['result']['XXBTZUSD']['c'][0] ?? 0, 'Kraken'],
+  $fresh = fn($max)=>!empty($c['price']) && ($c['cur'] ?? '') === $cur && time() - ($c['time'] ?? 0) < $max;
+  if($fresh(300)) return $c;
+  $feeds = ($e = getenv('FK_PRICE_API')) ? [[$e, fn($j)=>$j[$cur] ?? 0, 'test feed']] : [
+    ['https://mempool.space/api/v1/prices', fn($j)=>$j[$cur] ?? 0, 'mempool.space'],
+    ["https://api.coinbase.com/v2/prices/BTC-$cur/spot", fn($j)=>$j['data']['amount'] ?? 0, 'Coinbase'],
+    ["https://api.kraken.com/0/public/Ticker?pair=XBT$cur", fn($j)=>is_array($j['result'] ?? null) && $j['result'] ? (reset($j['result'])['c'][0] ?? 0) : 0, 'Kraken'],
   ];
   foreach($feeds as [$url, $pick, $name]){
     [$code, $j] = btc_get($url, 5);
-    $usd = $code === 200 && is_array($j) ? (float)$pick($j) : 0;
-    if($usd > 1000){ $c = ['usd'=>round($usd, 2), 'source'=>$name, 'time'=>time()]; data_write('btc-rate', $c); return $c; }
+    $v = $code === 200 && is_array($j) ? (float)$pick($j) : 0;
+    if($v > 1000){ $c = ['price'=>round($v, 2), 'cur'=>$cur, 'source'=>$name, 'time'=>time()]; data_write('btc-rate', $c); return $c; }
   }
-  return !empty($c['usd']) && time() - ($c['time'] ?? 0) < 3600 ? $c : null;   // a price from the last hour beats none
+  return $fresh(3600) ? $c : null;   // a price from the last hour beats none
 }
 
 function btc_amount($sats){ return number_format($sats / 1e8, 8, '.', ''); }
@@ -124,10 +127,10 @@ function btc_quote(&$o){
   $b = $o['btc'] ?? null;
   if(!$b || !empty($b['txid']) || !empty($b['reported']) || in_array($o['status'] ?? 'new', ['paid','shipped','cancelled'], true)) return false;
   if(!empty($b['sats']) && time() < ($b['expires'] ?? 0)) return false;
-  $r = btc_usd_rate();
+  $r = btc_rate(order_base($o));
   if(!$r) return false;
-  $sats = (int)ceil($o['total_usd'] / $r['usd'] * 1e8);
-  $o['btc'] = array_merge($b, ['sats'=>$sats, 'rate'=>$r['usd'], 'rate_source'=>$r['source'], 'quoted'=>time(),
+  $sats = (int)ceil($o['total_usd'] / $r['price'] * 1e8);   /* total_usd holds the total in the order's currency */
+  $o['btc'] = array_merge($b, ['sats'=>$sats, 'rate'=>$r['price'], 'rate_cur'=>$r['cur'], 'rate_source'=>$r['source'], 'quoted'=>time(),
     'expires'=>time() + btc_settings()['minutes'] * 60, 'quotes'=>array_slice(array_merge($b['quotes'] ?? [], [$sats]), -24)]);
   return true;
 }
@@ -249,10 +252,10 @@ function btc_pay_link($o){
 function btc_mail(&$o, $kind){
   $cfg = $GLOBALS['STORE']['settings']; $b = $o['btc'];
   $paid = btc_amount($b['paid_sats'] ?? 0); $due = btc_amount($b['expected_sats'] ?? ($b['sats'] ?? 0));
-  $usd  = '$'.number_format(($b['paid_sats'] ?? 0) / 1e8 * ($b['rate'] ?? 0), 2);
+  $worth = money_in(($b['paid_sats'] ?? 0) / 1e8 * ($b['rate'] ?? 0), $b['rate_cur'] ?? order_base($o));
   $lines = [
     "Order:          {$o['ref']}",
-    "Amount paid:    $paid BTC (about $usd)",
+    "Amount paid:    $paid BTC (about $worth)",
     "Amount due:     $due BTC",
     "To address:     {$b['address']}",
     "Transaction ID: {$b['txid']}",
@@ -281,7 +284,7 @@ function btc_mail(&$o, $kind){
   }
   $detail = implode("\n", $lines);
   $shop = shop_mail($cfg['order_email'], $subj_shop,
-    "$shop_note\n\n$detail\n\nCustomer: {$o['name']} <{$o['email']}>\nOrder total: {$o['total']} {$o['currency']} (\${$o['total_usd']} USD)\n",
+    "$shop_note\n\n$detail\n\nCustomer: {$o['name']} <{$o['email']}>\nOrder total: {$o['total']} {$o['currency']} (".money_in($o['total_usd'], order_base($o))." ".order_base($o).")\n",
     $o['email']);
   $cus = shop_mail($o['email'], $subj_cus,
     "$cus_note\n\n$detail\n\nYour order page: ".btc_pay_link($o)."\n\nQuestions: {$cfg['email']}\n{$cfg['legal_name']} — {$cfg['address']}\n",

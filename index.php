@@ -56,24 +56,28 @@ function flash($msg){ $_SESSION['flash'][] = $msg; }
 
 function cur_code(){
   global $CURRENCIES;
-  $c = $_GET['cur'] ?? $_SESSION['cur'] ?? 'USD';
-  if(!is_string($c) || !isset($CURRENCIES[$c])) $c = 'USD';
+  $c = $_GET['cur'] ?? $_SESSION['cur'] ?? base_cur();
+  if(!is_string($c) || !isset($CURRENCIES[$c])) $c = base_cur();
   $_SESSION['cur'] = $c;
   return $c;
 }
 
-function money($usd){
+/* an amount in the shop currency, shown in the shopper's currency */
+function money($v){
   global $CURRENCIES;
   $c = cur_code(); $m = $CURRENCIES[$c];
-  return $m['sym'] . number_format($usd * $m['rate'], $m['dec']);
+  return $m['sym'] . number_format($v * $m['rate'], $m['dec']);
 }
 
 /* whole units, for round numbers like the free-shipping threshold */
-function money_whole($usd){
+function money_whole($v){
   global $CURRENCIES;
   $m = $CURRENCIES[cur_code()];
-  return $m['sym'] . number_format(round($usd * $m['rate']), 0);
+  return $m['sym'] . number_format(round($v * $m['rate']), 0);
 }
+
+/* VAT is charged on orders delivered to the UK, once a VAT number is set (Admin → Settings) */
+function vat_applies($country){ return vat_on() && $country === 'GB'; }
 
 function cart(){ return $_SESSION['cart'] ?? []; }
 function cart_units(){ $n=0; foreach(cart() as $q) $n += $q; return $n; }
@@ -316,7 +320,7 @@ const PAGE_GUIDES = [
 const GUIDE_SHOP = [
   'collect'=>'Shop [rare Pokémon cards](category:singles), [PSA graded Pokémon cards](cards:psa-graded-pokemon-cards) and [Charizard Pokémon cards](cards:charizard-pokemon-cards), shipped from Japan.',
   'play'=>'Shop [Elite Trainer Boxes](category:etb), [starter decks and premium sets](category:premium) and [card sleeves, binders and playmats](category:accessories), shipped from Japan.',
-  'buy'=>'Shop [Japanese booster boxes](category:boxes), [Elite Trainer Boxes](category:etb) and [rare single cards](category:singles), shipped from Japan to the USA.',
+  'buy'=>'Shop [Japanese booster boxes](category:boxes), [Elite Trainer Boxes](category:etb) and [rare single cards](category:singles), shipped from Japan to the UK.',
 ];
 const GUIDE_GROUP = ['most-expensive-pokemon-cards'=>'collect','rarest-pokemon-cards'=>'collect','pokemon-card-values'=>'collect','pokemon-card-price-checker'=>'collect',
   'how-much-does-it-cost-to-grade-a-pokemon-card'=>'collect','where-to-sell-pokemon-cards'=>'collect','pokemon-card-scanner'=>'collect','coolest-pokemon-cards'=>'collect',
@@ -362,7 +366,7 @@ function fill($text){
   return strtr($text, ['{reply_hours}'=>(int)$CONFIG['reply_hours'], '{hold_hours}'=>(int)$CONFIG['hold_hours'],
                        '{countries}'=>count($COUNTRIES), '{min_order}'=>money($MIN_ORDER), '{brand}'=>$CONFIG['brand'],
                        '{company}'=>$CONFIG['legal_name'], '{address}'=>$CONFIG['address'], '{email}'=>$CONFIG['email'],
-                       '{free_ship}'=>money_whole(free_ship_usd($STORE)),
+                       '{free_ship}'=>money_whole(free_ship_min($STORE)),
                        '{standard}'=>$sm['standard']['label'], '{express}'=>$sm['express']['label'],
                        '{standard_days}'=>$sm['standard']['days'], '{express_days}'=>$sm['express']['days']]);
 }
@@ -376,7 +380,7 @@ function send_order_mail($order){
   if(!empty($order['btc'])){
     $b = $order['btc'];
     $body .= !empty($b['sats'])
-      ? "-> Paid by Bitcoin on the site: ".btc_amount($b['sats'])." BTC to {$b['address']}\n   (1 BTC = \${$b['rate']} from {$b['rate_source']}). You'll get a receipt email when the payment\n   is seen on the blockchain, and another when it confirms. No need to send payment details.\n\n"
+      ? "-> Paid by Bitcoin on the site: ".btc_amount($b['sats'])." BTC to {$b['address']}\n   (1 BTC = ".money_in($b['rate'], $b['rate_cur'] ?? order_base($order))." from {$b['rate_source']}). You'll get a receipt email when the payment\n   is seen on the blockchain, and another when it confirms. No need to send payment details.\n\n"
       : "-> Paid by Bitcoin on the site to {$b['address']}. The BTC price feeds didn't answer, so the customer's\n   order page will show the amount once they do. You'll get a receipt email when the payment is seen.\n\n";
   } else $body .= "-> Send payment details to this customer manually.\n\n";
   $body .= "CONTACT\n";
@@ -397,7 +401,7 @@ function send_order_mail($order){
   $body .= "\n  GOODS:    {$order['goods']}\n";
   $body .= "  SHIPPING: {$order['shipping']} ({$order['ship_zone']}, {$order['ship_label']})\n";
   $body .= "  TOTAL:    {$order['total']} ({$order['currency']})\n";
-  $body .= "  Import duty and taxes are not included.\n\n";
+  $body .= !empty($order['vat']) ? "  Includes UK VAT at {$order['vat_rate']}%: {$order['vat_shown']}\n\n" : "  Import duty and taxes are not included.\n\n";
   if($order['notes']) $body .= "NOTES\n  {$order['notes']}\n\n";
   $body .= "Submitted: {$order['time']}\n";
 
@@ -409,6 +413,7 @@ function send_order_mail($order){
   $c .= "Goods: {$order['goods']}\n";
   $c .= "Shipping: {$order['shipping']} — {$order['ship_label']}\n";
   $c .= "Order total: {$order['total']} ({$order['currency']})\n";
+  if(!empty($order['vat'])) $c .= "Includes UK VAT at {$order['vat_rate']}%: {$order['vat_shown']}\n";
   $c .= "Payment method selected: {$order['payment_label']}\n\n";
   if(!empty($order['btc'])){
     $b = $order['btc'];
@@ -433,6 +438,7 @@ function send_order_mail($order){
   }
   $c .= "Questions: {$CONFIG['email']}\n";
   $c .= "{$CONFIG['legal_name']} — {$CONFIG['address']}\n";
+  if(!empty($order['vat'])) $c .= "VAT number: {$CONFIG['vat_number']}\n";
   $to_customer = shop_mail($order['email'], "Order {$order['ref']} received — {$CONFIG['brand']}", $c, $CONFIG['email']);
   return ['shop'=>$to_shop, 'customer'=>$to_customer];
 }
@@ -506,7 +512,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
     /* minimum order value counts goods plus shipping */
     if(isset($COUNTRIES[$f['country']]) && cart_lines()){
-      $ship  = shipping_usd($STORE, $f['country'], cart_weight(), $method, cart_total());
+      $ship  = shipping_cost($STORE, $f['country'], cart_weight(), $method, cart_total());
       $grand = round(cart_total() + $ship, 2);
       if($grand < $MIN_ORDER)
         $errors[] = 'The minimum order is '.money($MIN_ORDER).' including shipping. Your total is '.money($grand).', so add '.money($MIN_ORDER - $grand).' more to place this order.';
@@ -528,6 +534,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         'ship_zone'     => ship_zone($STORE, $f['country'])['name'],
         'ship_label'    => $SHIPM[$method]['label'].' ('.$SHIPM[$method]['days'].')',
         'lines'         => $lines,
+        'base'          => base_cur(),     /* the currency of the three amounts below (the names are historical) */
         'goods_usd'     => $goods,
         'shipping_usd'  => $ship,
         'total_usd'     => round($goods + $ship, 2),
@@ -540,6 +547,10 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         'ip'            => $_SERVER['REMOTE_ADDR'] ?? '',
         'free_shipping' => free_shipping($STORE, $goods),
       ];
+      if(vat_applies($f['country'])){
+        $order['vat'] = vat_part($order['total_usd']); $order['vat_rate'] = vat_rate();
+        $order['vat_shown'] = money($order['vat']); $order['vat_number'] = $CONFIG['vat_number'];
+      }
       if(btc_method($PAYMENTS[$f['payment']])){ $order['btc'] = ['address'=>btc_settings()['address'], 'quotes'=>[]]; btc_quote($order); }
       if(!order_save($order)) error_log("fudakura: could not save order {$order['ref']} to data/orders");
       $sent = send_order_mail($order);
@@ -691,7 +702,7 @@ $fixed = [
   'cart'     => ['Your order', 'Your order'],
   'checkout' => ['Checkout', 'Checkout'],
   'received' => ['Order received', ''],
-  'how'      => ['How ordering works — Japanese Pokémon cards to the USA', 'How ordering works'],
+  'how'      => ['How ordering works — Japanese Pokémon cards to the UK', 'How ordering works'],
   'shipping' => ['Shipping & Returns — Japanese Pokémon Cards from Japan', 'Shipping & Returns'],
   'pay'      => ['Pay for your order', ''],
   'payment'  => ['Payment methods', 'Payment methods'],
@@ -703,7 +714,7 @@ $page_desc = '';
 switch($page){
   case 'home':
     $page_title = ($CONFIG['home_seo_title'] ?? '') ?: 'Japanese Pokémon Cards — Booster Boxes & Singles';
-    $page_desc  = ($CONFIG['home_seo_desc'] ?? '') ?: 'Authentic Japanese Pokémon cards shipped from Japan to the USA: sealed booster boxes, ETBs, rare singles and PSA graded cards, with bulk pricing published.';
+    $page_desc  = ($CONFIG['home_seo_desc'] ?? '') ?: 'Authentic Japanese Pokémon cards shipped from Japan to the UK: sealed booster boxes, ETBs, rare singles and PSA graded cards, priced in pounds with bulk pricing.';
     $crumbs = [];
     break;
   case 'catalog':
@@ -715,7 +726,7 @@ switch($page){
       $h1 = ($cinfo['h1'] ?? '') ?: $cinfo['label'];
     } else {
       $page_title = 'Shop Japanese Pokémon Cards — All Products';
-      $page_desc  = 'Shop Japanese Pokémon cards: sealed booster boxes, Elite Trainer Boxes, rare singles, PSA graded cards and accessories, shipped from Japan to the USA.';
+      $page_desc  = 'Shop Japanese Pokémon cards in the UK: sealed booster boxes, Elite Trainer Boxes, rare singles, PSA graded cards and accessories, shipped from Japan.';
       $h1 = 'Shop Japanese Pokémon cards';
     }
     if($q !== '') $h1 = 'Results for “'.$q.'”';
@@ -730,7 +741,7 @@ switch($page){
     if(stripos($auto, 'japanese') === false && strlen($auto) < 34) $auto .= ' — Japanese Pokémon TCG';
     $page_title = ($prod['seo_title'] ?? '') ?: $auto;
     $from = unit_price($prod, $prod['moq']);
-    $page_desc  = ($prod['seo_desc'] ?? '') ?: plain(desc_parts($prod['desc'])[0], 105).' From $'.number_format($from, 2).' each; ships from Japan to the USA.';
+    $page_desc  = ($prod['seo_desc'] ?? '') ?: plain(desc_parts($prod['desc'])[0], 105).' From '.money_in($from, base_cur()).' each; ships from Japan to the UK.';
     break;
   case 'sets':
     $crumbs[] = ['Sets', '', []];
@@ -751,7 +762,7 @@ switch($page){
     $crumbs[] = [$set['name'], '', []];
     $label = $set['name'].($set['code'] !== '' ? ' ('.$set['code'].')' : '');
     $page_title = $set['seo_title'] ?: $label.' Japanese Booster Boxes & Cards';
-    $page_desc  = $set['seo_desc'] ?: (plain($set['intro']) ?: 'Japanese '.$set['name'].' booster boxes and cards, shipped from Japan to the USA.');
+    $page_desc  = $set['seo_desc'] ?: (plain($set['intro']) ?: 'Japanese '.$set['name'].' booster boxes and cards, shipped from Japan to the UK.');
     $h1 = $label.' — Japanese Pokémon cards';
     break;
   case 'collection':
@@ -783,14 +794,14 @@ switch($page){
     if($page === 'checkout') $crumbs[] = ['Order', 'cart', []];
     if($h1 !== '') $crumbs[] = [$h1, '', []]; else $crumbs = [];
     if($page === 'notfound') $crumbs = [];
-    $page_desc = ['shipping'=>(free_ship_usd($STORE) ? 'Free shipping over '.money_whole(free_ship_usd($STORE)).'. ' : '')
-                    .'Japanese Pokémon cards shipped from Japan with tracking: delivery times, rates, duty, returns and refunds.',
-                  'faq'=>'Answers to common questions about buying Japanese Pokémon cards from Japan: shipping to the USA, payment, minimum order, duty and returns.',
-                  'how'=>'How to order Japanese Pokémon cards from FUDAKURA: published bulk prices, pay by Bitcoin or invoice, and tracked shipping from Japan to the USA.',
+    $page_desc = ['shipping'=>(free_ship_min($STORE) ? 'Free shipping over '.money_whole(free_ship_min($STORE)).'. ' : '')
+                    .'Japanese Pokémon cards shipped from Japan to the UK with tracking: delivery times, rates, import VAT and duty, returns and refunds.',
+                  'faq'=>'Answers to common questions about buying Japanese Pokémon cards from Japan: shipping to the UK, payment, minimum order, import VAT and returns.',
+                  'how'=>'How to order Japanese Pokémon cards from FUDAKURA: published bulk prices in pounds, pay by bank transfer, Bitcoin or invoice, and tracked shipping from Japan to the UK.',
                   'payment'=>'How to pay for Japanese Pokémon cards at FUDAKURA: Bitcoin straight from your wallet, or the method that suits you, with an invoice by email.',
                   'contact'=>'Contact FUDAKURA about Japanese Pokémon card orders, bulk pricing, shipping from Japan or an existing order. We reply within '.(int)$CONFIG['reply_hours'].' hours.'][$page] ?? '';
 }
-if($page_desc === '') $page_desc = 'Japanese Pokémon cards shipped from Japan to the USA: sealed booster boxes, Elite Trainer Boxes, rare singles and PSA graded cards.';
+if($page_desc === '') $page_desc = 'Japanese Pokémon cards shipped from Japan to the UK: sealed booster boxes, Elite Trainer Boxes, rare singles and PSA graded cards.';
 
 /* one canonical URL per page, without filters, currency or search */
 $canon_args = ['product'=>['id'=>$prod['id'] ?? ''], 'set'=>['s'=>$set['slug'] ?? ''], 'series'=>['s'=>$series['slug'] ?? ''],
@@ -802,7 +813,7 @@ $noindex = in_array($page, ['cart','checkout','received','pay','notfound'], true
 $in_stock = array_values(array_filter($PRODUCTS, fn($p)=>!in_array($p['status'], ['preorder','soldout'], true)));
 ?>
 <!DOCTYPE html>
-<html lang="en-US">
+<html lang="en-GB">
 <head>
 <meta charset="utf-8">
 <base href="<?= h($BASE) ?>">
@@ -816,7 +827,7 @@ $in_stock = array_values(array_filter($PRODUCTS, fn($p)=>!in_array($p['status'],
   $og = ($prod ? photos($prod['id']) : []) ?: (photos('hero') ?: (is_file(FK_ROOT.'/'.SITE_SHARE) ? [SITE_SHARE] : [])); ?>
 <meta property="og:type" content="<?= $prod ? 'product' : ($guide ? 'article' : 'website') ?>">
 <meta property="og:site_name" content="<?= h($CONFIG['brand']) ?>">
-<meta property="og:locale" content="en_US">
+<meta property="og:locale" content="en_GB">
 <meta property="og:title" content="<?= h($page_title) ?>">
 <meta property="og:description" content="<?= h($page_desc) ?>">
 <?php if($canonical): ?><meta property="og:url" content="<?= h($canonical) ?>"><?php endif; ?>
@@ -832,15 +843,17 @@ $org_id = rtrim($CONFIG['domain'], '/').'/#org';
 $graph = [
   ['@type'=>'Organization','@id'=>$org_id,'name'=>$CONFIG['legal_name'],'url'=>abs_url('home'),'email'=>$CONFIG['email'],
    'logo'=>rtrim($CONFIG['domain'], '/').'/assets/logo.svg',
-   'address'=>['@type'=>'PostalAddress','streetAddress'=>$CONFIG['address'],'addressCountry'=>'JP'],
-   'description'=>'Supplier of Japanese Pokémon Trading Card Game products, shipping from Japan to the USA and worldwide.'],
-  ['@type'=>'WebSite','@id'=>rtrim($CONFIG['domain'], '/').'/#site','url'=>abs_url('home'),'name'=>$CONFIG['brand'],'inLanguage'=>'en-US',
+   'address'=>['@type'=>'PostalAddress','streetAddress'=>$CONFIG['address'],'addressCountry'=>preg_match('/\bjapan\b/i', $CONFIG['address']) ? 'JP' : 'GB'],
+   'description'=>'Supplier of Japanese Pokémon Trading Card Game products, shipping from Japan to the UK and worldwide.'],
+  ['@type'=>'WebSite','@id'=>rtrim($CONFIG['domain'], '/').'/#site','url'=>abs_url('home'),'name'=>$CONFIG['brand'],'inLanguage'=>'en-GB',
    'publisher'=>['@id'=>$org_id],
    'potentialAction'=>['@type'=>'SearchAction','target'=>abs_url('catalog', ['q'=>'QUERY']),'query-input'=>'required name=search_term_string']],
 ];
+if(trim($CONFIG['vat_number'] ?? '') !== '') $graph[0]['vatID'] = trim($CONFIG['vat_number']);
+if(trim($CONFIG['company_number'] ?? '') !== '') $graph[0]['identifier'] = ['@type'=>'PropertyValue','propertyID'=>'Companies House number','value'=>trim($CONFIG['company_number'])];
 $graph[1]['potentialAction']['target'] = str_replace('QUERY', '{search_term_string}', $graph[1]['potentialAction']['target']);
 if($prod){
-  $offer = ['@type'=>'Offer','url'=>$canonical,'priceCurrency'=>'USD',
+  $offer = ['@type'=>'Offer','url'=>$canonical,'priceCurrency'=>base_cur(),
     'price'=>number_format(unit_price($prod, $prod['moq']), 2, '.', ''),
     'eligibleQuantity'=>['@type'=>'QuantitativeValue','minValue'=>$prod['moq']],
     'availability'=>$prod['status']==='preorder' ? 'https://schema.org/PreOrder'
@@ -852,8 +865,8 @@ if($prod){
     foreach(ship_methods($STORE) as $mk=>$mm){
       [$dmin, $dmax] = ship_day_range($mm['days']);
       $offer['shippingDetails'][] = ['@type'=>'OfferShippingDetails',
-        'shippingDestination'=>['@type'=>'DefinedRegion','addressCountry'=>'US'],
-        'shippingRate'=>['@type'=>'MonetaryAmount','currency'=>'USD','value'=>number_format(shipping_usd($STORE, 'US', (float)($prod['weight'] ?? 0) * $prod['moq'], $mk, unit_price($prod, $prod['moq']) * $prod['moq']), 2, '.', '')],
+        'shippingDestination'=>['@type'=>'DefinedRegion','addressCountry'=>'GB'],
+        'shippingRate'=>['@type'=>'MonetaryAmount','currency'=>base_cur(),'value'=>number_format(shipping_cost($STORE, 'GB', (float)($prod['weight'] ?? 0) * $prod['moq'], $mk, unit_price($prod, $prod['moq']) * $prod['moq']), 2, '.', '')],
         'deliveryTime'=>['@type'=>'ShippingDeliveryTime',
           'handlingTime'=>['@type'=>'QuantitativeValue','minValue'=>0,'maxValue'=>max(1, (int)ceil($CONFIG['hold_hours'] / 24)),'unitCode'=>'DAY'],
           'transitTime'=>['@type'=>'QuantitativeValue','minValue'=>$dmin,'maxValue'=>$dmax,'unitCode'=>'DAY']]];
@@ -866,7 +879,7 @@ if($prod){
 }
 if($guide){
   $graph[] = ['@type'=>'Article','headline'=>$guide['title'],'description'=>$page_desc,'url'=>$canonical,
-    'dateModified'=>$guide['updated'] ?? gmdate('Y-m-d'),'inLanguage'=>'en-US',
+    'dateModified'=>$guide['updated'] ?? gmdate('Y-m-d'),'inLanguage'=>'en-GB',
     'author'=>['@id'=>$org_id],'publisher'=>['@id'=>$org_id],'image'=>$og ? $abs_img($og[0]) : null];
 }
 if(count($crumbs) > 1){
@@ -1391,7 +1404,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
 <body>
 
 <div class="strip"><div class="wrap">
-  <?php if(free_ship_usd($STORE)): ?><a class="fship" href="<?= url('shipping') ?>"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M3 6.5A1.5 1.5 0 0 1 4.5 5h9A1.5 1.5 0 0 1 15 6.5V8h2.6a1.5 1.5 0 0 1 1.2.6l2.4 3.2c.2.26.3.58.3.9V16a1.5 1.5 0 0 1-1.5 1.5h-.6a2.75 2.75 0 0 1-5.3 0H9.9a2.75 2.75 0 0 1-5.3 0h-.1A1.5 1.5 0 0 1 3 16V6.5Zm12 3V13h4.5l-1.9-2.5a1.5 1.5 0 0 0-1.2-.6H15ZM7.25 18.25a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm9.4 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/></svg><span>Free shipping on orders over <?= money_whole(free_ship_usd($STORE)) ?></span></a><?php endif; ?>
+  <?php if(free_ship_min($STORE)): ?><a class="fship" href="<?= url('shipping') ?>"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M3 6.5A1.5 1.5 0 0 1 4.5 5h9A1.5 1.5 0 0 1 15 6.5V8h2.6a1.5 1.5 0 0 1 1.2.6l2.4 3.2c.2.26.3.58.3.9V16a1.5 1.5 0 0 1-1.5 1.5h-.6a2.75 2.75 0 0 1-5.3 0H9.9a2.75 2.75 0 0 1-5.3 0h-.1A1.5 1.5 0 0 1 3 16V6.5Zm12 3V13h4.5l-1.9-2.5a1.5 1.5 0 0 0-1.2-.6H15ZM7.25 18.25a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm9.4 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/></svg><span>Free shipping on orders over <?= money_whole(free_ship_min($STORE)) ?></span></a><?php endif; ?>
   <span class="st"><?= h($CONFIG['strip_text']) ?></span>
   <?php if($CONFIG['strip_link_text']): ?><a class="sl" href="<?= h($CONFIG['strip_link_url'] ?: url('catalog')) ?>"><?= h($CONFIG['strip_link_text']) ?></a><?php endif; ?>
 </div></div>
@@ -1448,7 +1461,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
 
   <section class="hero"><div class="wrap hgrid">
     <div>
-      <div class="eyebrow"><span>Japan direct</span><span>Sealed &amp; authentic</span><span>Ships to the USA</span><span>Bulk pricing</span></div>
+      <div class="eyebrow"><span>Japan direct</span><span>Sealed &amp; authentic</span><span>Ships to the UK</span><span>Priced in pounds</span></div>
       <h1><?= h($CONFIG['hero_title']) ?></h1>
       <p class="lede"><?= h($CONFIG['hero_lede']) ?></p>
       <div class="hero-cta">
@@ -1551,7 +1564,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       <div><span>Minimum order value</span><span><?= money($MIN_ORDER) ?> incl. shipping</span></div>
       <div><span>Stock hold on order</span><span><?= (int)$CONFIG['hold_hours'] ?> hours</span></div>
       <div><span>Dispatch after payment</span><span>Within <?= (int)$CONFIG['hold_hours'] ?> hours</span></div>
-      <?php if(free_ship_usd($STORE)): ?><div><span>Free shipping</span><span>Orders over <?= money_whole(free_ship_usd($STORE)) ?></span></div><?php endif; ?>
+      <?php if(free_ship_min($STORE)): ?><div><span>Free shipping</span><span>Orders over <?= money_whole(free_ship_min($STORE)) ?></span></div><?php endif; ?>
       <?php $nbtc = count(array_filter($PAYMENTS, 'btc_method')); if($nbtc): ?><div><span>Pay by</span><span>Bitcoin, on the site<?= count($PAYMENTS) > $nbtc ? ' · or '.(count($PAYMENTS) - $nbtc).' other ways' : '' ?></span></div><?php endif; ?>
       <div><span>Carriers</span><span>EMS · DHL · FedEx</span></div>
       <?php $SM = ship_methods($STORE); ?><div><span>Delivery</span><span><?= h($SM['standard']['label'].' '.$SM['standard']['days'].' · '.$SM['express']['label'].' '.$SM['express']['days']) ?></span></div>
@@ -1728,9 +1741,9 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
         <div class="prose" style="font-size:14.5px">
           <?php $SM = ship_methods($STORE); $one = (float)($prod['weight'] ?? 0) * $prod['moq']; ?>
           <p>Shipped from Japan with tracking: <b><?= h($SM['standard']['label']) ?></b> <?= h($SM['standard']['days']) ?> or <b><?= h($SM['express']['label']) ?></b> <?= h($SM['express']['days']) ?>.
-            Priced by weight — <?= (int)$prod['moq'] ?> of these to the USA ship for <?= money(shipping_usd($STORE, 'US', $one, 'standard')) ?> Standard or <?= money(shipping_usd($STORE, 'US', $one, 'express')) ?> Express.
-            <?php if(free_ship_usd($STORE)): ?><b>Free <?= h($SM['standard']['label']) ?> shipping on orders over <?= money_whole(free_ship_usd($STORE)) ?>.</b><?php endif; ?>
-            Orders start at <?= money($MIN_ORDER) ?> including shipping.</p>
+            Priced by weight — <?= (int)$prod['moq'] ?> of these to the UK ship for <?= money(shipping_cost($STORE, 'GB', $one, 'standard')) ?> Standard or <?= money(shipping_cost($STORE, 'GB', $one, 'express')) ?> Express.
+            <?php if(free_ship_min($STORE)): ?><b>Free <?= h($SM['standard']['label']) ?> shipping on orders over <?= money_whole(free_ship_min($STORE)) ?>.</b><?php endif; ?>
+            Orders start at <?= money($MIN_ORDER) ?> including shipping.<?= vat_on() ? ' Prices include VAT for UK delivery.' : '' ?></p>
           <p><?php if(array_filter($PAYMENTS, 'btc_method')): ?>Pay with Bitcoin straight after you order, or choose another method and we send the details within <?= (int)$CONFIG['reply_hours'] ?> hours.<?php else: ?>We send payment details for your chosen method within <?= (int)$CONFIG['reply_hours'] ?> hours.<?php endif; ?>
             <a href="<?= url('shipping') ?>">Shipping &amp; Returns</a> · <a href="<?= url('payment') ?>">Payment methods</a> · <a href="<?= url('how') ?>">How ordering works</a> · <a href="<?= url('faq') ?>">FAQ</a> · <a href="<?= url('contact') ?>">Contact us</a></p>
         </div>
@@ -1766,7 +1779,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
     <div class="sechead"><div><h1><?= h($h1) ?></h1>
       <p>Quantity breaks are applied automatically. Change a quantity and the unit price recalculates.</p></div></div>
     <?php if(!$lines): ?>
-      <p class="empty">Nothing here yet. <a href="<?= url('catalog') ?>">Browse the catalog →</a></p>
+      <p class="empty">Nothing here yet. <a href="<?= url('catalog') ?>">Browse the catalogue →</a></p>
     <?php else: ?>
       <form method="post" action="index.php">
         <input type="hidden" name="action" value="update">
@@ -1793,7 +1806,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
             <?php if(cart_saved()>0): ?><div style="font-size:13.5px;color:var(--muted)">You save <?= money(cart_saved()) ?> against single-unit pricing</div><?php endif; ?>
             <div style="font-size:26px;font-weight:900;margin:4px 0 4px">Goods total <?= money(cart_total()) ?></div>
             <?php free_ship_meter(cart_total()); ?>
-            <div style="font-size:13.5px;color:var(--muted);margin-bottom:10px">Shipping is calculated at checkout. Minimum order <?= money($MIN_ORDER) ?> including shipping.</div>
+            <div style="font-size:13.5px;color:var(--muted);margin-bottom:10px">Shipping is calculated at checkout. Minimum order <?= money($MIN_ORDER) ?> including shipping.<?= vat_on() ? ' Prices include VAT for UK delivery.' : '' ?></div>
             <a class="btn" href="<?= url('checkout') ?>">Continue to checkout</a>
           </div>
         </div>
@@ -1809,7 +1822,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       <p>Tell us where it ships and how you want to pay. <?= array_filter($PAYMENTS, 'btc_method') ? 'Paying by Bitcoin? You pay on the next page, straight from your wallet. For other methods we' : 'We' ?> send payment details and your invoice by email or text after you place the order.</p></div></div>
 
     <?php if(!$lines): ?>
-      <p class="empty">Your order is empty. <a href="<?= url('catalog') ?>">Browse the catalog →</a></p>
+      <p class="empty">Your order is empty. <a href="<?= url('catalog') ?>">Browse the catalogue →</a></p>
     <?php else: ?>
     <?php if($errors): ?>
       <div class="errs"><b>Please fix the following:</b><ul><?php foreach($errors as $e) echo '<li>'.h($e).'</li>'; ?></ul></div>
@@ -1842,21 +1855,22 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
           <div class="fld"><label for="country">Country</label>
             <select id="country" name="country" required onchange="filterPay(this.value)">
               <option value="">Select your country…</option>
-              <?php foreach($COUNTRIES as $code=>$nm): ?>
+              <?php $f['country'] = $f['country'] ?? (isset($COUNTRIES['GB']) ? 'GB' : '');   /* most orders ship to the UK */
+              foreach($COUNTRIES as $code=>$nm): ?>
                 <option value="<?= h($code) ?>" <?= ($f['country']??'')===$code?'selected':'' ?>><?= h($nm) ?></option>
               <?php endforeach; ?>
             </select></div>
           <div class="fld"><label for="address1">Street address</label>
             <input id="address1" name="address1" required value="<?= h($f['address1']??'') ?>"></div>
-          <div class="fld"><label for="address2">Apartment, suite, unit (optional)</label>
+          <div class="fld"><label for="address2">Flat, suite or unit (optional)</label>
             <input id="address2" name="address2" value="<?= h($f['address2']??'') ?>"></div>
           <div class="two">
-            <div class="fld"><label for="city">City</label>
+            <div class="fld"><label for="city">Town or city</label>
               <input id="city" name="city" required value="<?= h($f['city']??'') ?>"></div>
-            <div class="fld"><label for="region">State / province / region</label>
+            <div class="fld"><label for="region">County / state / region (optional)</label>
               <input id="region" name="region" value="<?= h($f['region']??'') ?>"></div>
           </div>
-          <div class="fld" style="max-width:260px"><label for="postcode">Postal code</label>
+          <div class="fld" style="max-width:260px"><label for="postcode">Postcode</label>
             <input id="postcode" name="postcode" value="<?= h($f['postcode']??'') ?>"></div>
         </fieldset>
 
@@ -1867,7 +1881,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
               <label>
                 <input type="radio" name="ship_method" value="<?= h($mk) ?>" <?= ($f['ship_method'] ?? 'standard')===$mk?'checked':'' ?>>
                 <span style="flex:1"><span class="t"><?= h($mm['label']) ?></span><br><span class="n"><?= h($mm['days']) ?>, tracked</span></span>
-                <span class="t" data-ship-price="<?= h($mk) ?>"><?php if(!empty($f['country']) && isset($COUNTRIES[$f['country']])){ $sv = shipping_usd($STORE, $f['country'], cart_weight(), $mk, cart_total()); echo $sv > 0 ? money($sv) : 'Free'; } ?></span>
+                <span class="t" data-ship-price="<?= h($mk) ?>"><?php if(!empty($f['country']) && isset($COUNTRIES[$f['country']])){ $sv = shipping_cost($STORE, $f['country'], cart_weight(), $mk, cart_total()); echo $sv > 0 ? money($sv) : 'Free'; } ?></span>
               </label>
             <?php endforeach; ?>
           </div>
@@ -1898,7 +1912,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
             We never ask for card details, passwords or wallet keys.
           </div>
           <div class="fld"><label for="notes">Order notes (optional)</label>
-            <textarea id="notes" name="notes" placeholder="Delivery instructions, preferred carrier, VAT/EORI number, anything else we should know."><?= h($f['notes']??'') ?></textarea></div>
+            <textarea id="notes" name="notes" placeholder="Delivery instructions, preferred carrier, your VAT or EORI number for business orders, anything else we should know."><?= h($f['notes']??'') ?></textarea></div>
           <label class="agree">
             <input type="checkbox" name="agree" value="1" <?= !empty($_POST['agree'])?'checked':'' ?>>
             <span>I agree to the <a href="<?= h(url('page', ['pg'=>'terms'])) ?>" target="_blank">terms of sale</a> and the
@@ -1907,7 +1921,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
           <div class="minwarn" id="minWarn" hidden></div>
           <button class="btn wide" id="placeBtn" type="submit" style="margin-top:14px" data-btc-label="Place order and pay with Bitcoin">Place order</button>
           <p style="font-size:12.5px;color:var(--muted);margin-top:10px">
-            Shipping is calculated from your destination and shown in the order summary. Import duty and taxes are not included.</p>
+            Shipping is calculated from your destination and shown in the order summary. <?= vat_on() ? 'UK orders include VAT; import duty and taxes in other countries are not included.' : 'Orders ship from Japan: import VAT, duty and carrier fees are not included.' ?></p>
         </fieldset>
       </div>
 
@@ -1925,13 +1939,14 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
           <div class="sl"><span style="color:var(--muted)">Goods</span><span><?= money(cart_total()) ?></span></div>
           <div class="sl"><span style="color:var(--muted)" id="shipLabel">Shipping</span><span id="shipCost" style="color:var(--muted)">Select your country</span></div>
           <div class="tot"><span>Order total</span><span id="grandTotal"><?= money(cart_total()) ?></span></div>
+          <?php if(vat_on()): ?><div class="sl" id="vatLine" hidden><span style="color:var(--muted)">Includes VAT at <?= h(rtrim(rtrim(number_format(vat_rate(), 2), '0'), '.')) ?>%</span><span id="vatAmt"></span></div><?php endif; ?>
           <p style="font-size:12.5px;color:var(--muted);margin-top:8px">Minimum order <?= money($MIN_ORDER) ?> including shipping.</p>
           <?php
           /* per-country shipping for this cart, so the summary updates as the country changes */
           $cm = $CURRENCIES[cur_code()]; $kg = cart_weight(); $ship_by = [];
-          foreach($COUNTRIES as $code=>$nm) foreach(SHIP_METHODS as $mk) $ship_by[$code][$mk] = shipping_usd($STORE, $code, $kg, $mk, cart_total());
+          foreach($COUNTRIES as $code=>$nm) foreach(SHIP_METHODS as $mk) $ship_by[$code][$mk] = shipping_cost($STORE, $code, $kg, $mk, cart_total());
           $labels = array_map(fn($m)=>$m['label'], ship_methods($STORE));
-          $co_data = ['ship'=>$ship_by, 'labels'=>$labels, 'goods'=>cart_total(), 'min'=>$MIN_ORDER,
+          $co_data = ['ship'=>$ship_by, 'labels'=>$labels, 'goods'=>cart_total(), 'min'=>$MIN_ORDER, 'vat'=>vat_on() ? vat_rate() : 0,
                       'btc'=>array_keys(array_filter($PAYMENTS, 'btc_method')),
                       'rate'=>$cm['rate'], 'sym'=>$cm['sym'], 'dec'=>$cm['dec']]; ?>
           <script>window.CO = <?= json_encode($co_data, JSON_HEX_TAG|JSON_HEX_AMP) ?>;</script>
@@ -1947,7 +1962,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
   <section><div class="wrap done">
     <?php if(!$o): ?>
       <h1>No recent order</h1>
-      <p class="lede" style="margin:14px auto 22px">Nothing to show here. <a href="<?= url('catalog') ?>">Browse the catalog →</a></p>
+      <p class="lede" style="margin:14px auto 22px">Nothing to show here. <a href="<?= url('catalog') ?>">Browse the catalogue →</a></p>
     <?php else: ?>
       <div style="font-size:13px;color:var(--muted);letter-spacing:.08em">ORDER RECEIVED</div>
       <div class="ref"><?= h($o['ref']) ?></div>
@@ -1966,6 +1981,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
         <div class="sl" style="border:none;padding:0"><span>Goods</span><span><?= h($o['goods']) ?></span></div>
         <div class="sl" style="border:none;padding:4px 0 0"><span>Shipping<?= !empty($o['ship_label']) ? ' · '.h($o['ship_label']) : '' ?></span><span><?= h($o['shipping']) ?></span></div>
         <div class="sl" style="border:none;padding:4px 0 0"><span>Order total</span><b><?= h($o['total']) ?> <?= h($o['currency']) ?></b></div>
+        <?php if(!empty($o['vat'])): ?><div class="sl" style="border:none;padding:4px 0 0"><span>Includes VAT at <?= h($o['vat_rate']) ?>%</span><span><?= h($o['vat_shown']) ?></span></div><?php endif; ?>
         <div class="sl" style="border:none;padding:4px 0 0"><span>Shipping to</span><span><?= h($o['city']) ?>, <?= h($o['country_name']) ?></span></div>
         <p style="font-size:13.5px;color:var(--muted);margin-top:16px">
           Nothing heard within <?= (int)$CONFIG['reply_hours'] ?> hours? Check your spam folder, then email
@@ -2003,10 +2019,10 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
               <div class="l">Send exactly</div>
               <div class="v amt"><span><?= btc_amount($b['sats']) ?></span> <small>BTC</small>
                 <button type="button" class="copy" data-copy="<?= btc_amount($b['sats']) ?>">Copy</button></div>
-              <div class="n">Order total $<?= number_format($o['total_usd'], 2) ?> USD · 1 BTC = $<?= number_format($b['rate'], 2) ?> (<?= h($b['rate_source']) ?>)</div>
+              <div class="n">Order total <?= h(money_in($o['total_usd'], order_base($o))) ?> <?= h(order_base($o)) ?> · 1 BTC = <?= h(money_in($b['rate'], $b['rate_cur'] ?? order_base($o))) ?> (<?= h($b['rate_source']) ?>)</div>
             <?php else: ?>
               <div class="l">Amount</div>
-              <div class="v amt">$<?= number_format($o['total_usd'], 2) ?> <small>USD in BTC</small></div>
+              <div class="v amt"><?= h(money_in($o['total_usd'], order_base($o))) ?> <small><?= h(order_base($o)) ?> in BTC</small></div>
               <div class="n">We couldn’t get the Bitcoin price just now. This page tries again every minute, so please wait for the exact BTC amount before paying.</div>
             <?php endif; ?>
             <div class="l" style="margin-top:18px">To this Bitcoin address</div>
@@ -2052,7 +2068,8 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
         <div class="sl"><span style="color:var(--muted)">Goods</span><span><?= h($o['goods']) ?></span></div>
         <div class="sl"><span style="color:var(--muted)">Shipping · <?= h($o['ship_label']) ?></span><span><?= !empty($o['free_shipping']) && (float)$o['shipping_usd'] == 0 ? 'Free' : h($o['shipping']) ?></span></div>
         <div class="tot"><span>Order total</span><span><?= h($o['total']) ?></span></div>
-        <p class="n">Ships to <?= h($o['city']) ?>, <?= h($o['country_name']) ?>.<?= $o['currency'] !== 'USD' ? ' The BTC amount is worked out from the US-dollar total, $'.number_format($o['total_usd'], 2).'.' : '' ?></p>
+        <?php if(!empty($o['vat'])): ?><div class="sl"><span style="color:var(--muted)">Includes VAT at <?= h($o['vat_rate']) ?>%</span><span><?= h($o['vat_shown']) ?></span></div><?php endif; ?>
+        <p class="n">Ships to <?= h($o['city']) ?>, <?= h($o['country_name']) ?>.<?= $o['currency'] !== order_base($o) ? ' The BTC amount is worked out from the '.h(order_base($o)).' total, '.h(money_in($o['total_usd'], order_base($o))).'.' : '' ?></p>
         <p class="n">Questions? <a href="mailto:<?= h($CONFIG['email']) ?>?subject=<?= rawurlencode('Order '.$o['ref']) ?>"><?= h($CONFIG['email']) ?></a></p>
       </aside>
     </div>
@@ -2102,11 +2119,11 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       we send the payment details, holding your stock for <?= (int)$CONFIG['hold_hours'] ?> hours in the meantime. Always check
       payment details against the email we send from <?= h($CONFIG['email']) ?> and quote your order reference.
     </div>
-    <p style="font-size:14px;color:var(--ink2);margin-top:18px">Invoices are issued in the currency you had selected at checkout. Shipping is calculated at checkout. Prices exclude import duty, VAT or GST and customs clearance fees.</p>
+    <p style="font-size:14px;color:var(--ink2);margin-top:18px">Prices are set in <?= h(base_cur() === 'GBP' ? 'pounds sterling' : base_cur()) ?>, and invoices are issued in the currency you had selected at checkout. Shipping is calculated at checkout. <?= vat_on() ? 'Prices include UK VAT on UK orders, and exclude import duty, taxes and customs clearance fees in other countries.' : 'Orders ship from Japan, and prices exclude import VAT, duty and customs clearance fees.' ?></p>
   </div></section>
 
 <?php elseif($page==='shipping'):
-  $SM = ship_methods($STORE); $fs = free_ship_usd($STORE);
+  $SM = ship_methods($STORE); $fs = free_ship_min($STORE);
   $policy = str_replace("\r", '', (string)($CONFIG['shipping_policy'] ?? ''));
   $parts = preg_split('/^[ \t]*\{rates\}[ \t]*$/m', $policy, 2);
   preg_match_all('/^##\s+(.+)$/m', fill($policy), $heads); ?>
@@ -2173,6 +2190,8 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
         <tr><td class="nm">Email</td><td><a href="mailto:<?= h($CONFIG['email']) ?>"><?= h($CONFIG['email']) ?></a></td></tr>
         <?php if($CONFIG['phone']): ?><tr><td class="nm">Phone</td><td><?= h($CONFIG['phone']) ?></td></tr><?php endif; ?>
         <tr><td class="nm">Business</td><td><?= h($CONFIG['legal_name']) ?>, <?= h($CONFIG['address']) ?></td></tr>
+        <?php if(trim($CONFIG['company_number'] ?? '') !== ''): ?><tr><td class="nm">Company number</td><td><?= h($CONFIG['company_number']) ?></td></tr><?php endif; ?>
+        <?php if(vat_on()): ?><tr><td class="nm">VAT number</td><td><?= h($CONFIG['vat_number']) ?></td></tr><?php endif; ?>
         <tr><td class="nm">Existing order</td><td>Quote your order reference (format FK-26-XXXXX) in the subject line.</td></tr>
       </tbody>
     </table>
@@ -2307,9 +2326,9 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
     </ul></div>
   </div>
   <div class="legal">
-    <div>Shipped from Japan — import duties and taxes are the buyer's responsibility.</div>
+    <div><?= vat_on() ? 'Shipped from Japan. Prices include UK VAT on UK orders; import duty and taxes in other countries are the buyer’s responsibility.' : 'Shipped from Japan — import VAT, duty and carrier fees are the buyer’s responsibility.' ?></div>
     <div><?= h($CONFIG['legal_name']) ?> is an independent reseller of genuine product. We are not affiliated with, endorsed by or licensed by The Pokémon Company, Nintendo, Creatures Inc. or GAME FREAK Inc. All product names and trademarks are the property of their respective owners.</div>
-    <div>© <?= date('Y') ?> <?= h($CONFIG['legal_name']) ?>.</div>
+    <div>© <?= date('Y') ?> <?= h($CONFIG['legal_name']) ?><?= trim($CONFIG['company_number'] ?? '') !== '' ? ' · Registered in '.h(($CONFIG['company_registered'] ?? '') ?: 'England and Wales').', company number '.h($CONFIG['company_number']) : '' ?><?= vat_on() ? ' · VAT number '.h($CONFIG['vat_number']) : '' ?>.</div>
   </div>
 </div></footer>
 
@@ -2329,9 +2348,15 @@ function bump(btn, delta, min){
   input.value = Math.max(min, (parseInt(input.value,10) || min) + delta);
 }
 function fmt(usd){
-  return CO.sym + (usd * CO.rate).toLocaleString('en-US', {minimumFractionDigits: CO.dec, maximumFractionDigits: CO.dec});
+  return CO.sym + (usd * CO.rate).toLocaleString('en-GB', {minimumFractionDigits: CO.dec, maximumFractionDigits: CO.dec});
 }
 function fmtShip(usd){ return usd > 0 ? fmt(usd) : 'Free'; }
+/* the VAT inside a UK order's total (prices include VAT once a VAT number is set) */
+function showVat(country, total){
+  const line = document.getElementById('vatLine'); if(!line) return;
+  line.hidden = country !== 'GB';
+  if(!line.hidden) document.getElementById('vatAmt').textContent = fmt(Math.round((total - total / (1 + CO.vat / 100)) * 100) / 100);
+}
 /* shipping, total and the minimum-order check follow the selected country; the server re-checks all of it */
 function updateTotals(country){
   if(!window.CO) return;
@@ -2340,11 +2365,12 @@ function updateTotals(country){
   const picked = (document.querySelector('input[name=ship_method]:checked') || {}).value || 'standard';
   document.querySelectorAll('[data-ship-price]').forEach(el => { el.textContent = rates ? fmtShip(rates[el.dataset.shipPrice]) : ''; });
   document.getElementById('shipLabel').textContent = 'Shipping · ' + (CO.labels[picked] || '');
-  if(rates === undefined){ cost.textContent = 'Select your country'; document.getElementById('grandTotal').textContent = fmt(CO.goods); warn.hidden = true; btn.disabled = false; return; }
+  if(rates === undefined){ cost.textContent = 'Select your country'; document.getElementById('grandTotal').textContent = fmt(CO.goods); showVat('', 0); warn.hidden = true; btn.disabled = false; return; }
   const ship = rates[picked];
   const total = Math.round((CO.goods + ship) * 100) / 100;
   cost.textContent = fmtShip(ship); cost.style.color = '';
   document.getElementById('grandTotal').textContent = fmt(total);
+  showVat(country, total);
   const short = total < CO.min;
   warn.hidden = !short; btn.disabled = short;
   if(short) warn.textContent = 'The minimum order is ' + fmt(CO.min) + ' including shipping. Your total is ' + fmt(total) + ', so add ' + fmt(CO.min - total) + ' more to place this order.';
@@ -2482,7 +2508,7 @@ function include_card($p){
 /* Shipping & Returns: delivery options, rates by destination and worked examples (the {rates} line in the page text) */
 function ship_rates_block(){
   global $STORE, $CONFIG;
-  $SM = ship_methods($STORE); $fs = free_ship_usd($STORE);
+  $SM = ship_methods($STORE); $fs = free_ship_min($STORE);
   $cell = fn($r)=>money($r['base']).($r['per_kg'] > 0 ? ' <small>+ '.money($r['per_kg']).'/kg</small>' : ''); ?>
   <div class="tblwrap"><table class="tbl">
     <thead><tr><th>Option</th><th>Delivery time</th><th>Tracking</th></tr></thead>
@@ -2490,7 +2516,7 @@ function ship_rates_block(){
       <?php foreach($SM as $mm): ?><tr><td class="nm"><?= h($mm['label']) ?></td><td><?= h($mm['days']) ?> after dispatch</td><td>Door to door</td></tr><?php endforeach; ?>
     </tbody>
   </table></div>
-  <p>We ship with Japan Post EMS, DHL Express and FedEx, choosing the best carrier for your parcel's weight, destination and delivery option. Shipping is priced by the weight of your order and where it's going: a price per order plus a price per kilogram, rounded up to the next whole dollar.<?php if($fs): ?> Orders over <?= money_whole($fs) ?> ship free with <?= h($SM['standard']['label']) ?>.<?php endif; ?></p>
+  <p>We ship with Japan Post EMS, DHL Express and FedEx, choosing the best carrier for your parcel's weight, destination and delivery option. Shipping is priced by the weight of your order and where it's going: a price per order plus a price per kilogram, rounded up to the next whole <?= base_cur() === 'GBP' ? 'pound' : 'unit' ?>.<?php if($fs): ?> Orders over <?= money_whole($fs) ?> ship free with <?= h($SM['standard']['label']) ?>.<?php endif; ?></p>
   <div class="tblwrap"><table class="tbl">
     <thead><tr><th>Destination</th><?php foreach($SM as $mm): ?><th class="r"><?= h($mm['label']) ?></th><?php endforeach; ?></tr></thead>
     <tbody>
@@ -2499,13 +2525,13 @@ function ship_rates_block(){
       <?php endforeach; ?>
     </tbody>
   </table></div>
-  <?php $ex = [['A single card', 0.05, 30], ['6 booster boxes (about 2.4 kg)', 2.4, 900], ['6 Elite Trainer Boxes (about 5.4 kg)', 5.4, 250]];
+  <?php $ex = [['A single card', 0.05, 25], ['6 booster boxes (about 2.4 kg)', 2.4, 700], ['6 Elite Trainer Boxes (about 5.4 kg)', 5.4, 200]];
   if($fs) $ex[] = ['36 booster boxes (about 14.4 kg), over '.money_whole($fs), 14.4, $fs]; ?>
   <div class="tblwrap"><table class="tbl ex">
-    <thead><tr><th>Examples to the USA</th><?php foreach($SM as $mm): ?><th class="r"><?= h($mm['label']) ?></th><?php endforeach; ?></tr></thead>
+    <thead><tr><th>Examples to the UK</th><?php foreach($SM as $mm): ?><th class="r"><?= h($mm['label']) ?></th><?php endforeach; ?></tr></thead>
     <tbody>
       <?php foreach($ex as [$label, $kg, $goods]): ?>
-        <tr><td><?= h($label) ?></td><?php foreach(array_keys($SM) as $mk): $v = shipping_usd($STORE, 'US', $kg, $mk, $goods); ?><td class="r"><?= $v > 0 ? money($v) : '<b class="free">Free</b>' ?></td><?php endforeach; ?></tr>
+        <tr><td><?= h($label) ?></td><?php foreach(array_keys($SM) as $mk): $v = shipping_cost($STORE, 'GB', $kg, $mk, $goods); ?><td class="r"><?= $v > 0 ? money($v) : '<b class="free">Free</b>' ?></td><?php endforeach; ?></tr>
       <?php endforeach; ?>
     </tbody>
   </table></div>
@@ -2538,7 +2564,7 @@ function price_list_block(){
         <td class="r"><?= money($top[1]) ?><div class="sk">each at <?= (int)max($p['moq'], $top[0]) ?>+</div></td></tr>
     <?php endforeach; endforeach; ?>
     </tbody></table></div>
-  <p class="small">Live prices from our catalogue in <?= h(cur_code()) ?> (change the currency at the top of the page). Shipping is extra, and free on orders over <?= money_whole(free_ship_usd($GLOBALS['STORE'])) ?>.</p>
+  <p class="small">Live prices from our catalogue in <?= h(cur_code()) ?> (change the currency at the top of the page). Shipping is extra, and free on orders over <?= money_whole(free_ship_min($GLOBALS['STORE'])) ?>.</p>
 <?php }
 
 /* card database: every Japanese set we carry, by series */
@@ -2562,7 +2588,8 @@ function card_template_block(){ ?>
       <b>Free printable card template</b>
       <p>63 × 88 mm (2.5 × 3.5 in), the size of a Pokémon card, with 3 mm bleed, the trim line, rounded corners and a safe area for text. Vector files: print at 100% (“actual size”), not “fit to page”.</p>
       <p><a class="btn" href="assets/site/trading-card-template-63x88mm.svg" download>Download one card (SVG)</a>
-         <a class="btn g" href="assets/site/trading-card-template-sheet-letter.svg" download>Download a sheet of 9 (US Letter)</a></p>
+         <a class="btn g" href="assets/site/trading-card-template-sheet-a4.svg" download>Download a sheet of 9 (A4)</a></p>
+      <p class="small">Printing on US Letter? <a href="assets/site/trading-card-template-sheet-letter.svg" download>Letter-size sheet</a>.</p>
     </div>
   </div>
 <?php }
@@ -2583,7 +2610,7 @@ function policy_questions($text){
 /* "Add $X more for free shipping" / "Your order ships free" */
 function free_ship_meter($goods, $compact=false){
   global $STORE;
-  $t = free_ship_usd($STORE); if(!$t) return;
+  $t = free_ship_min($STORE); if(!$t) return;
   $sm = ship_methods($STORE); $pct = min(100, round($goods / $t * 100)); ?>
   <div class="fsm<?= $compact ? ' c' : '' ?>">
     <?php if($goods >= $t): ?>

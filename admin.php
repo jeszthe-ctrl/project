@@ -36,7 +36,8 @@ function codes($s){
   foreach(preg_split('/[\s,]+/', strtoupper(str($s))) as $c){ if(preg_match('/^[A-Z]{2}$/', $c)) $out[] = $c; }
   return array_values(array_unique($out));
 }
-function usd($v){ return '$'.number_format((float)$v, 2); }
+/* an amount in the shop currency (or, for an order, in the currency it was placed in) */
+function usd($v, $code=null){ return money_in($v, $code ?? base_cur()); }
 
 function is_admin(){ global $AUTH; return !empty($AUTH['key']) && hash_equals($AUTH['key'], (string)($_SESSION['admin'] ?? '')); }
 function csrf(){ if(empty($_SESSION['admin_csrf'])) $_SESSION['admin_csrf'] = bin2hex(random_bytes(16)); return $_SESSION['admin_csrf']; }
@@ -450,7 +451,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     $STORE['shipping'] = ['methods'=>$methods, 'round_up'=>!empty($_POST['round_up']), 'zones'=>$zones, 'rest'=>$rest];
     $STORE['settings']['shipping_reviewed'] = true;
     $free = num(in_str('free_ship_usd'), 0);
-    if($free !== null) $STORE['settings']['free_ship_usd'] = round($free, 2); else note('Free shipping: enter an amount in USD, or 0 to turn it off. The old amount was kept.', 'err');
+    if($free !== null) $STORE['settings']['free_ship_usd'] = round($free, 2); else note('Free shipping: enter an amount in '.base_cur().', or 0 to turn it off. The old amount was kept.', 'err');
     $policy = in_str('shipping_policy');
     if($policy !== '') $STORE['settings']['shipping_policy'] = str_replace("\r", '', $policy);
     else note('The Shipping & Returns page text was empty, so the old text was kept.', 'err');
@@ -490,8 +491,14 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     foreach(['email','order_email'] as $k){
       if(in_str($k) !== '' && !filter_var(in_str($k), FILTER_VALIDATE_EMAIL)){ note("“".in_str($k)."” isn’t a valid email address, so the old one was kept.", 'err'); $_POST[$k] = $s[$k]; }
     }
-    foreach(['brand','kanji','tagline','legal_name','address','email','phone','order_email','domain',
+    foreach(['brand','kanji','tagline','legal_name','address','email','phone','order_email','domain','company_number','company_registered',
              'strip_text','strip_link_text','strip_link_url','hero_title','hero_lede','footer_blurb'] as $k) $s[$k] = in_str($k);
+    /* UK VAT numbers: GB and 9 digits (or 12 for a group branch); spaces are dropped */
+    $vat = strtoupper(preg_replace('/\s+/', '', in_str('vat_number')));
+    if($vat !== '' && !preg_match('/^GB(\d{9}|\d{12})$/', $vat) && preg_match('/^\d{9}$/', $vat)) $vat = 'GB'.$vat;
+    if($vat === '' || preg_match('/^(GB(\d{9}|\d{12})|XI\d{9})$/', $vat)) $s['vat_number'] = $vat;
+    else note("“".in_str('vat_number')."” doesn’t look like a UK VAT number (GB followed by 9 digits), so the old one was kept.", 'err');
+    $vr = num(in_str('vat_rate'), 0); if($vr !== null) $s['vat_rate'] = min(50, round($vr, 2));
     $s['domain'] = rtrim($s['domain'], '/');
     foreach(['reply_hours','hold_hours'] as $k){ $n = num(in_str($k), 1); if($n !== null) $s[$k] = (int)$n; }
     $min = num(in_str('min_order_usd'), 0); if($min !== null) $s['min_order_usd'] = round($min, 2);
@@ -513,17 +520,27 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     if(trim($s['chat_code']) !== '' && stripos($s['chat_code'], '<script') === false) note('The live chat code has no <script> tag, so it probably won’t work. Paste the whole snippet from your chat provider.', 'err');
     unset($s);
 
-    $curs = [];
+    $base = base_cur(); $curs = [];
     foreach(in_arr('curs') as $row){
       if(!is_array($row) || !empty($row['delete'])) continue;
       $code = strtoupper(str($row['code'] ?? ''));
       if(!preg_match('/^[A-Z]{3}$/', $code)) continue;
       $rate = num($row['rate'] ?? '', 0.000001);
       if($rate === null){ note("$code was skipped: enter a rate above 0.", 'err'); continue; }
-      $curs[$code] = ['rate'=>$code === 'USD' ? 1 : $rate, 'sym'=>str($row['sym'] ?? '') ?: $code.' ', 'dec'=>max(0, min(3, (int)($row['dec'] ?? 2)))];
+      $curs[$code] = ['rate'=>$code === $base ? 1 : $rate, 'sym'=>str($row['sym'] ?? '') ?: $code.' ', 'dec'=>max(0, min(3, (int)($row['dec'] ?? 2)))];
     }
-    if(!isset($curs['USD'])) $curs = ['USD'=>['rate'=>1,'sym'=>'$','dec'=>2]] + $curs;
+    if(!isset($curs[$base])) $curs = [$base=>$STORE['currencies'][$base] ?? ['rate'=>1,'sym'=>$base.' ','dec'=>2]] + $curs;
     $STORE['currencies'] = $curs;
+
+    /* switching the shop currency converts every price at the rate in the table */
+    $to = strtoupper(in_str('base_currency'));
+    if($to !== '' && $to !== $base){
+      $rebased = isset($curs[$to]) ? store_rebase($STORE, $to) : null;
+      if($rebased){
+        $STORE = $rebased;
+        note("The shop now prices in $to. Every product price, shipping rate, the minimum order and the free-shipping amount were converted at 1 $base = {$curs[$to]['rate']} $to. Check your prices, and round any you want to look tidier.");
+      } else note("$to isn’t in the currency table, so the shop currency wasn’t changed.", 'err');
+    }
 
     $countries = [];
     foreach(preg_split('/\R/', (string)($_POST['countries'] ?? '')) as $line){
@@ -860,14 +877,16 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   </div>
   <?php endif; ?>
   <div class="card"><h2>Items</h2><div class="scroll"><table class="t">
-    <thead><tr><th>Product</th><th>SKU</th><th class="r">Qty</th><th class="r">Unit (USD)</th><th class="r">Total (USD)</th><th class="r">Customer saw</th></tr></thead><tbody>
+    <?php $ob = order_base($o); ?>
+    <thead><tr><th>Product</th><th>SKU</th><th class="r">Qty</th><th class="r">Unit (<?= h($ob) ?>)</th><th class="r">Total (<?= h($ob) ?>)</th><th class="r">Customer saw</th></tr></thead><tbody>
     <?php foreach($o['lines'] as $l): ?>
       <tr><td><?= h($l['name']) ?></td><td class="muted"><?= h($l['sku']) ?></td><td class="r"><?= (int)$l['qty'] ?></td>
-          <td class="r"><?= usd($l['unit_usd']) ?></td><td class="r"><?= usd($l['total_usd']) ?></td><td class="r muted"><?= h($l['total']) ?></td></tr>
+          <td class="r"><?= usd($l['unit_usd'], $ob) ?></td><td class="r"><?= usd($l['total_usd'], $ob) ?></td><td class="r muted"><?= h($l['total']) ?></td></tr>
     <?php endforeach; ?>
-      <tr><td colspan="4" class="r">Goods</td><td class="r"><?= usd($o['goods_usd']) ?></td><td class="r muted"><?= h($o['goods']) ?></td></tr>
-      <tr><td colspan="4" class="r">Shipping (<?= h($o['ship_zone']) ?><?= !empty($o['ship_label']) ? ' · '.h($o['ship_label']) : '' ?>)</td><td class="r"><?= usd($o['shipping_usd']) ?></td><td class="r muted"><?= h($o['shipping']) ?></td></tr>
-      <tr><td colspan="4" class="r"><b>Order total</b></td><td class="r"><b><?= usd($o['total_usd']) ?></b></td><td class="r"><b><?= h($o['total']) ?></b></td></tr>
+      <tr><td colspan="4" class="r">Goods</td><td class="r"><?= usd($o['goods_usd'], $ob) ?></td><td class="r muted"><?= h($o['goods']) ?></td></tr>
+      <tr><td colspan="4" class="r">Shipping (<?= h($o['ship_zone']) ?><?= !empty($o['ship_label']) ? ' · '.h($o['ship_label']) : '' ?>)</td><td class="r"><?= usd($o['shipping_usd'], $ob) ?></td><td class="r muted"><?= h($o['shipping']) ?></td></tr>
+      <tr><td colspan="4" class="r"><b>Order total</b></td><td class="r"><b><?= usd($o['total_usd'], $ob) ?></b></td><td class="r"><b><?= h($o['total']) ?></b></td></tr>
+      <?php if(!empty($o['vat'])): ?><tr><td colspan="4" class="r muted">Includes VAT at <?= h($o['vat_rate']) ?>% (VAT number <?= h($o['vat_number'] ?? '') ?>)</td><td class="r"><?= usd($o['vat'], $ob) ?></td><td class="r muted"><?= h($o['vat_shown']) ?></td></tr><?php endif; ?>
     </tbody></table></div></div>
   <form method="post" onsubmit="return confirm('Delete order <?= h($o['ref']) ?> permanently?')"><?= csrf_field() ?>
     <input type="hidden" name="do" value="order_delete"><input type="hidden" name="ref" value="<?= h($o['ref']) ?>">
@@ -947,7 +966,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
         <div class="fld"><label class="f" for="weight">Weight per unit (kg)</label><input type="number" id="weight" name="weight" min="0" step="0.01" value="<?= h($p['weight']) ?>">
           <div class="hint">Used for shipping. Box ≈ 0.4, ETB ≈ 0.9, single ≈ 0.05.</div></div>
       </div>
-      <label class="f">Quantity-break prices (USD per unit)</label>
+      <label class="f">Quantity-break prices (<?= h(base_cur()) ?> per unit)</label>
       <p class="hint small muted" style="margin:0 0 6px">From this many units, each unit costs this much. The first row is the single-unit price shown crossed out. Leave spare rows empty.</p>
       <table class="ladder"><tr><th class="small muted" style="text-align:left">From qty</th><th class="small muted" style="text-align:left">Unit price $</th></tr>
         <?php for($i=0; $i<max(6, count($p['ladder'])+2); $i++): $t = $p['ladder'][$i] ?? ['','']; ?>
@@ -1162,11 +1181,11 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 
 <?php elseif($v === 'shipping'):
   $sh = $STORE['shipping']; $SM = ship_methods($STORE);
-  $ex = fn($c, $kg, $m)=>usd(shipping_usd($STORE, $c, $kg, $m)); ?>
+  $ex = fn($c, $kg, $m)=>usd(shipping_cost($STORE, $c, $kg, $m)); ?>
   <h1>Shipping rates</h1>
-  <p class="sub">Customers choose <b><?= h($SM['standard']['label']) ?></b> or <b><?= h($SM['express']['label']) ?></b> at checkout. Each costs the zone’s <b>per-order</b> price + its <b>per-kg</b> price × the order’s weight (each product’s weight × quantity), in USD.
+  <p class="sub">Customers choose <b><?= h($SM['standard']['label']) ?></b> or <b><?= h($SM['express']['label']) ?></b> at checkout. Each costs the zone’s <b>per-order</b> price + its <b>per-kg</b> price × the order’s weight (each product’s weight × quantity), in <?= h(base_cur()) ?>.
     The <?= usd($S['min_order_usd']) ?> minimum order counts goods plus the shipping chosen.</p>
-  <?php if(empty($S['shipping_reviewed'])): ?><div class="msg warn">These are starting rates: a single card to the US comes to $12 Standard (TCGplayer’s $11.99 international rate, rounded up), then more per kg. Check them against what your carrier actually charges from Japan, then save.</div><?php endif; ?>
+  <?php if(empty($S['shipping_reviewed'])): ?><div class="msg warn">These are starting rates: a single card to the UK comes to £9 Standard and £18 Express, then more per kg. Check them against what your carrier actually charges from Japan, then save.</div><?php endif; ?>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="shipping_save">
     <div class="card"><h2>Delivery options</h2>
       <div class="grid2">
@@ -1177,10 +1196,10 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
         </div>
         <?php endforeach; ?>
       </div>
-      <label class="row small"><input type="checkbox" name="round_up" value="1" <?= !empty($sh['round_up'])?'checked':'' ?>> Round shipping totals up to the next whole dollar</label>
+      <label class="row small"><input type="checkbox" name="round_up" value="1" <?= !empty($sh['round_up'])?'checked':'' ?>> Round shipping totals up to the next whole <?= base_cur() === 'GBP' ? 'pound' : (base_cur() === 'USD' ? 'dollar' : 'unit') ?></label>
     </div>
     <div class="card"><h2>Free shipping</h2>
-      <div class="fld" style="max-width:320px"><label class="f" for="free_ship_usd">Free <?= h($SM['standard']['label']) ?> shipping on orders over (USD)</label>
+      <div class="fld" style="max-width:320px"><label class="f" for="free_ship_usd">Free <?= h($SM['standard']['label']) ?> shipping on orders over (<?= h(base_cur()) ?>)</label>
         <input type="number" id="free_ship_usd" name="free_ship_usd" min="0" step="1" value="<?= h($S['free_ship_usd'] ?? 0) ?>">
         <div class="hint">Counts the goods total, before shipping. <?= h($SM['express']['label']) ?> then costs only the difference. 0 turns it off. It shows in the bar at the top of every page.</div></div>
     </div>
@@ -1203,12 +1222,12 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
             <td><input type="number" name="rest[<?= $m ?>][per_kg]" value="<?= h($rr[$m]['per_kg']) ?>" min="0" step="0.01" aria-label="Rest of world <?= h($mm['label']) ?> per kg"></td>
             <?php endforeach; ?><td></td></tr>
       </tbody></table>
-      <p class="small muted">Country codes are the two-letter codes from your country list in <a href="<?= h(self_url('settings')) ?>">Settings</a> (US, GB, DE…), separated by commas.</p>
+      <p class="small muted">Country codes are the two-letter codes from your country list in <a href="<?= h(self_url('settings')) ?>">Settings</a> (GB, IE, DE…), separated by commas.</p>
     </div>
-    <div class="card"><h2>What customers pay to the US (current rates, before free shipping)</h2>
+    <div class="card"><h2>What customers pay to the UK (current rates, before free shipping)</h2>
       <table class="t"><thead><tr><th>Order</th><th class="r">Weight</th><?php foreach($SM as $mm): ?><th class="r"><?= h($mm['label']) ?></th><?php endforeach; ?></tr></thead><tbody>
         <?php foreach([['1 single card', 0.05], ['24 packs of sleeves', 1.44], ['6 booster boxes', 2.4], ['6 Elite Trainer Boxes', 5.4], ['12-box case', 5.6], ['36 booster boxes', 14.4]] as [$lbl, $kg]): ?>
-          <tr><td><?= h($lbl) ?></td><td class="r"><?= h($kg) ?> kg</td><?php foreach(array_keys($SM) as $m): ?><td class="r"><?= $ex('US', $kg, $m) ?></td><?php endforeach; ?></tr>
+          <tr><td><?= h($lbl) ?></td><td class="r"><?= h($kg) ?> kg</td><?php foreach(array_keys($SM) as $m): ?><td class="r"><?= $ex('GB', $kg, $m) ?></td><?php endforeach; ?></tr>
         <?php endforeach; ?>
       </tbody></table>
     </div>
@@ -1273,16 +1292,24 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
         <div class="fld"><label class="f" for="address">Business address</label><input type="text" id="address" name="address" value="<?= h($S['address']) ?>"></div>
       </div>
       <div class="grid3">
+        <div class="fld"><label class="f" for="company_number">Company number (optional)</label><input type="text" id="company_number" name="company_number" value="<?= h($S['company_number'] ?? '') ?>" placeholder="e.g. 12345678">
+          <div class="hint">From Companies House. Shown in the footer and on the Contact page.</div></div>
+        <div class="fld"><label class="f" for="company_registered">Registered in</label><input type="text" id="company_registered" name="company_registered" value="<?= h($S['company_registered'] ?? '') ?>" placeholder="England and Wales"></div>
+        <div class="fld"><label class="f" for="vat_number">VAT number</label><input type="text" id="vat_number" name="vat_number" value="<?= h($S['vat_number'] ?? '') ?>" placeholder="GB123456789">
+          <div class="hint">Leave empty until you’re VAT-registered. Once set, prices count as including VAT at the rate below, and UK orders show the VAT they include at checkout, in order emails and here in the admin.</div></div>
+      </div>
+      <div class="fld" style="max-width:220px"><label class="f" for="vat_rate">VAT rate (%)</label><input type="number" id="vat_rate" name="vat_rate" min="0" max="50" step="0.01" value="<?= h($S['vat_rate'] ?? 20) ?>"></div>
+      <div class="grid3">
         <div class="fld"><label class="f" for="email">Public email</label><input type="email" id="email" name="email" value="<?= h($S['email']) ?>"></div>
         <div class="fld"><label class="f" for="order_email">Send new orders to</label><input type="email" id="order_email" name="order_email" value="<?= h($S['order_email']) ?>"></div>
         <div class="fld"><label class="f" for="phone">Phone (optional)</label><input type="text" id="phone" name="phone" value="<?= h($S['phone']) ?>"></div>
       </div>
-      <div class="fld"><label class="f" for="domain">Website address</label><input type="url" id="domain" name="domain" value="<?= h($S['domain']) ?>"><div class="hint">Used for Google and link previews, e.g. https://fudakura.store</div></div>
+      <div class="fld"><label class="f" for="domain">Website address</label><input type="url" id="domain" name="domain" value="<?= h($S['domain']) ?>"><div class="hint">Used for Google and link previews, e.g. https://fudakura.co.uk</div></div>
     </div>
 
     <div class="card"><h2>Store rules</h2>
       <div class="grid3">
-        <div class="fld"><label class="f" for="min_order_usd">Minimum order (USD, incl. shipping)</label><input type="number" id="min_order_usd" name="min_order_usd" min="0" step="0.01" value="<?= h($S['min_order_usd']) ?>"></div>
+        <div class="fld"><label class="f" for="min_order_usd">Minimum order (<?= h(base_cur()) ?>, incl. shipping)</label><input type="number" id="min_order_usd" name="min_order_usd" min="0" step="0.01" value="<?= h($S['min_order_usd']) ?>"></div>
         <div class="fld"><label class="f" for="reply_hours">Hours to send payment details</label><input type="number" id="reply_hours" name="reply_hours" min="1" value="<?= (int)$S['reply_hours'] ?>"></div>
         <div class="fld"><label class="f" for="hold_hours">Hours stock is held / to dispatch</label><input type="number" id="hold_hours" name="hold_hours" min="1" value="<?= (int)$S['hold_hours'] ?>"></div>
       </div>
@@ -1344,14 +1371,18 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
     </div>
 
     <div class="card"><h2>Currencies</h2>
-      <p class="small muted" style="margin-top:0">Prices are set in USD; other currencies are converted with these rates. Update the rates now and then.</p>
-      <div class="scroll"><table class="t"><thead><tr><th>Code</th><th>Symbol</th><th>1 USD =</th><th>Decimals</th><th>Delete</th></tr></thead><tbody>
+      <?php $B = base_cur(); ?>
+      <p class="small muted" style="margin-top:0">Prices are set in <?= h($B) ?>, the shop currency; other currencies are converted with these rates. Update the rates now and then.</p>
+      <div class="fld" style="max-width:320px"><label class="f" for="base_currency">Shop currency</label>
+        <select id="base_currency" name="base_currency"><?php foreach(array_keys($STORE['currencies']) as $code): ?><option value="<?= h($code) ?>" <?= $code === $B ? 'selected' : '' ?>><?= h($code) ?></option><?php endforeach; ?></select>
+        <div class="hint">Changing it converts every price, shipping rate, the minimum order and the free-shipping amount at the rate below. Past orders keep their own currency.</div></div>
+      <div class="scroll"><table class="t"><thead><tr><th>Code</th><th>Symbol</th><th>1 <?= h($B) ?> =</th><th>Decimals</th><th>Delete</th></tr></thead><tbody>
       <?php $i = 0; foreach($STORE['currencies'] + ['' => ['rate'=>'','sym'=>'','dec'=>2]] as $code=>$m): ?>
-        <tr><td><input type="text" name="curs[<?= $i ?>][code]" value="<?= h($code) ?>" maxlength="3" placeholder="New" aria-label="Code" <?= $code==='USD'?'readonly':'' ?>></td>
+        <tr><td><input type="text" name="curs[<?= $i ?>][code]" value="<?= h($code) ?>" maxlength="3" placeholder="New" aria-label="Code" <?= $code===$B?'readonly':'' ?>></td>
             <td><input type="text" name="curs[<?= $i ?>][sym]" value="<?= h($m['sym']) ?>" aria-label="Symbol"></td>
-            <td><input type="number" name="curs[<?= $i ?>][rate]" value="<?= h($m['rate']) ?>" min="0" step="any" aria-label="Rate" <?= $code==='USD'?'readonly':'' ?>></td>
+            <td><input type="number" name="curs[<?= $i ?>][rate]" value="<?= h($m['rate']) ?>" min="0" step="any" aria-label="Rate" <?= $code===$B?'readonly':'' ?>></td>
             <td><input type="number" name="curs[<?= $i ?>][dec]" value="<?= (int)$m['dec'] ?>" min="0" max="3" aria-label="Decimals"></td>
-            <td><?php if($code !== 'USD' && $code !== ''): ?><input type="checkbox" name="curs[<?= $i ?>][delete]" value="1" aria-label="Delete"><?php endif; ?></td></tr>
+            <td><?php if($code !== $B && $code !== ''): ?><input type="checkbox" name="curs[<?= $i ?>][delete]" value="1" aria-label="Delete"><?php endif; ?></td></tr>
       <?php $i++; endforeach; ?>
       </tbody></table></div>
     </div>
@@ -1402,14 +1433,14 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 <?php
 function orders_table($orders){ ?>
   <div class="scroll"><table class="t">
-    <thead><tr><th>Order</th><th>Placed</th><th>Customer</th><th>Country</th><th>Payment</th><th class="r">Total (USD)</th><th>Status</th></tr></thead><tbody>
+    <thead><tr><th>Order</th><th>Placed</th><th>Customer</th><th>Country</th><th>Payment</th><th class="r">Total</th><th>Status</th></tr></thead><tbody>
     <?php foreach($orders as $o): $st = $o['status'] ?? 'new'; ?>
       <tr><td><a href="<?= h(self_url('order', ['ref'=>$o['ref']])) ?>"><b><?= h($o['ref']) ?></b></a></td>
           <td class="small"><?= h($o['time']) ?></td>
           <td><?= h($o['name']) ?><?php if($o['company']): ?><br><span class="muted small"><?= h($o['company']) ?></span><?php endif; ?></td>
           <td><?= h($o['country_name']) ?></td>
           <td><?= h($o['payment_label']) ?><?php if(!empty($o['btc'])): ?><br><span class="muted small">₿ <?= h(btc_state_label(btc_state($o))) ?></span><?php endif; ?></td>
-          <td class="r"><?= usd($o['total_usd'] ?? 0) ?></td>
+          <td class="r"><?= usd($o['total_usd'] ?? 0, order_base($o)) ?></td>
           <td><span class="pill s-<?= h($st) ?>"><?= h(status_label(ORDER_STATUSES, $st)) ?></span></td></tr>
     <?php endforeach; ?>
     </tbody></table></div>
