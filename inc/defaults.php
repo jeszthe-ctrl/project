@@ -219,7 +219,8 @@ Premium trainer boxes combine booster packs with play accessories for players bu
 
 - Mega Evolution-era premium trainer box
 - Sold in fours, with the lowest per-unit price from 24'],
-    ['id'=>'151-booster-box', 'sku'=>'FK-BB-SV2A-01',
+    ['id'=>'151-booster-box', 'seo_title'=>'Pokémon 151 Booster Box (Japanese SV2a) — 20 Packs', 'seo_desc'=>'Sealed Japanese Pokémon 151 booster box (SV2a): 20 packs of 7 cards, with the Charizard ex SAR as chase card. Priced in pounds, shipped from Japan to the UK.',
+     'sku'=>'FK-BB-SV2A-01',
      'name'=>'151 Booster Box', 'set'=>'151', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
      'ladder'=>[[1,352.00],[6,336.00],[36,301.00]],
@@ -285,7 +286,8 @@ It keeps sleeved or loose cards upright and flat on a shelf or counter, and doub
 
 - Card storage box in booster box display style
 - Sold in sixes, with the lowest price from 36'],
-    ['id'=>'pokemon-tcg-9-pocket-binder-mega-evolution-series', 'sku'=>'FK-ACC-BIND-ME',
+    ['id'=>'pokemon-tcg-9-pocket-binder-mega-evolution-series', 'seo_title'=>'Pokémon Card Binder — 9-Pocket, Mega Evolution Series', 'seo_desc'=>'A 9-pocket Pokémon card binder in Mega Evolution series artwork, holding nine standard-size Pokémon cards per page. Priced in pounds with bulk breaks.',
+     'sku'=>'FK-ACC-BIND-ME',
      'name'=>'Pokémon TCG 9-Pocket Binder — Mega Evolution Series', 'set'=>'', 'cat'=>'accessories', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.45, 'hidden'=>false,
      'ladder'=>[[1,25.00],[6,22.00],[36,16.00]],
@@ -514,7 +516,8 @@ Pitch Black is part of the Pokémon Trading Card Game\'s Mega Evolution series. 
 - Sealed Mega Evolution Pitch Black Elite Trainer Box
 - Booster packs, sleeves, dice, damage counters and storage box
 - Sold in fours, with the lowest price from 24'],
-    ['id'=>'chaos-rising-elite-trainer-box', 'sku'=>'FK-ETB-CR-01',
+    ['id'=>'chaos-rising-elite-trainer-box', 'seo_title'=>'Pokémon Chaos Rising Elite Trainer Box (Mega Evolution)', 'seo_desc'=>'Pokémon Chaos Rising Elite Trainer Box from the Mega Evolution series: booster packs, sleeves, dice and storage box. Sealed, priced in pounds, shipped to the UK.',
+     'sku'=>'FK-ETB-CR-01',
      'name'=>'Chaos Rising Elite Trainer Box', 'set'=>'Ninja Spinner', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,35.00],[4,31.50],[24,23.50]],

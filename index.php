@@ -265,15 +265,16 @@ function desc_parts($text){
    guides each kind of page links to. Guides added in the admin simply use their title. */
 const GUIDE_ANCHORS = [
   'japanese-pokemon-cards'=>'Japanese Pokémon cards explained', 'most-expensive-pokemon-cards'=>'Most expensive Pokémon cards',
-  'rarest-pokemon-cards'=>'Rarest Pokémon cards', 'pokemon-card-price-checker'=>'Pokémon card price checker',
-  'pokemon-card-database'=>'Pokémon card database & card lists', 'where-to-buy-pokemon-cards'=>'Where to buy Pokémon cards',
-  'pokemon-card-shops-near-me'=>'Pokémon card shops near me', 'pokemon-card-scanner'=>'Pokémon card scanner apps',
+  'rarest-pokemon-cards'=>'Rare Pokémon cards', 'pokemon-card-price-checker'=>'Pokémon price checker',
+  'pokemon-card-database'=>'Pokémon card database & card lists', 'where-to-buy-pokemon-cards'=>'Where to buy Pokémon cards in the UK',
+  'pokemon-card-shops-near-me'=>'Pokémon card shops near me', 'pokemon-card-packs'=>'Pokémon packs & booster boxes',
+  'new-pokemon-sets'=>'New Pokémon sets', 'pokemon-card-binder'=>'Pokémon card binders', 'pokemon-card-scanner'=>'Pokémon card scanner apps',
   'pokemon-card-template'=>'Free Pokémon card template', 'how-to-play-pokemon-cards'=>'How to play Pokémon cards',
   'how-to-read-a-pokemon-card'=>'How to read a Pokémon card', 'how-much-does-it-cost-to-grade-a-pokemon-card'=>'How much it costs to grade a Pokémon card',
-  'chinese-pokemon-cards'=>'Chinese Pokémon cards', 'coolest-pokemon-cards'=>'Cool Pokémon cards',
+  'chinese-pokemon-cards'=>'Chinese Pokémon cards', 'coolest-pokemon-cards'=>'Best Pokémon cards',
   'mew-mewtwo-arceus-pokemon-cards'=>'Mew, Mewtwo & Arceus cards', 'where-to-sell-pokemon-cards'=>'Where to sell Pokémon cards',
   'pokemon-card-size'=>'Pokémon card size', 'how-to-tell-if-a-pokemon-card-is-fake'=>'How to tell if a Pokémon card is fake',
-  'pokemon-card-rarities'=>'Pokémon card rarities', 'pokemon-card-values'=>'Pokémon card values',
+  'pokemon-card-rarities'=>'Pokémon card rarity', 'pokemon-card-values'=>'Pokémon card values',
 ];
 const GUIDE_RELATED = [
   'japanese-pokemon-cards'=>['where-to-buy-pokemon-cards','pokemon-card-database','chinese-pokemon-cards','how-to-read-a-pokemon-card'],
@@ -281,8 +282,11 @@ const GUIDE_RELATED = [
   'rarest-pokemon-cards'=>['most-expensive-pokemon-cards','pokemon-card-rarities','coolest-pokemon-cards','mew-mewtwo-arceus-pokemon-cards'],
   'pokemon-card-price-checker'=>['pokemon-card-values','pokemon-card-scanner','where-to-sell-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card'],
   'pokemon-card-database'=>['pokemon-card-rarities','pokemon-card-price-checker','japanese-pokemon-cards','how-to-read-a-pokemon-card'],
-  'where-to-buy-pokemon-cards'=>['pokemon-card-shops-near-me','japanese-pokemon-cards','pokemon-card-price-checker','how-to-tell-if-a-pokemon-card-is-fake'],
-  'pokemon-card-shops-near-me'=>['where-to-buy-pokemon-cards','where-to-sell-pokemon-cards','pokemon-card-scanner','how-to-play-pokemon-cards'],
+  'where-to-buy-pokemon-cards'=>['pokemon-card-shops-near-me','pokemon-card-packs','new-pokemon-sets','japanese-pokemon-cards'],
+  'pokemon-card-shops-near-me'=>['where-to-buy-pokemon-cards','pokemon-card-packs','where-to-sell-pokemon-cards','how-to-play-pokemon-cards'],
+  'pokemon-card-packs'=>['where-to-buy-pokemon-cards','japanese-pokemon-cards','new-pokemon-sets','pokemon-card-rarities'],
+  'new-pokemon-sets'=>['pokemon-card-database','pokemon-card-packs','japanese-pokemon-cards','pokemon-card-rarities'],
+  'pokemon-card-binder'=>['pokemon-card-size','coolest-pokemon-cards','pokemon-card-values','how-to-tell-if-a-pokemon-card-is-fake'],
   'pokemon-card-scanner'=>['pokemon-card-price-checker','pokemon-card-values','how-to-tell-if-a-pokemon-card-is-fake','where-to-sell-pokemon-cards'],
   'pokemon-card-template'=>['pokemon-card-size','how-to-read-a-pokemon-card','how-to-tell-if-a-pokemon-card-is-fake','how-to-play-pokemon-cards'],
   'how-to-play-pokemon-cards'=>['how-to-read-a-pokemon-card','pokemon-card-shops-near-me','coolest-pokemon-cards','pokemon-card-database'],
@@ -292,29 +296,29 @@ const GUIDE_RELATED = [
   'coolest-pokemon-cards'=>['rarest-pokemon-cards','mew-mewtwo-arceus-pokemon-cards','pokemon-card-rarities','most-expensive-pokemon-cards'],
   'mew-mewtwo-arceus-pokemon-cards'=>['coolest-pokemon-cards','rarest-pokemon-cards','most-expensive-pokemon-cards','pokemon-card-values'],
   'where-to-sell-pokemon-cards'=>['pokemon-card-price-checker','pokemon-card-values','how-much-does-it-cost-to-grade-a-pokemon-card','pokemon-card-shops-near-me'],
-  'pokemon-card-size'=>['pokemon-card-template','how-to-read-a-pokemon-card','how-to-play-pokemon-cards','japanese-pokemon-cards'],
+  'pokemon-card-size'=>['pokemon-card-binder','pokemon-card-template','how-to-read-a-pokemon-card','japanese-pokemon-cards'],
   'how-to-tell-if-a-pokemon-card-is-fake'=>['chinese-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','where-to-buy-pokemon-cards','pokemon-card-values'],
   'pokemon-card-rarities'=>['rarest-pokemon-cards','coolest-pokemon-cards','how-to-read-a-pokemon-card','pokemon-card-database'],
   'pokemon-card-values'=>['pokemon-card-price-checker','most-expensive-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','where-to-sell-pokemon-cards'],
 ];
 const PAGE_GUIDES = [
-  'cat:boxes'=>['japanese-pokemon-cards','pokemon-card-database','pokemon-card-price-checker','where-to-buy-pokemon-cards','chinese-pokemon-cards'],
-  'cat:etb'=>['how-to-play-pokemon-cards','where-to-buy-pokemon-cards','japanese-pokemon-cards','pokemon-card-database','pokemon-card-shops-near-me'],
+  'cat:boxes'=>['pokemon-card-packs','japanese-pokemon-cards','new-pokemon-sets','pokemon-card-price-checker','where-to-buy-pokemon-cards'],
+  'cat:etb'=>['new-pokemon-sets','pokemon-card-packs','how-to-play-pokemon-cards','where-to-buy-pokemon-cards','pokemon-card-shops-near-me'],
   'cat:premium'=>['how-to-play-pokemon-cards','how-to-read-a-pokemon-card','coolest-pokemon-cards','japanese-pokemon-cards','mew-mewtwo-arceus-pokemon-cards'],
   'cat:singles'=>['pokemon-card-values','most-expensive-pokemon-cards','rarest-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','how-to-tell-if-a-pokemon-card-is-fake'],
-  'cat:accessories'=>['pokemon-card-size','pokemon-card-template','how-to-play-pokemon-cards','where-to-sell-pokemon-cards','pokemon-card-scanner'],
-  'shop'=>['where-to-buy-pokemon-cards','pokemon-card-price-checker','pokemon-card-database','japanese-pokemon-cards','pokemon-card-shops-near-me','chinese-pokemon-cards'],
-  'set'=>['pokemon-card-database','pokemon-card-price-checker','pokemon-card-rarities','japanese-pokemon-cards'],
+  'cat:accessories'=>['pokemon-card-binder','pokemon-card-size','pokemon-card-template','how-to-play-pokemon-cards','where-to-sell-pokemon-cards'],
+  'shop'=>['where-to-buy-pokemon-cards','pokemon-card-packs','pokemon-card-price-checker','new-pokemon-sets','pokemon-card-shops-near-me','japanese-pokemon-cards'],
+  'set'=>['new-pokemon-sets','pokemon-card-database','pokemon-card-price-checker','pokemon-card-rarities'],
   'set:151'=>['most-expensive-pokemon-cards','pokemon-card-database','mew-mewtwo-arceus-pokemon-cards','pokemon-card-price-checker'],
   'set:30th-celebration'=>['mew-mewtwo-arceus-pokemon-cards','pokemon-card-database','coolest-pokemon-cards','pokemon-card-price-checker'],
-  'series'=>['pokemon-card-database','how-to-play-pokemon-cards','pokemon-card-rarities','pokemon-card-price-checker'],
+  'series'=>['new-pokemon-sets','pokemon-card-database','pokemon-card-packs','pokemon-card-rarities'],
   'coll'=>['pokemon-card-values','rarest-pokemon-cards','pokemon-card-price-checker'],
   'coll:charizard-pokemon-cards'=>['most-expensive-pokemon-cards','pokemon-card-values','how-much-does-it-cost-to-grade-a-pokemon-card','pokemon-card-price-checker'],
   'coll:pikachu-pokemon-cards'=>['most-expensive-pokemon-cards','coolest-pokemon-cards','rarest-pokemon-cards','pokemon-card-values'],
   'coll:gengar-pokemon-cards'=>['coolest-pokemon-cards','pokemon-card-rarities','pokemon-card-price-checker','pokemon-card-values'],
   'coll:psa-graded-pokemon-cards'=>['how-much-does-it-cost-to-grade-a-pokemon-card','pokemon-card-values','how-to-tell-if-a-pokemon-card-is-fake','where-to-sell-pokemon-cards'],
-  'faq'=>['how-to-play-pokemon-cards','where-to-buy-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','how-to-tell-if-a-pokemon-card-is-fake','pokemon-card-price-checker','japanese-pokemon-cards','pokemon-card-shops-near-me','chinese-pokemon-cards'],
-  'home'=>['most-expensive-pokemon-cards','pokemon-card-price-checker','where-to-buy-pokemon-cards','pokemon-card-database','how-to-play-pokemon-cards','rarest-pokemon-cards'],
+  'faq'=>['where-to-buy-pokemon-cards','pokemon-card-packs','how-to-play-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','how-to-tell-if-a-pokemon-card-is-fake','pokemon-card-price-checker','japanese-pokemon-cards','pokemon-card-shops-near-me','chinese-pokemon-cards'],
+  'home'=>['where-to-buy-pokemon-cards','pokemon-card-packs','new-pokemon-sets','pokemon-card-values','most-expensive-pokemon-cards','rarest-pokemon-cards'],
 ];
 /* where each group of guides sends readers to shop */
 const GUIDE_SHOP = [
@@ -325,7 +329,7 @@ const GUIDE_SHOP = [
 const GUIDE_GROUP = ['most-expensive-pokemon-cards'=>'collect','rarest-pokemon-cards'=>'collect','pokemon-card-values'=>'collect','pokemon-card-price-checker'=>'collect',
   'how-much-does-it-cost-to-grade-a-pokemon-card'=>'collect','where-to-sell-pokemon-cards'=>'collect','pokemon-card-scanner'=>'collect','coolest-pokemon-cards'=>'collect',
   'mew-mewtwo-arceus-pokemon-cards'=>'collect','pokemon-card-rarities'=>'collect','how-to-play-pokemon-cards'=>'play','how-to-read-a-pokemon-card'=>'play',
-  'pokemon-card-template'=>'play','pokemon-card-size'=>'play'];
+  'pokemon-card-template'=>'play','pokemon-card-size'=>'play','pokemon-card-binder'=>'play'];
 
 function guide_anchor($g){ return GUIDE_ANCHORS[$g['slug']] ?? $g['title']; }
 function guides_list($slugs){ return array_values(array_filter(array_map('guide_by_slug', $slugs))); }
@@ -725,7 +729,7 @@ switch($page){
       $page_desc  = ($cinfo['seo_desc'] ?? '') ?: plain($cinfo['blurb']);
       $h1 = ($cinfo['h1'] ?? '') ?: $cinfo['label'];
     } else {
-      $page_title = 'Shop Japanese Pokémon Cards — All Products';
+      $page_title = 'Buy Pokémon Cards UK — All Japanese Pokémon Products';
       $page_desc  = 'Shop Japanese Pokémon cards in the UK: sealed booster boxes, Elite Trainer Boxes, rare singles, PSA graded cards and accessories, shipped from Japan.';
       $h1 = 'Shop Japanese Pokémon cards';
     }
@@ -745,8 +749,8 @@ switch($page){
     break;
   case 'sets':
     $crumbs[] = ['Sets', '', []];
-    $page_title = 'Pokémon Card Sets — Mega Evolution & Scarlet & Violet';
-    $page_desc  = 'Every Japanese Pokémon card set we stock, from the Mega Evolution series back to Scarlet & Violet favourites like 151 and Terastal Festival ex.';
+    $page_title = 'Pokémon Sets — Japanese Pokémon Card Sets, Mega Evolution to 151';
+    $page_desc  = 'Pokémon card sets in stock: every Japanese Pokémon set we sell, from the new Mega Evolution sets to Scarlet & Violet favourites like 151 and Terastal Festival ex.';
     $h1 = 'Pokémon card sets';
     break;
   case 'series':
@@ -773,8 +777,8 @@ switch($page){
     break;
   case 'guides':
     $crumbs[] = ['Guides', '', []];
-    $page_title = 'Pokémon Card Guides: Values, Rare Cards, How to Play';
-    $page_desc  = 'Plain-English Pokémon card guides: values and prices, the most expensive and rarest cards, how to play and read cards, grading, fakes and where to buy.';
+    $page_title = 'Pokémon Card Guides UK: Values, Rare Cards, Where to Buy';
+    $page_desc  = 'Plain-English Pokémon card guides: what your cards are worth, rare and expensive cards, new sets, packs and boxes, where to buy Pokémon cards in the UK, and how to play.';
     $h1 = 'Pokémon card guides';
     break;
   case 'page':
@@ -1579,7 +1583,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
   <?php if($GUIDES): ?>
   <section style="padding-top:0"><div class="wrap">
     <div class="sechead"><div><h2>Pokémon card guides</h2>
-      <p>The most expensive and rarest cards, live prices, where to buy, and how to play.</p></div>
+      <p>Where to buy Pokémon cards in the UK, what's in a pack, the newest sets, and what your cards are worth.</p></div>
       <a href="<?= url('guides') ?>">All <?= count($GUIDES) ?> guides →</a></div>
     <?php guide_cards(guides_list(PAGE_GUIDES['home']) ?: array_slice($GUIDES, 0, 6)); ?>
   </div></section>
@@ -2308,7 +2312,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       <li><a href="<?= url('sets') ?>">Pokémon card sets</a></li>
       <?php foreach($SERIES as $k=>$sr): if(series_sets($k)): ?><li><a href="<?= h(url('series', ['s'=>$sr['slug']])) ?>"><?= h($sr['name']) ?> sets</a></li><?php endif; endforeach; ?>
       <?php foreach($COLLECTIONS as $c): if(collection_products($c)): ?><li><a href="<?= h(url('collection', ['c'=>$c['slug']])) ?>"><?= h($c['title']) ?></a></li><?php endif; endforeach; ?>
-      <?php foreach(['where-to-buy-pokemon-cards'=>'Where to buy Pokémon cards', 'pokemon-card-price-checker'=>'Pokémon card price checker', 'most-expensive-pokemon-cards'=>'Most expensive Pokémon cards', 'pokemon-card-database'=>'Pokémon card database'] as $gs_=>$gl_):
+      <?php foreach(['where-to-buy-pokemon-cards'=>'Where to buy Pokémon cards in the UK', 'pokemon-card-shops-near-me'=>'Pokémon card shops near me', 'pokemon-card-packs'=>'Pokémon packs & booster boxes', 'new-pokemon-sets'=>'New Pokémon sets', 'pokemon-card-values'=>'Pokémon card values', 'pokemon-card-price-checker'=>'Pokémon price checker'] as $gs_=>$gl_):
         if(guide_by_slug($gs_)): ?><li><a href="<?= h(url('guide', ['g'=>$gs_])) ?>"><?= h($gl_) ?></a></li><?php endif; endforeach; ?>
       <?php if($GUIDES): ?><li><a href="<?= url('guides') ?>">All Pokémon card guides</a></li><?php endif; ?>
     </ul></div>
