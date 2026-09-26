@@ -57,9 +57,9 @@ if(!is_string($raw) || substr($raw, 0, 6) !== 'FKPK1:'){ header('Location: ./');
 $raw  = substr($raw, 6);
 $page = function($title, $html){
   echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">',
-       '<title>', $title, '</title><style>body{margin:0;background:#050507;color:#F5F6FB;font:16px/1.6 system-ui,sans-serif}main{max-width:640px;margin:10vh auto;padding:0 20px}',
-       'h1{font-size:28px}a.b{display:inline-block;background:linear-gradient(135deg,#FF3B5C,#FF6B3D);color:#fff;padding:12px 20px;border-radius:999px;text-decoration:none;font-weight:700;margin:6px 8px 0 0}',
-       'code{background:#161924;padding:2px 6px;border-radius:5px}.n{color:#C4C9D9}</style></head><body><main>', $html, '</main></body></html>';
+       '<title>', $title, '</title><style>body{margin:0;background:#fff;color:#0C1633;font:16px/1.6 system-ui,sans-serif}main{max-width:640px;margin:10vh auto;padding:0 20px}',
+       'h1{font-size:28px;letter-spacing:-.02em}a.b{display:inline-block;background:#2A44D4;color:#fff;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:700;margin:6px 8px 0 0}a.b+a.b{background:#fff;color:#0C1633;box-shadow:inset 0 0 0 1px #E1E5EE}',
+       'code{background:#F2F4F9;padding:2px 6px;border-radius:5px}.n{color:#3A4566}</style></head><body><main>', $html, '</main></body></html>';
   exit;
 };
 if(!is_writable($dir)) $page('Can’t install', '<h1>The shop can’t unpack itself here</h1><p class="n">PHP isn’t allowed to create files in this folder. Ask your host to make it writable by PHP, or upload the files from <code>pokekura-site.zip</code> instead.</p>');
