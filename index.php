@@ -408,8 +408,11 @@ function send_order_mail($order){
     $body .= sprintf("  %-46s %4d x %10s = %10s\n",
       $l['name'].' ('.$l['sku'].')', $l['qty'], $l['unit'], $l['total']);
   }
+  /* free shipping over the threshold: Standard is free, Express costs only the difference */
+  $ship_txt = empty($order['free_shipping']) ? $order['shipping']
+            : ((float)$order['shipping_usd'] == 0 ? 'Free' : $order['shipping'].' (free Standard shipping applied: Express difference only)');
   $body .= "\n  GOODS:    {$order['goods']}\n";
-  $body .= "  SHIPPING: {$order['shipping']} ({$order['ship_zone']}, {$order['ship_label']})\n";
+  $body .= "  SHIPPING: $ship_txt ({$order['ship_zone']}, {$order['ship_label']})\n";
   $body .= "  TOTAL:    {$order['total']} ({$order['currency']})\n";
   $body .= "  Import duty and taxes are not included.\n\n";
   if($order['notes']) $body .= "NOTES\n  {$order['notes']}\n\n";
@@ -421,7 +424,7 @@ function send_order_mail($order){
   $c  = "Thank you — we have your order.\n\n";
   $c .= "Order reference: {$order['ref']}\n";
   $c .= "Goods: {$order['goods']}\n";
-  $c .= "Shipping: {$order['shipping']} — {$order['ship_label']}\n";
+  $c .= "Shipping: $ship_txt — {$order['ship_label']}\n";
   $c .= "Order total: {$order['total']} ({$order['currency']})\n";
   $c .= "Payment method selected: {$order['payment_label']}\n\n";
   if(!empty($order['btc'])){
