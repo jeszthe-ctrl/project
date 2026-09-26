@@ -73,7 +73,8 @@ HTML,
   /* status: in | new | low | preorder | soldout.  cond: Sealed | Graded | Near Mint | Lightly Played.
      ladder: [min_qty, unit_price] ascending, in the shop currency (GBP).  weight: kg per unit (used for shipping) */
   'products' => [
-    ['id'=>'storm-emeralda-elite-trainer-box', 'sku'=>'FK-ETB-SE-01',
+    ['id'=>'storm-emeralda-elite-trainer-box', 'seo_desc'=>'Sealed Storm Emeralda Elite Trainer Box from the Japanese Mega Evolution series: booster packs, sleeves, dice and a storage box, shipped to the UK.',
+     'sku'=>'FK-ETB-SE-01',
      'name'=>'Storm Emeralda Elite Trainer Box', 'set'=>'Storm Emeralda', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,35.50],[6,30.00],[18,28.50],[36,27.00]],
@@ -84,7 +85,8 @@ Inside are booster packs plus card sleeves, dice, damage counters, energy cards 
 - Sealed Storm Emeralda Elite Trainer Box
 - Booster packs, sleeves, dice, damage counters, energy cards and promo
 - Sold in sixes, with lower prices from 18 and 36'],
-    ['id'=>'30th-celebration-m6a-booster-box', 'sku'=>'FK-BB-M6A-01',
+    ['id'=>'30th-celebration-m6a-booster-box', 'seo_desc'=>'Sealed Japanese 30th Celebration (M6A) booster box for Pokémon\'s 30th anniversary, with classic illustrations and a high pull rate. Shipped to the UK.',
+     'sku'=>'FK-BB-M6A-01',
      'name'=>'30th Celebration (M6A) Booster Box', 'set'=>'30th Celebration', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
      'ladder'=>[[1,258.00],[6,220.00],[12,211.00],[24,201.00]],
@@ -96,7 +98,8 @@ Inside are booster packs plus card sleeves, dice, damage counters, energy cards 
 - Reprinted classic illustrations and a high pull rate
 - Lower prices from 12 and 24 boxes
 - More from the anniversary range: [30th Celebration Elite Trainer Box](product:30th-celebration-elite-trainer-box) and [special boxes](set:30th-celebration)'],
-    ['id'=>'mega-rayquaza-ex-mur', 'sku'=>'FK-SGL-MRAY-MUR',
+    ['id'=>'mega-rayquaza-ex-mur', 'seo_desc'=>'Japanese Mega Rayquaza ex Master Ultra Rare from Storm Emeralda (M6), the top chase card of the set. Near Mint, sleeved and toploaded, shipped to the UK.',
+     'sku'=>'FK-SGL-MRAY-MUR',
      'name'=>'Mega Rayquaza ex — Master Ultra Rare (Japanese)', 'set'=>'Storm Emeralda', 'cat'=>'singles', 'cond'=>'Near Mint',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.05, 'hidden'=>false,
      'ladder'=>[[1,954.00],[3,908.00],[6,863.00]],
@@ -108,7 +111,8 @@ Rayquaza has been one of the Pokémon TCG\'s most collected legends since its fi
 - Rarity: Master Ultra Rare
 - Near Mint, sleeved and toploaded
 - Lower prices from 3 and 6 copies'],
-    ['id'=>'mega-gengar-ex-sir', 'sku'=>'FK-SGL-MGEN-SIR',
+    ['id'=>'mega-gengar-ex-sir', 'seo_desc'=>'Japanese Mega Gengar ex Special Illustration Rare from Mega Dream ex (M2A), a standout full art Gengar card. Near Mint and shipped to the UK.',
+     'sku'=>'FK-SGL-MGEN-SIR',
      'name'=>'Mega Gengar ex — Special Illustration Rare', 'set'=>'Mega Dream ex', 'cat'=>'singles', 'cond'=>'Near Mint',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.05, 'hidden'=>false,
      'ladder'=>[[1,816.00],[3,778.00],[6,739.00]],
@@ -120,7 +124,8 @@ Gengar has one of the most loyal followings in the hobby, and this Special Illus
 - Special Illustration Rare (full art)
 - Lower prices from 3 and 6 copies
 - See all [Gengar Pokémon cards](cards:gengar-pokemon-cards)'],
-    ['id'=>'30th-celebration-elite-trainer-box', 'sku'=>'FK-ETB-30C-01',
+    ['id'=>'30th-celebration-elite-trainer-box', 'seo_desc'=>'Pokémon TCG 30th Celebration Elite Trainer Box: 9 booster packs, a full-art Nidorina promo, 65 sleeves, dice and a collector\'s box. Shipped to the UK.',
+     'sku'=>'FK-ETB-30C-01',
      'name'=>'30th Celebration Elite Trainer Box', 'set'=>'30th Celebration', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,38.50],[4,35.00],[24,26.00]],
@@ -135,7 +140,8 @@ Gengar has one of the most loyal followings in the hobby, and this Special Illus
 - 6 damage-counter dice, 1 competition-legal coin-flip die and 1 plastic coin
 - A collector\'s box with 6 dividers, plus a code card for Pokémon TCG Live
 - Sold in fours, with the lowest price from 24'],
-    ['id'=>'storm-emeralda-m6-booster-box', 'sku'=>'FK-BB-M6-01',
+    ['id'=>'storm-emeralda-m6-booster-box', 'seo_desc'=>'Sealed Japanese Storm Emeralda (M6) booster box, headlined by Mega Rayquaza ex and its Master Ultra Rare. Priced in pounds and shipped from Japan to the UK.',
+     'sku'=>'FK-BB-M6-01',
      'name'=>'Storm Emeralda (M6) Booster Box', 'set'=>'Storm Emeralda', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
      'ladder'=>[[1,172.00],[6,146.00],[24,134.00]],
@@ -146,7 +152,8 @@ Storm Emeralda\'s chase cards include the [Mega Rayquaza ex Master Ultra Rare](p
 - Sealed Japanese Mega Evolution-series booster box (M6)
 - Chase cards: Mega Rayquaza ex Master Ultra Rare and Special Illustration Rare
 - Best price per box from 24 boxes'],
-    ['id'=>'abyss-eye-elite-trainer-box', 'sku'=>'FK-ETB-AE-01',
+    ['id'=>'abyss-eye-elite-trainer-box', 'seo_desc'=>'Sealed Abyss Eye Elite Trainer Box from the Japanese Mega Evolution series, with booster packs, sleeves, dice and a storage box. Shipped from Japan to the UK.',
+     'sku'=>'FK-ETB-AE-01',
      'name'=>'Abyss Eye Elite Trainer Box', 'set'=>'Abyss Eye', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,33.00],[6,28.00],[18,26.50],[36,25.50]],
@@ -156,7 +163,8 @@ Booster packs with sleeves, dice, damage counters and the promo card in a storag
 
 - Sealed Abyss Eye Elite Trainer Box
 - Sold in sixes, with lower prices from 18 and 36'],
-    ['id'=>'30th-celebration-greninja-ex-box', 'sku'=>'FK-PRM-GRE-01',
+    ['id'=>'30th-celebration-greninja-ex-box', 'seo_desc'=>'30th Celebration Greninja ex Box: a Greninja ex promo card with booster packs, from Pokémon\'s 30th-anniversary range. Sealed and shipped to the UK.',
+     'sku'=>'FK-PRM-GRE-01',
      'name'=>'30th Celebration Greninja ex Box', 'set'=>'30th Celebration', 'cat'=>'premium', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.6, 'hidden'=>false,
      'ladder'=>[[1,17.00],[6,15.30],[18,13.30],[36,11.50]],
@@ -167,7 +175,8 @@ Collection boxes like this sell well as single units and gifts, and case pricing
 - Greninja ex promo card plus booster packs
 - Part of the [30th Celebration](set:30th-celebration) range
 - Sold in sixes, with lower prices from 18 and 36'],
-    ['id'=>'heat-wave-arena-sv9a-booster-box', 'sku'=>'FK-BB-SV9A-01',
+    ['id'=>'heat-wave-arena-sv9a-booster-box', 'seo_desc'=>'Sealed Japanese Heat Wave Arena (SV9a) booster box from the Scarlet & Violet series, with case pricing. Priced in pounds and shipped from Japan to the UK.',
+     'sku'=>'FK-BB-SV9A-01',
      'name'=>'Heat Wave Arena (SV9a) Booster Box', 'set'=>'Heat Wave Arena', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
      'ladder'=>[[1,164.00],[6,156.00],[18,147.00],[36,140.00]],
@@ -178,7 +187,8 @@ Heat Wave Arena is a dependable reorder line for card shops running drafts and l
 - Sealed Japanese booster box — Heat Wave Arena (SV9a)
 - Part of the [Scarlet & Violet series](set:scarlet-violet)
 - Lower prices from 18 and 36 boxes'],
-    ['id'=>'glory-of-team-rocket-sv10-booster-box', 'sku'=>'FK-BB-SV10-01',
+    ['id'=>'glory-of-team-rocket-sv10-booster-box', 'seo_desc'=>'Sealed Japanese Glory of Team Rocket (SV10) booster box: Team Rocket\'s Pokémon return in one of the most wanted Scarlet & Violet sets. Shipped to the UK.',
+     'sku'=>'FK-BB-SV10-01',
      'name'=>'Glory of Team Rocket (SV10) Booster Box', 'set'=>'Glory of Team Rocket', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
      'ladder'=>[[1,207.00],[6,197.00],[18,186.00],[36,176.00]],
@@ -189,7 +199,8 @@ Glory of Team Rocket is one of the most in-demand Japanese Scarlet & Violet sets
 - Sealed Japanese booster box — Glory of Team Rocket (SV10)
 - Part of the [Scarlet & Violet series](set:scarlet-violet)
 - Lower prices from 18 and 36 boxes'],
-    ['id'=>'mega-start-deck-100-battle-collection', 'sku'=>'FK-PRM-MSD100-01',
+    ['id'=>'mega-start-deck-100-battle-collection', 'seo_desc'=>'MEGA Start Deck 100 Battle Collection: ready-to-play Pokémon TCG decks from the Mega Evolution era, ideal for new players. Shipped to the UK.',
+     'sku'=>'FK-PRM-MSD100-01',
      'name'=>'MEGA Start Deck 100 Battle Collection', 'set'=>'', 'cat'=>'premium', 'cond'=>'Sealed',
      'moq'=>12, 'step'=>12, 'status'=>'in', 'release'=>'', 'weight'=>1.2, 'hidden'=>false,
      'ladder'=>[[1,29.50],[12,28.00],[72,25.00]],
@@ -199,7 +210,8 @@ Start decks are the easiest way to learn how to play the Pokémon card game — 
 
 - Ready-to-play decks from the Mega Evolution era
 - Sold by the case of 12, with the lowest price from 72'],
-    ['id'=>'starter-set-ex-zorua-and-zoroark-ex', 'sku'=>'FK-PRM-SSZOR-01',
+    ['id'=>'starter-set-ex-zorua-and-zoroark-ex', 'seo_desc'=>'Starter Set ex Zorua & Zoroark ex: a ready-to-play Pokémon TCG deck built around Zoroark ex, a good first deck for new players. Shipped to the UK.',
+     'sku'=>'FK-PRM-SSZOR-01',
      'name'=>'Starter Set ex — Zorua & Zoroark ex', 'set'=>'', 'cat'=>'premium', 'cond'=>'Sealed',
      'moq'=>12, 'step'=>12, 'status'=>'in', 'release'=>'', 'weight'=>0.35, 'hidden'=>false,
      'ladder'=>[[1,29.50],[12,28.00],[72,25.00]],
@@ -209,7 +221,8 @@ A complete deck built around Zoroark ex, ready to play straight from the box —
 
 - Ready-to-play Zorua & Zoroark ex deck
 - Sold by the case of 12, with the lowest price from 72'],
-    ['id'=>'premium-trainer-box-mega', 'sku'=>'FK-PRM-PTBM-01',
+    ['id'=>'premium-trainer-box-mega', 'seo_desc'=>'Premium Trainer Box MEGA: booster packs and play accessories from the Pokémon TCG Mega Evolution era, and a strong gift. Sealed and shipped to the UK.',
+     'sku'=>'FK-PRM-PTBM-01',
      'name'=>'Premium Trainer Box MEGA', 'set'=>'', 'cat'=>'premium', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,72.00],[4,69.00],[24,61.50]],
@@ -232,7 +245,8 @@ Premium trainer boxes combine booster packs with play accessories for players bu
 - Chase card: Charizard ex Special Illustration Rare
 - Sold in sixes, with the lowest price from 36 boxes
 - New to Japanese boxes? Read [what\'s different about Japanese Pokémon cards](guide:japanese-pokemon-cards)'],
-    ['id'=>'151-charizard-ex-special-illustration-rare', 'sku'=>'FK-SGL-CHAR-151',
+    ['id'=>'151-charizard-ex-special-illustration-rare', 'seo_desc'=>'Japanese 151 Charizard ex Special Illustration Rare (SV2a), one of the defining Charizard cards of the Scarlet & Violet era. Near Mint, shipped to the UK.',
+     'sku'=>'FK-SGL-CHAR-151',
      'name'=>'151 Charizard ex — Special Illustration Rare', 'set'=>'151', 'cat'=>'singles', 'cond'=>'Near Mint',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.05, 'hidden'=>false,
      'ladder'=>[[1,260.00],[6,235.00]],
@@ -244,7 +258,8 @@ Charizard is one of the most collected Pokémon in the TCG, and its 151 Special 
 - Special Illustration Rare (full art)
 - Lower price from 6 copies
 - More [Charizard Pokémon cards](cards:charizard-pokemon-cards)'],
-    ['id'=>'storm-emeralda-booster-box-case-12-ct', 'sku'=>'FK-BB-M6-C12',
+    ['id'=>'storm-emeralda-booster-box-case-12-ct', 'seo_desc'=>'Sealed case of 12 Japanese Storm Emeralda (M6) booster boxes, priced per case with a lower price per box. For shops and box breakers in the UK.',
+     'sku'=>'FK-BB-M6-C12',
      'name'=>'Storm Emeralda Booster Box Case (12-ct)', 'set'=>'Storm Emeralda', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>5.6, 'hidden'=>false,
      'ladder'=>[[1,1292.00],[6,1156.00]],
@@ -255,7 +270,8 @@ For shops and box breakers stocking Storm Emeralda in volume, a sealed case is t
 - 12 sealed Japanese Storm Emeralda (M6) booster boxes per case
 - Lower price per box than single boxes, with a further break from 6 cases
 - Chase card: [Mega Rayquaza ex Master Ultra Rare](product:mega-rayquaza-ex-mur)'],
-    ['id'=>'aura-seeker-booster-box', 'sku'=>'FK-BB-MLZ-01',
+    ['id'=>'aura-seeker-booster-box', 'seo_desc'=>'Preorder the Japanese Aura Seeker (Hadou Seeker) booster box, an upcoming Mega Evolution set due November 2026. Invoiced at allocation, shipped to the UK.',
+     'sku'=>'FK-BB-MLZ-01',
      'name'=>'Aura Seeker (Hadou Seeker) Booster Box', 'set'=>'Aura Seeker (Hadou Seeker)', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'preorder', 'release'=>'November 2026', 'weight'=>0.4, 'hidden'=>false,
      'ladder'=>[[1,96.00],[6,91.50],[18,86.50],[36,82.00]],
@@ -266,7 +282,8 @@ A preorder reserves your allocation ahead of release at the quantity-break price
 - Sealed Japanese booster box — preorder
 - Nothing to pay today: invoiced at allocation
 - Sold in sixes, with the lowest price from 36 boxes'],
-    ['id'=>'starter-set-ex-eevee-ex', 'sku'=>'FK-PRM-SSEEV-01',
+    ['id'=>'starter-set-ex-eevee-ex', 'seo_desc'=>'Starter Set ex Eevee ex: a ready-to-play Pokémon TCG deck built around Eevee ex, an easy first deck and a popular gift. Sealed and shipped to the UK.',
+     'sku'=>'FK-PRM-SSEEV-01',
      'name'=>'Starter Set ex — Eevee ex', 'set'=>'', 'cat'=>'premium', 'cond'=>'Sealed',
      'moq'=>10, 'step'=>10, 'status'=>'in', 'release'=>'', 'weight'=>0.35, 'hidden'=>false,
      'ladder'=>[[1,59.00],[10,46.50],[60,40.50]],
@@ -276,7 +293,8 @@ A complete deck built around Eevee ex, ready to play straight from the box — a
 
 - Ready-to-play Eevee ex deck
 - Sold by the case of 10, with the lowest price from 60'],
-    ['id'=>'pokemon-tcg-card-storage-box-booster-box-display', 'sku'=>'FK-ACC-STOR-01',
+    ['id'=>'pokemon-tcg-card-storage-box-booster-box-display', 'seo_desc'=>'Pokémon TCG card storage box in booster box display style, keeping sleeved or loose cards upright and flat. Sold in sixes and shipped to the UK.',
+     'sku'=>'FK-ACC-STOR-01',
      'name'=>'Pokémon TCG Card Storage Box — Booster Box Display', 'set'=>'', 'cat'=>'accessories', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.25, 'hidden'=>false,
      'ladder'=>[[1,7.00],[6,6.20],[36,4.70]],
@@ -298,7 +316,8 @@ Each page holds nine standard-size Pokémon cards, so a binder is the simplest w
 - 9-pocket Pokémon card binder
 - Mega Evolution series artwork
 - Sold in sixes, with the lowest price from 36'],
-    ['id'=>'celebi-and-furret-deck-sleeves', 'sku'=>'FK-ACC-SLV-CELF',
+    ['id'=>'celebi-and-furret-deck-sleeves', 'seo_desc'=>'Celebi & Furret deck sleeves for standard 63 × 88 mm Pokémon cards, protecting cards in play and storage. Sold in packs of 24, shipped to the UK.',
+     'sku'=>'FK-ACC-SLV-CELF',
      'name'=>'Celebi & Furret Deck Sleeves', 'set'=>'', 'cat'=>'accessories', 'cond'=>'Sealed',
      'moq'=>24, 'step'=>24, 'status'=>'in', 'release'=>'', 'weight'=>0.06, 'hidden'=>false,
      'ladder'=>[[1,10.10],[24,9.10],[144,6.80]],
@@ -308,7 +327,8 @@ Sleeves protect cards in play and in storage, and character designs like these a
 
 - Fits standard 63 × 88 mm Pokémon cards
 - Sold in 24s, with the lowest price from 144'],
-    ['id'=>'pikachu-ditto-ver-deck-sleeves', 'sku'=>'FK-ACC-SLV-PIKD',
+    ['id'=>'pikachu-ditto-ver-deck-sleeves', 'seo_desc'=>'Pikachu (Ditto Ver.) deck sleeves for standard 63 × 88 mm Pokémon cards, protecting cards in play and storage. Sold in packs of 24, shipped to the UK.',
+     'sku'=>'FK-ACC-SLV-PIKD',
      'name'=>'Pikachu (Ditto Ver.) Deck Sleeves', 'set'=>'', 'cat'=>'accessories', 'cond'=>'Sealed',
      'moq'=>24, 'step'=>24, 'status'=>'in', 'release'=>'', 'weight'=>0.06, 'hidden'=>false,
      'ladder'=>[[1,10.10],[24,9.10],[144,6.80]],
@@ -318,7 +338,8 @@ Sleeves protect cards in play and in storage, and character designs like these a
 
 - Fits standard 63 × 88 mm Pokémon cards
 - Sold in 24s, with the lowest price from 144'],
-    ['id'=>'storm-emeralda-mega-rayquaza-deck-sleeves', 'sku'=>'FK-ACC-SLV-MRAY',
+    ['id'=>'storm-emeralda-mega-rayquaza-deck-sleeves', 'seo_desc'=>'Mega Rayquaza deck sleeves from the Storm Emeralda release, sized for standard 63 × 88 mm Pokémon cards. Sold in packs of 24, shipped to the UK.',
+     'sku'=>'FK-ACC-SLV-MRAY',
      'name'=>'Storm Emeralda Mega Rayquaza Deck Sleeves', 'set'=>'Storm Emeralda', 'cat'=>'accessories', 'cond'=>'Sealed',
      'moq'=>24, 'step'=>24, 'status'=>'in', 'release'=>'', 'weight'=>0.06, 'hidden'=>false,
      'ladder'=>[[1,10.10],[24,9.10],[144,6.80]],
@@ -328,7 +349,8 @@ Sleeves protect cards in play and in storage, and character designs like these a
 
 - Fits standard 63 × 88 mm Pokémon cards
 - Sold in 24s, with the lowest price from 144'],
-    ['id'=>'ultra-pro-pikachu-alcove-tower-deck-box', 'sku'=>'FK-ACC-UP-ALCT',
+    ['id'=>'ultra-pro-pikachu-alcove-tower-deck-box', 'seo_desc'=>'Ultra PRO Alcove Tower deck box with Pikachu artwork, holding a sleeved Pokémon deck for league nights and tournaments. Sold in 12s, shipped to the UK.',
+     'sku'=>'FK-ACC-UP-ALCT',
      'name'=>'Ultra PRO Pikachu Alcove Tower Deck Box', 'set'=>'', 'cat'=>'accessories', 'cond'=>'Sealed',
      'moq'=>12, 'step'=>12, 'status'=>'in', 'release'=>'', 'weight'=>0.2, 'hidden'=>false,
      'ladder'=>[[1,16.30],[12,14.60],[72,11.00]],
@@ -339,7 +361,8 @@ A sturdy deck box to carry a sleeved Pokémon deck to league nights and tourname
 - Ultra PRO Alcove Tower deck box
 - Pikachu artwork
 - Sold in 12s, with the lowest price from 72'],
-    ['id'=>'ultra-pro-pikachu-deck-protector-sleeves-65-ct', 'sku'=>'FK-ACC-UP-SLV65',
+    ['id'=>'ultra-pro-pikachu-deck-protector-sleeves-65-ct', 'seo_desc'=>'Ultra PRO Pikachu Deck Protector sleeves: 65 standard-size sleeves per pack for 63 × 88 mm Pokémon cards. Sold in 24s and shipped to the UK.',
+     'sku'=>'FK-ACC-UP-SLV65',
      'name'=>'Ultra PRO Pikachu Deck Protector Sleeves (65 ct)', 'set'=>'', 'cat'=>'accessories', 'cond'=>'Sealed',
      'moq'=>24, 'step'=>24, 'status'=>'in', 'release'=>'', 'weight'=>0.06, 'hidden'=>false,
      'ladder'=>[[1,8.50],[24,7.20],[144,4.30]],
@@ -350,7 +373,8 @@ Standard-size sleeves fit Pokémon cards for play and storage. See our [Pokémon
 - 65 sleeves per pack
 - Fits standard 63 × 88 mm Pokémon cards
 - Sold in 24s, with the lowest price from 144'],
-    ['id'=>'pokemon-playmat-assorted-designs', 'sku'=>'FK-ACC-MAT-AST',
+    ['id'=>'pokemon-playmat-assorted-designs', 'seo_desc'=>'Pokémon playmats in assorted designs, protecting cards during play and marking out the play area. Minimum 10, then in fives, shipped to the UK.',
+     'sku'=>'FK-ACC-MAT-AST',
      'name'=>'Pokémon Playmat — Assorted Designs', 'set'=>'', 'cat'=>'accessories', 'cond'=>'Sealed',
      'moq'=>10, 'step'=>5, 'status'=>'in', 'release'=>'', 'weight'=>0.45, 'hidden'=>false,
      'ladder'=>[[1,22.00],[10,17.40],[50,15.00]],
@@ -360,7 +384,8 @@ A playmat protects cards during play and marks out the play area — a popular a
 
 - Assorted Pokémon designs
 - Minimum 10, then in fives, with the lowest price from 50'],
-    ['id'=>'pokemon-deck-box-assorted', 'sku'=>'FK-ACC-DBX-AST',
+    ['id'=>'pokemon-deck-box-assorted', 'seo_desc'=>'Pokémon deck boxes in assorted designs, keeping a sleeved deck safe in a bag or pocket. Minimum 20, then in tens, priced in pounds and shipped to the UK.',
+     'sku'=>'FK-ACC-DBX-AST',
      'name'=>'Pokémon Deck Box — Assorted', 'set'=>'', 'cat'=>'accessories', 'cond'=>'Sealed',
      'moq'=>20, 'step'=>10, 'status'=>'in', 'release'=>'', 'weight'=>0.1, 'hidden'=>false,
      'ladder'=>[[1,9.50],[20,7.40],[100,6.30]],
@@ -370,7 +395,8 @@ Deck boxes keep a sleeved deck safe in a bag or pocket, and sell steadily alongs
 
 - Assorted Pokémon designs
 - Minimum 20, then in tens, with the lowest price from 100'],
-    ['id'=>'pokemon-card-sleeves-64-ct-assorted-designs', 'sku'=>'FK-ACC-SLV64-AST',
+    ['id'=>'pokemon-card-sleeves-64-ct-assorted-designs', 'seo_desc'=>'Pokémon card sleeves in assorted designs, 64 per pack, fitting Japanese and English Pokémon cards. Minimum 20, then in tens, shipped to the UK.',
+     'sku'=>'FK-ACC-SLV64-AST',
      'name'=>'Pokémon Card Sleeves (64 ct) — Assorted Designs', 'set'=>'', 'cat'=>'accessories', 'cond'=>'Sealed',
      'moq'=>20, 'step'=>10, 'status'=>'in', 'release'=>'', 'weight'=>0.06, 'hidden'=>false,
      'ladder'=>[[1,6.30],[20,4.90],[100,4.10]],
@@ -381,7 +407,8 @@ Sized for standard 63 × 88 mm Pokémon cards (Japanese and English cards are th
 - 64 sleeves per pack
 - Fits Japanese and English Pokémon cards
 - Minimum 20, then in tens, with the lowest price from 100'],
-    ['id'=>'mega-rayquaza-ex-sar-245-191-near-mint', 'sku'=>'FK-SGL-MRAY-SAR245',
+    ['id'=>'mega-rayquaza-ex-sar-245-191-near-mint', 'seo_desc'=>'Japanese Mega Rayquaza ex Special Illustration Rare 245/191 from Storm Emeralda (M6), full art of the set\'s headline Pokémon. Near Mint, shipped to the UK.',
+     'sku'=>'FK-SGL-MRAY-SAR245',
      'name'=>'Mega Rayquaza ex SAR #245/191 — Near Mint', 'set'=>'Storm Emeralda', 'cat'=>'singles', 'cond'=>'Near Mint',
      'moq'=>3, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.05, 'hidden'=>false,
      'ladder'=>[[1,95.00],[3,80.50],[25,71.00]],
@@ -393,7 +420,8 @@ A full art Special Illustration Rare of the set\'s headline Pokémon, and a more
 - Special Illustration Rare (full art)
 - Near Mint, sleeved and toploaded
 - Minimum 3 copies, with the lowest price from 25'],
-    ['id'=>'pikachu-ex-sar-240-191-psa-10-gem-mint', 'sku'=>'FK-SGL-PIKA-PSA10',
+    ['id'=>'pikachu-ex-sar-240-191-psa-10-gem-mint', 'seo_desc'=>'Pikachu ex Special Illustration Rare 240/191 graded PSA 10 Gem Mint, the top grade, in its original PSA slab. A graded Pikachu card shipped to the UK.',
+     'sku'=>'FK-SGL-PIKA-PSA10',
      'name'=>'Pikachu ex SAR #240/191 — PSA 10 Gem Mint', 'set'=>'', 'cat'=>'singles', 'cond'=>'Graded',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.15, 'hidden'=>false,
      'ladder'=>[[1,391.00],[3,371.00]],
@@ -405,7 +433,8 @@ PSA 10 is the top grade: a virtually perfect card, authenticated and sealed in P
 - Graded PSA 10 Gem Mint
 - Ships in its original PSA slab
 - More [PSA graded Pokémon cards](cards:psa-graded-pokemon-cards)'],
-    ['id'=>'mega-floette-ex-japanese', 'sku'=>'FK-SGL-MFLO',
+    ['id'=>'mega-floette-ex-japanese', 'seo_desc'=>'Japanese Mega Floette ex from Ninja Spinner (M4), one of the new Mega Pokémon ex of the Mega Evolution series. Near Mint, shipped to the UK.',
+     'sku'=>'FK-SGL-MFLO',
      'name'=>'Mega Floette ex (Japanese)', 'set'=>'Ninja Spinner', 'cat'=>'singles', 'cond'=>'Near Mint',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.05, 'hidden'=>false,
      'ladder'=>[[1,44.50],[6,40.50]],
@@ -416,7 +445,8 @@ Mega Floette ex is one of the new Mega Pokémon ex introduced in Ninja Spinner. 
 - Japanese — [Ninja Spinner](set:ninja-spinner) (M4)
 - Near Mint, sleeved and toploaded
 - Lower price from 6 copies'],
-    ['id'=>'mega-excadrill-ex-japanese', 'sku'=>'FK-SGL-MEXC',
+    ['id'=>'mega-excadrill-ex-japanese', 'seo_desc'=>'Japanese Mega Excadrill ex from Abyss Eye (M5), one of the Mega Pokémon ex of the Mega Evolution series. Near Mint, sleeved and toploaded, shipped to the UK.',
+     'sku'=>'FK-SGL-MEXC',
      'name'=>'Mega Excadrill ex (Japanese)', 'set'=>'Abyss Eye', 'cat'=>'singles', 'cond'=>'Near Mint',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.05, 'hidden'=>false,
      'ladder'=>[[1,52.00],[6,47.00]],
@@ -427,7 +457,8 @@ Mega Excadrill ex is one of the Mega Pokémon ex introduced in Abyss Eye. Sleeve
 - Japanese — [Abyss Eye](set:abyss-eye) (M5)
 - Near Mint, sleeved and toploaded
 - Lower price from 6 copies'],
-    ['id'=>'mega-greninja-ex-japanese', 'sku'=>'FK-SGL-MGRE',
+    ['id'=>'mega-greninja-ex-japanese', 'seo_desc'=>'Japanese Mega Greninja ex from Ninja Spinner (M4), a headline card of the set and a fan favourite. Near Mint, sleeved and toploaded, shipped to the UK.',
+     'sku'=>'FK-SGL-MGRE',
      'name'=>'Mega Greninja ex (Japanese)', 'set'=>'Ninja Spinner', 'cat'=>'singles', 'cond'=>'Near Mint',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.05, 'hidden'=>false,
      'ladder'=>[[1,67.00],[6,60.50]],
@@ -438,7 +469,8 @@ Greninja is a long-time fan favourite, and Mega Greninja ex is one of the headli
 - Japanese — [Ninja Spinner](set:ninja-spinner) (M4)
 - Near Mint, sleeved and toploaded
 - Lower price from 6 copies'],
-    ['id'=>'mega-darkrai-ex-japanese', 'sku'=>'FK-SGL-MDRK',
+    ['id'=>'mega-darkrai-ex-japanese', 'seo_desc'=>'Japanese Mega Darkrai ex from Abyss Eye (M5), a headline Mega Pokémon ex of the set. Near Mint, sleeved and toploaded, shipped from Japan to the UK.',
+     'sku'=>'FK-SGL-MDRK',
      'name'=>'Mega Darkrai ex (Japanese)', 'set'=>'Abyss Eye', 'cat'=>'singles', 'cond'=>'Near Mint',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.05, 'hidden'=>false,
      'ladder'=>[[1,144.00],[6,130.00]],
@@ -449,7 +481,8 @@ Darkrai is a fan-favourite Mythical Pokémon, and Mega Darkrai ex is one of the 
 - Japanese — [Abyss Eye](set:abyss-eye) (M5)
 - Near Mint, sleeved and toploaded
 - Lower price from 6 copies'],
-    ['id'=>'pikachu-ex-special-illustration-rare-277-217', 'sku'=>'FK-SGL-PIKA-SAR277',
+    ['id'=>'pikachu-ex-special-illustration-rare-277-217', 'seo_desc'=>'Pikachu ex Special Illustration Rare 277/217, a full art Pikachu card and a centrepiece for any collection. Near Mint and shipped to the UK.',
+     'sku'=>'FK-SGL-PIKA-SAR277',
      'name'=>'Pikachu ex — Special Illustration Rare #277/217', 'set'=>'', 'cat'=>'singles', 'cond'=>'Near Mint',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.05, 'hidden'=>false,
      'ladder'=>[[1,287.00],[6,259.00]],
@@ -461,7 +494,8 @@ A full art Special Illustration Rare of Pokémon\'s mascot — a centrepiece Pik
 - Special Illustration Rare (full art)
 - Near Mint
 - More [Pikachu Pokémon cards](cards:pikachu-pokemon-cards)'],
-    ['id'=>'mega-charizard-y-ex-hyper-rare', 'sku'=>'FK-SGL-MCHY-HR',
+    ['id'=>'mega-charizard-y-ex-hyper-rare', 'seo_desc'=>'Mega Charizard Y ex Hyper Rare: a gold, textured Charizard card from the Mega Evolution series. Near Mint, sleeved and toploaded, shipped to the UK.',
+     'sku'=>'FK-SGL-MCHY-HR',
      'name'=>'Mega Charizard Y ex — Hyper Rare', 'set'=>'', 'cat'=>'singles', 'cond'=>'Near Mint',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.05, 'hidden'=>false,
      'ladder'=>[[1,324.00],[6,294.00]],
@@ -473,7 +507,8 @@ Hyper Rares are the textured gold cards at the top of a set, and Charizard\'s ar
 - Near Mint
 - Lower price from 6 copies
 - What makes [gold Pokémon cards](guide:pokemon-card-rarities) rare'],
-    ['id'=>'30th-celebration-premium-deck-set-espeon-and-umbreon', 'sku'=>'FK-PRM-30C-ESUM',
+    ['id'=>'30th-celebration-premium-deck-set-espeon-and-umbreon', 'seo_desc'=>'30th Celebration Premium Deck Set with Espeon and Umbreon, a collector\'s piece for Pokémon\'s 30th anniversary. Sealed and shipped from Japan to the UK.',
+     'sku'=>'FK-PRM-30C-ESUM',
      'name'=>'30th Celebration Premium Deck Set — Espeon & Umbreon', 'set'=>'30th Celebration', 'cat'=>'premium', 'cond'=>'Sealed',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>1.2, 'hidden'=>false,
      'ladder'=>[[1,342.00],[6,294.00]],
@@ -484,7 +519,8 @@ Espeon and Umbreon are two of the most loved Eevee evolutions, and this premium 
 - 30th Celebration Premium Deck Set: Espeon & Umbreon
 - Anniversary collectible
 - Sold individually, with a lower price from 6'],
-    ['id'=>'30th-celebration-sylveon-ex-box', 'sku'=>'FK-PRM-SYL-01',
+    ['id'=>'30th-celebration-sylveon-ex-box', 'seo_desc'=>'30th Celebration Sylveon ex Box: a Sylveon ex collection box with booster packs, from Pokémon\'s 30th-anniversary range. Sealed and shipped to the UK.',
+     'sku'=>'FK-PRM-SYL-01',
      'name'=>'30th Celebration Sylveon ex Box', 'set'=>'30th Celebration', 'cat'=>'premium', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.6, 'hidden'=>false,
      'ladder'=>[[1,17.00],[6,15.30],[36,11.50]],
@@ -495,7 +531,8 @@ The companion to the [Greninja ex Box](product:30th-celebration-greninja-ex-box)
 - Sylveon ex collection box with booster packs
 - Part of the [30th Celebration](set:30th-celebration) range
 - Sold in sixes, with the lowest price from 36'],
-    ['id'=>'30th-celebration-tech-sticker-collection', 'sku'=>'FK-PRM-30C-STK',
+    ['id'=>'30th-celebration-tech-sticker-collection', 'seo_desc'=>'30th Celebration Tech Sticker Collection, an affordable add-on from Pokémon\'s 30th-anniversary range. Sold in 12s, priced in pounds, shipped to the UK.',
+     'sku'=>'FK-PRM-30C-STK',
      'name'=>'30th Celebration Tech Sticker Collection', 'set'=>'30th Celebration', 'cat'=>'premium', 'cond'=>'Sealed',
      'moq'=>12, 'step'=>12, 'status'=>'in', 'release'=>'', 'weight'=>0.25, 'hidden'=>false,
      'ladder'=>[[1,11.60],[12,10.40],[72,7.90]],
@@ -505,7 +542,8 @@ A low-price item that sells well at the counter and in online baskets next to 30
 
 - 30th Celebration sticker collection
 - Sold in 12s, with the lowest price from 72'],
-    ['id'=>'pitch-black-elite-trainer-box', 'sku'=>'FK-ETB-PB-01',
+    ['id'=>'pitch-black-elite-trainer-box', 'seo_desc'=>'Pokémon TCG Mega Evolution Pitch Black Elite Trainer Box: booster packs, sleeves, dice, damage counters and a storage box. Sealed and shipped to the UK.',
+     'sku'=>'FK-ETB-PB-01',
      'name'=>'Pitch Black Elite Trainer Box', 'set'=>'Abyss Eye', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,35.00],[4,31.50],[24,23.50]],
@@ -528,7 +566,8 @@ Chaos Rising is part of the Pokémon Trading Card Game\'s Mega Evolution series.
 - Sealed Mega Evolution Chaos Rising Elite Trainer Box
 - Booster packs, sleeves, dice, damage counters and storage box
 - Sold in fours, with the lowest price from 24'],
-    ['id'=>'perfect-order-elite-trainer-box', 'sku'=>'FK-ETB-PO-01',
+    ['id'=>'perfect-order-elite-trainer-box', 'seo_desc'=>'Pokémon TCG Mega Evolution Perfect Order Elite Trainer Box, headlined by Mega Zygarde ex: booster packs, sleeves, dice and storage box. Shipped to the UK.',
+     'sku'=>'FK-ETB-PO-01',
      'name'=>'Perfect Order Elite Trainer Box', 'set'=>'Nihil Zero', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,35.00],[4,31.50],[24,23.50]],
@@ -539,7 +578,8 @@ Perfect Order is part of the Pokémon Trading Card Game\'s Mega Evolution series
 - Sealed Mega Evolution Perfect Order Elite Trainer Box
 - Booster packs, sleeves, dice, damage counters and storage box
 - Sold in fours, with the lowest price from 24'],
-    ['id'=>'mega-evolution-ascended-heroes-elite-trainer-box', 'sku'=>'FK-ETB-AH-01',
+    ['id'=>'mega-evolution-ascended-heroes-elite-trainer-box', 'seo_desc'=>'Pokémon TCG Mega Evolution Ascended Heroes Elite Trainer Box: booster packs, sleeves, dice, damage counters and a storage box. Sealed and shipped to the UK.',
+     'sku'=>'FK-ETB-AH-01',
      'name'=>'Mega Evolution: Ascended Heroes Elite Trainer Box', 'set'=>'Mega Dream ex', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,35.00],[4,31.50],[24,23.50]],
@@ -550,7 +590,8 @@ Ascended Heroes is part of the Pokémon Trading Card Game\'s Mega Evolution seri
 - Sealed Mega Evolution Ascended Heroes Elite Trainer Box
 - Booster packs, sleeves, dice, damage counters and storage box
 - Sold in fours, with the lowest price from 24'],
-    ['id'=>'30th-celebration-elite-trainer-box-case-10-ct', 'sku'=>'FK-ETB-30C-C10',
+    ['id'=>'30th-celebration-elite-trainer-box-case-10-ct', 'seo_desc'=>'Sealed case of 10 Pokémon TCG 30th Celebration Elite Trainer Boxes, priced per case, with a lower price from six cases. Shipped to the UK.',
+     'sku'=>'FK-ETB-30C-C10',
      'name'=>'30th Celebration Elite Trainer Box Case (10-ct)', 'set'=>'30th Celebration', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>10, 'hidden'=>false,
      'ladder'=>[[1,348.00],[6,262.00]],
@@ -562,7 +603,8 @@ The most economical way to stock anniversary ETBs: ten boxes in one sealed case,
 - Each box: 9 booster packs, Nidorina promo, 16 foil Energy, 65 sleeves, dice, coin and collector\'s box
 - Price per case drops from 6 cases
 - Also sold [in fours](product:30th-celebration-elite-trainer-box)'],
-    ['id'=>'mega-dream-ex-m2a-booster-box', 'sku'=>'FK-BB-M2A-01',
+    ['id'=>'mega-dream-ex-m2a-booster-box', 'seo_desc'=>'Sealed Japanese Mega Dream ex (M2A) booster box, the special set of the Mega Evolution series and home of the Mega Gengar ex SIR. Shipped to the UK.',
+     'sku'=>'FK-BB-M2A-01',
      'name'=>'Mega Dream ex (M2A) Booster Box', 'set'=>'Mega Dream ex', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
      'ladder'=>[[1,138.00],[6,118.00],[24,107.00]],
@@ -574,7 +616,8 @@ Mega Dream ex is home to the [Mega Gengar ex Special Illustration Rare](product:
 - Chase card: Mega Gengar ex Special Illustration Rare
 - Best price per box from 24 boxes
 - See all [Gengar Pokémon cards](cards:gengar-pokemon-cards)'],
-    ['id'=>'inferno-x-booster-box', 'sku'=>'FK-BB-INFX-01',
+    ['id'=>'inferno-x-booster-box', 'seo_desc'=>'Sealed Japanese Inferno X (M2) booster box, the second main set of the Mega Evolution series, with new Mega Pokémon ex. Shipped from Japan to the UK.',
+     'sku'=>'FK-BB-INFX-01',
      'name'=>'Inferno X Booster Box', 'set'=>'Inferno X', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
      'ladder'=>[[1,172.00],[6,164.00],[36,147.00]],
@@ -585,7 +628,8 @@ Inferno X continues the Mega Evolution era with new Mega Pokémon ex and full ar
 - Sealed Japanese booster box — Inferno X (M2)
 - Part of the [Mega Evolution series](set:mega-evolution)
 - Sold in sixes, with the best price from 36 boxes'],
-    ['id'=>'mega-symphonia-booster-box', 'sku'=>'FK-BB-M1S-01',
+    ['id'=>'mega-symphonia-booster-box', 'seo_desc'=>'Sealed Japanese Mega Symphonia (M1S) booster box, one of the twin sets that launched the Mega Evolution series in 2025. Shipped from Japan to the UK.',
+     'sku'=>'FK-BB-M1S-01',
      'name'=>'Mega Symphonia Booster Box', 'set'=>'Mega Symphonia', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
      'ladder'=>[[1,87.00],[6,83.00],[36,74.50]],
@@ -596,7 +640,8 @@ Mega Symphonia and its partner set [Mega Brave](product:mega-brave-booster-box) 
 - Sealed Japanese booster box — Mega Symphonia (M1S)
 - Twin set of Mega Brave (M1L)
 - Sold in sixes, with the best price from 36 boxes'],
-    ['id'=>'mega-brave-booster-box', 'sku'=>'FK-BB-M1L-01',
+    ['id'=>'mega-brave-booster-box', 'seo_desc'=>'Sealed Japanese Mega Brave (M1L) booster box, one of the twin sets that launched the Mega Evolution series in 2025. Shipped from Japan to the UK.',
+     'sku'=>'FK-BB-M1L-01',
      'name'=>'Mega Brave Booster Box', 'set'=>'Mega Brave', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
      'ladder'=>[[1,95.00],[6,90.50],[36,81.00]],
@@ -607,7 +652,8 @@ Mega Brave and its partner set [Mega Symphonia](product:mega-symphonia-booster-b
 - Sealed Japanese booster box — Mega Brave (M1L)
 - Twin set of Mega Symphonia (M1S)
 - Sold in sixes, with the best price from 36 boxes'],
-    ['id'=>'abyss-eye-m5-booster-box', 'sku'=>'FK-BB-M5-01',
+    ['id'=>'abyss-eye-m5-booster-box', 'seo_desc'=>'Sealed Japanese Abyss Eye (M5) booster box from the Mega Evolution series, featuring Mega Darkrai ex and Mega Excadrill ex. Shipped to the UK.',
+     'sku'=>'FK-BB-M5-01',
      'name'=>'Abyss Eye (M5) Booster Box', 'set'=>'Abyss Eye', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
      'ladder'=>[[1,156.00],[6,133.00],[24,120.00]],
@@ -619,7 +665,8 @@ Abyss Eye features [Mega Darkrai ex](product:mega-darkrai-ex-japanese) and [Mega
 - Features Mega Darkrai ex and Mega Excadrill ex
 - Best price per box from 24 boxes
 - Matching [Abyss Eye Elite Trainer Box](product:abyss-eye-elite-trainer-box)'],
-    ['id'=>'ninja-spinner-m4-booster-box', 'sku'=>'FK-BB-M4-01',
+    ['id'=>'ninja-spinner-m4-booster-box', 'seo_desc'=>'Sealed Japanese Ninja Spinner (M4) booster box, with Mega Greninja ex and Mega Floette ex. Limited stock, priced in pounds and shipped to the UK.',
+     'sku'=>'FK-BB-M4-01',
      'name'=>'Ninja Spinner (M4) Booster Box', 'set'=>'Ninja Spinner', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'low', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
      'ladder'=>[[1,130.00],[6,111.00],[24,102.00]],
@@ -630,7 +677,8 @@ Ninja Spinner brings [Mega Greninja ex](product:mega-greninja-ex-japanese) and [
 - Sealed Japanese booster box — Ninja Spinner (M4)
 - Features Mega Greninja ex and Mega Floette ex
 - Best price per box from 24 boxes'],
-    ['id'=>'nihil-zero-booster-box', 'sku'=>'FK-BB-NZ-01',
+    ['id'=>'nihil-zero-booster-box', 'seo_desc'=>'Sealed Japanese Nihil Zero (M3) booster box from the Mega Evolution series, an affordable way into the era. Priced in pounds, shipped from Japan to the UK.',
+     'sku'=>'FK-BB-NZ-01',
      'name'=>'Nihil Zero Booster Box', 'set'=>'Nihil Zero', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
      'ladder'=>[[1,66.00],[6,65.50],[36,64.00]],
@@ -641,7 +689,8 @@ Nihil Zero is an affordable way into the Mega Evolution era, and its flat price 
 - Sealed Japanese booster box — Nihil Zero (M3)
 - Part of the [Mega Evolution series](set:mega-evolution)
 - Sold in sixes'],
-    ['id'=>'terastal-festival-booster-box', 'sku'=>'FK-BB-SV8A-01',
+    ['id'=>'terastal-festival-booster-box', 'seo_desc'=>'Sealed Japanese Terastal Festival ex (SV8a) booster box, the Eevee-evolutions set released in English as Prismatic Evolutions. Shipped to the UK.',
+     'sku'=>'FK-BB-SV8A-01',
      'name'=>'Terastal Festival Booster Box', 'set'=>'Terastal Festival ex', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
      'ladder'=>[[1,69.50],[6,67.00],[36,62.00]],
