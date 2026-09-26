@@ -394,7 +394,7 @@ function send_order_mail($order){
     $body .= !empty($b['sats'])
       ? "-> Paid by Bitcoin on the site: ".btc_amount($b['sats'])." BTC to {$b['address']}\n   (1 BTC = ".money_in($b['rate'], $b['rate_cur'] ?? order_base($order))." from {$b['rate_source']}). You'll get a receipt email when the payment\n   is seen on the blockchain, and another when it confirms. No need to send payment details.\n\n"
       : "-> Paid by Bitcoin on the site to {$b['address']}. The BTC price feeds didn't answer, so the customer's\n   order page will show the amount once they do. You'll get a receipt email when the payment is seen.\n\n";
-  } else $body .= "-> Send payment details to this customer manually.\n\n";
+  } else $body .= "-> Send the payment details for {$order['payment_label']} to this customer by text\n   ({$order['phone']}) or email ({$order['email']}), with their invoice.\n\n";
   $body .= "CONTACT\n";
   $body .= "  Name:    {$order['name']}\n";
   $body .= "  Company: {$order['company']}\n";
@@ -403,7 +403,7 @@ function send_order_mail($order){
   $body .= "SHIP TO\n";
   $body .= "  {$order['address1']}\n";
   if($order['address2']) $body .= "  {$order['address2']}\n";
-  $body .= "  {$order['city']}, {$order['region']} {$order['postcode']}\n";
+  $body .= "  ".implode(', ', array_filter([$order['city'], trim($order['region'].' '.$order['postcode'])]))."\n";
   $body .= "  {$order['country_name']}\n\n";
   $body .= "ITEMS\n";
   foreach($order['lines'] as $l){
@@ -411,7 +411,8 @@ function send_order_mail($order){
       $l['name'].' ('.$l['sku'].')', $l['qty'], $l['unit'], $l['total']);
   }
   $body .= "\n  GOODS:    {$order['goods']}\n";
-  $body .= "  SHIPPING: {$order['shipping']} ({$order['ship_zone']}, {$order['ship_label']})\n";
+  $ship_txt = !empty($order['free_shipping']) && (float)$order['shipping_usd'] == 0 ? 'Free' : $order['shipping'];
+  $body .= "  SHIPPING: $ship_txt ({$order['ship_zone']}, {$order['ship_label']})\n";
   $body .= "  TOTAL:    {$order['total']} ({$order['currency']})\n";
   $body .= !empty($order['vat']) ? "  Includes UK VAT at {$order['vat_rate']}%: {$order['vat_shown']}\n\n" : "  Import duty and taxes are not included.\n\n";
   if($order['notes']) $body .= "NOTES\n  {$order['notes']}\n\n";
@@ -421,12 +422,16 @@ function send_order_mail($order){
 
   /* customer confirmation */
   $c  = "Thank you — we have your order.\n\n";
-  $c .= "Order reference: {$order['ref']}\n";
-  $c .= "Goods: {$order['goods']}\n";
-  $c .= "Shipping: {$order['shipping']} — {$order['ship_label']}\n";
+  $c .= "Order reference: {$order['ref']}\n\n";
+  $c .= "YOUR ORDER\n";
+  foreach($order['lines'] as $l) $c .= "  {$l['qty']} x {$l['name']} — {$l['total']}\n";
+  $c .= "\nGoods: {$order['goods']}\n";
+  $c .= "Shipping: $ship_txt — {$order['ship_label']}\n";
   $c .= "Order total: {$order['total']} ({$order['currency']})\n";
   if(!empty($order['vat'])) $c .= "Includes UK VAT at {$order['vat_rate']}%: {$order['vat_shown']}\n";
   $c .= "Payment method selected: {$order['payment_label']}\n\n";
+  $c .= "DELIVERY ADDRESS\n  {$order['name']}\n  {$order['address1']}\n".($order['address2'] ? "  {$order['address2']}\n" : '')
+      ."  ".implode(', ', array_filter([$order['city'], trim($order['region'].' '.$order['postcode'])]))."\n  {$order['country_name']}\n\n";
   if(!empty($order['btc'])){
     $b = $order['btc'];
     $c .= "PAY WITH BITCOIN\n";
