@@ -18,7 +18,7 @@ return [
     'home_seo_title'=> 'Pokémon Cards Australia: Wholesale Japanese Booster Boxes',
     'home_seo_desc' => 'Wholesale Japanese Pokémon cards for Australia: sealed booster boxes, ETBs, premium sets and singles shipped from Japan, with MOQ and case pricing in AUD.',
     'home_intro'    => <<<'MD'
-## Pokémon cards in Australia, straight from Japan
+## Poké cards across Aus: Pokémon cards straight from Japan
 
 {brand} supplies Pokémon cards across Australia: sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb), [rare Pokémon cards](category:singles) and [card binders and sleeves](category:accessories), priced in Australian dollars and shipped from Japan with tracking. Looking for English trading cards in store? See [where to buy Pokémon cards in Australia](guide:where-to-buy-pokemon-cards) and the [Pokémon Center Australia](guide:pokemon-center-australia) online store.
 
@@ -152,7 +152,6 @@ Once we approve a refund, we send it within 5 working days, the same way you pai
 
 - **Bitcoin and other crypto:** sent to a wallet address you confirm by email, for the value of the refunded items, converted at the rate on the day we refund. Network fees come out of the amount sent.
 - **PayID and bank transfer:** back to the account you paid from, in Australian dollars.
-- **Other methods:** back through the same method where it allows refunds, or by bank transfer.
 
 Your bank, card or wallet may take a few more days to show it. Shipping is refunded when the problem was ours. Nothing in this policy limits your rights under the Australian Consumer Law.
 
@@ -698,7 +697,7 @@ EB Games sells sealed Pokémon products in stores and online, including preorder
 
 ## JB Hi-Fi Pokémon cards
 
-JB Hi-Fi (JBHiFi) stocks Pokémon TCG products in many stores and online, often next to its video games, with preorders for popular releases.
+JB Hi-Fi (JBHiFi) stocks Pokémon TCG products in many stores and online, often next to its video games, with preorders for popular releases. Searching "JBHiFi Pokémon" on its website shows what's in stock at your nearest store.
 
 ## Costco Pokémon cards
 
@@ -868,6 +867,8 @@ Good Games is an Australian chain of game stores that sell Pokémon TCG products
 - **Queensland:** Good Games Strathpine
 - **South Australia:** Good Games Adelaide and Good Games Modbury
 - **Western Australia:** Good Games Cannington and Good Games North (Joondalup)
+
+Each store has its own website and event calendar: search "goodgames" plus your suburb or city (for example "goodgames Adelaide") to find your nearest one.
 
 ## Good Games TCG events and singles
 
@@ -1695,7 +1696,7 @@ Yes. We ship from Japan with tracking to every Australian state and territory, i
 
 ### Are your prices in Australian dollars?
 
-Yes. Prices show in Australian dollars (you can switch to US dollars at the top of the page), and your invoice is issued in the currency you choose. Prices don't include GST.
+Yes. Every price is in Australian dollars (AUD), and so is your invoice. Prices don't include GST.
 
 ### Do you offer distributor pricing for larger volumes?
 
@@ -1747,7 +1748,7 @@ These terms apply to orders placed on {brand}.
 
 ## Prices and currency
 
-Prices are shown in Australian dollars by default and can be switched to US dollars. They're set in US dollars and converted at our current rate, and your invoice is issued in the currency you selected at checkout. Prices exclude GST.
+Prices are in Australian dollars (AUD) and exclude GST. Your invoice is issued in Australian dollars.
 
 ## Orders
 
@@ -1755,7 +1756,7 @@ Placing an order reserves stock for {hold_hours} hours while we send payment det
 
 ## Payment
 
-**Bitcoin** is paid from your order page, straight after you order, to the wallet address shown there. The BTC amount is fixed for a limited time and renewed at the current rate if it runs out before you pay; send the exact amount shown. For **other methods**, we send payment details within {reply_hours} hours: always quote your order reference, and check payment details against our email from {email}. We never ask for card details, passwords or wallet keys.
+**Bitcoin** is paid from your order page, straight after you order, to the wallet address shown there. The BTC amount is fixed for a limited time and renewed at the current rate if it runs out before you pay; send the exact amount shown. For **PayID / bank transfer**, we send payment details within {reply_hours} hours: always quote your order reference, and check payment details against our email from {email}. We never ask for card details, passwords or wallet keys.
 
 ## Preorders
 
@@ -1783,7 +1784,7 @@ MD],
     ['Do you ship Japanese Pokémon cards to Australia?', 'Yes. Everything ships from Japan to every Australian state and territory with tracking. Choose {standard} delivery ({standard_days}) or {express} ({express_days}) at checkout; shipping is priced by the weight of your order, and orders start at {min_order} including shipping.'],
     ['Do I need a wholesale account to see pricing?', 'No. Every product shows its minimum order quantity, case multiple and full quantity-break ladder publicly, so you can price a complete order before contacting anyone. There is no application form and no approval wait.'],
     ['Who do you sell to?', 'Australian card shops, online retailers, tournament organisers and independent distributors, as well as collectors who buy by the box. Wholesale terms are on every listing, with no registration needed.'],
-    ['Are prices in Australian dollars?', 'Yes. Prices show in Australian dollars by default, and your invoice is issued in the currency you pick at checkout. Prices do not include GST.'],
+    ['Are prices in Australian dollars?', 'Yes. Every price is in Australian dollars (AUD), and so is your invoice. Prices do not include GST.'],
     ['What is the minimum order?', 'Every order must total at least {min_order} including shipping. Sealed product is sold in cases (usually multiples of four or six); single cards start at one.'],
     ['Are Japanese Pokémon cards the same size as English cards?', 'Yes. Both are 63 × 88 mm (about 2.5 × 3.5 inches), so they fit standard sleeves, toploaders and binders.'],
     ['How do I pay?', 'Choose a method at checkout: PayID or bank transfer in Australian dollars, Bitcoin or other crypto. Bitcoin is paid on your order page straight after you order: scan the QR code, or copy the amount and address into your wallet. For other methods, we send the details to your email and phone within {reply_hours} hours, together with your invoice.'],

@@ -27,7 +27,7 @@ $d = [
     'shipping_reviewed' => false,
     'pretty_urls'   => false,            /* clean addresses like /products/151-booster-box; turn on in Admin → Settings */
     'free_ship_usd' => 2000,             /* free Standard shipping from this goods total (USD); 0 = off */
-    'content_version' => 6,              /* set by the shop: which built-in content updates are applied */
+    'content_version' => 7,              /* set by the shop: which built-in content updates are applied */
     'moved_to'      => '',               /* an old domain running this code can send every visitor here (301) */
     'google_verify' => '', 'bing_verify' => '',   /* Search Console / Bing verification codes (Admin → Settings) */
     /* SMTP for order emails (Admin → Settings → Email); blank host = the web host's mail() */
@@ -56,10 +56,10 @@ s0.parentNode.insertBefore(s1,s0);
 HTML,
   ],
 
-  /* the first currency is the one shoppers see until they pick another */
+  /* prices are entered in USD in the admin and shown in these currencies; the first is the one shoppers see.
+     With only AUD here, the shop is AUD-only and shows no currency switch. */
   'currencies' => [
     'AUD' => ['rate'=>1.52, 'sym'=>'A$',  'dec'=>2],
-    'USD' => ['rate'=>1,    'sym'=>'US$', 'dec'=>2],
   ],
 
 
@@ -650,7 +650,6 @@ Terastal Festival ex is built around Terastal Pokémon and all of the Eevee evol
     'bitcoin'  => ['label'=>'Bitcoin (BTC) — pay now', 'note'=>'Pay from any Bitcoin wallet as soon as you order. The exact amount and a QR code appear on the next page.', 'countries'=>'*', 'enabled'=>true, 'type'=>'bitcoin'],
     'crypto'   => ['label'=>'Other crypto (ETH, USDT)', 'note'=>'ETH or USDT (TRC-20 / ERC-20). We send the wallet address with your invoice. Network fees are the sender\'s.', 'countries'=>'*', 'enabled'=>true],
     'payid'    => ['label'=>'PayID / bank transfer (AUD)', 'note'=>'Australian customers. We email our PayID and account details with your invoice; quote your order reference.', 'countries'=>['AU'], 'enabled'=>true],
-    'other'    => ['label'=>'Other / discuss with us', 'note'=>'Tell us what works and we will arrange it.', 'countries'=>'*', 'enabled'=>true],
   ],
 
   'countries' => ['AU'=>'Australia'],

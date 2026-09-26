@@ -405,9 +405,9 @@ function send_order_mail($order){
       $l['name'].' ('.$l['sku'].')', $l['qty'], $l['unit'], $l['total']);
   }
   $body .= "\n  GOODS:    {$order['goods']}\n";
-  $body .= "  SHIPPING: {$order['shipping']} ({$order['ship_zone']}, {$order['ship_label']})\n";
+  $body .= "  SHIPPING: ".((float)($order['shipping_usd'] ?? 1) == 0 ? 'Free' : $order['shipping'])." ({$order['ship_zone']}, {$order['ship_label']})\n";
   $body .= "  TOTAL:    {$order['total']} ({$order['currency']})\n";
-  $body .= "  Import duty and taxes are not included.\n\n";
+  $body .= "  GST, import duty and customs charges are not included.\n\n";
   if($order['notes']) $body .= "NOTES\n  {$order['notes']}\n\n";
   $body .= "Submitted: {$order['time']}\n";
 
@@ -417,7 +417,7 @@ function send_order_mail($order){
   $c  = "Thank you — we have your order.\n\n";
   $c .= "Order reference: {$order['ref']}\n";
   $c .= "Goods: {$order['goods']}\n";
-  $c .= "Shipping: {$order['shipping']} — {$order['ship_label']}\n";
+  $c .= "Shipping: ".((float)($order['shipping_usd'] ?? 1) == 0 ? 'Free' : $order['shipping'])." — {$order['ship_label']}\n";
   $c .= "Order total: {$order['total']} ({$order['currency']})\n";
   $c .= "Payment method selected: {$order['payment_label']}\n\n";
   if(!empty($order['btc'])){
@@ -441,9 +441,13 @@ function send_order_mail($order){
     $c .= "Once payment clears we dispatch within {$CONFIG['hold_hours']} hours from Japan\n";
     $c .= "with tracking.\n\n";
   }
+  $c .= "Prices exclude GST. Orders over A$1,000 are charged GST, any duty and import\ncharges by Australian customs, collected by the carrier before delivery.\n\n";
   $c .= "Questions: {$CONFIG['email']}\n";
   $c .= "{$CONFIG['legal_name']} — {$CONFIG['address']}\n";
   $to_customer = shop_mail($order['email'], "Order {$order['ref']} received — {$CONFIG['brand']}", $c, $CONFIG['email']);
+  /* a copy of the customer's confirmation, so the order inbox has exactly what they were sent */
+  shop_mail($CONFIG['order_email'], "Confirmation sent: order {$order['ref']}", "This order confirmation was sent to {$order['email']}"
+    .($to_customer ? '' : ' — but sending FAILED, so contact the customer yourself').":\n\n".str_repeat('-', 50)."\n\n".$c, $order['email']);
   return ['shop'=>$to_shop, 'customer'=>$to_customer];
 }
 
@@ -797,7 +801,7 @@ switch($page){
                     .'Japanese Pokémon cards shipped from Japan with tracking: delivery times, rates, duty, returns and refunds.',
                   'faq'=>'Answers to common questions about buying Japanese Pokémon cards wholesale from Japan: shipping to Australia, payment, minimum order, GST and returns.',
                   'how'=>'How wholesale ordering works at {brand}: public MOQs and quantity-break prices, pay by Bitcoin or invoice, and tracked shipping from Japan to Australia.',
-                  'payment'=>'How to pay for Japanese Pokémon cards at {brand}: Bitcoin straight from your wallet, or the method that suits you, with an invoice by email.',
+                  'payment'=>'How to pay for Pokémon cards at {brand} in Australia: PayID or bank transfer in AUD, Bitcoin straight from your wallet, or ETH and USDT, with an invoice by email.',
                   'contact'=>'Contact {brand} about wholesale Japanese Pokémon card orders, case pricing, shipping from Japan or an existing order. We reply within '.(int)$CONFIG['reply_hours'].' hours.'][$page] ?? '';
 }
 if($page_desc === '') $page_desc = 'Wholesale Japanese Pokémon cards shipped from Japan to Australia: sealed booster boxes, Elite Trainer Boxes, premium sets, singles and TCG accessories.';
@@ -1424,7 +1428,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       <button type="submit">Search</button>
     </form>
     <div class="tools">
-      <select class="pick" onchange="location.href=this.value" aria-label="Currency">
+      <?php if(count($CURRENCIES) > 1): ?><select class="pick" onchange="location.href=this.value" aria-label="Currency">
         <?php $here_args = $_GET; unset($here_args['p'], $here_args['id'], $here_args['s'], $here_args['c'], $here_args['g'], $here_args['pg']);
         if($from_path && isset($from_path['cat'])) unset($here_args['cat']);
         $here = $page === 'notfound' ? 'home' : $page;
@@ -1433,7 +1437,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
           $u += ($canon_args[$here] ?? []); ?>
           <option value="<?= h(url($here, $u)) ?>" <?= cur_code()===$code?'selected':'' ?>><?= h($code) ?></option>
         <?php endforeach; ?>
-      </select>
+      </select><?php else: ?><span style="border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:12.5px;color:var(--ink2)" title="Prices in <?= h(cur_code()) ?>"><?= h(cur_code()) ?></span><?php endif; ?>
       <a class="cartbtn" href="<?= url('cart') ?>">Order <b><?= cart_units() ?></b></a>
     </div>
   </div>
@@ -2071,7 +2075,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
         <div class="sl"><span style="color:var(--muted)">Goods</span><span><?= h($o['goods']) ?></span></div>
         <div class="sl"><span style="color:var(--muted)">Shipping · <?= h($o['ship_label']) ?></span><span><?= !empty($o['free_shipping']) && (float)$o['shipping_usd'] == 0 ? 'Free' : h($o['shipping']) ?></span></div>
         <div class="tot"><span>Order total</span><span><?= h($o['total']) ?></span></div>
-        <p class="n">Ships to <?= h($o['city']) ?>, <?= h($o['country_name']) ?>.<?= $o['currency'] !== 'USD' ? ' The BTC amount is worked out from the US-dollar total, US$'.number_format($o['total_usd'], 2).'.' : '' ?></p>
+        <p class="n">Ships to <?= h($o['city']) ?>, <?= h($o['country_name']) ?>. The BTC amount is worked out from your order total at the live Bitcoin price.</p>
         <p class="n">Questions? <a href="mailto:<?= h($CONFIG['email']) ?>?subject=<?= rawurlencode('Order '.$o['ref']) ?>"><?= h($CONFIG['email']) ?></a></p>
       </aside>
     </div>
@@ -2587,8 +2591,7 @@ function card_template_block(){ ?>
       <b>Free printable card template</b>
       <p>63 × 88 mm (2.5 × 3.5 in), the size of a Pokémon card, with 3 mm bleed, the trim line, rounded corners and a safe area for text. Vector files: print at 100% (“actual size”), not “fit to page”.</p>
       <p><a class="btn" href="assets/site/trading-card-template-63x88mm.svg" download>Download one card (SVG)</a>
-         <a class="btn g" href="assets/site/trading-card-template-sheet-a4.svg" download>Download a sheet of 9 (A4)</a>
-         <a class="btn g" href="assets/site/trading-card-template-sheet-letter.svg" download>US Letter</a></p>
+         <a class="btn g" href="assets/site/trading-card-template-sheet-a4.svg" download>Download a sheet of 9 (A4)</a></p>
     </div>
   </div>
 <?php }

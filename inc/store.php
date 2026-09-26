@@ -68,7 +68,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 6;
+const CONTENT_VERSION = 7;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -167,6 +167,24 @@ function content_upgrade($s, $d, $version){
              'accessories'=>['h1'=>'e6f54924c18bdca5bc5702aa7d34f6f5', 'seo_title'=>'d0e27066071932be32c827e4099f0388', 'seo_desc'=>'5d7228f2f0d934d089efb3fa933a52db', 'intro'=>'fe20bbd06088d2dfed67c296bc363882']] as $cat=>$fields)
       foreach($fields as $f=>$h)
         if(isset($s['categories'][$cat], $d['categories'][$cat][$f]) && md5((string)($s['categories'][$cat][$f] ?? '')) === $h) $s['categories'][$cat][$f] = $d['categories'][$cat][$f];
+  }
+  if($version < 7){   /* clean Australian shop: AUD only, crypto and PayID only, last keywords */
+    $refresh(['where-to-buy-pokemon-cards'=>'e7db410a425a2b35a3c3bef2782874fc', 'pokemon-card-shops-near-me'=>'62ea382de9b796c5d73ff9a25f68c262']);
+    $pages = array_column($d['pages'], null, 'slug');
+    $old = ['wholesale'=>'2e5799f30e7d884f737566cce8e18855', 'terms'=>'d33c6e9fc0974eb26f51a5a0bcc40d6b'];
+    foreach($s['pages'] ?? [] as $i=>$pg){
+      $slug = $pg['slug'] ?? '';
+      if(isset($old[$slug], $pages[$slug]) && md5(json_encode([$pg['title'] ?? '', $pg['seo_title'] ?? '', $pg['seo_desc'] ?? '', $pg['body'] ?? ''])) === $old[$slug]) $s['pages'][$i] = $pages[$slug];
+    }
+    foreach(['home_intro'=>'bbfc0510bae4ba61e7ec6c58d0ee0f45', 'shipping_policy'=>'d61e1ce6a45b48b5261da17a5652430e'] as $k=>$h)
+      if(isset($d['settings'][$k]) && md5((string)($s['settings'][$k] ?? '')) === $h) $s['settings'][$k] = $d['settings'][$k];
+    if(md5(json_encode($s['faqs'] ?? [])) === '4b3ed2cc9c1df4080cd43d9a8da82692') $s['faqs'] = $d['faqs'];
+    /* payment methods: crypto and PayID only */
+    if(md5(json_encode($s['payments'] ?? [])) === '61c0508f991129f73047fac1f59c0de2') $s['payments'] = $d['payments'];
+    else foreach(['other', 'cashapp', 'applepay', 'ukbank'] as $k) unset($s['payments'][$k]);
+    /* Australian dollars only */
+    if(md5(json_encode($s['currencies'] ?? [])) === 'a92fc7aec14c5783676b6eb9cc025b12') $s['currencies'] = $d['currencies'];
+    elseif(isset($s['currencies']['AUD'])) $s['currencies'] = ['AUD'=>$s['currencies']['AUD']];
   }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;

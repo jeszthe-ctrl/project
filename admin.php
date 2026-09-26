@@ -525,8 +525,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
       if($rate === null){ note("$code was skipped: enter a rate above 0.", 'err'); continue; }
       $curs[$code] = ['rate'=>$code === 'USD' ? 1 : $rate, 'sym'=>str($row['sym'] ?? '') ?: $code.' ', 'dec'=>max(0, min(3, (int)($row['dec'] ?? 2)))];
     }
-    if(!isset($curs['USD'])) $curs = ['USD'=>['rate'=>1,'sym'=>'$','dec'=>2]] + $curs;
-    $STORE['currencies'] = $curs;
+    if($curs) $STORE['currencies'] = $curs; else note('At least one currency is needed, so the old list was kept.', 'err');
 
     $countries = [];
     foreach(preg_split('/\R/', (string)($_POST['countries'] ?? '')) as $line){
@@ -1350,7 +1349,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
     </div>
 
     <div class="card"><h2>Currencies</h2>
-      <p class="small muted" style="margin-top:0">Prices are set in USD; other currencies are converted with these rates. Update the rates now and then. Shoppers see the <b>first</b> currency until they pick another.</p>
+      <p class="small muted" style="margin-top:0">Product prices, the minimum order and shipping are entered in USD; shoppers see them converted with these rates. Keep the AUD rate up to date. Shoppers see the <b>first</b> currency; with just one, there's no currency switch.</p>
       <div class="scroll"><table class="t"><thead><tr><th>Code</th><th>Symbol</th><th>1 USD =</th><th>Decimals</th><th>Delete</th></tr></thead><tbody>
       <?php $i = 0; foreach($STORE['currencies'] + ['' => ['rate'=>'','sym'=>'','dec'=>2]] as $code=>$m): ?>
         <tr><td><input type="text" name="curs[<?= $i ?>][code]" value="<?= h($code) ?>" maxlength="3" placeholder="New" aria-label="Code" <?= $code==='USD'?'readonly':'' ?>></td>
