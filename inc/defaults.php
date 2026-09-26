@@ -27,7 +27,7 @@ $d = [
     'shipping_reviewed' => false,
     'pretty_urls'   => false,            /* clean addresses like /products/151-booster-box; turn on in Admin → Settings */
     'free_ship_usd' => 2000,             /* free Standard shipping from this goods total (USD); 0 = off */
-    'content_version' => 5,              /* set by the shop: which built-in content updates are applied */
+    'content_version' => 6,              /* set by the shop: which built-in content updates are applied */
     'moved_to'      => '',               /* an old domain running this code can send every visitor here (301) */
     'google_verify' => '', 'bing_verify' => '',   /* Search Console / Bing verification codes (Admin → Settings) */
     /* SMTP for order emails (Admin → Settings → Email); blank host = the web host's mail() */

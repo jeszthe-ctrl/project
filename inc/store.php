@@ -68,7 +68,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 5;
+const CONTENT_VERSION = 6;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -150,6 +150,23 @@ function content_upgrade($s, $d, $version){
     /* PK- SKUs from the POKEKURA version go back to FK- */
     foreach($s['products'] ?? [] as $i=>$p)
       if(strncmp((string)($p['sku'] ?? ''), 'PK-', 3) === 0) $s['products'][$i]['sku'] = 'FK-'.substr($p['sku'], 3);
+  }
+  if($version < 6){   /* Australian keywords: Pokémon Center Australia and booster packs guides, card shops, ETB, binders and folders */
+    $refresh(['most-expensive-pokemon-cards'=>'1a33780d02dea4a60760f6c4f1cb3561', 'pokemon-card-database'=>'3930dd7cf2d1911d308a0266757ddc3e',
+              'where-to-buy-pokemon-cards'=>'4e87ecc11eb049329d269b61f370a598', 'pokemon-card-shops-near-me'=>'c3f45472857a355d3dd88839714eefd2',
+              'pokemon-card-template'=>'455d552c71fd8a500984e0c9e53bc730', 'pokemon-card-size'=>'f0b530515830b28502b5c71677ea9e06',
+              'pokemon-card-values'=>'d27e6dbfb162f29490fc2fca6bcc3a8c']);
+    $have = array_column($s['guides'] ?? [], 'slug');
+    $add = array_values(array_filter($d['guides'], fn($g)=>in_array($g['slug'], ['pokemon-center-australia', 'pokemon-booster-packs'], true) && !in_array($g['slug'], $have, true)));
+    $at = array_search('where-to-buy-pokemon-cards', $have, true);
+    array_splice($s['guides'], $at === false ? count($have) : $at + 1, 0, $add);
+    foreach(['home_seo_title'=>'1de4b3d2f57fb53c15469c14204154b8', 'home_intro'=>'6dd1939a191505accb5deacc50d0d256'] as $k=>$h)
+      if(isset($d['settings'][$k]) && md5((string)($s['settings'][$k] ?? '')) === $h) $s['settings'][$k] = $d['settings'][$k];
+    foreach(['boxes'=>['h1'=>'9242e234e1a0defb16661012d1d38167', 'seo_title'=>'8e50dc48588277a6c46ebe159404ea29', 'intro'=>'893a9729c4844c0bb85ac430ea1cc9a1'],
+             'etb'=>['h1'=>'8e85bca151c8f5f1ac7349c81cc9a246', 'seo_title'=>'7554fd5ab16ac0a3458235ca7d24bfd1', 'intro'=>'50e0d8849162969cc8bb322f41c1536d'],
+             'accessories'=>['h1'=>'e6f54924c18bdca5bc5702aa7d34f6f5', 'seo_title'=>'d0e27066071932be32c827e4099f0388', 'seo_desc'=>'5d7228f2f0d934d089efb3fa933a52db', 'intro'=>'fe20bbd06088d2dfed67c296bc363882']] as $cat=>$fields)
+      foreach($fields as $f=>$h)
+        if(isset($s['categories'][$cat], $d['categories'][$cat][$f]) && md5((string)($s['categories'][$cat][$f] ?? '')) === $h) $s['categories'][$cat][$f] = $d['categories'][$cat][$f];
   }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;

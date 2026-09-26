@@ -15,9 +15,13 @@ return [
     'hero_title'    => 'Wholesale Japanese Pokémon cards for Australia, shipped direct from Japan.',
     'hero_lede'     => 'Authentic sealed booster boxes, Elite Trainer Boxes, premium sets, singles and TCG accessories for Australian card shops, online retailers, tournament organisers and distributors. No approval process: minimum order quantities, case multiples and quantity-break prices are built into every listing, shown in Australian dollars.',
     'footer_blurb'  => 'Independent distributor and reseller of authentic Japanese Pokémon TCG products, shipping wholesale orders from Japan to card shops, online retailers, tournament organisers and distributors across Australia.',
-    'home_seo_title'=> 'Japanese Pokémon Cards Wholesale Australia: Booster Boxes',
+    'home_seo_title'=> 'Pokémon Cards Australia: Wholesale Japanese Booster Boxes',
     'home_seo_desc' => 'Wholesale Japanese Pokémon cards for Australia: sealed booster boxes, ETBs, premium sets and singles shipped from Japan, with MOQ and case pricing in AUD.',
     'home_intro'    => <<<'MD'
+## Pokémon cards in Australia, straight from Japan
+
+{brand} supplies Pokémon cards across Australia: sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb), [rare Pokémon cards](category:singles) and [card binders and sleeves](category:accessories), priced in Australian dollars and shipped from Japan with tracking. Looking for English trading cards in store? See [where to buy Pokémon cards in Australia](guide:where-to-buy-pokemon-cards) and the [Pokémon Center Australia](guide:pokemon-center-australia) online store.
+
 ## Why buy Japanese Pokémon cards?
 
 Japanese sets come out first, often months before their English versions, so Japanese booster boxes are how collectors get the newest cards early. Many collectors also prefer Japanese printing and card quality, and Japanese special sets like [151](set:151) and [Terastal Festival ex](set:terastal-festival-ex) are some of the most sought-after boxes in the hobby.
@@ -217,15 +221,19 @@ MD,
     'boxes' => [
       'label' => 'Booster Boxes', 'slug' => 'booster-boxes',
       'blurb' => 'Sealed Japanese Pokémon booster boxes and cases, straight from Japan.',
-      'h1' => 'Japanese Pokémon booster boxes & card packs',
-      'seo_title' => 'Japanese Pokémon Booster Boxes & Card Packs',
+      'h1' => 'Pokémon booster boxes & card packs from Japan',
+      'seo_title' => 'Pokémon Booster Box Australia: Japanese Booster Boxes & Packs',
       'seo_desc' => 'Sealed Japanese Pokémon booster boxes and cases — 151, Terastal Festival ex, Mega Evolution sets and more — shipped from Japan to Australia with bulk pricing.',
       'intro' => <<<'MD'
 ## Pokémon booster boxes from Japan
 
-A Pokémon booster box is a sealed display of card packs from a single set, and the best-value way to buy Pokémon card packs. Japanese boxes are smaller than English ones: most Japanese main-set boxes hold 30 packs of 5 cards, while special sets differ — a [151](set:151) box holds 20 packs of 7 cards.
+A Pokémon booster box (or box of Pokémon booster packs) is a sealed display of card packs from a single set, and the best-value way to buy Pokémon card packs. Japanese boxes are smaller than English ones: most Japanese main-set boxes hold 30 packs of 5 cards, while special sets differ — a [151](set:151) box holds 20 packs of 7 cards.
 
 We stock the current Japanese [Mega Evolution](set:mega-evolution) sets alongside favourites from the [Scarlet & Violet](set:scarlet-violet) era, plus full sealed cases for bulk buyers. Every Pokémon box ships sealed from Japan, and the price per box drops as you order more — the full ladder is on each listing.
+
+## 151 booster box and other favourites
+
+The Japanese [151 booster box](product:151-booster-box) is one of the most sought-after Pokémon boxes, alongside [30th Celebration](set:30th-celebration) and [Terastal Festival ex](set:terastal-festival-ex). Buying packs rather than boxes? See [Pokémon booster packs](guide:pokemon-booster-packs) for what's inside each pack.
 
 New to Japanese product? Read [what makes Japanese Pokémon cards different](guide:japanese-pokemon-cards).
 MD,
@@ -233,15 +241,19 @@ MD,
     'etb' => [
       'label' => 'Elite Trainer Boxes', 'slug' => 'elite-trainer-boxes',
       'blurb' => 'Elite Trainer Boxes and cases, with packs, sleeves and accessories inside.',
-      'h1' => 'Pokémon Elite Trainer Boxes',
-      'seo_title' => 'Pokémon Elite Trainer Boxes: Perfect Order, Ascended Heroes',
+      'h1' => 'Pokémon Elite Trainer Boxes (ETB)',
+      'seo_title' => 'Pokémon ETB: Elite Trainer Boxes — Perfect Order ETB & More',
       'seo_desc' => 'Sealed Pokémon TCG Elite Trainer Boxes, including Mega Evolution Perfect Order, Ascended Heroes, Chaos Rising and 30th Celebration, with bulk pricing by the case.',
       'intro' => <<<'MD'
-## Elite Trainer Boxes
+## Pokémon ETB: what's in an Elite Trainer Box
 
 An Elite Trainer Box (ETB) bundles booster packs with card sleeves, dice, damage counters and a storage box, which makes it one of the most popular Pokémon gifts and a steady seller for card shops.
 
 We carry ETBs across the Pokémon Trading Card Game Mega Evolution series — including [Perfect Order](product:perfect-order-elite-trainer-box), [Ascended Heroes](product:mega-evolution-ascended-heroes-elite-trainer-box), [Chaos Rising](product:chaos-rising-elite-trainer-box) and [Pitch Black](product:pitch-black-elite-trainer-box) — plus the [30th Celebration](set:30th-celebration) ETB and full cases.
+
+## Perfect Order ETB and Ascended Heroes ETB
+
+The [Perfect Order ETB](product:perfect-order-elite-trainer-box) is built around Mega Zygarde ex, and the [Ascended Heroes ETB](product:mega-evolution-ascended-heroes-elite-trainer-box) is the main way to open the Ascended Heroes special set, which has no standard booster box.
 
 ETBs are sold in multiples of four, or by the 10-box case, with lower prices from 24 boxes.
 MD,
@@ -277,13 +289,13 @@ MD,
     'accessories' => [
       'label' => 'Accessories', 'slug' => 'accessories',
       'blurb' => 'Card binders, sleeves, deck boxes, playmats and storage.',
-      'h1' => 'Pokémon card binders, sleeves & deck boxes',
-      'seo_title' => 'Pokémon Card Binders, Sleeves & Deck Boxes',
-      'seo_desc' => 'Pokémon card binders, card sleeves, deck boxes, playmats and storage — including 9-pocket Mega Evolution binders and Ultra PRO Pikachu sleeves — with bulk pricing.',
+      'h1' => 'Pokémon card binders, folders, sleeves & deck boxes',
+      'seo_title' => 'Pokémon Card Binder & Folder, Sleeves & Deck Boxes',
+      'seo_desc' => 'Pokémon card binders and card folders, card sleeves, deck boxes, playmats and storage — including 9-pocket Mega Evolution binders and Ultra PRO Pikachu sleeves — with bulk pricing.',
       'intro' => <<<'MD'
-## Pokémon card binders and sleeves
+## Pokémon card binders and folders
 
-A good card binder and the right sleeves keep a collection in Near Mint condition. Our [9-pocket Pokémon card binder](product:pokemon-tcg-9-pocket-binder-mega-evolution-series) holds nine cards per page in Mega Evolution series artwork, and our Pokémon card sleeves range from [Ultra PRO Pikachu Deck Protectors](product:ultra-pro-pikachu-deck-protector-sleeves-65-ct) to character sleeves like [Celebi & Furret](product:celebi-and-furret-deck-sleeves) and [Mega Rayquaza](product:storm-emeralda-mega-rayquaza-deck-sleeves).
+A good card binder for Pokémon cards — some people call it a Pokémon card folder or a Pokémon Trading Card Game folder — and the right sleeves keep a collection in Near Mint condition. Our [9-pocket Pokémon card binder](product:pokemon-tcg-9-pocket-binder-mega-evolution-series) holds nine cards per page in Mega Evolution series artwork, and our Pokémon card sleeves range from [Ultra PRO Pikachu Deck Protectors](product:ultra-pro-pikachu-deck-protector-sleeves-65-ct) to character sleeves like [Celebi & Furret](product:celebi-and-furret-deck-sleeves) and [Mega Rayquaza](product:storm-emeralda-mega-rayquaza-deck-sleeves).
 
 Pokémon cards are 63 × 88 mm, so they need standard-size sleeves — see our [Pokémon card size guide](guide:pokemon-card-size) before you buy. Accessories are sold in bulk packs for card shops, with lower prices at higher quantities.
 MD,
@@ -422,12 +434,12 @@ Australian stores such as Kmart, Big W and EB Games sell English cards ([where t
 
 We source every [booster box](category:boxes) and [single card](category:singles) in Japan and ship it to Australia with tracking. Shipping is calculated at checkout and free on orders over {free_ship}, orders start at {min_order} including shipping, and orders over A$1,000 are charged GST by Australian customs — see [Shipping & Returns](page:shipping) for details.
 MD],
-    ['slug'=>'most-expensive-pokemon-cards', 'updated'=>'2026-09-25',
-     'title'=>'The most expensive Pokémon cards ever sold',
-     'seo_title'=>'Most Expensive Pokémon Card Ever Sold: Top Cards (2026)',
-     'seo_desc'=>'What is the most expensive Pokémon card? A PSA 10 Pikachu Illustrator sold for $16.49M in 2026. The record sales, first edition cards and why they cost so much.',
+    ['slug'=>'most-expensive-pokemon-cards', 'updated'=>'2026-09-26',
+     'title'=>'The most expensive and most valuable Pokémon cards ever sold',
+     'seo_title'=>'Most Expensive Pokémon Card Ever Sold: Most Valuable Cards',
+     'seo_desc'=>'What is the most expensive Pokémon card? A PSA 10 Pikachu Illustrator sold for US$16.49M in 2026. The record sales, first edition cards and why they cost so much.',
      'body'=><<<'MD'
-The most expensive Pokémon card ever sold is a **PSA 10 Pikachu Illustrator**. It sold at Goldin Auctions in February 2026 for **$16,492,000**, one of the highest prices ever paid for any trading card. Here's what makes it, and the other most expensive Pokémon cards, worth so much.
+The most expensive Pokémon card ever sold is a **PSA 10 Pikachu Illustrator**. It sold at Goldin Auctions in February 2026 for **US$16,492,000**, one of the highest prices ever paid for any trading card. Here's what makes it, and the other most expensive Pokémon cards, worth so much.
 
 ## What is the most expensive Pokémon card?
 
@@ -439,13 +451,13 @@ The card's artwork is by Atsuko Nishida, the artist who drew the original Pikach
 
 ## Logan Paul's Pokémon card
 
-The record copy belonged to YouTuber and wrestler Logan Paul. He bought it privately for **$5,275,000**, which Guinness World Records recognised as the most expensive Pokémon card sold in a private sale, and wore it to WrestleMania 38 in 2022. He sold it through Goldin in February 2026 for $16.49 million, roughly three times what he paid.
+The record copy belonged to YouTuber and wrestler Logan Paul. He bought it privately for **US$5,275,000**, which Guinness World Records recognised as the most expensive Pokémon card sold in a private sale, and wore it to WrestleMania 38 in 2022. He sold it through Goldin in February 2026 for US$16.49 million, roughly three times what he paid.
 
-## The most expensive Pokémon cards sold
+## The most valuable Pokémon cards: highest prices paid
 
-- **Pikachu Illustrator, PSA 10:** $16,492,000 at Goldin, February 2026.
-- **Pikachu Illustrator, PSA 10:** $5,275,000 in a private sale to Logan Paul.
-- **1st Edition Base Set Charizard, PSA 10:** $420,000 at PWCC in March 2022; another copy was reported sold for $550,000 at Heritage Auctions in late 2025.
+- **Pikachu Illustrator, PSA 10:** US$16,492,000 at Goldin, February 2026.
+- **Pikachu Illustrator, PSA 10:** US$5,275,000 in a private sale to Logan Paul.
+- **1st Edition Base Set Charizard, PSA 10:** US$420,000 at PWCC in March 2022; another copy was reported sold for US$550,000 at Heritage Auctions in late 2025.
 - **Trophy cards** from the first official tournaments, such as the Pikachu No. 3 Trainer card from Japan's first official Pokémon card tournament in June 1997. Only a handful exist, and they rarely come up for sale.
 
 Prices for cards this rare only move when a copy is sold, so records change every few years rather than every season.
@@ -460,7 +472,7 @@ First edition cards come from the first print run of the early English sets, mar
 
 The holo rares, above all Charizard, Blastoise and Venusaur, carry most of the value. Condition decides the rest: a PSA 10 can be worth many times a PSA 8 of the same card. First edition stamps are also faked, so buy graded copies from reputable sellers ([how to tell if a Pokémon card is fake](guide:how-to-tell-if-a-pokemon-card-is-fake)).
 
-## Why are some Pokémon cards so expensive?
+## Why are some Pokémon cards very expensive?
 
 - **Rarity:** contest and tournament prizes were made in tiny numbers ([the rarest Pokémon cards](guide:rarest-pokemon-cards)).
 - **Condition:** top grades are scarce for older cards.
@@ -471,15 +483,23 @@ The holo rares, above all Charizard, Blastoise and Venusaur, carry most of the v
 
 You don't need a 1990s card for a valuable collection. Modern chase cards — Special Illustration Rares, gold Hyper Rares and the Mega Evolution series' top rarities — can sell for hundreds or thousands of dollars in top condition. Examples we stock include the [151 Charizard ex Special Illustration Rare](product:151-charizard-ex-special-illustration-rare), the [Mega Rayquaza ex Master Ultra Rare](product:mega-rayquaza-ex-mur) and a [PSA 10 Pikachu ex Special Illustration Rare](product:pikachu-ex-sar-240-191-psa-10-gem-mint). See all [rare Pokémon cards](category:singles), check prices with our [Pokémon card price checker](guide:pokemon-card-price-checker), or read [how much Pokémon cards are worth](guide:pokemon-card-values).
 
+## The greatest Pokémon card?
+
+Collectors argue about it, but the Pikachu Illustrator is usually called the greatest Pokémon card: the rarest, the most expensive and a piece of the game's history. For English cards, the 1st Edition Base Set Charizard is the classic answer, and for modern cards it's the chase card of each new set.
+
 ## Questions
 
 ### What is the most expensive Pokémon card?
 
-A PSA 10 Pikachu Illustrator, which sold for $16,492,000 at Goldin Auctions in February 2026.
+A PSA 10 Pikachu Illustrator, which sold for US$16,492,000 at Goldin Auctions in February 2026.
+
+### What is the highest price paid for a Pokémon card?
+
+US$16,492,000, for the PSA 10 Pikachu Illustrator at Goldin Auctions in February 2026 — the highest Pokémon card sale on record.
 
 ### How much did Logan Paul pay for his Pokémon card?
 
-$5,275,000, for the PSA 10 Pikachu Illustrator. He sold it in February 2026 for $16.49 million.
+US$5,275,000, for the PSA 10 Pikachu Illustrator. He sold it in February 2026 for US$16.49 million.
 
 ### Are first edition Pokémon cards worth money?
 
@@ -487,7 +507,7 @@ Yes, especially the holo rares from the 1999 Base Set in high grades. Condition 
 
 ### What is the most expensive Charizard card?
 
-A 1st Edition Base Set holo Charizard graded PSA 10, which sold for $420,000 in 2022; a copy was reported sold for $550,000 in late 2025.
+A 1st Edition Base Set holo Charizard graded PSA 10, which sold for US$420,000 in 2022; a copy was reported sold for US$550,000 in late 2025.
 MD],
     ['slug'=>'rarest-pokemon-cards', 'updated'=>'2026-09-25',
      'title'=>'The rarest Pokémon cards, and the gold cards collectors chase',
@@ -584,7 +604,7 @@ Our prices are for the Japanese products we sell, shipped from Japan.
 
 Our sealed product is sold by the case, and every listing shows its quantity breaks, so the unit price drops as you buy more.
 MD],
-    ['slug'=>'pokemon-card-database', 'updated'=>'2026-09-25',
+    ['slug'=>'pokemon-card-database', 'updated'=>'2026-09-26',
      'title'=>'Pokémon card database: Japanese sets, set codes and card lists',
      'seo_title'=>'Pokémon Card Database: Japanese Sets & Card Lists (2026)',
      'seo_desc'=>'A Pokémon card database of Japanese sets: Mega Evolution and Scarlet & Violet set codes, the 151 card list, and the Perfect Order and Ascended Heroes sets.',
@@ -613,6 +633,10 @@ The **Mega Evolution** series began in 2025 and brings back Mega Evolution as **
 
 **Mega Evolution—Ascended Heroes** was released in English on 30 January 2026 with more than 290 cards, including over 30 Trainer cards. Its Japanese counterpart is the special set [Mega Dream ex](set:mega-dream-ex) (M2a), home of the [Mega Gengar ex Special Illustration Rare](product:mega-gengar-ex-sir). We stock the [Ascended Heroes Elite Trainer Box](product:mega-evolution-ascended-heroes-elite-trainer-box).
 
+## Is there an Ascended Heroes booster box?
+
+Ascended Heroes is a special set, and like most English special sets it wasn't released as a standard 36-pack booster box. Its packs come in Elite Trainer Boxes, 6-pack Booster Bundles, collections and single booster packs of 10 cards. Want a sealed box of the same cards? The Japanese [Mega Dream ex booster box](product:mega-dream-ex-m2a-booster-box) is the Japanese counterpart.
+
 ## Pokémon 151 card list
 
 Japanese **Pokémon Card 151 (SV2a)**, released on 16 June 2023, has **210 cards**: a 165-card main set covering the original 151 Pokémon plus Trainer and Energy cards, and 45 secret rares: 18 Art Rares (AR), 16 Super Rares (SR), 8 Special Art Rares (SAR) and 3 gold Ultra Rares (UR). The star card is the [Charizard ex Special Art Rare](product:151-charizard-ex-special-illustration-rare). See the [151 set](set:151) and the [151 booster box](product:151-booster-box).
@@ -638,13 +662,17 @@ Mega Evolution—Perfect Order was released in English on 27 March 2026.
 ### How many cards are in Ascended Heroes?
 
 More than 290, including over 30 Trainer cards. It was released in English on 30 January 2026.
+
+### Is there an Ascended Heroes booster box?
+
+Not a standard 36-pack booster box: Ascended Heroes packs come in Elite Trainer Boxes, Booster Bundles and collections. The Japanese [Mega Dream ex booster box](product:mega-dream-ex-m2a-booster-box) has the Japanese versions of its cards.
 MD],
     ['slug'=>'where-to-buy-pokemon-cards', 'updated'=>'2026-09-26',
      'title'=>'Where to buy Pokémon cards in Australia: Kmart, Big W, EB Games and more',
      'seo_title'=>'Where to Buy Pokémon Cards in Australia: Kmart, Big W & More',
      'seo_desc'=>'Where to buy Pokémon cards in Australia: Kmart, Big W, Target, EB Games, JB Hi-Fi, Costco, local card shops and online, plus buying Japanese cards wholesale.',
      'body'=><<<'MD'
-Pokémon cards are sold all over Australia: department stores, game and toy stores, local card shops and online marketplaces. Here's what each kind of store usually carries, how restocks work, and when it's better to buy online.
+Where do you buy Pokémon cards in Australia? Almost anywhere: department stores, game and toy stores, the official Pokémon Center online store, local card shops and online marketplaces. Here's what each kind of store usually carries, how restocks work, and when it's better to buy online.
 
 {brand} is an independent distributor and online shop, and isn't affiliated with any retailer on this page. Store names are used only to describe where Pokémon cards are sold, and are trademarks of their owners.
 
@@ -670,11 +698,15 @@ EB Games sells sealed Pokémon products in stores and online, including preorder
 
 ## JB Hi-Fi Pokémon cards
 
-JB Hi-Fi stocks Pokémon TCG products in many stores and online, often next to its video games, with preorders for popular releases.
+JB Hi-Fi (JBHiFi) stocks Pokémon TCG products in many stores and online, often next to its video games, with preorders for popular releases.
 
 ## Costco Pokémon cards
 
 Costco sometimes sells Pokémon cards as bundles, with several collection boxes, tins or Elite Trainer Boxes packed together. Stock comes and goes, and you need a membership to buy.
+
+## Pokémon Center Australia
+
+The official Pokémon Center online store serves Australia and New Zealand, with Pokémon TCG products, Pokémon Center exclusives and plush. Orders ship from overseas, so delivery is slower than from Australian shops. See our [Pokémon Center Australia guide](guide:pokemon-center-australia).
 
 ## Toy stores and newsagents
 
@@ -710,41 +742,158 @@ Yes, in stores and online, including preorders for new English sets.
 
 From shops that import them from Japan. We ship Japanese booster boxes, Elite Trainer Boxes and singles from Japan to every Australian state and territory with tracking.
 MD],
-    ['slug'=>'pokemon-card-shops-near-me', 'updated'=>'2026-09-26',
-     'title'=>'Pokémon card shops near me: local stores, card shows and buying online',
-     'seo_title'=>'Pokémon Card Shops Near Me: Stores, Card Shows & Online',
-     'seo_desc'=>'How to find Pokémon card shops and trading card stores near you, what to expect at Pokémon card shows, and how to shop Japanese Pokémon cards online instead.',
+    ['slug'=>'pokemon-center-australia', 'updated'=>'2026-09-26',
+     'title'=>'Pokémon Center Australia: the official Pokémon Centre online store',
+     'seo_title'=>'Pokémon Center Australia: Pokémon Centre AU Online Store',
+     'seo_desc'=>'Is there a Pokémon Center in Australia? The official Pokémon Centre AU online store explained: what it sells, delivery to Australia, and other ways to buy cards.',
      'body'=><<<'MD'
-Looking for a Pokémon card shop near you? Here's how to find local trading card stores and card shows, what to look for when you get there, and when ordering online is the better option. {brand} is an online distributor, so we don't have a store to visit, but we deliver to every Australian state and territory.
+**Pokémon Center** is The Pokémon Company's official store. In Australia it's an **online store** — there's no permanent Pokémon Center shop to walk into — and Australians often call it the **Pokémon Centre**. Here's what it sells, how delivery works, and where else to buy Pokémon cards.
 
-## How to find Pokémon card shops near me
+{brand} isn't affiliated with The Pokémon Company or Pokémon Center. This guide is general information; check the official site for current products and delivery terms.
 
-- **Search a map app** for "trading card store", "card shop" or "game store" and read recent reviews.
+## Is there a Pokémon Center in Australia?
+
+Yes, online. The Pokémon Center online store opened for Australia and New Zealand in mid-2024, after a soft launch at the end of May, at pokemoncenter.com (the Australian site is under /en-au). It delivers only to addresses in Australia and New Zealand. There isn't a permanent Pokémon Center retail store in Australia; the physical Pokémon Center stores are in Japan and a few other countries.
+
+## What does Pokémon Center AU sell?
+
+- **Pokémon TCG products:** booster packs, Elite Trainer Boxes, collections and tins, including Pokémon Center Elite Trainer Box editions with extra goodies.
+- **Plush and figures,** including plush imported from Japan.
+- **Clothing, accessories, homewares and books,** and collaborations with other brands.
+
+## Pokémon Centre AU delivery
+
+Pokémon Center Australia sends orders from overseas rather than from a local warehouse, so delivery takes longer than from Australian shops: standard delivery has been reported at around two weeks. Delivery is charged on every order, and popular Pokémon TCG releases can sell out or come with purchase limits.
+
+## Pokémon Center vs other ways to buy
+
+- **Pokémon Center:** official exclusives, such as Pokémon Center ETBs and plush, but slower delivery and frequent sell-outs.
+- **Australian retailers** such as Kmart, Big W, EB Games and JB Hi-Fi: English sets at retail price in store and online ([where to buy Pokémon cards in Australia](guide:where-to-buy-pokemon-cards)).
+- **Local card shops:** singles, events and advice ([Pokémon card shops near me](guide:pokemon-card-shops-near-me)).
+- **Japanese product:** Pokémon Center Australia sells English cards. For sealed Japanese [booster boxes](category:boxes) and [Elite Trainer Boxes](category:etb), we ship direct from Japan with tracking, and card shops can buy at [wholesale prices](page:wholesale).
+
+## Questions
+
+### Is there a Pokémon Center store in Australia?
+
+There's no permanent Pokémon Center shop in Australia. The official Pokémon Center online store serves Australia and New Zealand at pokemoncenter.com.
+
+### Does Pokémon Center ship to Australia?
+
+Yes. Pokémon Center Australia and New Zealand delivers to Australian and New Zealand addresses, from overseas, so allow a couple of weeks for standard delivery.
+
+### Does Pokémon Center Australia sell Japanese Pokémon cards?
+
+It sells English Pokémon TCG products. Japanese cards come from importers: see [Japanese Pokémon cards](guide:japanese-pokemon-cards).
+MD],
+    ['slug'=>'pokemon-booster-packs', 'updated'=>'2026-09-26',
+     'title'=>'Pokémon booster packs: what\'s in a Pokémon card pack, and packs vs boxes',
+     'seo_title'=>'Pokémon Booster Packs: What\'s in a Pokémon Card Pack?',
+     'seo_desc'=>'What\'s inside a Pokémon booster pack, Japanese vs English card packs, how many packs are in a booster box, and when a box beats buying Pokémon packs one by one.',
+     'body'=><<<'MD'
+A **Pokémon booster pack** is a sealed pack of random Pokémon Trading Card Game cards from one set. Booster packs are how most people start collecting, and every rare card in a set is pulled from one. Here's what's inside Pokémon card packs, how Japanese and English packs differ, and when it's worth buying a booster box instead.
+
+## What's in a Pokémon booster pack?
+
+- **English booster packs** hold **10 cards**: commons, uncommons, reverse holos, at least one rare, and a basic Energy or code card.
+- **Japanese booster packs** from main sets hold **5 cards**, with one guaranteed rare slot.
+- **Japanese special sets** differ: a [151](set:151) pack has 7 cards and a [Terastal Festival ex](set:terastal-festival-ex) pack has 10.
+
+Chase cards — Special Illustration Rares, gold Hyper Rares and top-rarity Mega Evolution cards — turn up in only a small share of packs. See [Pokémon card rarities](guide:pokemon-card-rarities) for the rarity codes.
+
+## Pokémon trading card booster packs: Japanese vs English
+
+Japanese packs come out first, often months before the English version of the same cards, cost less per pack and are prized for their print quality ([why collectors buy Japanese Pokémon cards](guide:japanese-pokemon-cards)). English packs have more cards per pack and are what Australian retailers stock. Both are the same card size and work the same in play.
+
+## How many packs are in a Pokémon booster box?
+
+- **Japanese main-set booster box:** 30 packs of 5 cards
+- **Japanese 151 booster box:** 20 packs of 7 cards
+- **Japanese Terastal Festival ex booster box:** 10 packs of 10 cards
+- **English booster box:** 36 packs of 10 cards
+
+## Pokémon packs vs a booster box
+
+- **Price per pack:** a sealed [booster box](category:boxes) almost always works out cheaper per pack than buying packs one at a time.
+- **Pull rates:** a whole box gives you a much better chance of the set's rares than a handful of packs.
+- **Condition:** a factory-sealed box protects the packs until you open them, and a sealed box of a popular set is collectable in its own right.
+- **Packs for events:** card shops open boxes to sell packs singly, run pack-opening nights and give packs as prizes.
+
+Other ways to buy packs: [Elite Trainer Boxes](category:etb) have 9 packs plus accessories, and [collection boxes and premium sets](category:premium) pair packs with promo cards.
+
+## Buying Pokémon card packs safely
+
+Resealed and fake packs exist. Buy from reputable sellers, check the wrapping is tight and unbroken with clean crimps at both ends, and be wary of packs priced well below retail ([how to tell if a Pokémon card is fake](guide:how-to-tell-if-a-pokemon-card-is-fake)). Every pack we sell comes in its factory-sealed box, sourced through Japanese distribution.
+
+## Questions
+
+### How many cards are in a Pokémon booster pack?
+
+English packs have 10 cards. Japanese main-set packs have 5, while Japanese special-set packs vary: 7 in 151, 10 in Terastal Festival ex.
+
+### Is it cheaper to buy a booster box or packs?
+
+A booster box is almost always cheaper per pack, and a better chance at the set's rare cards.
+
+### Where can I buy Pokémon booster packs in Australia?
+
+English packs are sold at Kmart, Big W, Target, EB Games, JB Hi-Fi and card shops ([where to buy Pokémon cards](guide:where-to-buy-pokemon-cards)). We sell Japanese packs by the sealed box, shipped from Japan.
+MD],
+    ['slug'=>'pokemon-card-shops-near-me', 'updated'=>'2026-09-26',
+     'title'=>'Pokémon card shops near me: TCG stores in Australia, card shows and buying online',
+     'seo_title'=>'Pokémon Card Shops Near Me: Good Games & TCG Stores in Australia',
+     'seo_desc'=>'Find Pokémon card shops and TCG stores near you in Australia: Good Games stores, Melbourne TCG shops like Purplish and PokéBox, card shows, and buying online.',
+     'body'=><<<'MD'
+Looking for a Pokémon card shop near you? Here's how to find trading card stores and card shows in Australia, some of the TCG store names Australians search for most, and when ordering online is the better option. {brand} is an online distributor, so we don't have a store to visit, but we deliver to every Australian state and territory.
+
+{brand} isn't affiliated with any store on this page. Store names are used only to help you find them, and are trademarks of their owners. Opening hours and stock change, so check each store's own website or social media before you visit.
+
+## How to find card shops near me
+
+- **Search a map app** for "trading card store", "card shop", "TCG" or "game store" and read recent reviews.
 - **Use the Play! Pokémon event locator** on pokemon.com. Stores that run official Pokémon TCG leagues and prereleases are listed there, and nearly all of them are card shops.
 - **Ask local collectors** in community groups on Facebook, Discord or Reddit; they'll know which shops are fairly priced.
 - **Ask at a card show**, where local shop owners often have tables.
 
-## Trading card shops near me: what they sell
+## TCG near me: what trading card shops sell
 
-Local trading card shops, often called local game stores, usually sell sealed English booster packs and boxes at or near retail price, keep a case of singles, stock sleeves and binders, and run weekly play events. Many also buy cards, which makes them a good place to trade in duplicates.
+Local trading card shops, often called local game stores, usually sell sealed English booster packs and boxes at or near retail price, keep a case of singles, stock sleeves and binders, and run weekly play events. Many also buy cards, which makes them a good place to trade in duplicates. Most stock other trading card games too, such as Magic: The Gathering, Yu-Gi-Oh! and One Piece.
 
-## Trading card stores near me: what to check
+## Good Games stores
 
-- **Sealed product** should be factory sealed, with no loose or resealed wrapping.
-- **Prices for singles** should be close to recent sold prices; check with a [price checker](guide:pokemon-card-price-checker) or a [scanner app](guide:pokemon-card-scanner).
-- **Graded cards** should have an intact slab and a certification number you can look up on the grading company's website.
+Good Games is an Australian chain of game stores that sell Pokémon TCG products alongside board games and other card games, and run TCG events. Stores people often look for include:
+
+- **Victoria:** Good Games Box Hill (Whitehorse Road), Good Games Greensborough and Good Games Ballarat
+- **New South Wales:** Good Games Chatswood and Good Games Newcastle
+- **Queensland:** Good Games Strathpine
+- **South Australia:** Good Games Adelaide and Good Games Modbury
+- **Western Australia:** Good Games Cannington and Good Games North (Joondalup)
+
+## Good Games TCG events and singles
+
+Like most local game stores, Good Games stores run Pokémon TCG league nights and prereleases, and several list Pokémon singles as well as sealed product. Each store runs its own events and stock, so check your nearest store's page.
+
+## Pokémon trading stores in Melbourne and online
+
+Australia also has independent TCG stores, many of which sell online as well as in store. A few names collectors search for:
+
+- **PokéBox Australia (Pokebox):** a Melbourne-based TCG store selling Pokémon booster boxes, Elite Trainer Boxes, graded cards and other TCGs, with an online shop.
+- **Purplish TCG:** a Melbourne TCG store near Southern Cross Station that buys, sells and trades singles, graded cards and sealed product.
+- **Gamers Village:** a game store on the Gold Coast (Upper Coomera) with card games, Warhammer and a play space.
 
 ## Trading card store near me or online?
 
 A local trading card store is great for playing, trading and seeing cards in person. Online shops usually have a far bigger range, especially of Japanese product, which few local stores carry, and deliver to your door.
 
-## Card shops: what to expect
+## What to check at a card shop
 
-Card shops range from small counters in a game store to large stores with hundreds of graded cards. Expect to pay around retail for new English product, and expect more choice (and more negotiating) on singles.
+- **Sealed product** should be factory sealed, with no loose or resealed wrapping.
+- **Prices for singles** should be close to recent sold prices; check with a [price checker](guide:pokemon-card-price-checker) or a [scanner app](guide:pokemon-card-scanner).
+- **Graded cards** should have an intact slab and a certification number you can look up on the grading company's website.
 
 ## Pokémon card shows near me
 
-Card shows are events where many sellers set up tables to buy, sell and trade cards, usually for a day or a weekend, in convention centres, hotel function rooms or community halls; the bigger Australian shows run in Sydney, Melbourne, Brisbane and Perth. To find Pokémon card shows near you, check local card shops and collector groups, and search for trading card shows in your city on event listing sites and social media.
+Card shows are events where many sellers set up tables to buy, sell and trade cards, usually for a day or a weekend, in convention centres, hotel function rooms or community halls; the bigger Australian shows run in Sydney, Melbourne, Brisbane and Perth. To find Pokémon card shows near you, check local card shops and collector groups, and search event listings and social media for trading card shows in your city.
 
 ## Pokémon card shows: tips
 
@@ -753,15 +902,19 @@ Card shows are events where many sellers set up tables to buy, sell and trade ca
 - **Inspect before you buy,** especially graded cards and expensive singles.
 - **Negotiate politely,** and bundle several cards for a better price.
 
-## Shop Pokémon cards near me, delivered from Japan
+## Pokémon near me, delivered from Japan
 
-If there's no card shop near you, or you want Japanese cards, shop online. We ship sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb), [rare singles](category:singles) and [accessories](category:accessories) from Japan to Australia with tracking: {standard} delivery in {standard_days}, or {express} in {express_days}, free on orders over {free_ship}. See [Shipping & Returns](page:shipping).
+If there's no card shop near you, or you want Japanese cards, shop online. We ship sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb), [rare singles](category:singles) and [accessories](category:accessories) from Japan to Australia with tracking: {standard} delivery in {standard_days}, or {express} in {express_days}, free on orders over {free_ship}. Card shops can stock up at [wholesale prices](page:wholesale).
 
 ## Questions
 
 ### How do I find a Pokémon card shop near me?
 
 Search a map app for trading card or game stores, and check the Play! Pokémon event locator on pokemon.com for stores that run official events.
+
+### Where are Good Games stores?
+
+Good Games has stores across Australia, including Box Hill, Greensborough and Ballarat in Victoria, Chatswood and Newcastle in NSW, Strathpine in Queensland, Adelaide and Modbury in South Australia, and Cannington and Joondalup (Good Games North) in WA.
 
 ### Do you have a store I can visit?
 
@@ -819,9 +972,9 @@ Most are free to download and scan with, and some charge for extra features.
 
 No. A scanner identifies which card it is, not whether it's genuine or what condition it's in.
 MD],
-    ['slug'=>'pokemon-card-template', 'updated'=>'2026-09-25',
+    ['slug'=>'pokemon-card-template', 'updated'=>'2026-09-26',
      'title'=>'Pokémon card template: make your own custom Pokémon cards',
-     'seo_title'=>'Pokémon Card Template: Free Printable for Custom Cards',
+     'seo_title'=>'Pokémon Card Template: Free Printable Custom & Customisable Cards',
      'seo_desc'=>'A free printable Pokémon card template at the exact card size (63 × 88 mm) with bleed and safe area, and how to design, print and sleeve custom Pokémon cards.',
      'body'=><<<'MD'
 Making a custom Pokémon card, for a birthday, a school project or just for fun, starts with the right size. Our free template below is the exact size of a Pokémon card, so your custom cards fit standard sleeves, toploaders and binders.
@@ -842,7 +995,7 @@ The template is blank, with no logos or artwork, so it works in any design app: 
 
 More detail in our guide to [Pokémon card size](guide:pokemon-card-size).
 
-## How to make a custom Pokémon card
+## Customisable Pokémon cards: how to make a custom card
 
 1. **Pick a Pokémon, or invent one,** and add its name and HP to the top bar.
 2. **Add artwork** to the art window: your own drawing, a photo of your pet, or a picture you have the right to use.
@@ -1270,14 +1423,14 @@ Many do, usually at a discount to market price, in cash or store credit.
 
 Only valuable cards in near-perfect condition, where a high grade will add more than the cost of grading.
 MD],
-    ['slug'=>'pokemon-card-size', 'updated'=>'2026-09-24',
+    ['slug'=>'pokemon-card-size', 'updated'=>'2026-09-26',
      'title'=>'Pokémon card size: dimensions in mm and inches',
      'seo_title'=>'Pokémon Card Size & Dimensions (mm and inches)',
      'seo_desc'=>'Pokémon cards measure 63 × 88 mm (2.48 × 3.46 inches). The standard Pokémon card size, how Japanese cards compare, and which sleeves, toploaders and binders fit.',
      'body'=><<<'MD'
 A standard Pokémon card measures **63 × 88 mm**, or about **2.48 × 3.46 inches** — usually rounded to 2.5 × 3.5 inches. That's the same size as most trading cards, including Magic: The Gathering, so Pokémon cards fit standard-size card accessories.
 
-## Pokémon card dimensions at a glance
+## Pokémon trading card dimensions at a glance
 
 - Width: 63 mm (2.48 in)
 - Height: 88 mm (3.46 in)
@@ -1389,9 +1542,9 @@ The rarest Pokémon cards were never sold in packs at all: prize cards from cont
 
 Two cards of the same rarity can be worth very different amounts. The Pokémon on the card matters — [Charizard](cards:charizard-pokemon-cards), [Pikachu](cards:pikachu-pokemon-cards) and [Gengar](cards:gengar-pokemon-cards) are always in demand — and so do condition and grading. To see what cards sell for, use our [Pokémon card price checker](guide:pokemon-card-price-checker), or read about [the most expensive Pokémon cards](guide:most-expensive-pokemon-cards).
 MD],
-    ['slug'=>'pokemon-card-values', 'updated'=>'2026-09-24',
+    ['slug'=>'pokemon-card-values', 'updated'=>'2026-09-26',
      'title'=>'Pokémon card values: how much are Pokémon cards worth?',
-     'seo_title'=>'Pokémon Card Values: How Much Are Pokémon Cards Worth?',
+     'seo_title'=>'Pokémon Card Values & Valuation: What Are Your Cards Worth?',
      'seo_desc'=>'What makes a Pokémon card worth money: rarity, condition, PSA grading and language. How to check Pokémon card values, and the most expensive card sold.',
      'body'=><<<'MD'
 Most Pokémon cards are worth very little — but the right card, in the right condition, can be worth hundreds or thousands of dollars. Here's what decides a Pokémon card's value, and how to check what yours is worth.
@@ -1409,9 +1562,9 @@ Most Pokémon cards are worth very little — but the right card, in the right c
 
 As a rough guide: common and uncommon cards are usually worth a few cents; holo rares and regular Pokémon ex a few dollars; full arts and Illustration Rares a few dollars to tens of dollars; and Special Illustration Rares, gold cards and chase cards of popular Pokémon tens to hundreds of dollars, or more in a high grade. Vintage holos, first edition cards and graded gems can be worth thousands.
 
-## How to check Pokémon card values
+## Pokémon card valuation: how to check what a card is worth
 
-The best guide to what a card is worth is what the same card has actually sold for recently. Search for the exact card — name, set number and language — and filter for sold listings on marketplaces, or use a price guide site. Always compare like for like: a raw card and a PSA 10 of the same card are different items, and so are Japanese and English versions. A [Pokémon card scanner](guide:pokemon-card-scanner) app gives a quick first estimate.
+The best guide to what a card is worth is what the same card has actually sold for recently. Search for the exact card — name, set number and language — and filter for sold listings on marketplaces, or use a price guide site. Always compare like for like: a raw card and a PSA 10 of the same card are different items, and so are Japanese and English versions. A [Pokémon card scanner](guide:pokemon-card-scanner) app gives a quick first estimate. Many price guides quote US dollars, so convert to Australian dollars before you buy or sell, and for a formal valuation of a valuable collection (for insurance, say), ask a reputable card shop or auction house.
 
 ## Pokémon card prices: price vs value
 
@@ -1419,7 +1572,7 @@ A card's price is what a seller asks; its value is what buyers actually pay. Whe
 
 ## What is the most expensive Pokémon card?
 
-**Pikachu Illustrator**, a prize card from Japanese illustration contests in 1997–98; only 39 were awarded. A PSA 10 copy sold for $16,492,000 at Goldin Auctions in February 2026. Its seller, Logan Paul, had bought it privately for $5,275,000. Other high-value cards include first edition Base Set Charizards in top grades and rare tournament prize cards. See [the most expensive Pokémon cards](guide:most-expensive-pokemon-cards) and [the rarest Pokémon cards](guide:rarest-pokemon-cards).
+**Pikachu Illustrator**, a prize card from Japanese illustration contests in 1997–98; only 39 were awarded. A PSA 10 copy sold for US$16,492,000 at Goldin Auctions in February 2026. Its seller, Logan Paul, had bought it privately for US$5,275,000. Other high-value cards include first edition Base Set Charizards in top grades and rare tournament prize cards. See [the most expensive Pokémon cards](guide:most-expensive-pokemon-cards) and [the rarest Pokémon cards](guide:rarest-pokemon-cards).
 
 ## Are modern Pokémon cards worth money?
 
