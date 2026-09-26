@@ -1,6 +1,6 @@
-# FUDAKURA storefront
+# POKEKURA storefront
 
-Wholesale Japanese Pokémon TCG shop in plain PHP. It needs no database and runs on any PHP 7.4+ host.
+POKEKURA (ポケ蔵) is an independent distributor and reseller of authentic Japanese Pokémon TCG products, shipping wholesale orders worldwide from Japan. This is its shop, in plain PHP. It needs no database and runs on any PHP 7.4+ host.
 
 ## Files
 
@@ -56,6 +56,7 @@ The Tawk.to chat code is in **Settings → Live chat**. It loads after each page
 
 ## Search engines (SEO)
 
+- **Moving from an old domain:** if an older copy of the shop has been live on another domain (e.g. fudakura.store), upload this version there too and set **Settings → This site has moved to** = `https://pokekura.com`. Every old page then 301-redirects to the same page here, and in Search Console you can use *Change of address*.
 - **Clean addresses:** most hosts (Apache or LiteSpeed) support addresses like `/products/151-booster-box`. Open `https://your-domain/shop`. If the shop appears, tick **Clean page addresses** in **Settings**. Old `index.php?p=…` links then redirect permanently to the clean ones.
 - **What Google sees:** every product, category, set, collection, guide and page has its own title, description and main heading. You can edit all of them in the admin; blank fields fall back to sensible defaults.
 - **Google Search Console:** turn on clean addresses first (below), then add your site as a *URL prefix* property, choose *HTML tag*, paste the tag into **Settings → Google Search Console verification**, save and press Verify. Bing has a matching box, or can import from Search Console.

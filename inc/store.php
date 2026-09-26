@@ -68,7 +68,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 3;
+const CONTENT_VERSION = 4;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -95,6 +95,27 @@ function content_upgrade($s, $d, $version){
               'pokemon-card-rarities'=>'73fc2cb21f9ba24cc5ce4fef927e2bd9', 'pokemon-card-values'=>'477ebb8b3fb7c80b7daefe58f72801a3',
               'how-to-tell-if-a-pokemon-card-is-fake'=>'23aa0b44bf81b80c8383baccf145b71f',
               'how-to-play-pokemon-cards'=>'b45490267d5e4fccd47b333d7f20026c', 'coolest-pokemon-cards'=>'88e6f3ed3e446bc3ec6b73d30d13246d']);
+  }
+  if($version < 4){   /* wholesale distributor wording, the Wholesale page, brand names from Settings */
+    $refresh(['where-to-buy-pokemon-cards'=>'4fdc2230f979fc188a9d06a23266a88f', 'pokemon-card-shops-near-me'=>'8f5c69f1d5cffb3bfc5b51ec6af47666']);
+    $pages = array_column($d['pages'], null, 'slug');
+    foreach(['about', 'privacy-policy', 'terms'] as $slug) foreach($s['pages'] ?? [] as $i=>$pg)
+      if(($pg['slug'] ?? '') === $slug && isset($pages[$slug]) && md5(json_encode([$pg['title'] ?? '', $pg['seo_title'] ?? '', $pg['seo_desc'] ?? '', $pg['body'] ?? ''])) === (['about'=>'3f57bf8a4a119889d4c9b38a8dfb6666', 'privacy-policy'=>'6be9c9e62d077e720658b7cef36b55bc', 'terms'=>'514392504c356be7be64d5314efef00d'][$slug] ?? ''))
+        $s['pages'][$i] = $pages[$slug];
+    if(isset($pages['wholesale']) && !in_array('wholesale', array_column($s['pages'] ?? [], 'slug'), true)){
+      $at = array_search('about', array_column($s['pages'] ?? [], 'slug'), true);
+      array_splice($s['pages'], $at === false ? 0 : $at + 1, 0, [$pages['wholesale']]);
+    }
+    foreach(['strip_text'=>'639b0e5dcdf2570e5a40852f446be957',
+                 'hero_title'=>'b67f33909591fa24b4083c451f729f19',
+                 'hero_lede'=>'60ad9c5e4f67a6dff88857730b107312',
+                 'footer_blurb'=>'b91eecc775f89174becc6ae7a6343a4d',
+                 'home_seo_title'=>'d19142018d6bb97c2405b054e57a52db',
+                 'home_seo_desc'=>'a6d815b569384fa6345fa8f3efb02b6e',
+                 'home_intro'=>'4bc6da20381f5dc69b7aa87e26f8928e',
+                 'tagline'=>'88a66b2e6a19be0a5fd4eb4f36d5e068'] as $k=>$old)
+      if(isset($d['settings'][$k]) && md5((string)($s['settings'][$k] ?? '')) === $old) $s['settings'][$k] = $d['settings'][$k];
+    if(md5(json_encode($s['faqs'] ?? [])) === '0f9897f07b6679311ae3226baed0dd1b') $s['faqs'] = $d['faqs'];
   }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;
@@ -266,7 +287,7 @@ function smtp_send($cfg, $from, $to, $subject, $body, $headers){
   $port = (int)($cfg['smtp_port'] ?? 0) ?: ($secure === 'ssl' ? 465 : 587);
   $ctx = stream_context_create(['ssl'=>['verify_peer'=>true, 'verify_peer_name'=>true, 'peer_name'=>$host, 'SNI_enabled'=>true]]);
   $fp = @stream_socket_client(($secure === 'ssl' ? 'ssl://' : 'tcp://').$host.':'.$port, $errno, $errstr, 15, STREAM_CLIENT_CONNECT, $ctx);
-  if(!$fp){ $GLOBALS['FK_MAIL_ERROR'] = "Couldn’t connect to $host:$port ($errstr)."; error_log('fudakura smtp: '.$GLOBALS['FK_MAIL_ERROR']); return false; }
+  if(!$fp){ $GLOBALS['FK_MAIL_ERROR'] = "Couldn’t connect to $host:$port ($errstr)."; error_log('shop smtp: '.$GLOBALS['FK_MAIL_ERROR']); return false; }
   stream_set_timeout($fp, 20);
   $talk = function($line, $want) use($fp){
     if($line !== null) fwrite($fp, $line."\r\n");
@@ -301,7 +322,7 @@ function smtp_send($cfg, $from, $to, $subject, $body, $headers){
     return true;
   } catch(RuntimeException $e){
     $GLOBALS['FK_MAIL_ERROR'] = "The mail server said: ".$e->getMessage();
-    error_log('fudakura smtp: '.$GLOBALS['FK_MAIL_ERROR']);
+    error_log('shop smtp: '.$GLOBALS['FK_MAIL_ERROR']);
     @fclose($fp);
     return false;
   }
@@ -318,10 +339,10 @@ function site_secret(){
 function order_key($ref){ return substr(hash_hmac('sha256', 'order|'.$ref, site_secret()), 0, 24); }
 function order_key_ok($ref, $k){ return valid_ref($ref) && is_string($k) && hash_equals(order_key($ref), $k); }
 
-function valid_ref($ref){ return is_string($ref) && preg_match('/^FK-\d{2}-[A-F0-9]{5}$/', $ref); }
+function valid_ref($ref){ return is_string($ref) && preg_match('/^[FP]K-\d{2}-[A-F0-9]{5}$/', $ref); }   /* PK-…; FK-… from before the rebrand */
 
 function new_order_ref(){
-  do { $ref = 'FK-'.date('y').'-'.strtoupper(substr(bin2hex(random_bytes(3)), 0, 5)); }
+  do { $ref = 'PK-'.date('y').'-'.strtoupper(substr(bin2hex(random_bytes(3)), 0, 5)); }
   while(is_file(data_file('orders/'.$ref)));
   return $ref;
 }
@@ -331,7 +352,7 @@ function order_load($ref){ return valid_ref($ref) ? data_read('orders/'.$ref) : 
 
 function orders_all(){
   $out = [];
-  foreach(glob(data_dir().'/orders/FK-*.php') ?: [] as $f){
+  foreach(array_merge(glob(data_dir().'/orders/PK-*.php') ?: [], glob(data_dir().'/orders/FK-*.php') ?: []) as $f){
     $o = order_load(basename($f, '.php'));
     if($o) $out[] = $o;
   }

@@ -8,4 +8,4 @@ Disallow: /*?p=cart
 Disallow: /*?p=checkout
 Disallow: /*?p=received
 
-Sitemap: https://fudakura.store/index.php?p=sitemap
+Sitemap: https://pokekura.com/index.php?p=sitemap

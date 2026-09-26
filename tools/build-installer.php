@@ -39,7 +39,7 @@ if(isset($argv[1]) && $argv[1] !== ''){
 $stub = <<<'PHP'
 <?php
 /* =============================================================
-   FUDAKURA — the whole shop in this one file.
+   POKEKURA — the whole shop in this one file.
 
    Upload this index.php to your web space (e.g. public_html) and
    open your site. It unpacks the shop next to itself (admin.php,
@@ -62,7 +62,7 @@ $page = function($title, $html){
        'code{background:#161924;padding:2px 6px;border-radius:5px}.n{color:#C4C9D9}</style></head><body><main>', $html, '</main></body></html>';
   exit;
 };
-if(!is_writable($dir)) $page('Can’t install', '<h1>The shop can’t unpack itself here</h1><p class="n">PHP isn’t allowed to create files in this folder. Ask your host to make it writable by PHP, or upload the files from <code>fudakura-store.zip</code> instead.</p>');
+if(!is_writable($dir)) $page('Can’t install', '<h1>The shop can’t unpack itself here</h1><p class="n">PHP isn’t allowed to create files in this folder. Ask your host to make it writable by PHP, or upload the files from <code>pokekura-site.zip</code> instead.</p>');
 
 $files = []; $pos = 0; $len = strlen($raw);
 while($pos + 8 <= $len){

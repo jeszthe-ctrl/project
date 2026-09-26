@@ -1,6 +1,6 @@
 <?php
 /* =============================================================
-   FUDAKURA — wholesale Japanese Pokémon TCG storefront. PHP 7.4+.
+   POKEKURA — wholesale Japanese Pokémon TCG storefront. PHP 7.4+.
 
    Day-to-day editing — products, prices, photos, shipping rates,
    payment methods, business details, FAQ, orders — is done in
@@ -27,6 +27,12 @@ $SERIES     = $STORE['series'] ?? [];
 $COLLECTIONS= $STORE['collections'] ?? [];
 $GUIDES     = $STORE['guides'] ?? [];
 $INFO_PAGES = $STORE['pages'] ?? [];
+
+/* Settings → "This site has moved to": every visitor (and Google) goes to the same page on the new domain */
+if(($moved = rtrim(trim((string)($CONFIG['moved_to'] ?? '')), '/')) !== '' && preg_match('#^https?://[^/]+$#i', $moved)
+   && strcasecmp((string)parse_url($moved, PHP_URL_HOST), preg_replace('/:\d+$/', '', (string)($_SERVER['HTTP_HOST'] ?? ''))) !== 0){
+  header('Location: '.$moved.($_SERVER['REQUEST_URI'] ?? '/'), true, 301); exit;
+}
 
 /* ---------------- HELPERS ---------------- */
 function product($id){ global $PRODUCTS; foreach($PRODUCTS as $p){ if($p['id']===$id) return $p; } return null; }
@@ -316,14 +322,14 @@ const PAGE_GUIDES = [
 const GUIDE_SHOP = [
   'collect'=>'Shop [rare Pokémon cards](category:singles), [PSA graded Pokémon cards](cards:psa-graded-pokemon-cards) and [Charizard Pokémon cards](cards:charizard-pokemon-cards), shipped from Japan.',
   'play'=>'Shop [Elite Trainer Boxes](category:etb), [starter decks and premium sets](category:premium) and [card sleeves, binders and playmats](category:accessories), shipped from Japan.',
-  'buy'=>'Shop [Japanese booster boxes](category:boxes), [Elite Trainer Boxes](category:etb) and [rare single cards](category:singles), shipped from Japan to the USA.',
+  'buy'=>'Shop [Japanese booster boxes](category:boxes), [Elite Trainer Boxes](category:etb) and [rare single cards](category:singles), shipped worldwide from Japan.',
 ];
 const GUIDE_GROUP = ['most-expensive-pokemon-cards'=>'collect','rarest-pokemon-cards'=>'collect','pokemon-card-values'=>'collect','pokemon-card-price-checker'=>'collect',
   'how-much-does-it-cost-to-grade-a-pokemon-card'=>'collect','where-to-sell-pokemon-cards'=>'collect','pokemon-card-scanner'=>'collect','coolest-pokemon-cards'=>'collect',
   'mew-mewtwo-arceus-pokemon-cards'=>'collect','pokemon-card-rarities'=>'collect','how-to-play-pokemon-cards'=>'play','how-to-read-a-pokemon-card'=>'play',
   'pokemon-card-template'=>'play','pokemon-card-size'=>'play'];
 
-function guide_anchor($g){ return GUIDE_ANCHORS[$g['slug']] ?? $g['title']; }
+function guide_anchor($g){ return GUIDE_ANCHORS[$g['slug']] ?? fill($g['title']); }
 function guides_list($slugs){ return array_values(array_filter(array_map('guide_by_slug', $slugs))); }
 function guides_for($cat){ return guides_list(PAGE_GUIDES['cat:'.$cat] ?? PAGE_GUIDES['shop']); }
 /* related guides: the hand-picked ones first, topped up with the next guides in the list */
@@ -361,7 +367,7 @@ function fill($text){
   $sm = ship_methods($STORE);
   return strtr($text, ['{reply_hours}'=>(int)$CONFIG['reply_hours'], '{hold_hours}'=>(int)$CONFIG['hold_hours'],
                        '{countries}'=>count($COUNTRIES), '{min_order}'=>money($MIN_ORDER), '{brand}'=>$CONFIG['brand'],
-                       '{company}'=>$CONFIG['legal_name'], '{address}'=>$CONFIG['address'], '{email}'=>$CONFIG['email'],
+                       '{company}'=>$CONFIG['legal_name'], '{address}'=>$CONFIG['address'], '{email}'=>$CONFIG['email'], '{kanji}'=>$CONFIG['kanji'],
                        '{free_ship}'=>money_whole(free_ship_usd($STORE)),
                        '{standard}'=>$sm['standard']['label'], '{express}'=>$sm['express']['label'],
                        '{standard_days}'=>$sm['standard']['days'], '{express_days}'=>$sm['express']['days']]);
@@ -541,11 +547,11 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         'free_shipping' => free_shipping($STORE, $goods),
       ];
       if(btc_method($PAYMENTS[$f['payment']])){ $order['btc'] = ['address'=>btc_settings()['address'], 'quotes'=>[]]; btc_quote($order); }
-      if(!order_save($order)) error_log("fudakura: could not save order {$order['ref']} to data/orders");
+      if(!order_save($order)) error_log("shop: could not save order {$order['ref']} to data/orders");
       $sent = send_order_mail($order);
       $order['mail_shop'] = $sent['shop']; $order['mail_customer'] = $sent['customer'];
       order_save($order);
-      if(!$sent['shop']) error_log("fudakura: order email for {$order['ref']} to {$CONFIG['order_email']} failed");
+      if(!$sent['shop']) error_log("shop: order email for {$order['ref']} to {$CONFIG['order_email']} failed");
       $_SESSION['last_order'] = $order;
       $_SESSION['cart'] = [];
       if(!empty($order['btc'])) go_to('pay', ['ref'=>$order['ref'], 'k'=>order_key($order['ref'])]);
@@ -691,7 +697,7 @@ $fixed = [
   'cart'     => ['Your order', 'Your order'],
   'checkout' => ['Checkout', 'Checkout'],
   'received' => ['Order received', ''],
-  'how'      => ['How ordering works — Japanese Pokémon cards to the USA', 'How ordering works'],
+  'how'      => ['How Wholesale Ordering Works — Japanese Pokémon TCG', 'How wholesale ordering works'],
   'shipping' => ['Shipping & Returns — Japanese Pokémon Cards from Japan', 'Shipping & Returns'],
   'pay'      => ['Pay for your order', ''],
   'payment'  => ['Payment methods', 'Payment methods'],
@@ -715,7 +721,7 @@ switch($page){
       $h1 = ($cinfo['h1'] ?? '') ?: $cinfo['label'];
     } else {
       $page_title = 'Shop Japanese Pokémon Cards — All Products';
-      $page_desc  = 'Shop Japanese Pokémon cards: sealed booster boxes, Elite Trainer Boxes, rare singles, PSA graded cards and accessories, shipped from Japan to the USA.';
+      $page_desc  = 'Shop Japanese Pokémon cards: sealed booster boxes, Elite Trainer Boxes, rare singles, PSA graded cards and accessories, shipped from Japan to the USA and worldwide.';
       $h1 = 'Shop Japanese Pokémon cards';
     }
     if($q !== '') $h1 = 'Results for “'.$q.'”';
@@ -730,7 +736,7 @@ switch($page){
     if(stripos($auto, 'japanese') === false && strlen($auto) < 34) $auto .= ' — Japanese Pokémon TCG';
     $page_title = ($prod['seo_title'] ?? '') ?: $auto;
     $from = unit_price($prod, $prod['moq']);
-    $page_desc  = ($prod['seo_desc'] ?? '') ?: plain(desc_parts($prod['desc'])[0], 105).' From $'.number_format($from, 2).' each; ships from Japan to the USA.';
+    $page_desc  = ($prod['seo_desc'] ?? '') ?: plain(desc_parts($prod['desc'])[0], 105).' From $'.number_format($from, 2).' each; ships worldwide from Japan.';
     break;
   case 'sets':
     $crumbs[] = ['Sets', '', []];
@@ -751,7 +757,7 @@ switch($page){
     $crumbs[] = [$set['name'], '', []];
     $label = $set['name'].($set['code'] !== '' ? ' ('.$set['code'].')' : '');
     $page_title = $set['seo_title'] ?: $label.' Japanese Booster Boxes & Cards';
-    $page_desc  = $set['seo_desc'] ?: (plain($set['intro']) ?: 'Japanese '.$set['name'].' booster boxes and cards, shipped from Japan to the USA.');
+    $page_desc  = $set['seo_desc'] ?: (plain($set['intro']) ?: 'Japanese '.$set['name'].' booster boxes and cards, shipped from Japan to the USA and worldwide.');
     $h1 = $label.' — Japanese Pokémon cards';
     break;
   case 'collection':
@@ -785,12 +791,15 @@ switch($page){
     if($page === 'notfound') $crumbs = [];
     $page_desc = ['shipping'=>(free_ship_usd($STORE) ? 'Free shipping over '.money_whole(free_ship_usd($STORE)).'. ' : '')
                     .'Japanese Pokémon cards shipped from Japan with tracking: delivery times, rates, duty, returns and refunds.',
-                  'faq'=>'Answers to common questions about buying Japanese Pokémon cards from Japan: shipping to the USA, payment, minimum order, duty and returns.',
-                  'how'=>'How to order Japanese Pokémon cards from FUDAKURA: published bulk prices, pay by Bitcoin or invoice, and tracked shipping from Japan to the USA.',
-                  'payment'=>'How to pay for Japanese Pokémon cards at FUDAKURA: Bitcoin straight from your wallet, or the method that suits you, with an invoice by email.',
-                  'contact'=>'Contact FUDAKURA about Japanese Pokémon card orders, bulk pricing, shipping from Japan or an existing order. We reply within '.(int)$CONFIG['reply_hours'].' hours.'][$page] ?? '';
+                  'faq'=>'Answers to common questions about buying Japanese Pokémon cards wholesale from Japan: shipping worldwide, payment, minimum order, duty and returns.',
+                  'how'=>'How wholesale ordering works at {brand}: public MOQs and quantity-break prices, pay by Bitcoin or invoice, and tracked shipping worldwide from Japan.',
+                  'payment'=>'How to pay for Japanese Pokémon cards at {brand}: Bitcoin straight from your wallet, or the method that suits you, with an invoice by email.',
+                  'contact'=>'Contact {brand} about wholesale Japanese Pokémon card orders, case pricing, shipping from Japan or an existing order. We reply within '.(int)$CONFIG['reply_hours'].' hours.'][$page] ?? '';
 }
-if($page_desc === '') $page_desc = 'Japanese Pokémon cards shipped from Japan to the USA: sealed booster boxes, Elite Trainer Boxes, rare singles and PSA graded cards.';
+if($page_desc === '') $page_desc = 'Wholesale Japanese Pokémon cards shipped worldwide from Japan: sealed booster boxes, Elite Trainer Boxes, premium sets, singles and TCG accessories.';
+/* admin-written titles can use {brand} and the other placeholders, like the page text */
+$page_title = fill($page_title); $page_desc = fill($page_desc); $h1 = fill($h1);
+foreach($crumbs as $ci=>$cr) $crumbs[$ci][0] = fill($cr[0]);
 
 /* one canonical URL per page, without filters, currency or search */
 $canon_args = ['product'=>['id'=>$prod['id'] ?? ''], 'set'=>['s'=>$set['slug'] ?? ''], 'series'=>['s'=>$series['slug'] ?? ''],
@@ -830,10 +839,12 @@ $in_stock = array_values(array_filter($PRODUCTS, fn($p)=>!in_array($p['status'],
 <?php
 $org_id = rtrim($CONFIG['domain'], '/').'/#org';
 $graph = [
-  ['@type'=>'Organization','@id'=>$org_id,'name'=>$CONFIG['legal_name'],'url'=>abs_url('home'),'email'=>$CONFIG['email'],
+  ['@type'=>'Organization','@id'=>$org_id,'name'=>$CONFIG['brand'],'legalName'=>$CONFIG['legal_name'],'alternateName'=>$CONFIG['kanji'],'url'=>abs_url('home'),'email'=>$CONFIG['email'],
    'logo'=>rtrim($CONFIG['domain'], '/').'/assets/logo.svg',
    'address'=>['@type'=>'PostalAddress','streetAddress'=>$CONFIG['address'],'addressCountry'=>'JP'],
-   'description'=>'Supplier of Japanese Pokémon Trading Card Game products, shipping from Japan to the USA and worldwide.'],
+   'description'=>'Independent distributor and reseller of authentic Japanese Pokémon Trading Card Game products, shipping wholesale orders worldwide directly from Japan.',
+   'knowsAbout'=>['Japanese Pokémon Trading Card Game', 'Pokémon TCG wholesale', 'Pokémon booster boxes'],
+   'areaServed'=>'Worldwide'],
   ['@type'=>'WebSite','@id'=>rtrim($CONFIG['domain'], '/').'/#site','url'=>abs_url('home'),'name'=>$CONFIG['brand'],'inLanguage'=>'en-US',
    'publisher'=>['@id'=>$org_id],
    'potentialAction'=>['@type'=>'SearchAction','target'=>abs_url('catalog', ['q'=>'QUERY']),'query-input'=>'required name=search_term_string']],
@@ -865,7 +876,7 @@ if($prod){
     'brand'=>['@type'=>'Brand','name'=>'Pokémon'],'offers'=>$offer]);
 }
 if($guide){
-  $graph[] = ['@type'=>'Article','headline'=>$guide['title'],'description'=>$page_desc,'url'=>$canonical,
+  $graph[] = ['@type'=>'Article','headline'=>fill($guide['title']),'description'=>$page_desc,'url'=>$canonical,
     'dateModified'=>$guide['updated'] ?? gmdate('Y-m-d'),'inLanguage'=>'en-US',
     'author'=>['@id'=>$org_id],'publisher'=>['@id'=>$org_id],'image'=>$og ? $abs_img($og[0]) : null];
 }
@@ -942,8 +953,8 @@ select.pick{appearance:none;background-color:var(--card);border:1px solid var(--
 .catbar{border-top:1px solid var(--hair)}
 .catbar .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
 .catbar .wrap::-webkit-scrollbar{display:none}
-.catbar a{padding:12px 11px;text-decoration:none;font-size:14px;font-weight:500;color:var(--ink2);white-space:nowrap;position:relative}
-.catbar a::after{content:"";position:absolute;left:11px;right:11px;bottom:0;height:2px;border-radius:2px;background:var(--holo);opacity:0;transition:opacity .15s}
+.catbar a{padding:12px 8px;text-decoration:none;font-size:14px;font-weight:500;color:var(--ink2);white-space:nowrap;position:relative}
+.catbar a::after{content:"";position:absolute;left:8px;right:8px;bottom:0;height:2px;border-radius:2px;background:var(--holo);opacity:0;transition:opacity .15s}
 .catbar a:hover{color:#fff}.catbar a:hover::after{opacity:.6}
 .catbar a.on{color:#fff;font-weight:700}.catbar a.on::after{opacity:1}
 @media(max-width:820px){form.search{order:3;max-width:none;flex-basis:100%;margin-bottom:12px}.bar{flex-wrap:wrap;padding-top:10px}}
@@ -1422,6 +1433,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
     </div>
   </div>
   <nav class="catbar" aria-label="Categories"><div class="wrap">
+    <?php if(info_page('wholesale')): ?><a href="<?= h(url('page', ['pg'=>'wholesale'])) ?>" class="<?= $page==='page'&&($info['slug'] ?? '')==='wholesale'?'on':'' ?>">Wholesale</a><?php endif; ?>
     <a href="<?= url('catalog') ?>" class="<?= $page==='catalog'&&!$cat?'on':'' ?>">All products</a>
     <?php foreach($CATEGORIES as $k=>$c): ?>
       <a href="<?= url('catalog',['cat'=>$k]) ?>" class="<?= $cat===$k?'on':'' ?>"><?= h($c['label']) ?></a>
@@ -1448,12 +1460,12 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
 
   <section class="hero"><div class="wrap hgrid">
     <div>
-      <div class="eyebrow"><span>Japan direct</span><span>Sealed &amp; authentic</span><span>Ships to the USA</span><span>Bulk pricing</span></div>
+      <div class="eyebrow"><span>Japan direct</span><span>Sealed &amp; authentic</span><span>Ships worldwide</span><span>Wholesale MOQs</span></div>
       <h1><?= h($CONFIG['hero_title']) ?></h1>
       <p class="lede"><?= h($CONFIG['hero_lede']) ?></p>
       <div class="hero-cta">
         <a class="btn" href="<?= url('catalog') ?>">Shop Japanese Pokémon cards</a>
-        <a class="btn g" href="<?= url('how') ?>">How ordering works</a>
+        <a class="btn g" href="<?= h(info_page('wholesale') ? url('page', ['pg'=>'wholesale']) : url('how')) ?>"><?= info_page('wholesale') ? 'Wholesale terms' : 'How ordering works' ?></a>
       </div>
       <div class="stats">
         <div><strong><?= count($in_stock) ?></strong>SKUs in stock</div>
@@ -1466,7 +1478,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       <?php $hp = photos('hero');
       if($hp): ?><?= img_tag($hp[0], 'Sealed Japanese Pokémon booster boxes ready to ship from Japan', '(max-width:960px) 100vw, 600px', true) ?>
       <?php elseif(is_file(FK_ROOT.'/'.SITE_HERO)): ?><a href="<?= h(url('product', ['id'=>'30th-celebration-elite-trainer-box'])) ?>" class="heroimg"><?= img_tag(SITE_HERO, 'Pokémon TCG 30th Celebration Elite Trainer Box', '(max-width:960px) 100vw, 600px', true) ?></a>
-      <?php else: ?><div class="ph"><span>札蔵</span><span>Japanese Pokémon cards · shipped from Japan</span></div><?php endif; ?>
+      <?php else: ?><div class="ph"><span><?= h($CONFIG['kanji']) ?></span><span>Japanese Pokémon cards · shipped from Japan</span></div><?php endif; ?>
     </div>
   </div></section>
 
@@ -1542,7 +1554,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       <h2>Sealed in its original factory packaging.</h2>
       <p>Everything is bought through Japanese distribution and ships exactly as it left the factory. We do not deal in resealed, reprinted or counterfeit product, and the price on the listing is the price on your invoice.</p>
       <p style="margin-top:22px"><a class="btn gold" href="<?= url('how') ?>">How ordering works</a>
-        <?php if(info_page('about')): ?><a class="btn g" href="<?= h(url('page', ['pg'=>'about'])) ?>" style="margin-left:8px">About FUDAKURA</a><?php endif; ?></p>
+        <?php if(info_page('about')): ?><a class="btn g" href="<?= h(url('page', ['pg'=>'about'])) ?>" style="margin-left:8px">About <?= h($CONFIG['brand']) ?></a><?php endif; ?></p>
     </div>
     <div class="spec">
       <div><span>Sourcing</span><span>Japanese distribution</span></div>
@@ -1654,7 +1666,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
     <div>
       <div class="gal-main">
         <?php if($ph): ?><?= str_replace('<img ', '<img id="galMain" ', img_tag($ph[0], $prod['name'].' — Japanese Pokémon TCG', '(max-width:900px) 100vw, 620px', true)) ?>
-        <?php else: ?><div class="ph"><span>札蔵</span><span><?= h($prod['set'] ?: $CATEGORIES[$prod['cat']]['label']) ?></span></div><?php endif; ?>
+        <?php else: ?><div class="ph"><span><?= h($CONFIG['kanji']) ?></span><span><?= h($prod['set'] ?: $CATEGORIES[$prod['cat']]['label']) ?></span></div><?php endif; ?>
       </div>
       <?php if(count($ph)>1): ?>
       <div class="gal-thumbs">
@@ -1732,7 +1744,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
             <?php if(free_ship_usd($STORE)): ?><b>Free <?= h($SM['standard']['label']) ?> shipping on orders over <?= money_whole(free_ship_usd($STORE)) ?>.</b><?php endif; ?>
             Orders start at <?= money($MIN_ORDER) ?> including shipping.</p>
           <p><?php if(array_filter($PAYMENTS, 'btc_method')): ?>Pay with Bitcoin straight after you order, or choose another method and we send the details within <?= (int)$CONFIG['reply_hours'] ?> hours.<?php else: ?>We send payment details for your chosen method within <?= (int)$CONFIG['reply_hours'] ?> hours.<?php endif; ?>
-            <a href="<?= url('shipping') ?>">Shipping &amp; Returns</a> · <a href="<?= url('payment') ?>">Payment methods</a> · <a href="<?= url('how') ?>">How ordering works</a> · <a href="<?= url('faq') ?>">FAQ</a> · <a href="<?= url('contact') ?>">Contact us</a></p>
+            <a href="<?= url('shipping') ?>">Shipping &amp; Returns</a> · <a href="<?= url('payment') ?>">Payment methods</a> · <a href="<?= url('how') ?>">How ordering works</a><?php if(info_page('wholesale')): ?> · <a href="<?= h(url('page', ['pg'=>'wholesale'])) ?>">Wholesale terms</a><?php endif; ?> · <a href="<?= url('faq') ?>">FAQ</a> · <a href="<?= url('contact') ?>">Contact us</a></p>
         </div>
       </div>
       <?php $pg = guides_for($prod['cat']); if($pg): ?>
@@ -2062,7 +2074,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
 <?php elseif($page==='how'): ?>
   <section style="padding-top:22px"><div class="wrap">
     <div class="sechead"><div><h1><?= h($h1) ?></h1>
-      <p>Four steps from cart to courier. Pay by Bitcoin straight from your wallet on your order page, or settle an invoice from your own bank or payment app.</p></div></div>
+      <p>Four steps from cart to courier, with no account approval: minimum order quantities, case multiples and quantity breaks are on every listing. Pay by Bitcoin straight from your wallet, or settle an invoice from your own bank or payment app.<?php if(info_page('wholesale')): ?> See our <a href="<?= h(url('page', ['pg'=>'wholesale'])) ?>">wholesale terms</a>.<?php endif; ?></p></div></div>
     <?php steps_block($CONFIG); ?>
     <div style="margin-top:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px" class="cats">
       <a href="<?= url('payment') ?>"><h3>Payment methods</h3><p>What we accept, by country.</p></a>
@@ -2154,7 +2166,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       <?php endforeach; ?>
     </div>
     <?php $more = [['Shipping & Returns', url('shipping')], ['How ordering works', url('how')], ['Payment methods', url('payment')]];
-    foreach(['about'=>'About FUDAKURA', 'terms'=>'Terms of sale', 'privacy-policy'=>'Privacy policy'] as $pg_=>$lb_) if(info_page($pg_)) $more[] = [$lb_, url('page', ['pg'=>$pg_])];
+    foreach(['wholesale'=>'Wholesale terms', 'about'=>'About '.$CONFIG['brand'], 'terms'=>'Terms of sale', 'privacy-policy'=>'Privacy policy'] as $pg_=>$lb_) if(info_page($pg_)) $more[] = [$lb_, url('page', ['pg'=>$pg_])];
     $more[] = ['Contact us', url('contact')];
     guide_links(PAGE_GUIDES['faq'], 'More answers', $more); ?>
   </div></section>
@@ -2173,7 +2185,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
         <tr><td class="nm">Email</td><td><a href="mailto:<?= h($CONFIG['email']) ?>"><?= h($CONFIG['email']) ?></a></td></tr>
         <?php if($CONFIG['phone']): ?><tr><td class="nm">Phone</td><td><?= h($CONFIG['phone']) ?></td></tr><?php endif; ?>
         <tr><td class="nm">Business</td><td><?= h($CONFIG['legal_name']) ?>, <?= h($CONFIG['address']) ?></td></tr>
-        <tr><td class="nm">Existing order</td><td>Quote your order reference (format FK-26-XXXXX) in the subject line.</td></tr>
+        <tr><td class="nm">Existing order</td><td>Quote your order reference (format PK-26-XXXXX) in the subject line.</td></tr>
       </tbody>
     </table>
     <p style="margin-top:22px;font-size:14.5px;color:var(--ink2)">For standing orders, full-case volumes or allocation on an upcoming release, email us with the sets and quantities you want and we will come back with pricing.</p>
@@ -2261,7 +2273,11 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       <h1><?= h($h1) ?></h1>
       <div class="prose" style="margin-top:18px"><?= rich($info['body'] ?? '') ?></div>
     </article>
+    <?php if(($info['slug'] ?? '') === 'wholesale') guide_links(PAGE_GUIDES['shop'], 'Guides for buyers'); ?>
   </div></section>
+  <?php $qa = policy_questions($info['body'] ?? '');
+  if($qa): ?><script type="application/ld+json"><?= json_encode(['@context'=>'https://schema.org','@type'=>'FAQPage','mainEntity'=>array_map(fn($x)=>
+    ['@type'=>'Question','name'=>$x[0],'acceptedAnswer'=>['@type'=>'Answer','text'=>$x[1]]], $qa)], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_HEX_TAG) ?></script><?php endif; ?>
 
 <?php elseif($page==='notfound'): ?>
   <section class="top"><div class="wrap" style="max-width:720px">
@@ -2294,6 +2310,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       <?php if($GUIDES): ?><li><a href="<?= url('guides') ?>">All Pokémon card guides</a></li><?php endif; ?>
     </ul></div>
     <div><h4>Ordering</h4><ul>
+      <?php if(info_page('wholesale')): ?><li><a href="<?= h(url('page', ['pg'=>'wholesale'])) ?>">Wholesale terms</a></li><?php endif; ?>
       <li><a href="<?= url('how') ?>">How it works</a></li>
       <li><a href="<?= url('payment') ?>">Payment methods</a></li>
       <li><a href="<?= url('shipping') ?>">Shipping &amp; Returns</a></li>
@@ -2302,7 +2319,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
     <div><h4>Support</h4><ul>
       <li><a href="<?= url('faq') ?>">FAQ</a></li>
       <li><a href="<?= url('contact') ?>">Contact</a></li>
-      <?php foreach($INFO_PAGES as $ip): ?><li><a href="<?= h(url('page', ['pg'=>$ip['slug']])) ?>"><?= h($ip['title']) ?></a></li><?php endforeach; ?>
+      <?php foreach($INFO_PAGES as $ip): if(($ip['slug'] ?? '') === 'wholesale') continue; ?><li><a href="<?= h(url('page', ['pg'=>$ip['slug']])) ?>"><?= h(fill($ip['title'])) ?></a></li><?php endforeach; ?>
       <li><a href="mailto:<?= h($CONFIG['email']) ?>"><?= h($CONFIG['email']) ?></a></li>
     </ul></div>
   </div>
@@ -2455,7 +2472,7 @@ function include_card($p){
       <?php if($ph): ?>
         <?= img_tag($ph[0], $p['name'].' — Japanese Pokémon TCG') ?>
       <?php else: ?>
-        <div class="ph"><span>札蔵</span><span><?= h($p['set']) ?></span></div>
+        <div class="ph"><span><?= h($CONFIG['kanji']) ?></span><span><?= h($p['set']) ?></span></div>
       <?php endif; ?>
     </a>
     <div class="in">
@@ -2612,8 +2629,8 @@ function set_tiles($sets){ ?>
 
 function guide_cards($guides){ ?>
   <div class="gcards"><?php foreach($guides as $g): ?>
-    <a href="<?= h(url('guide', ['g'=>$g['slug']])) ?>"><h3><?= h($g['title']) ?></h3>
-      <p><?= h(($g['seo_desc'] ?? '') ?: plain($g['body'] ?? '', 140)) ?></p><span>Read the guide →</span></a>
+    <a href="<?= h(url('guide', ['g'=>$g['slug']])) ?>"><h3><?= h(fill($g['title'])) ?></h3>
+      <p><?= h(fill(($g['seo_desc'] ?? '') ?: plain($g['body'] ?? '', 140))) ?></p><span>Read the guide →</span></a>
   <?php endforeach; ?></div>
 <?php }
 

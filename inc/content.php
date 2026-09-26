@@ -11,22 +11,22 @@ if(!defined('FK_ROOT')){ http_response_code(404); exit; }
 
 return [
   'settings' => [
-    'strip_text'    => 'Sourced in Japan · Shipped to the USA with tracking · Bulk pricing on every listing',
-    'hero_title'    => 'Japanese Pokémon cards, shipped from Japan to the USA.',
-    'hero_lede'     => 'Sealed Japanese booster boxes, Elite Trainer Boxes, rare singles and PSA graded cards, sourced in Japan and shipped with tracking. Every quantity break is published, so collectors and card shops see the price before they order.',
-    'footer_blurb'  => 'Japanese Pokémon cards shipped from Japan to collectors, resellers and card shops across the USA. Prices published on every listing — no account needed.',
-    'home_seo_title'=> 'Japanese Pokémon Cards — Booster Boxes & Singles',
-    'home_seo_desc' => 'Authentic Japanese Pokémon cards shipped from Japan to the USA: sealed booster boxes, ETBs, rare singles and PSA graded cards, with bulk pricing published.',
+    'strip_text'    => 'Authentic Japanese Pokémon TCG · Wholesale MOQs & case pricing · Shipped worldwide from Japan',
+    'hero_title'    => 'Wholesale Japanese Pokémon cards, shipped worldwide from Japan.',
+    'hero_lede'     => 'Authentic sealed booster boxes, Elite Trainer Boxes, premium sets, singles and TCG accessories for card shops, online retailers, tournament organizers and distributors. No approval process: minimum order quantities, case multiples and quantity-break prices are built into every listing.',
+    'footer_blurb'  => 'Independent distributor and reseller of authentic Japanese Pokémon TCG products, shipping wholesale orders worldwide from Japan to card shops, online retailers, tournament organizers and distributors.',
+    'home_seo_title'=> 'Japanese Pokémon Cards Wholesale: Booster Boxes & Singles',
+    'home_seo_desc' => 'Wholesale Japanese Pokémon cards from Japan: sealed booster boxes, ETBs, premium sets and singles for card shops and retailers, with MOQ and case pricing.',
     'home_intro'    => <<<'MD'
 ## Why buy Japanese Pokémon cards?
 
 Japanese sets come out first, often months before their English versions, so Japanese booster boxes are how collectors get the newest cards early. Many collectors also prefer Japanese printing and card quality, and Japanese special sets like [151](set:151) and [Terastal Festival ex](set:terastal-festival-ex) are some of the most sought-after boxes in the hobby.
 
-Everything we sell is sourced in Japan and shipped to the USA sealed, exactly as it left the factory. Browse [booster boxes](category:boxes), [rare single cards](category:singles), [PSA graded cards](cards:psa-graded-pokemon-cards) or [card binders and sleeves](category:accessories), or start with our guide to [Japanese Pokémon cards](guide:japanese-pokemon-cards).
+Everything we sell is sourced in Japan and shipped worldwide, including to the USA, sealed exactly as it left the factory. Browse [booster boxes](category:boxes), [rare single cards](category:singles), [PSA graded cards](cards:psa-graded-pokemon-cards) or [card binders and sleeves](category:accessories), or start with our guide to [Japanese Pokémon cards](guide:japanese-pokemon-cards).
 
-## Buying in bulk?
+## Wholesale Japanese Pokémon cards
 
-Every listing shows its full quantity-break ladder, so card shops and resellers can price a complete order up front. Orders start at {min_order} including shipping, and shipping to the USA is calculated at checkout.
+{brand} is an independent distributor and reseller of Japanese Pokémon TCG products. There's no approval-gated registration: every listing shows its minimum order quantity, case multiple and full quantity-break ladder, so card shops, online retailers, tournament organizers and distributors can price a complete order up front. Orders start at {min_order} including shipping. See our [wholesale terms](page:wholesale).
 MD,
     /* the Shipping & Returns page ({rates} = the delivery options and rate tables) */
     'shipping_policy' => <<<'MD'
@@ -641,7 +641,7 @@ MD],
      'body'=><<<'MD'
 Pokémon cards are sold almost everywhere in the USA: big-box stores, pharmacies, game stores and online marketplaces. Here's what each kind of store usually carries, how restocks work, and when it's better to buy online.
 
-FUDAKURA is an independent online shop and isn't affiliated with any retailer on this page. Store names are used only to describe where Pokémon cards are sold, and are trademarks of their owners.
+{brand} is an independent distributor and online shop, and isn't affiliated with any retailer on this page. Store names are used only to describe where Pokémon cards are sold, and are trademarks of their owners.
 
 ## Walmart Pokémon cards
 
@@ -710,7 +710,7 @@ MD],
      'seo_title'=>'Pokémon Card Shops Near Me: Stores, Card Shows & Online',
      'seo_desc'=>'How to find Pokémon card shops and trading card stores near you, what to expect at Pokémon card shows, and how to shop Japanese Pokémon cards online instead.',
      'body'=><<<'MD'
-Looking for a Pokémon card shop near you? Here's how to find local trading card stores and card shows, what to look for when you get there, and when ordering online is the better option. FUDAKURA is an online shop, so we don't have a store to visit, but we deliver to every US state.
+Looking for a Pokémon card shop near you? Here's how to find local trading card stores and card shows, what to look for when you get there, and when ordering online is the better option. {brand} is an online distributor, so we don't have a store to visit, but we deliver to every US state and worldwide.
 
 ## How to find Pokémon card shops near me
 
@@ -760,7 +760,7 @@ Search a map app for trading card or game stores, and check the Play! Pokémon e
 
 ### Do you have a store I can visit?
 
-No. FUDAKURA is online only. We ship from Japan to every US state with tracking.
+No. {brand} is online only. We ship from Japan to every US state, and worldwide, with tracking.
 
 ### How do I find Pokémon card shows near me?
 
@@ -1425,30 +1425,123 @@ MD],
   /* About, Returns, Privacy and Terms. Shown at /{slug} (or index.php?p=page&pg={slug}) and linked in the footer.
      Extra placeholders here: {brand} {company} {address} {email}. Review the policies for your own business. */
   'pages' => [
-    ['slug'=>'about', 'title'=>'About FUDAKURA',
-     'seo_title'=>'About FUDAKURA — Japanese Pokémon Cards from Japan',
-     'seo_desc'=>'FUDAKURA sources Japanese Pokémon cards in Japan and ships them sealed to collectors, resellers and card shops in the USA. How we work and who we are.',
+    ['slug'=>'about', 'title'=>'About {brand}',
+     'seo_title'=>'About {brand} — Japanese Pokémon TCG Distributor',
+     'seo_desc'=>'{brand} is an independent distributor and reseller of authentic Japanese Pokémon TCG products, shipping wholesale worldwide from Japan.',
      'body'=><<<'MD'
-FUDAKURA takes its name from two Japanese words: **fuda** (札), a card, and **kura** (蔵), a storehouse — a card storehouse. We source Japanese Pokémon cards in Japan and ship them to collectors, resellers and card shops in the USA and worldwide.
+{brand} is an independent distributor and reseller of authentic Japanese Pokémon Trading Card Game products. We specialise in wholesale: sealed booster boxes, premium sets, Elite Trainer Boxes, singles and TCG accessories, shipped worldwide directly from Japan.
+
+## Our name
+
+{brand} ({kanji}) ends in **kura** (蔵), the Japanese word for a storehouse: a storehouse of Japanese trading cards.
+
+## Who we work with
+
+We supply local card shops, online retailers, tournament organizers and independent distributors, and collectors who buy by the box. See our [wholesale terms](page:wholesale).
 
 ## What we sell
 
-Sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb), [collection boxes and starter sets](category:premium), [rare single cards](category:singles) and [accessories](category:accessories) — from the current [Mega Evolution sets](set:mega-evolution) back to [Scarlet & Violet](set:scarlet-violet) favourites like [151](set:151).
+- Sealed Japanese [booster boxes](category:boxes), from anniversary sets like [30th Celebration](set:30th-celebration) to favourites like [Pokémon Card 151](set:151)
+- [Elite Trainer Boxes](category:etb) and [premium sets](category:premium)
+- [High-value single cards](category:singles), including [PSA graded cards](cards:psa-graded-pokemon-cards)
+- [TCG accessories](category:accessories): sleeves, binders, deck boxes and playmats
 
 ## How we work
 
-- **Sourced in Japan.** Everything is bought through Japanese distribution and ships sealed in its original factory packaging. We don't sell resealed, reprinted or fake product.
-- **Prices in the open.** Every listing shows its full quantity-break ladder, so you can price an order before you contact us.
-- **Careful packing.** Singles ship sleeved and toploaded; sealed product ships as it left the factory, with tracking on every parcel.
+- **Wholesale without the paperwork.** There's no approval-gated registration. Minimum order quantities, case multiples and tiered quantity-break pricing are built into every listing, and applied automatically.
+- **Sourced in Japan.** Everything is bought through Japanese distribution and ships sealed in its original factory packaging. We never sell resealed, reprinted or fake product.
+- **Shipped worldwide.** Every order ships from Japan with tracking; see [Shipping & Returns](page:shipping).
 - **Straight answers.** Questions go to a real person at [{email}](mailto:{email}).
+
+## Independent
+
+{company} is an independent business. We're not affiliated with, endorsed by or licensed by The Pokémon Company, Nintendo, Creatures Inc. or GAME FREAK Inc.
 
 ## Company details
 
 {company} · {address} · [{email}](mailto:{email})
 MD],
+    ['slug'=>'wholesale', 'title'=>'Wholesale Japanese Pokémon cards for shops and distributors',
+     'seo_title'=>'Wholesale Japanese Pokémon Cards & TCG Distributor',
+     'seo_desc'=>'Wholesale Japanese Pokémon TCG from Japan for card shops, online retailers, tournament organizers and distributors: MOQs, case pricing, no approval.',
+     'body'=><<<'MD'
+{brand} is an independent distributor and reseller of authentic Japanese Pokémon Trading Card Game products. We supply sealed booster boxes, Elite Trainer Boxes, premium sets, singles and TCG accessories to businesses worldwide, shipped directly from Japan.
+
+## Wholesale without an application
+
+Most distributors make you apply, wait for approval and then ask for a price list. We don't. Every listing shows its wholesale terms up front:
+
+- **Minimum order quantities (MOQs):** sealed product starts at a case-friendly quantity, usually 4 or 6 boxes; single cards start at one.
+- **Case multiples:** quantities go up in the product's selling step, so every order matches how the product is packed.
+- **Automatic quantity breaks:** the unit price drops at each tier, such as 6+, 24+ or 36+, and your order applies it for you.
+- **Minimum order:** {min_order} including shipping.
+
+Check any price with our [Pokémon card price checker](guide:pokemon-card-price-checker).
+
+## Who we supply
+
+- **Local card shops:** sealed Japanese boxes for the shelf and for pack-opening events, plus singles for the display case.
+- **Online retailers:** case quantities of new Japanese sets from release, with tracking on every consignment.
+- **Tournament organizers:** booster boxes for prize support, plus Elite Trainer Boxes and accessories for events.
+- **Independent distributors:** larger case orders at our best quantity-break prices.
+
+## What we supply
+
+- **Booster boxes** from the current [Mega Evolution](set:mega-evolution) series and [Scarlet & Violet](set:scarlet-violet) favourites, including anniversary sets like [30th Celebration](set:30th-celebration) and [Pokémon Card 151](set:151). See all [Japanese booster boxes](category:boxes).
+- **[Elite Trainer Boxes](category:etb)** and **[premium sets](category:premium)**.
+- **[High-value single cards](category:singles)**, including [PSA graded cards](cards:psa-graded-pokemon-cards).
+- **[TCG accessories](category:accessories):** sleeves, binders, deck boxes, playmats and storage.
+
+## Worldwide shipping from Japan
+
+Orders ship directly from Japan with tracking: {standard} ({standard_days}) or {express} ({express_days}), priced by weight and shown at checkout. Orders over {free_ship} ship free with {standard}. Import duty and taxes are paid by the buyer. See [Shipping & Returns](page:shipping).
+
+## Paying for wholesale orders
+
+Pay by Bitcoin straight from your wallet on the order page, or choose another method and we send payment details with your invoice within {reply_hours} hours. See [payment methods](page:payment).
+
+## Preorders and allocations
+
+Upcoming Japanese sets can be preordered at published prices. Preorders are invoiced when stock is allocated, and ship as soon as it arrives.
+
+## Authentic Japanese product
+
+Everything is sourced through Japanese distribution and ships sealed in its original factory packaging. We never sell resealed, reprinted or counterfeit product ([how to tell if a Pokémon card is fake](guide:how-to-tell-if-a-pokemon-card-is-fake)).
+
+## How to place a wholesale order
+
+1. Add products to your order in the quantities you need: the unit price updates at each break.
+2. Enter your company name and shipping address at checkout.
+3. Pay by Bitcoin on the next page, or get payment details by email.
+4. We dispatch within {hold_hours} hours of payment, from Japan, with tracking.
+
+More detail in [how ordering works](page:how).
+
+## Questions
+
+### Do I need a wholesale account or approval?
+
+No. Wholesale pricing is public on every listing, with no application or approval.
+
+### What is the minimum wholesale order?
+
+{min_order} including shipping. Each product also has its own minimum quantity and case multiple, shown on the listing.
+
+### Do you ship wholesale orders worldwide?
+
+Yes. We ship from Japan with tracking to {countries} countries; the rates are on [Shipping & Returns](page:shipping).
+
+### Do you offer distributor pricing for larger volumes?
+
+Quantity breaks apply automatically at every tier. For volumes beyond our largest tier, email [{email}](mailto:{email}).
+
+### Are your Pokémon cards authentic?
+
+Yes. Everything comes through Japanese distribution, factory sealed.
+MD],
     ['slug'=>'privacy-policy', 'title'=>'Privacy policy',
      'seo_title'=>'Privacy Policy',
-     'seo_desc'=>'What information FUDAKURA collects when you order, how it is used, and how to ask us to see, correct or delete it.',
+     'seo_desc'=>'What information {brand} collects when you order, how it is used, and how to ask us to see, correct or delete it.',
      'body'=><<<'MD'
 This policy explains what information {brand} collects and how it is used.
 
@@ -1482,7 +1575,7 @@ You can ask for a copy of the information we hold about you, or ask us to correc
 MD],
     ['slug'=>'terms', 'title'=>'Terms of sale',
      'seo_title'=>'Terms of Sale',
-     'seo_desc'=>'Terms for ordering Japanese Pokémon cards from FUDAKURA: prices, minimum order, payment, preorders, shipping, duties and authenticity.',
+     'seo_desc'=>'Terms for ordering Japanese Pokémon cards from {brand}: prices, minimum order, payment, preorders, shipping, duties and authenticity.',
      'body'=><<<'MD'
 These terms apply to orders placed on {brand}.
 
@@ -1512,13 +1605,15 @@ Report damage, shortages or wrong items within seven days of delivery. Returns, 
 
 ## Authenticity and trademarks
 
-All product is genuine and sourced through Japanese distribution. {company} is an independent reseller and is not affiliated with, endorsed by or licensed by The Pokémon Company, Nintendo, Creatures Inc. or GAME FREAK Inc.
+All product is genuine and sourced through Japanese distribution. {company} is an independent distributor and reseller and is not affiliated with, endorsed by or licensed by The Pokémon Company, Nintendo, Creatures Inc. or GAME FREAK Inc.
 MD],
   ],
 
   'faqs' => [
     ['Do you ship Japanese Pokémon cards to the USA?', 'Yes. Everything ships from Japan to the USA with tracking. Choose Standard delivery (3–6 working days) or Express (1–2 working days) at checkout; shipping is priced by the weight of your order, and orders start at {min_order} including shipping.'],
-    ['Do I need an account to see pricing?', 'No. Every product shows its full quantity-break ladder publicly, so you can price a complete order before contacting anyone. There is no application form and no approval wait.'],
+    ['Do I need a wholesale account to see pricing?', 'No. Every product shows its minimum order quantity, case multiple and full quantity-break ladder publicly, so you can price a complete order before contacting anyone. There is no application form and no approval wait.'],
+    ['Who do you sell to?', 'Local card shops, online retailers, tournament organizers and independent distributors, as well as collectors who buy by the box. Wholesale terms are on every listing, with no registration needed.'],
+    ['Do you ship worldwide?', 'Yes. Every order ships from Japan with tracking to {countries} countries, by Standard or Express delivery, priced by weight and shown at checkout.'],
     ['What is the minimum order?', 'Every order must total at least {min_order} including shipping. Sealed product is sold in cases (usually multiples of four or six); single cards start at one.'],
     ['Are Japanese Pokémon cards the same size as English cards?', 'Yes. Both are 63 × 88 mm (about 2.5 × 3.5 inches), so they fit standard sleeves, toploaders and binders.'],
     ['How do I pay?', 'Choose a method at checkout. Bitcoin is paid on your order page straight after you order: scan the QR code, or copy the amount and address into your wallet. For other methods, we send the details to your email and phone within {reply_hours} hours, together with your invoice.'],
