@@ -24,12 +24,12 @@ $d = [
     'min_order_usd' => 75,               /* minimum order incl. shipping, in the shop currency (the name is historical) */
     'strip_text'    => 'Sealed product, sourced in Japan · Quantity breaks published on every listing',
     'strip_link_text' => 'Aura Seeker preorders open →',
-    'strip_link_url'  => 'index.php?p=product&id=aura-seeker-booster-box',
+    'strip_link_url'  => 'product:aura-seeker-booster-box',
     'hero_title'    => 'Wholesale Japanese Pokémon cards, shipped from Japan to the UK.',
     'hero_lede'     => 'Sealed booster boxes, Elite Trainer Boxes, premium sets and singles, bought through Japanese distribution and priced in pounds by the case. Every quantity break is published — price a full order before you talk to anyone.',
     'footer_blurb'  => 'Wholesale Japanese Pokémon TCG, shipped from Japan to UK collectors, resellers and card shops. Prices in pounds on every product — order direct, no account needed.',
     'shipping_reviewed' => false,
-    'pretty_urls'   => false,            /* clean addresses like /products/151-booster-box; turn on in Admin → Settings */
+    'pretty_urls'   => 'auto',           /* clean addresses like /products/151-booster-box: 'auto' = on when the host's rewrite rules work */
     'free_ship_usd' => 1500,             /* free Standard shipping from this goods total (shop currency); 0 = off */
     'content_version' => 3,              /* set by the shop: which built-in content updates are applied */
     'google_verify' => '', 'bing_verify' => '',   /* Search Console / Bing verification codes (Admin → Settings) */
@@ -516,7 +516,7 @@ Pitch Black is part of the Pokémon Trading Card Game\'s Mega Evolution series. 
 - Sealed Mega Evolution Pitch Black Elite Trainer Box
 - Booster packs, sleeves, dice, damage counters and storage box
 - Sold in fours, with the lowest price from 24'],
-    ['id'=>'chaos-rising-elite-trainer-box', 'seo_title'=>'Pokémon Chaos Rising Elite Trainer Box (Mega Evolution)', 'seo_desc'=>'Pokémon Chaos Rising Elite Trainer Box from the Mega Evolution series: booster packs, sleeves, dice and storage box. Sealed, priced in pounds, shipped to the UK.',
+    ['id'=>'chaos-rising-elite-trainer-box', 'seo_title'=>'Pokémon Chaos Rising Elite Trainer Box (Mega Evolution)', 'seo_desc'=>'Pokémon Chaos Rising Elite Trainer Box from the Mega Evolution series: booster packs, sleeves, dice and a storage box. Sealed and shipped to the UK.',
      'sku'=>'FK-ETB-CR-01',
      'name'=>'Chaos Rising Elite Trainer Box', 'set'=>'Ninja Spinner', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
@@ -657,10 +657,9 @@ Terastal Festival ex is built around Terastal Pokémon and all of the Eevee evol
   /* countries: '*' = everywhere, or a list of country codes */
   /* type 'bitcoin' = paid on the site to btc_address above; any other method = you send the details */
   'payments' => [
-    'ukbank'   => ['label'=>'UK bank transfer', 'note'=>'Faster Payments in pounds to a UK account in our business name. We send the account details with your invoice.', 'countries'=>['GB'], 'enabled'=>true],
-    'bitcoin'  => ['label'=>'Bitcoin (BTC) — pay now', 'note'=>'Pay from any Bitcoin wallet as soon as you order. The exact amount and a QR code appear on the next page.', 'countries'=>'*', 'enabled'=>true, 'type'=>'bitcoin'],
-    'crypto'   => ['label'=>'Other crypto (ETH, USDT)', 'note'=>'ETH or USDT (TRC-20 / ERC-20). We send the wallet address with your invoice. Network fees are the sender\'s.', 'countries'=>'*', 'enabled'=>true],
-    'other'    => ['label'=>'Other / discuss with us', 'note'=>'Tell us what works and we will arrange it.', 'countries'=>'*', 'enabled'=>true],
+    'ukbank'   => ['label'=>'UK bank transfer', 'note'=>'Pay in pounds by Faster Payments. We text or email our UK bank details with your invoice.', 'countries'=>'*', 'enabled'=>true],
+    'crypto'   => ['label'=>'Crypto (Bitcoin, ETH, USDT)', 'note'=>'We text or email our wallet address and the exact amount with your invoice. Network fees are the sender\'s.', 'countries'=>'*', 'enabled'=>true],
+    /* Bitcoin paid on the site (QR code and automatic payment check) is off: add a method with type 'bitcoin' to turn it back on. */
   ],
 
   'countries' => ['GB'=>'United Kingdom','IE'=>'Ireland','US'=>'United States','CA'=>'Canada','AU'=>'Australia','JP'=>'Japan','DE'=>'Germany','FR'=>'France','ES'=>'Spain','IT'=>'Italy','NL'=>'Netherlands','BE'=>'Belgium','SE'=>'Sweden','NO'=>'Norway','DK'=>'Denmark','FI'=>'Finland','PL'=>'Poland','PT'=>'Portugal','CH'=>'Switzerland','AT'=>'Austria','CZ'=>'Czechia','GR'=>'Greece','SG'=>'Singapore','MY'=>'Malaysia','TH'=>'Thailand','PH'=>'Philippines','ID'=>'Indonesia','VN'=>'Vietnam','KR'=>'South Korea','TW'=>'Taiwan','HK'=>'Hong Kong','NZ'=>'New Zealand','MX'=>'Mexico','BR'=>'Brazil','AR'=>'Argentina','CL'=>'Chile','ZA'=>'South Africa','AE'=>'United Arab Emirates','SA'=>'Saudi Arabia','IL'=>'Israel','TR'=>'Turkey','IN'=>'India','NG'=>'Nigeria','KE'=>'Kenya','EG'=>'Egypt','CM'=>'Cameroon','GH'=>'Ghana'],

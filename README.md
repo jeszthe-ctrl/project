@@ -26,7 +26,7 @@ You shouldn't need to edit any code. Day-to-day changes are made in `admin.php` 
 4. In the admin:
    - **Settings**: your registered company name, full business address, company number, emails and website address. Leave **VAT number** empty until you're VAT-registered. Then **Send a test email** (Settings, bottom) to your business address and to a personal one to check order emails arrive. If they don't, or land in spam, enter your mailbox's SMTP details under **Email**.
    - **Shipping**: your real shipping rates, the free-shipping amount and the Shipping & Returns page text. The site ships with starting rates, and the dashboard warns you until you save this page.
-   - **Payments**: check the Bitcoin address is yours (it's checked for typos before saving).
+   - **Payments**: the shop offers **UK bank transfer** and **crypto**. You text or email the bank details or wallet address to each customer with their invoice.
    - **Products**: add photos, check prices and add the rest of your range.
 
 ## How the shop works
@@ -38,7 +38,7 @@ You shouldn't need to edit any code. Day-to-day changes are made in `admin.php` 
 - **No stock limits.** Customers can order any quantity (in the product's multiples, from its minimum). To stop orders for a product, set its status to **Sold out**, or tick **Hide from the shop**.
 - **Orders** are saved in `data/orders/` and listed under **Orders** in the admin. Each one is also emailed to your order address and to the customer. Order statuses are: New → Payment details sent → Paid → Shipped (or Cancelled).
 - **Free shipping**: orders whose goods total reaches the amount in **Shipping** (£1,500 by default) get free Standard shipping, and Express costs only the difference. It's shown in the bar at the top of every page, in the cart and at checkout. Set it to 0 to turn it off.
-- **Payments**: the customer picks a method (each can be limited to certain countries). For ordinary methods you send them the details. **Bitcoin** is paid on the site — see below.
+- **Payments**: the customer picks UK bank transfer or crypto at checkout (each method can be limited to certain countries), and you text or email them the payment details with their invoice. Bitcoin paid on the site (below) is off; add a payment method of type Bitcoin to turn it back on.
 - **Shipping & Returns page**: one page with the delivery options, live rate tables and your policies. Edit the text in **Shipping**; the line `{rates}` is where the rate tables go, and questions under `## Questions` written as `### Question` are given to Google as FAQs. Old `/shipping` and `/returns` addresses redirect to it.
 
 ## Bitcoin payments
@@ -57,7 +57,7 @@ The Tawk.to chat code is in **Settings → Live chat**. It loads after each page
 
 ## Search engines (SEO)
 
-- **Clean addresses:** most hosts (Apache or LiteSpeed) support addresses like `/products/151-booster-box`. Open `https://your-domain/shop`. If the shop appears, tick **Clean page addresses** in **Settings**. Old `index.php?p=…` links then redirect permanently to the clean ones.
+- **Clean addresses:** on Apache and LiteSpeed hosts the shop uses addresses like `/products/151-booster-box` automatically: the `.htaccess` rules tell it they work. Old `index.php?p=…` links redirect permanently to the clean ones, and `/robots.txt` and `/sitemap.xml` are written by the shop with your domain. **Settings → Google & web addresses** can force them on or off.
 - **What Google sees:** every product, category, set, collection, guide and page has its own title, description and main heading. You can edit all of them in the admin; blank fields fall back to sensible defaults.
 - **Google Search Console:** turn on clean addresses first (below), then add your site as a *URL prefix* property, choose *HTML tag*, paste the tag into **Settings → Google Search Console verification**, save and press Verify. Bing has a matching box, or can import from Search Console.
 - **Sitemap:** `index.php?p=sitemap` (or `/sitemap.xml` with clean addresses). Submit it in Google Search Console. `robots.txt` already points to it; if your domain changes, update the Sitemap line in `robots.txt`.

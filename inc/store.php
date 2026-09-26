@@ -116,6 +116,15 @@ function store_save($s){
   return data_write('store', $s);
 }
 
+/* Clean page addresses (/products/…): 'auto' (the default) turns them on when the .htaccess rewrite rules
+   are running, which they flag with FK_CLEAN; true/false force them on or off. */
+function clean_urls($settings=null){
+  $v = ($settings ?? $GLOBALS['STORE']['settings'])['pretty_urls'] ?? 'auto';
+  if($v !== 'auto') return !empty($v);
+  foreach(['FK_CLEAN', 'REDIRECT_FK_CLEAN', 'REDIRECT_REDIRECT_FK_CLEAN'] as $k) if(!empty($_SERVER[$k]) || getenv($k)) return true;
+  return false;
+}
+
 /* ---------------- shop currency ----------------
    Prices, shipping rates, the minimum order and the free-shipping amount are all stored in the shop
    currency (GBP on a new install). Some stored names still end in _usd from when the shop was USD-only:

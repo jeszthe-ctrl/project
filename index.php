@@ -112,7 +112,7 @@ function cat_slug($key){ global $CATEGORIES; return ($CATEGORIES[$key]['slug'] ?
 
 function url($p, $extra=[]){
   global $CONFIG;
-  if(empty($CONFIG['pretty_urls'])) return $p === 'home' && !$extra ? './' : 'index.php?'.http_build_query(['p'=>$p] + $extra);
+  if(!clean_urls()) return $p === 'home' && !$extra ? './' : 'index.php?'.http_build_query(['p'=>$p] + $extra);
   $pull = function($k) use(&$extra){ $v = (string)($extra[$k] ?? ''); unset($extra[$k]); return $v; };
   switch($p){
     case 'home':       $path = ''; break;
@@ -219,6 +219,14 @@ function link_page($kind, $slug){
                             : ($m[2] === 'returns' ? url('shipping').'#returns' : null));
   }
   return null;
+}
+/* an admin-entered link: product:ID style, an index.php?p=… address (written as a clean address when
+   they're on) or any other address as it is */
+function shop_link($u){
+  $u = trim((string)$u); if($u === '') return '';
+  if(($t = link_target($u)) !== null) return $t;
+  if(preg_match('#^(?:\./)?index\.php\?(.+)$#', $u, $m)){ parse_str($m[1], $q); $p = $q['p'] ?? ''; unset($q['p']); if(is_string($p) && $p !== '') return url($p, $q); }
+  return $u;
 }
 function rich_inline($s){
   $bold = fn($x)=>preg_replace('/\*\*(.+?)\*\*/u', '<strong>$1</strong>', $x);
@@ -613,7 +621,7 @@ $page = $_GET['p'] ?? 'home';
 if(!is_string($page)) $page = 'home';
 if($_SERVER['REQUEST_METHOD']==='POST' && ($_POST['action']??'')==='order' && $errors) $page = 'checkout';
 $PAGES = ['home','catalog','product','sets','set','series','collection','guides','guide','page','cart','checkout','received',
-          'how','shipping','payment','faq','contact','sitemap','pay','paystatus','notfound'];
+          'how','shipping','payment','faq','contact','sitemap','robots','pay','paystatus','notfound'];
 if(!in_array($page, $PAGES, true)) $page = 'notfound';
 
 $gs    = fn($k)=>is_string($_GET[$k] ?? null) ? trim($_GET[$k]) : '';
@@ -665,11 +673,21 @@ if($page === 'received' && !empty($_SESSION['last_order']['btc'])) go_to('pay', 
 if($page === 'notfound') http_response_code(404);
 
 /* with clean addresses on, old index.php?p=… links (and /shop?cat=…) move permanently to the clean address */
-if(!empty($CONFIG['pretty_urls']) && $_SERVER['REQUEST_METHOD'] === 'GET' && !in_array($page, ['notfound','sitemap','paystatus'], true)
+if(clean_urls() && $_SERVER['REQUEST_METHOD'] === 'GET' && !in_array($page, ['notfound','sitemap','robots','paystatus'], true)
    && ((!$from_path && isset($_GET['p'])) || ($page === 'catalog' && $from_path && !isset($from_path['cat']) && $cat !== ''))){
   $extra = $_GET; unset($extra['p']);
   $u = url($page, $extra);
   header('Location: '.$BASE.($u === './' ? '' : $u), true, 301); exit;
+}
+
+/* ---------------- robots.txt (index.php?p=robots; /robots.txt with the .htaccess rules) ---------------- */
+if($page === 'robots'){
+  header('Content-Type: text/plain; charset=utf-8');
+  $site = rtrim($CONFIG['domain'], '/');
+  echo "User-agent: *\nDisallow: /admin.php\n";
+  foreach(['cart','checkout','received','pay','paystatus'] as $pg) echo 'Disallow: /'.(clean_urls() ? PAGE_PATHS[$pg] : '*?p='.$pg)."\n";
+  echo "\nSitemap: $site/".(clean_urls() ? 'sitemap.xml' : 'index.php?p=sitemap')."\n";
+  exit;
 }
 
 /* ---------------- sitemap.xml (index.php?p=sitemap) ---------------- */
@@ -749,8 +767,8 @@ switch($page){
     break;
   case 'sets':
     $crumbs[] = ['Sets', '', []];
-    $page_title = 'Pokémon Sets — Japanese Pokémon Card Sets, Mega Evolution to 151';
-    $page_desc  = 'Pokémon card sets in stock: every Japanese Pokémon set we sell, from the new Mega Evolution sets to Scarlet & Violet favourites like 151 and Terastal Festival ex.';
+    $page_title = 'Pokémon Sets — Japanese Pokémon Card Sets in Stock';
+    $page_desc  = 'Pokémon card sets: every Japanese Pokémon set we stock, from the new Mega Evolution sets to Scarlet & Violet favourites like 151 and Terastal Festival ex.';
     $h1 = 'Pokémon card sets';
     break;
   case 'series':
@@ -778,7 +796,7 @@ switch($page){
   case 'guides':
     $crumbs[] = ['Guides', '', []];
     $page_title = 'Pokémon Card Guides UK: Values, Rare Cards, Where to Buy';
-    $page_desc  = 'Plain-English Pokémon card guides: what your cards are worth, rare and expensive cards, new sets, packs and boxes, where to buy Pokémon cards in the UK, and how to play.';
+    $page_desc  = 'Pokémon card guides: what your cards are worth, rare and expensive cards, new sets, packs and boxes, where to buy Pokémon cards in the UK, and how to play.';
     $h1 = 'Pokémon card guides';
     break;
   case 'page':
@@ -801,8 +819,8 @@ switch($page){
     $page_desc = ['shipping'=>(free_ship_min($STORE) ? 'Free shipping over '.money_whole(free_ship_min($STORE)).'. ' : '')
                     .'Japanese Pokémon cards shipped from Japan to the UK with tracking: delivery times, rates, import VAT and duty, returns and refunds.',
                   'faq'=>'Answers to common questions about buying Japanese Pokémon cards from Japan: shipping to the UK, payment, minimum order, import VAT and returns.',
-                  'how'=>'How to order Japanese Pokémon cards from FUDAKURA: published bulk prices in pounds, pay by bank transfer, Bitcoin or invoice, and tracked shipping from Japan to the UK.',
-                  'payment'=>'How to pay for Japanese Pokémon cards at FUDAKURA: Bitcoin straight from your wallet, or the method that suits you, with an invoice by email.',
+                  'how'=>'How to order Pokémon cards from FUDAKURA: bulk prices in pounds, pay by UK bank transfer or crypto, and tracked shipping from Japan to the UK.',
+                  'payment'=>'How to pay for Japanese Pokémon cards at FUDAKURA: UK bank transfer in pounds or crypto, with payment details and your invoice sent by text or email.',
                   'contact'=>'Contact FUDAKURA about Japanese Pokémon card orders, bulk pricing, shipping from Japan or an existing order. We reply within '.(int)$CONFIG['reply_hours'].' hours.'][$page] ?? '';
 }
 if($page_desc === '') $page_desc = 'Japanese Pokémon cards shipped from Japan to the UK: sealed booster boxes, Elite Trainer Boxes, rare singles and PSA graded cards.';
@@ -822,7 +840,7 @@ $in_stock = array_values(array_filter($PRODUCTS, fn($p)=>!in_array($p['status'],
 <meta charset="utf-8">
 <base href="<?= h($BASE) ?>">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title><?= h($page_title) ?> | <?= h($CONFIG['brand']) ?></title>
+<title><?= h(preg_match_all('/./us', $page_title.' | '.$CONFIG['brand']) <= 60 ? $page_title.' | '.$CONFIG['brand'] : $page_title) ?></title>
 <meta name="description" content="<?= h($page_desc) ?>">
 <?php if($canonical): ?><link rel="canonical" href="<?= h($canonical) ?>"><?php endif; ?>
 <meta name="robots" content="<?= $noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large' ?>">
@@ -1410,7 +1428,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
 <div class="strip"><div class="wrap">
   <?php if(free_ship_min($STORE)): ?><a class="fship" href="<?= url('shipping') ?>"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M3 6.5A1.5 1.5 0 0 1 4.5 5h9A1.5 1.5 0 0 1 15 6.5V8h2.6a1.5 1.5 0 0 1 1.2.6l2.4 3.2c.2.26.3.58.3.9V16a1.5 1.5 0 0 1-1.5 1.5h-.6a2.75 2.75 0 0 1-5.3 0H9.9a2.75 2.75 0 0 1-5.3 0h-.1A1.5 1.5 0 0 1 3 16V6.5Zm12 3V13h4.5l-1.9-2.5a1.5 1.5 0 0 0-1.2-.6H15ZM7.25 18.25a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm9.4 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/></svg><span>Free shipping on orders over <?= money_whole(free_ship_min($STORE)) ?></span></a><?php endif; ?>
   <span class="st"><?= h($CONFIG['strip_text']) ?></span>
-  <?php if($CONFIG['strip_link_text']): ?><a class="sl" href="<?= h($CONFIG['strip_link_url'] ?: url('catalog')) ?>"><?= h($CONFIG['strip_link_text']) ?></a><?php endif; ?>
+  <?php if($CONFIG['strip_link_text']): ?><a class="sl" href="<?= h(shop_link($CONFIG['strip_link_url']) ?: url('catalog')) ?>"><?= h($CONFIG['strip_link_text']) ?></a><?php endif; ?>
 </div></div>
 
 <header class="site">
@@ -1419,8 +1437,8 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       <span class="mk"><?= h($CONFIG['brand']) ?></span>
       <span class="kj"><?= h($CONFIG['kanji']) ?></span>
     </a>
-    <form class="search" action="<?= empty($CONFIG['pretty_urls']) ? 'index.php' : 'shop' ?>" method="get" role="search">
-      <?php if(empty($CONFIG['pretty_urls'])): ?><input type="hidden" name="p" value="catalog"><?php endif; ?>
+    <form class="search" action="<?= !clean_urls() ? 'index.php' : 'shop' ?>" method="get" role="search">
+      <?php if(!clean_urls()): ?><input type="hidden" name="p" value="catalog"><?php endif; ?>
       <input type="search" name="q" value="<?= h($q) ?>" placeholder="Search a set, card or SKU" aria-label="Search products">
       <button type="submit">Search</button>
     </form>
@@ -1569,7 +1587,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       <div><span>Stock hold on order</span><span><?= (int)$CONFIG['hold_hours'] ?> hours</span></div>
       <div><span>Dispatch after payment</span><span>Within <?= (int)$CONFIG['hold_hours'] ?> hours</span></div>
       <?php if(free_ship_min($STORE)): ?><div><span>Free shipping</span><span>Orders over <?= money_whole(free_ship_min($STORE)) ?></span></div><?php endif; ?>
-      <?php $nbtc = count(array_filter($PAYMENTS, 'btc_method')); if($nbtc): ?><div><span>Pay by</span><span>Bitcoin, on the site<?= count($PAYMENTS) > $nbtc ? ' · or '.(count($PAYMENTS) - $nbtc).' other ways' : '' ?></span></div><?php endif; ?>
+      <?php if($PAYMENTS): ?><div><span>Pay by</span><span><?= h(implode(' · ', array_map(fn($m)=>preg_replace('/\s*[—(].*$/u', '', $m['label']), $PAYMENTS))) ?></span></div><?php endif; ?>
       <div><span>Carriers</span><span>EMS · DHL · FedEx</span></div>
       <?php $SM = ship_methods($STORE); ?><div><span>Delivery</span><span><?= h($SM['standard']['label'].' '.$SM['standard']['days'].' · '.$SM['express']['label'].' '.$SM['express']['days']) ?></span></div>
     </div>
@@ -1625,8 +1643,8 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       <h1><?= h($h1) ?></h1>
       <p><?= $cat ? h($CATEGORIES[$cat]['blurb']) : 'Sealed booster boxes, Elite Trainer Boxes, rare singles and accessories, with the full quantity-break ladder on every listing.' ?></p>
     </div><span style="color:var(--muted);font-size:14px"><?= count($list) ?> product<?= count($list)===1?'':'s' ?></span></div>
-    <form class="filters" method="get" action="<?= empty($CONFIG['pretty_urls']) ? 'index.php' : 'shop' ?>" id="filters" onsubmit="fsub(this); return false">
-      <?php if(empty($CONFIG['pretty_urls'])): ?><input type="hidden" name="p" value="catalog"><?php endif; ?>
+    <form class="filters" method="get" action="<?= !clean_urls() ? 'index.php' : 'shop' ?>" id="filters" onsubmit="fsub(this); return false">
+      <?php if(!clean_urls()): ?><input type="hidden" name="p" value="catalog"><?php endif; ?>
       <?php if($q !== ''): ?><input type="hidden" name="q" value="<?= h($q) ?>"><?php endif; ?>
       <label>Product type<select name="cat" onchange="fsub(this.form)">
         <option value="">All types</option>
@@ -2083,7 +2101,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
 <?php elseif($page==='how'): ?>
   <section style="padding-top:22px"><div class="wrap">
     <div class="sechead"><div><h1><?= h($h1) ?></h1>
-      <p>Four steps from cart to courier. Pay by Bitcoin straight from your wallet on your order page, or settle an invoice from your own bank or payment app.</p></div></div>
+      <p>Four steps from cart to courier. Order online, get your payment details and invoice by text or email, and pay by UK bank transfer or crypto.</p></div></div>
     <?php steps_block($CONFIG); ?>
     <div style="margin-top:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px" class="cats">
       <a href="<?= url('payment') ?>"><h3>Payment methods</h3><p>What we accept, by country.</p></a>
@@ -2106,6 +2124,15 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
         <?php endforeach; ?>
       </tbody>
     </table>
+    <h2 class="sub2">How paying works</h2>
+    <div class="prose">
+      <ol>
+        <li><b>Place your order</b> and choose UK bank transfer or crypto at checkout. Your stock is reserved for <?= (int)$CONFIG['hold_hours'] ?> hours.</li>
+        <li><b>Get your payment details</b> by text and email within <?= (int)$CONFIG['reply_hours'] ?> hours, with your invoice: our UK bank details (account name, sort code and account number), or our wallet address and the exact amount for crypto.</li>
+        <li><b>Pay the invoice</b>, quoting your order reference. Bank transfers by Faster Payments usually arrive within minutes; crypto payments once they confirm on the network.</li>
+        <li><b>We dispatch</b> within <?= (int)$CONFIG['hold_hours'] ?> hours of your payment clearing, from Japan with tracking.</li>
+      </ol>
+    </div>
     <?php if(array_filter($PAYMENTS, 'btc_method')): ?>
     <h2 class="sub2">Paying with Bitcoin</h2>
     <div class="prose">
@@ -2119,8 +2146,8 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
     </div>
     <?php endif; ?>
     <div class="notice" style="margin-top:22px">
-      <b>We never ask for card details, passwords or wallet keys.</b> For methods other than Bitcoin, you place the order and
-      we send the payment details, holding your stock for <?= (int)$CONFIG['hold_hours'] ?> hours in the meantime. Always check
+      <b>We never ask for card details, passwords or wallet keys.</b> <?= array_filter($PAYMENTS, 'btc_method') ? 'For methods other than Bitcoin, you' : 'You' ?> place the order and
+      we text or email the payment details with your invoice, holding your stock for <?= (int)$CONFIG['hold_hours'] ?> hours in the meantime. Always check
       payment details against the email we send from <?= h($CONFIG['email']) ?> and quote your order reference.
     </div>
     <p style="font-size:14px;color:var(--ink2);margin-top:18px">Prices are set in <?= h(base_cur() === 'GBP' ? 'pounds sterling' : base_cur()) ?>, and invoices are issued in the currency you had selected at checkout. Shipping is calculated at checkout. <?= vat_on() ? 'Prices include UK VAT on UK orders, and exclude import duty, taxes and customs clearance fees in other countries.' : 'Orders ship from Japan, and prices exclude import VAT, duty and customs clearance fees.' ?></p>
@@ -2654,8 +2681,8 @@ function steps_block($CONFIG){ ?>
       <p>Every listing shows its full break ladder to everyone. No application, no approval wait, no quote round-trip for standard volumes.</p></div>
     <div><div class="n">02</div><h3>Place the order</h3>
       <p>Add to cart, enter your shipping address and pick a payment method. Stock is reserved in your name for <?= (int)$CONFIG['hold_hours'] ?> hours.</p></div>
-    <div><div class="n">03</div><h3>Pay your way</h3>
-      <p>Pay by Bitcoin straight away on your order page, or get the details for another method by email or text within <?= (int)$CONFIG['reply_hours'] ?> hours.</p></div>
+    <div><div class="n">03</div><h3>Pay by bank or crypto</h3>
+      <p><?= array_filter($GLOBALS['PAYMENTS'], 'btc_method') ? 'Pay by Bitcoin straight away on your order page, or get' : 'Get' ?> the payment details for UK bank transfer or crypto by text or email within <?= (int)$CONFIG['reply_hours'] ?> hours, with your invoice.</p></div>
     <div><div class="n">04</div><h3>Ship tracked from Japan</h3>
       <p>Payment clears, stock is allocated, and we dispatch within <?= (int)$CONFIG['hold_hours'] ?> hours by EMS, DHL or FedEx with tracking.</p></div>
   </div>

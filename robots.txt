@@ -1,11 +1,9 @@
-# If the shop's domain changes, update the Sitemap line.
+# Used only on hosts without the .htaccess rewrite rules; otherwise the shop writes robots.txt itself.
 User-agent: *
 Disallow: /admin.php
-Disallow: /cart
-Disallow: /checkout
-Disallow: /order-received
 Disallow: /*?p=cart
 Disallow: /*?p=checkout
 Disallow: /*?p=received
+Disallow: /*?p=pay
 
-Sitemap: https://fudakura.store/index.php?p=sitemap
+Sitemap: https://fudakura.co.uk/index.php?p=sitemap

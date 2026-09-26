@@ -1,7 +1,11 @@
 # Clean page addresses (/products/…, /sets/…, /guides/…) for Apache and LiteSpeed hosts.
-# Turn them on in Admin → Settings once https://your-domain/shop opens the shop.
+# The shop switches them on by itself when these rules work (FK_CLEAN tells it they do);
+# Admin → Settings can force them on or off.
 <IfModule mod_rewrite.c>
   RewriteEngine On
+  RewriteRule ^ - [E=FK_CLEAN:1]
+  # robots.txt is written by the shop, with this domain's sitemap address
+  RewriteRule ^robots\.txt$ index.php?p=robots [L,QSA]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^ index.php [QSA,L]

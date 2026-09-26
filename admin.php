@@ -505,7 +505,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     $s['home_seo_title'] = str(in_arr('home')['seo_title'] ?? '');
     $s['home_seo_desc']  = str(in_arr('home')['seo_desc'] ?? '');
     $s['home_intro']     = in_str('home_intro');
-    $s['pretty_urls']    = !empty($_POST['pretty_urls']);
+    $s['pretty_urls']    = ['on'=>true, 'off'=>false][in_str('pretty_urls')] ?? 'auto';
     $s['chat_code']      = str_replace("\r", '', (string)($_POST['chat_code'] ?? ''));
     foreach(['google_verify', 'bing_verify'] as $k){   /* the whole <meta> tag or just its code */
       $vv = in_str($k); if(preg_match('/content=["\']([^"\']+)["\']/i', $vv, $m)) $vv = $m[1];
@@ -800,7 +800,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   <?php $failed = array_filter(array_slice($orders, 0, 20), fn($o)=>isset($o['mail_shop']) && !$o['mail_shop']);
   if($failed): ?><div class="msg err"><?= count($failed) ?> recent order email<?= count($failed)===1?'':'s' ?> to <?= h($S['order_email']) ?> failed to send. The orders are safe here, but check with your host that PHP can send mail from <?= h($S['email']) ?>.</div><?php endif; ?>
   <?php if(!data_read('mail-test')): ?><div class="msg warn">Send yourself a test email in <a href="<?= h(self_url('settings')) ?>#email-settings">Settings → Email</a> to check that order emails reach <?= h($S['order_email']) ?> and your customers.</div><?php endif; ?>
-  <?php if(empty($S['pretty_urls'])): ?><div class="msg warn">Clean page addresses are off. They help Google — see <a href="<?= h(self_url('settings')) ?>">Settings → Google &amp; web addresses</a> to test and turn them on.</div><?php endif; ?>
+  <?php if(!clean_urls($S)): ?><div class="msg warn">Clean page addresses are off. They help Google — see <a href="<?= h(self_url('settings')) ?>">Settings → Google &amp; web addresses</a> to test and turn them on.</div><?php endif; ?>
   <?php if($no_photo): ?><div class="msg warn"><?= count($no_photo) ?> product<?= count($no_photo)===1?' has':'s have' ?> no photo yet. Add photos from <a href="<?= h(self_url('products')) ?>">Products</a>.</div><?php endif; ?>
   <div class="stats">
     <div><b><?= (int)($by['new'] ?? 0) ?></b><span>New orders</span></div>
@@ -1326,18 +1326,22 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
         <div class="fld"><label class="f" for="bing_verify">Bing Webmaster Tools verification (optional)</label><input type="text" id="bing_verify" name="bing_verify" value="<?= h($S['bing_verify'] ?? '') ?>" placeholder="Paste the meta tag or its code">
           <div class="hint">Or skip this and import your site from Search Console in Bing.</div></div>
       </div>
-      <p class="small muted" style="margin-top:0">Your sitemap to submit: <b><?= h(rtrim($S['domain'], '/')) ?>/<?= !empty($S['pretty_urls']) ? 'sitemap.xml' : 'index.php?p=sitemap' ?></b></p>
-      <label class="row small" style="align-items:flex-start"><input type="checkbox" name="pretty_urls" value="1" <?= !empty($S['pretty_urls'])?'checked':'' ?> style="margin-top:4px">
-        <span><b>Clean page addresses</b>, like /products/151-booster-box instead of index.php?p=product&amp;id=…
-        First open <a href="shop" target="_blank" rel="noopener">your-domain/shop</a>: if it shows the shop, your host supports them and you can tick this.
-        If it shows an error, leave it off (the shop works either way).</span></label>
+      <p class="small muted" style="margin-top:0">Your sitemap to submit: <b><?= h(rtrim($S['domain'], '/')) ?>/<?= clean_urls($S) ? 'sitemap.xml' : 'index.php?p=sitemap' ?></b></p>
+      <?php $pu = $S['pretty_urls'] ?? 'auto'; $pu = $pu === 'auto' ? 'auto' : (!empty($pu) ? 'on' : 'off'); ?>
+      <div class="fld" style="max-width:520px"><label class="f" for="pretty_urls">Clean page addresses, like /products/151-booster-box</label>
+        <select id="pretty_urls" name="pretty_urls">
+          <option value="auto" <?= $pu === 'auto' ? 'selected' : '' ?>>Automatic — on when your host supports them (recommended)</option>
+          <option value="on" <?= $pu === 'on' ? 'selected' : '' ?>>Always on</option>
+          <option value="off" <?= $pu === 'off' ? 'selected' : '' ?>>Off (index.php?p=… addresses)</option>
+        </select>
+        <div class="hint">Right now they are <b><?= clean_urls($S) ? 'on' : 'off' ?></b>. Automatic uses them when the shop’s .htaccess rules run (Apache and LiteSpeed hosts), and old index.php?p=… links then redirect to the clean ones.</div></div>
     </div>
 
     <div class="card"><h2>Home page &amp; announcement bar</h2>
       <div class="fld"><label class="f" for="strip_text">Announcement bar text</label><input type="text" id="strip_text" name="strip_text" value="<?= h($S['strip_text']) ?>"></div>
       <div class="grid2">
         <div class="fld"><label class="f" for="strip_link_text">Announcement link text (optional)</label><input type="text" id="strip_link_text" name="strip_link_text" value="<?= h($S['strip_link_text']) ?>"></div>
-        <div class="fld"><label class="f" for="strip_link_url">Announcement link goes to</label><input type="text" id="strip_link_url" name="strip_link_url" value="<?= h($S['strip_link_url']) ?>"><div class="hint">Copy a page address from your shop, e.g. index.php?p=product&amp;id=…</div></div>
+        <div class="fld"><label class="f" for="strip_link_url">Announcement link goes to</label><input type="text" id="strip_link_url" name="strip_link_url" value="<?= h($S['strip_link_url']) ?>"><div class="hint">A shop page like product:aura-seeker-booster-box, set:151 or guide:new-pokemon-sets, or any page address.</div></div>
       </div>
       <div class="fld"><label class="f" for="hero_title">Headline</label><input type="text" id="hero_title" name="hero_title" value="<?= h($S['hero_title']) ?>"></div>
       <div class="fld"><label class="f" for="hero_lede">Intro paragraph</label><textarea id="hero_lede" name="hero_lede"><?= h($S['hero_lede']) ?></textarea></div>
