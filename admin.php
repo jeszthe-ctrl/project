@@ -1,6 +1,6 @@
 <?php
 /* =============================================================
-   POKEKURA — admin backend. Open /admin.php in your browser.
+   FUDAKURA — admin backend. Open /admin.php in your browser.
 
    The first visit asks you to create the admin password, so do
    that straight after uploading. Everything saved here goes to
@@ -495,7 +495,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     $s['domain'] = rtrim($s['domain'], '/');
     $mv = rtrim(in_str('moved_to'), '/');
     if($mv === '' || preg_match('#^https?://[a-z0-9.-]+(:\d+)?$#i', $mv)) $s['moved_to'] = $mv;
-    else note('“This site has moved to” needs just the new address, like https://pokekura.com, so it was left unchanged.', 'err');
+    else note('“This site has moved to” needs just the new address, like https://fudakura.com.au, so it was left unchanged.', 'err');
     foreach(['reply_hours','hold_hours'] as $k){ $n = num(in_str($k), 1); if($n !== null) $s[$k] = (int)$n; }
     $min = num(in_str('min_order_usd'), 0); if($min !== null) $s['min_order_usd'] = round($min, 2);
     $s['home_seo_title'] = str(in_arr('home')['seo_title'] ?? '');
@@ -1165,11 +1165,12 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 
 <?php elseif($v === 'shipping'):
   $sh = $STORE['shipping']; $SM = ship_methods($STORE);
-  $ex = fn($c, $kg, $m)=>usd(shipping_usd($STORE, $c, $kg, $m)); ?>
+  $ex = fn($c, $kg, $m)=>usd(shipping_usd($STORE, $c, $kg, $m));
+  $home = (string)array_key_first($STORE['countries']); ?>
   <h1>Shipping rates</h1>
   <p class="sub">Customers choose <b><?= h($SM['standard']['label']) ?></b> or <b><?= h($SM['express']['label']) ?></b> at checkout. Each costs the zone’s <b>per-order</b> price + its <b>per-kg</b> price × the order’s weight (each product’s weight × quantity), in USD.
     The <?= usd($S['min_order_usd']) ?> minimum order counts goods plus the shipping chosen.</p>
-  <?php if(empty($S['shipping_reviewed'])): ?><div class="msg warn">These are starting rates: a single card to the US comes to $12 Standard (TCGplayer’s $11.99 international rate, rounded up), then more per kg. Check them against what your carrier actually charges from Japan, then save.</div><?php endif; ?>
+  <?php if(empty($S['shipping_reviewed'])): ?><div class="msg warn">These are starting rates: a single card to Australia comes to $10 Standard (US$, about A$15), then more per kg. Check them against what your carrier actually charges from Japan, then save.</div><?php endif; ?>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="shipping_save">
     <div class="card"><h2>Delivery options</h2>
       <div class="grid2">
@@ -1193,7 +1194,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
       <?php $zones = $sh['zones']; for($i=0; $i<count($zones)+2; $i++): $z = $zones[$i] ?? ['name'=>'','countries'=>[]];
         $zr = isset($zones[$i]) ? zone_rates($z) : ['standard'=>['base'=>'','per_kg'=>''], 'express'=>['base'=>'','per_kg'=>'']]; ?>
         <tr><td><input type="text" name="zones[<?= $i ?>][name]" value="<?= h($z['name']) ?>" placeholder="<?= isset($zones[$i])?'':'New zone' ?>" aria-label="Zone name"></td>
-            <td><input type="text" name="zones[<?= $i ?>][countries]" value="<?= h(implode(', ', $z['countries'])) ?>" placeholder="e.g. US, CA" aria-label="Country codes" style="min-width:170px"></td>
+            <td><input type="text" name="zones[<?= $i ?>][countries]" value="<?= h(implode(', ', $z['countries'])) ?>" placeholder="e.g. AU, NZ" aria-label="Country codes" style="min-width:170px"></td>
             <?php foreach($SM as $m=>$mm): ?>
             <td><input type="number" name="zones[<?= $i ?>][<?= $m ?>][base]" value="<?= h($zr[$m]['base']) ?>" min="0" step="0.01" aria-label="<?= h($mm['label']) ?> per order"></td>
             <td><input type="number" name="zones[<?= $i ?>][<?= $m ?>][per_kg]" value="<?= h($zr[$m]['per_kg']) ?>" min="0" step="0.01" aria-label="<?= h($mm['label']) ?> per kg"></td>
@@ -1206,12 +1207,12 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
             <td><input type="number" name="rest[<?= $m ?>][per_kg]" value="<?= h($rr[$m]['per_kg']) ?>" min="0" step="0.01" aria-label="Rest of world <?= h($mm['label']) ?> per kg"></td>
             <?php endforeach; ?><td></td></tr>
       </tbody></table>
-      <p class="small muted">Country codes are the two-letter codes from your country list in <a href="<?= h(self_url('settings')) ?>">Settings</a> (US, GB, DE…), separated by commas.</p>
+      <p class="small muted">Country codes are the two-letter codes from your country list in <a href="<?= h(self_url('settings')) ?>">Settings</a> (AU, NZ, JP…), separated by commas.</p>
     </div>
-    <div class="card"><h2>What customers pay to the US (current rates, before free shipping)</h2>
+    <div class="card"><h2>What customers pay to <?= h($STORE['countries'][$home] ?? $home) ?> (current rates, before free shipping)</h2>
       <table class="t"><thead><tr><th>Order</th><th class="r">Weight</th><?php foreach($SM as $mm): ?><th class="r"><?= h($mm['label']) ?></th><?php endforeach; ?></tr></thead><tbody>
         <?php foreach([['1 single card', 0.05], ['24 packs of sleeves', 1.44], ['6 booster boxes', 2.4], ['6 Elite Trainer Boxes', 5.4], ['12-box case', 5.6], ['36 booster boxes', 14.4]] as [$lbl, $kg]): ?>
-          <tr><td><?= h($lbl) ?></td><td class="r"><?= h($kg) ?> kg</td><?php foreach(array_keys($SM) as $m): ?><td class="r"><?= $ex('US', $kg, $m) ?></td><?php endforeach; ?></tr>
+          <tr><td><?= h($lbl) ?></td><td class="r"><?= h($kg) ?> kg</td><?php foreach(array_keys($SM) as $m): ?><td class="r"><?= $ex($home, $kg, $m) ?></td><?php endforeach; ?></tr>
         <?php endforeach; ?>
       </tbody></table>
     </div>
@@ -1227,7 +1228,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 
 <?php elseif($v === 'payments'): ?>
   <h1>Payment methods</h1>
-  <p class="sub">Customers pick one at checkout. <b>Bitcoin</b> methods are paid on the site, straight to your wallet; for the others, you send the customer the details. Leave “Countries” as * for everywhere, or list country codes (e.g. US, GB).</p>
+  <p class="sub">Customers pick one at checkout. <b>Bitcoin</b> methods are paid on the site, straight to your wallet; for the others, you send the customer the details. Leave “Countries” as * for everywhere, or list country codes (e.g. AU, NZ).</p>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="payments_save">
     <div class="card"><h2>Bitcoin wallet</h2>
       <?php $ba = $S['btc_address'] ?? ''; ?>
@@ -1280,7 +1281,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
         <div class="fld"><label class="f" for="order_email">Send new orders to</label><input type="email" id="order_email" name="order_email" value="<?= h($S['order_email']) ?>"></div>
         <div class="fld"><label class="f" for="phone">Phone (optional)</label><input type="text" id="phone" name="phone" value="<?= h($S['phone']) ?>"></div>
       </div>
-      <div class="fld"><label class="f" for="domain">Website address</label><input type="url" id="domain" name="domain" value="<?= h($S['domain']) ?>"><div class="hint">Used for Google and link previews, e.g. https://pokekura.com</div></div>
+      <div class="fld"><label class="f" for="domain">Website address</label><input type="url" id="domain" name="domain" value="<?= h($S['domain']) ?>"><div class="hint">Used for Google and link previews, e.g. https://fudakura.com.au</div></div>
       <div class="fld"><label class="f" for="moved_to">This site has moved to (only for an old domain)</label><input type="url" id="moved_to" name="moved_to" value="<?= h($S['moved_to'] ?? '') ?>" placeholder="leave empty">
         <div class="hint">Fill this in <b>only</b> on an old domain you’re retiring: every shop page then redirects permanently (301) to the same page on the new address, which moves your Google rankings across. The admin keeps working. Leave it empty on your main site.</div></div>
     </div>
@@ -1349,7 +1350,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
     </div>
 
     <div class="card"><h2>Currencies</h2>
-      <p class="small muted" style="margin-top:0">Prices are set in USD; other currencies are converted with these rates. Update the rates now and then.</p>
+      <p class="small muted" style="margin-top:0">Prices are set in USD; other currencies are converted with these rates. Update the rates now and then. Shoppers see the <b>first</b> currency until they pick another.</p>
       <div class="scroll"><table class="t"><thead><tr><th>Code</th><th>Symbol</th><th>1 USD =</th><th>Decimals</th><th>Delete</th></tr></thead><tbody>
       <?php $i = 0; foreach($STORE['currencies'] + ['' => ['rate'=>'','sym'=>'','dec'=>2]] as $code=>$m): ?>
         <tr><td><input type="text" name="curs[<?= $i ?>][code]" value="<?= h($code) ?>" maxlength="3" placeholder="New" aria-label="Code" <?= $code==='USD'?'readonly':'' ?>></td>
@@ -1362,7 +1363,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
     </div>
 
     <div class="card"><h2>Countries you ship to</h2>
-      <p class="small muted" style="margin-top:0">One per line: two-letter code = name. These fill the country list at checkout.</p>
+      <p class="small muted" style="margin-top:0">One per line: two-letter code = name. These fill the country list at checkout; the first one is the default, and is used for the shipping examples.</p>
       <textarea name="countries" rows="12"><?= h(implode("\n", array_map(fn($c, $n)=>"$c = $n", array_keys($STORE['countries']), $STORE['countries']))) ?></textarea>
     </div>
     <button class="btn" type="submit">Save settings</button>
