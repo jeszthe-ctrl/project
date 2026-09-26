@@ -281,7 +281,7 @@ function btc_mail(&$o, $kind){
   }
   $detail = implode("\n", $lines);
   $shop = shop_mail($cfg['order_email'], $subj_shop,
-    "$shop_note\n\n$detail\n\nCustomer: {$o['name']} <{$o['email']}>\nOrder total: {$o['total']} {$o['currency']} (\${$o['total_usd']} USD)\n",
+    "$shop_note\n\n$detail\n\nCustomer: {$o['name']} <{$o['email']}>\nOrder total: {$o['total']} {$o['currency']}".(($o['currency'] ?? 'USD') !== 'USD' ? ' ($'.number_format((float)$o['total_usd'], 2).' USD)' : '')."\n",
     $o['email']);
   $cus = shop_mail($o['email'], $subj_cus,
     "$cus_note\n\n$detail\n\nYour order page: ".btc_pay_link($o)."\n\nQuestions: {$cfg['email']}\n{$cfg['legal_name']} — {$cfg['address']}\n",
