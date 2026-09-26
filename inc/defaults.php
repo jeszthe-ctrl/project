@@ -16,8 +16,6 @@ $d = [
     'order_email'   => 'support@fudakura.co.uk',
     'domain'        => 'https://fudakura.co.uk',
     'company_number' => '', 'company_registered' => '',   /* Companies House number and where registered (Admin → Settings) */
-    'vat_number'    => '',               /* UK VAT number; empty = not VAT-registered, no VAT shown */
-    'vat_rate'      => 20,               /* % included in prices once a VAT number is set */
     'base_currency' => 'GBP',            /* the shop currency: every price and rate below is in it */
     'reply_hours'   => 12,
     'hold_hours'    => 48,
@@ -432,7 +430,7 @@ PSA 10 is the top grade: a virtually perfect card, authenticated and sealed in P
 - Pikachu ex Special Illustration Rare #240/191
 - Graded PSA 10 Gem Mint
 - Ships in its original PSA slab
-- More [PSA graded Pokémon cards](cards:psa-graded-pokemon-cards)'],
+- More [PSA graded Pokémon cards](cards:graded-pokemon-cards)'],
     ['id'=>'mega-floette-ex-japanese', 'seo_desc'=>'Japanese Mega Floette ex from Ninja Spinner (M4), one of the new Mega Pokémon ex of the Mega Evolution series. Near Mint, shipped to the UK.',
      'sku'=>'FK-SGL-MFLO',
      'name'=>'Mega Floette ex (Japanese)', 'set'=>'Ninja Spinner', 'cat'=>'singles', 'cond'=>'Near Mint',
@@ -506,7 +504,7 @@ Hyper Rares are the textured gold cards at the top of a set, and Charizard\'s ar
 - Hyper Rare (gold, textured)
 - Near Mint
 - Lower price from 6 copies
-- What makes [gold Pokémon cards](guide:pokemon-card-rarities) rare'],
+- What makes [gold Pokémon cards](guide:pokemon-card-rarity) rare'],
     ['id'=>'30th-celebration-premium-deck-set-espeon-and-umbreon', 'seo_desc'=>'30th Celebration Premium Deck Set with Espeon and Umbreon, a collector\'s piece for Pokémon\'s 30th anniversary. Sealed and shipped from Japan to the UK.',
      'sku'=>'FK-PRM-30C-ESUM',
      'name'=>'30th Celebration Premium Deck Set — Espeon & Umbreon', 'set'=>'30th Celebration', 'cat'=>'premium', 'cond'=>'Sealed',

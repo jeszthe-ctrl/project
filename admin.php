@@ -493,12 +493,6 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     }
     foreach(['brand','kanji','tagline','legal_name','address','email','phone','order_email','domain','company_number','company_registered',
              'strip_text','strip_link_text','strip_link_url','hero_title','hero_lede','footer_blurb'] as $k) $s[$k] = in_str($k);
-    /* UK VAT numbers: GB and 9 digits (or 12 for a group branch); spaces are dropped */
-    $vat = strtoupper(preg_replace('/\s+/', '', in_str('vat_number')));
-    if($vat !== '' && !preg_match('/^GB(\d{9}|\d{12})$/', $vat) && preg_match('/^\d{9}$/', $vat)) $vat = 'GB'.$vat;
-    if($vat === '' || preg_match('/^(GB(\d{9}|\d{12})|XI\d{9})$/', $vat)) $s['vat_number'] = $vat;
-    else note("“".in_str('vat_number')."” doesn’t look like a UK VAT number (GB followed by 9 digits), so the old one was kept.", 'err');
-    $vr = num(in_str('vat_rate'), 0); if($vr !== null) $s['vat_rate'] = min(50, round($vr, 2));
     $s['domain'] = rtrim($s['domain'], '/');
     foreach(['reply_hours','hold_hours'] as $k){ $n = num(in_str($k), 1); if($n !== null) $s[$k] = (int)$n; }
     $min = num(in_str('min_order_usd'), 0); if($min !== null) $s['min_order_usd'] = round($min, 2);
@@ -886,7 +880,6 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
       <tr><td colspan="4" class="r">Goods</td><td class="r"><?= usd($o['goods_usd'], $ob) ?></td><td class="r muted"><?= h($o['goods']) ?></td></tr>
       <tr><td colspan="4" class="r">Shipping (<?= h($o['ship_zone']) ?><?= !empty($o['ship_label']) ? ' · '.h($o['ship_label']) : '' ?>)</td><td class="r"><?= usd($o['shipping_usd'], $ob) ?></td><td class="r muted"><?= h($o['shipping']) ?></td></tr>
       <tr><td colspan="4" class="r"><b>Order total</b></td><td class="r"><b><?= usd($o['total_usd'], $ob) ?></b></td><td class="r"><b><?= h($o['total']) ?></b></td></tr>
-      <?php if(!empty($o['vat'])): ?><tr><td colspan="4" class="r muted">Includes VAT at <?= h($o['vat_rate']) ?>% (VAT number <?= h($o['vat_number'] ?? '') ?>)</td><td class="r"><?= usd($o['vat'], $ob) ?></td><td class="r muted"><?= h($o['vat_shown']) ?></td></tr><?php endif; ?>
     </tbody></table></div></div>
   <form method="post" onsubmit="return confirm('Delete order <?= h($o['ref']) ?> permanently?')"><?= csrf_field() ?>
     <input type="hidden" name="do" value="order_delete"><input type="hidden" name="ref" value="<?= h($o['ref']) ?>">
@@ -1291,14 +1284,11 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
         <div class="fld"><label class="f" for="legal_name">Registered company name</label><input type="text" id="legal_name" name="legal_name" value="<?= h($S['legal_name']) ?>"></div>
         <div class="fld"><label class="f" for="address">Business address</label><input type="text" id="address" name="address" value="<?= h($S['address']) ?>"></div>
       </div>
-      <div class="grid3">
+      <div class="grid2">
         <div class="fld"><label class="f" for="company_number">Company number (optional)</label><input type="text" id="company_number" name="company_number" value="<?= h($S['company_number'] ?? '') ?>" placeholder="e.g. 12345678">
           <div class="hint">From Companies House. Shown in the footer and on the Contact page.</div></div>
         <div class="fld"><label class="f" for="company_registered">Registered in</label><input type="text" id="company_registered" name="company_registered" value="<?= h($S['company_registered'] ?? '') ?>" placeholder="England and Wales"></div>
-        <div class="fld"><label class="f" for="vat_number">VAT number</label><input type="text" id="vat_number" name="vat_number" value="<?= h($S['vat_number'] ?? '') ?>" placeholder="GB123456789">
-          <div class="hint">Leave empty until you’re VAT-registered. Once set, prices count as including VAT at the rate below, and UK orders show the VAT they include at checkout, in order emails and here in the admin.</div></div>
       </div>
-      <div class="fld" style="max-width:220px"><label class="f" for="vat_rate">VAT rate (%)</label><input type="number" id="vat_rate" name="vat_rate" min="0" max="50" step="0.01" value="<?= h($S['vat_rate'] ?? 20) ?>"></div>
       <div class="grid3">
         <div class="fld"><label class="f" for="email">Public email</label><input type="email" id="email" name="email" value="<?= h($S['email']) ?>"></div>
         <div class="fld"><label class="f" for="order_email">Send new orders to</label><input type="email" id="order_email" name="order_email" value="<?= h($S['order_email']) ?>"></div>

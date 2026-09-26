@@ -166,14 +166,6 @@ function store_rebase($s, $to){
   return $s;
 }
 
-/* ---------------- VAT ----------------
-   Off until a VAT number is entered in Admin → Settings. Prices are then VAT-inclusive at vat_rate %,
-   and checkout, order emails and the admin show the VAT included in each order. */
-function vat_on($store=null){ $s = ($store ?? $GLOBALS['STORE'])['settings']; return trim((string)($s['vat_number'] ?? '')) !== '' && (float)($s['vat_rate'] ?? 0) > 0; }
-function vat_rate($store=null){ return (float)(($store ?? $GLOBALS['STORE'])['settings']['vat_rate'] ?? 20); }
-/* the VAT inside a VAT-inclusive amount */
-function vat_part($gross, $store=null){ $r = vat_rate($store); return round($gross - $gross / (1 + $r / 100), 2); }
-
 /* ---------------- products ---------------- */
 function photo_slots(){ return ['', '-2', '-3', '-4']; }
 

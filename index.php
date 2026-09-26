@@ -76,8 +76,6 @@ function money_whole($v){
   return $m['sym'] . number_format(round($v * $m['rate']), 0);
 }
 
-/* VAT is charged on orders delivered to the UK, once a VAT number is set (Admin → Settings) */
-function vat_applies($country){ return vat_on() && $country === 'GB'; }
 
 function cart(){ return $_SESSION['cart'] ?? []; }
 function cart_units(){ $n=0; foreach(cart() as $q) $n += $q; return $n; }
@@ -105,6 +103,13 @@ $BASE = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/index.
 const PAGE_PATHS = ['cart'=>'cart', 'checkout'=>'checkout', 'received'=>'order-received', 'how'=>'how-it-works',
                     'shipping'=>'shipping-returns', 'payment'=>'payment-methods', 'faq'=>'faq', 'contact'=>'contact',
                     'sets'=>'sets', 'guides'=>'guides', 'sitemap'=>'sitemap.xml', 'pay'=>'pay', 'paystatus'=>'pay-status'];
+/* guides, collections and categories whose address changed: old slug => new slug (old links redirect permanently) */
+const MOVED_SLUGS = [
+  'guide'=>['pokemon-card-packs'=>'pokemon-packs', 'coolest-pokemon-cards'=>'best-pokemon-cards', 'pokemon-card-rarities'=>'pokemon-card-rarity',
+            'pokemon-card-price-checker'=>'pokemon-price-checker', 'pokemon-card-shops-near-me'=>'pokemon-cards-near-me'],
+  'collection'=>['psa-graded-pokemon-cards'=>'graded-pokemon-cards'],
+  'catalog'=>['single-cards'=>'singles'],
+];
 /* older addresses that now live on another page: path => [page, #section] */
 const MOVED_PATHS = ['shipping'=>['shipping', ''], 'returns'=>['shipping', 'returns']];
 
@@ -131,6 +136,7 @@ function url($p, $extra=[]){
 /* absolute link for canonical tags, sitemaps and structured data */
 function abs_url($p, $extra=[]){ global $CONFIG; $u = url($p, $extra); return rtrim($CONFIG['domain'], '/').'/'.($u === './' ? '' : $u); }
 
+function go_moved($p, $extra=[]){ global $BASE; $u = url($p, $extra); header('Location: '.$BASE.($u === './' ? '' : $u), true, 301); exit; }
 function go_to($p, $extra=[]){ global $BASE; $u = url($p, $extra); header('Location: '.$BASE.($u === './' ? '' : $u)); exit; }
 
 /* request path → page, for clean addresses */
@@ -148,6 +154,7 @@ function route_from_path(){
     if(isset($pages[$path])) return ['p'=>$pages[$path]];
     if(info_page($path)) return ['p'=>'page', 'pg'=>$path];
     if(isset(MOVED_PATHS[$path])) return ['p'=>MOVED_PATHS[$path][0], 'moved'=>MOVED_PATHS[$path][1]];
+    if(isset(MOVED_SLUGS['catalog'][$path]) && isset($CATEGORIES[MOVED_SLUGS['catalog'][$path]])) go_moved('catalog', ['cat'=>MOVED_SLUGS['catalog'][$path]]);
   } elseif(count($seg) === 2){
     [$a, $b] = $seg;
     if($a === 'products') return ['p'=>'product', 'id'=>$b];
@@ -273,70 +280,70 @@ function desc_parts($text){
    guides each kind of page links to. Guides added in the admin simply use their title. */
 const GUIDE_ANCHORS = [
   'japanese-pokemon-cards'=>'Japanese Pokémon cards explained', 'most-expensive-pokemon-cards'=>'Most expensive Pokémon cards',
-  'rarest-pokemon-cards'=>'Rare Pokémon cards', 'pokemon-card-price-checker'=>'Pokémon price checker',
+  'rarest-pokemon-cards'=>'Rarest Pokémon cards', 'pokemon-price-checker'=>'Pokémon price checker',
   'pokemon-card-database'=>'Pokémon card database & card lists', 'where-to-buy-pokemon-cards'=>'Where to buy Pokémon cards in the UK',
-  'pokemon-card-shops-near-me'=>'Pokémon card shops near me', 'pokemon-card-packs'=>'Pokémon packs & booster boxes',
+  'pokemon-cards-near-me'=>'Pokémon cards near me', 'pokemon-packs'=>'Pokémon packs & booster boxes',
   'new-pokemon-sets'=>'New Pokémon sets', 'pokemon-card-binder'=>'Pokémon card binders', 'pokemon-card-scanner'=>'Pokémon card scanner apps',
   'pokemon-card-template'=>'Free Pokémon card template', 'how-to-play-pokemon-cards'=>'How to play Pokémon cards',
   'how-to-read-a-pokemon-card'=>'How to read a Pokémon card', 'how-much-does-it-cost-to-grade-a-pokemon-card'=>'How much it costs to grade a Pokémon card',
-  'chinese-pokemon-cards'=>'Chinese Pokémon cards', 'coolest-pokemon-cards'=>'Best Pokémon cards',
+  'chinese-pokemon-cards'=>'Chinese Pokémon cards', 'best-pokemon-cards'=>'Best Pokémon cards',
   'mew-mewtwo-arceus-pokemon-cards'=>'Mew, Mewtwo & Arceus cards', 'where-to-sell-pokemon-cards'=>'Where to sell Pokémon cards',
   'pokemon-card-size'=>'Pokémon card size', 'how-to-tell-if-a-pokemon-card-is-fake'=>'How to tell if a Pokémon card is fake',
-  'pokemon-card-rarities'=>'Pokémon card rarity', 'pokemon-card-values'=>'Pokémon card values',
+  'pokemon-card-rarity'=>'Pokémon card rarity', 'pokemon-card-values'=>'Pokémon card values',
 ];
 const GUIDE_RELATED = [
   'japanese-pokemon-cards'=>['where-to-buy-pokemon-cards','pokemon-card-database','chinese-pokemon-cards','how-to-read-a-pokemon-card'],
-  'most-expensive-pokemon-cards'=>['rarest-pokemon-cards','pokemon-card-values','pokemon-card-price-checker','how-much-does-it-cost-to-grade-a-pokemon-card'],
-  'rarest-pokemon-cards'=>['most-expensive-pokemon-cards','pokemon-card-rarities','coolest-pokemon-cards','mew-mewtwo-arceus-pokemon-cards'],
-  'pokemon-card-price-checker'=>['pokemon-card-values','pokemon-card-scanner','where-to-sell-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card'],
-  'pokemon-card-database'=>['pokemon-card-rarities','pokemon-card-price-checker','japanese-pokemon-cards','how-to-read-a-pokemon-card'],
-  'where-to-buy-pokemon-cards'=>['pokemon-card-shops-near-me','pokemon-card-packs','new-pokemon-sets','japanese-pokemon-cards'],
-  'pokemon-card-shops-near-me'=>['where-to-buy-pokemon-cards','pokemon-card-packs','where-to-sell-pokemon-cards','how-to-play-pokemon-cards'],
-  'pokemon-card-packs'=>['where-to-buy-pokemon-cards','japanese-pokemon-cards','new-pokemon-sets','pokemon-card-rarities'],
-  'new-pokemon-sets'=>['pokemon-card-database','pokemon-card-packs','japanese-pokemon-cards','pokemon-card-rarities'],
-  'pokemon-card-binder'=>['pokemon-card-size','coolest-pokemon-cards','pokemon-card-values','how-to-tell-if-a-pokemon-card-is-fake'],
-  'pokemon-card-scanner'=>['pokemon-card-price-checker','pokemon-card-values','how-to-tell-if-a-pokemon-card-is-fake','where-to-sell-pokemon-cards'],
+  'most-expensive-pokemon-cards'=>['rarest-pokemon-cards','pokemon-card-values','pokemon-price-checker','how-much-does-it-cost-to-grade-a-pokemon-card'],
+  'rarest-pokemon-cards'=>['most-expensive-pokemon-cards','pokemon-card-rarity','best-pokemon-cards','mew-mewtwo-arceus-pokemon-cards'],
+  'pokemon-price-checker'=>['pokemon-card-values','pokemon-card-scanner','where-to-sell-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card'],
+  'pokemon-card-database'=>['pokemon-card-rarity','pokemon-price-checker','japanese-pokemon-cards','how-to-read-a-pokemon-card'],
+  'where-to-buy-pokemon-cards'=>['pokemon-cards-near-me','pokemon-packs','new-pokemon-sets','japanese-pokemon-cards'],
+  'pokemon-cards-near-me'=>['where-to-buy-pokemon-cards','pokemon-packs','where-to-sell-pokemon-cards','how-to-play-pokemon-cards'],
+  'pokemon-packs'=>['where-to-buy-pokemon-cards','japanese-pokemon-cards','new-pokemon-sets','pokemon-card-rarity'],
+  'new-pokemon-sets'=>['pokemon-card-database','pokemon-packs','japanese-pokemon-cards','pokemon-card-rarity'],
+  'pokemon-card-binder'=>['pokemon-card-size','best-pokemon-cards','pokemon-card-values','how-to-tell-if-a-pokemon-card-is-fake'],
+  'pokemon-card-scanner'=>['pokemon-price-checker','pokemon-card-values','how-to-tell-if-a-pokemon-card-is-fake','where-to-sell-pokemon-cards'],
   'pokemon-card-template'=>['pokemon-card-size','how-to-read-a-pokemon-card','how-to-tell-if-a-pokemon-card-is-fake','how-to-play-pokemon-cards'],
-  'how-to-play-pokemon-cards'=>['how-to-read-a-pokemon-card','pokemon-card-shops-near-me','coolest-pokemon-cards','pokemon-card-database'],
-  'how-to-read-a-pokemon-card'=>['how-to-play-pokemon-cards','pokemon-card-rarities','pokemon-card-template','japanese-pokemon-cards'],
+  'how-to-play-pokemon-cards'=>['how-to-read-a-pokemon-card','pokemon-cards-near-me','best-pokemon-cards','pokemon-card-database'],
+  'how-to-read-a-pokemon-card'=>['how-to-play-pokemon-cards','pokemon-card-rarity','pokemon-card-template','japanese-pokemon-cards'],
   'how-much-does-it-cost-to-grade-a-pokemon-card'=>['pokemon-card-values','most-expensive-pokemon-cards','how-to-tell-if-a-pokemon-card-is-fake','where-to-sell-pokemon-cards'],
   'chinese-pokemon-cards'=>['how-to-tell-if-a-pokemon-card-is-fake','japanese-pokemon-cards','where-to-buy-pokemon-cards','pokemon-card-database'],
-  'coolest-pokemon-cards'=>['rarest-pokemon-cards','mew-mewtwo-arceus-pokemon-cards','pokemon-card-rarities','most-expensive-pokemon-cards'],
-  'mew-mewtwo-arceus-pokemon-cards'=>['coolest-pokemon-cards','rarest-pokemon-cards','most-expensive-pokemon-cards','pokemon-card-values'],
-  'where-to-sell-pokemon-cards'=>['pokemon-card-price-checker','pokemon-card-values','how-much-does-it-cost-to-grade-a-pokemon-card','pokemon-card-shops-near-me'],
+  'best-pokemon-cards'=>['rarest-pokemon-cards','mew-mewtwo-arceus-pokemon-cards','pokemon-card-rarity','most-expensive-pokemon-cards'],
+  'mew-mewtwo-arceus-pokemon-cards'=>['best-pokemon-cards','rarest-pokemon-cards','most-expensive-pokemon-cards','pokemon-card-values'],
+  'where-to-sell-pokemon-cards'=>['pokemon-price-checker','pokemon-card-values','how-much-does-it-cost-to-grade-a-pokemon-card','pokemon-cards-near-me'],
   'pokemon-card-size'=>['pokemon-card-binder','pokemon-card-template','how-to-read-a-pokemon-card','japanese-pokemon-cards'],
   'how-to-tell-if-a-pokemon-card-is-fake'=>['chinese-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','where-to-buy-pokemon-cards','pokemon-card-values'],
-  'pokemon-card-rarities'=>['rarest-pokemon-cards','coolest-pokemon-cards','how-to-read-a-pokemon-card','pokemon-card-database'],
-  'pokemon-card-values'=>['pokemon-card-price-checker','most-expensive-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','where-to-sell-pokemon-cards'],
+  'pokemon-card-rarity'=>['rarest-pokemon-cards','best-pokemon-cards','how-to-read-a-pokemon-card','pokemon-card-database'],
+  'pokemon-card-values'=>['pokemon-price-checker','most-expensive-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','where-to-sell-pokemon-cards'],
 ];
 const PAGE_GUIDES = [
-  'cat:boxes'=>['pokemon-card-packs','japanese-pokemon-cards','new-pokemon-sets','pokemon-card-price-checker','where-to-buy-pokemon-cards'],
-  'cat:etb'=>['new-pokemon-sets','pokemon-card-packs','how-to-play-pokemon-cards','where-to-buy-pokemon-cards','pokemon-card-shops-near-me'],
-  'cat:premium'=>['how-to-play-pokemon-cards','how-to-read-a-pokemon-card','coolest-pokemon-cards','japanese-pokemon-cards','mew-mewtwo-arceus-pokemon-cards'],
+  'cat:boxes'=>['pokemon-packs','japanese-pokemon-cards','new-pokemon-sets','pokemon-price-checker','where-to-buy-pokemon-cards'],
+  'cat:etb'=>['new-pokemon-sets','pokemon-packs','how-to-play-pokemon-cards','where-to-buy-pokemon-cards','pokemon-cards-near-me'],
+  'cat:premium'=>['how-to-play-pokemon-cards','how-to-read-a-pokemon-card','best-pokemon-cards','japanese-pokemon-cards','mew-mewtwo-arceus-pokemon-cards'],
   'cat:singles'=>['pokemon-card-values','most-expensive-pokemon-cards','rarest-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','how-to-tell-if-a-pokemon-card-is-fake'],
   'cat:accessories'=>['pokemon-card-binder','pokemon-card-size','pokemon-card-template','how-to-play-pokemon-cards','where-to-sell-pokemon-cards'],
-  'shop'=>['where-to-buy-pokemon-cards','pokemon-card-packs','pokemon-card-price-checker','new-pokemon-sets','pokemon-card-shops-near-me','japanese-pokemon-cards'],
-  'set'=>['new-pokemon-sets','pokemon-card-database','pokemon-card-price-checker','pokemon-card-rarities'],
-  'set:151'=>['most-expensive-pokemon-cards','pokemon-card-database','mew-mewtwo-arceus-pokemon-cards','pokemon-card-price-checker'],
-  'set:30th-celebration'=>['mew-mewtwo-arceus-pokemon-cards','pokemon-card-database','coolest-pokemon-cards','pokemon-card-price-checker'],
-  'series'=>['new-pokemon-sets','pokemon-card-database','pokemon-card-packs','pokemon-card-rarities'],
-  'coll'=>['pokemon-card-values','rarest-pokemon-cards','pokemon-card-price-checker'],
-  'coll:charizard-pokemon-cards'=>['most-expensive-pokemon-cards','pokemon-card-values','how-much-does-it-cost-to-grade-a-pokemon-card','pokemon-card-price-checker'],
-  'coll:pikachu-pokemon-cards'=>['most-expensive-pokemon-cards','coolest-pokemon-cards','rarest-pokemon-cards','pokemon-card-values'],
-  'coll:gengar-pokemon-cards'=>['coolest-pokemon-cards','pokemon-card-rarities','pokemon-card-price-checker','pokemon-card-values'],
-  'coll:psa-graded-pokemon-cards'=>['how-much-does-it-cost-to-grade-a-pokemon-card','pokemon-card-values','how-to-tell-if-a-pokemon-card-is-fake','where-to-sell-pokemon-cards'],
-  'faq'=>['where-to-buy-pokemon-cards','pokemon-card-packs','how-to-play-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','how-to-tell-if-a-pokemon-card-is-fake','pokemon-card-price-checker','japanese-pokemon-cards','pokemon-card-shops-near-me','chinese-pokemon-cards'],
-  'home'=>['where-to-buy-pokemon-cards','pokemon-card-packs','new-pokemon-sets','pokemon-card-values','most-expensive-pokemon-cards','rarest-pokemon-cards'],
+  'shop'=>['where-to-buy-pokemon-cards','pokemon-packs','pokemon-price-checker','new-pokemon-sets','pokemon-cards-near-me','japanese-pokemon-cards'],
+  'set'=>['new-pokemon-sets','pokemon-card-database','pokemon-price-checker','pokemon-card-rarity'],
+  'set:151'=>['most-expensive-pokemon-cards','pokemon-card-database','mew-mewtwo-arceus-pokemon-cards','pokemon-price-checker'],
+  'set:30th-celebration'=>['mew-mewtwo-arceus-pokemon-cards','pokemon-card-database','best-pokemon-cards','pokemon-price-checker'],
+  'series'=>['new-pokemon-sets','pokemon-card-database','pokemon-packs','pokemon-card-rarity'],
+  'coll'=>['pokemon-card-values','rarest-pokemon-cards','pokemon-price-checker'],
+  'coll:charizard-pokemon-cards'=>['most-expensive-pokemon-cards','pokemon-card-values','how-much-does-it-cost-to-grade-a-pokemon-card','pokemon-price-checker'],
+  'coll:pikachu-pokemon-cards'=>['most-expensive-pokemon-cards','best-pokemon-cards','rarest-pokemon-cards','pokemon-card-values'],
+  'coll:gengar-pokemon-cards'=>['best-pokemon-cards','pokemon-card-rarity','pokemon-price-checker','pokemon-card-values'],
+  'coll:graded-pokemon-cards'=>['how-much-does-it-cost-to-grade-a-pokemon-card','pokemon-card-values','how-to-tell-if-a-pokemon-card-is-fake','where-to-sell-pokemon-cards'],
+  'faq'=>['where-to-buy-pokemon-cards','pokemon-packs','how-to-play-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','how-to-tell-if-a-pokemon-card-is-fake','pokemon-price-checker','japanese-pokemon-cards','pokemon-cards-near-me','chinese-pokemon-cards'],
+  'home'=>['where-to-buy-pokemon-cards','pokemon-packs','new-pokemon-sets','pokemon-card-values','most-expensive-pokemon-cards','rarest-pokemon-cards'],
 ];
 /* where each group of guides sends readers to shop */
 const GUIDE_SHOP = [
-  'collect'=>'Shop [rare Pokémon cards](category:singles), [PSA graded Pokémon cards](cards:psa-graded-pokemon-cards) and [Charizard Pokémon cards](cards:charizard-pokemon-cards), shipped from Japan.',
+  'collect'=>'Shop [rare Pokémon cards](category:singles), [PSA graded Pokémon cards](cards:graded-pokemon-cards) and [Charizard Pokémon cards](cards:charizard-pokemon-cards), shipped from Japan.',
   'play'=>'Shop [Elite Trainer Boxes](category:etb), [starter decks and premium sets](category:premium) and [card sleeves, binders and playmats](category:accessories), shipped from Japan.',
   'buy'=>'Shop [Japanese booster boxes](category:boxes), [Elite Trainer Boxes](category:etb) and [rare single cards](category:singles), shipped from Japan to the UK.',
 ];
-const GUIDE_GROUP = ['most-expensive-pokemon-cards'=>'collect','rarest-pokemon-cards'=>'collect','pokemon-card-values'=>'collect','pokemon-card-price-checker'=>'collect',
-  'how-much-does-it-cost-to-grade-a-pokemon-card'=>'collect','where-to-sell-pokemon-cards'=>'collect','pokemon-card-scanner'=>'collect','coolest-pokemon-cards'=>'collect',
-  'mew-mewtwo-arceus-pokemon-cards'=>'collect','pokemon-card-rarities'=>'collect','how-to-play-pokemon-cards'=>'play','how-to-read-a-pokemon-card'=>'play',
+const GUIDE_GROUP = ['most-expensive-pokemon-cards'=>'collect','rarest-pokemon-cards'=>'collect','pokemon-card-values'=>'collect','pokemon-price-checker'=>'collect',
+  'how-much-does-it-cost-to-grade-a-pokemon-card'=>'collect','where-to-sell-pokemon-cards'=>'collect','pokemon-card-scanner'=>'collect','best-pokemon-cards'=>'collect',
+  'mew-mewtwo-arceus-pokemon-cards'=>'collect','pokemon-card-rarity'=>'collect','how-to-play-pokemon-cards'=>'play','how-to-read-a-pokemon-card'=>'play',
   'pokemon-card-template'=>'play','pokemon-card-size'=>'play','pokemon-card-binder'=>'play'];
 
 function guide_anchor($g){ return GUIDE_ANCHORS[$g['slug']] ?? $g['title']; }
@@ -414,7 +421,7 @@ function send_order_mail($order){
   $ship_txt = !empty($order['free_shipping']) && (float)$order['shipping_usd'] == 0 ? 'Free' : $order['shipping'];
   $body .= "  SHIPPING: $ship_txt ({$order['ship_zone']}, {$order['ship_label']})\n";
   $body .= "  TOTAL:    {$order['total']} ({$order['currency']})\n";
-  $body .= !empty($order['vat']) ? "  Includes UK VAT at {$order['vat_rate']}%: {$order['vat_shown']}\n\n" : "  Import duty and taxes are not included.\n\n";
+  $body .= "\n";
   if($order['notes']) $body .= "NOTES\n  {$order['notes']}\n\n";
   $body .= "Submitted: {$order['time']}\n";
 
@@ -428,7 +435,6 @@ function send_order_mail($order){
   $c .= "\nGoods: {$order['goods']}\n";
   $c .= "Shipping: $ship_txt — {$order['ship_label']}\n";
   $c .= "Order total: {$order['total']} ({$order['currency']})\n";
-  if(!empty($order['vat'])) $c .= "Includes UK VAT at {$order['vat_rate']}%: {$order['vat_shown']}\n";
   $c .= "Payment method selected: {$order['payment_label']}\n\n";
   $c .= "DELIVERY ADDRESS\n  {$order['name']}\n  {$order['address1']}\n".($order['address2'] ? "  {$order['address2']}\n" : '')
       ."  ".implode(', ', array_filter([$order['city'], trim($order['region'].' '.$order['postcode'])]))."\n  {$order['country_name']}\n\n";
@@ -455,7 +461,6 @@ function send_order_mail($order){
   }
   $c .= "Questions: {$CONFIG['email']}\n";
   $c .= "{$CONFIG['legal_name']} — {$CONFIG['address']}\n";
-  if(!empty($order['vat'])) $c .= "VAT number: {$CONFIG['vat_number']}\n";
   $to_customer = shop_mail($order['email'], "Order {$order['ref']} received — {$CONFIG['brand']}", $c, $CONFIG['email']);
   return ['shop'=>$to_shop, 'customer'=>$to_customer];
 }
@@ -564,10 +569,6 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         'ip'            => $_SERVER['REMOTE_ADDR'] ?? '',
         'free_shipping' => free_shipping($STORE, $goods),
       ];
-      if(vat_applies($f['country'])){
-        $order['vat'] = vat_part($order['total_usd']); $order['vat_rate'] = vat_rate();
-        $order['vat_shown'] = money($order['vat']); $order['vat_number'] = $CONFIG['vat_number'];
-      }
       if(btc_method($PAYMENTS[$f['payment']])){ $order['btc'] = ['address'=>btc_settings()['address'], 'quotes'=>[]]; btc_quote($order); }
       if(!order_save($order)) error_log("fudakura: could not save order {$order['ref']} to data/orders");
       $sent = send_order_mail($order);
@@ -646,6 +647,9 @@ if($page === 'series')     $series = series_by_slug($gs('s'));
 if($page === 'collection') $coll   = collection_by_slug($gs('c'));
 if($page === 'guide')      $guide  = guide_by_slug($gs('g'));
 if($page === 'page')       $info   = info_page($gs('pg'));
+/* renamed guides and collections move permanently to their new address */
+if($page === 'guide' && !$guide && isset(MOVED_SLUGS['guide'][$gs('g')])) go_moved('guide', ['g'=>MOVED_SLUGS['guide'][$gs('g')]]);
+if($page === 'collection' && !$coll && isset(MOVED_SLUGS['collection'][$gs('c')])) go_moved('collection', ['c'=>MOVED_SLUGS['collection'][$gs('c')]]);
 if(($page === 'product' && !$prod) || ($page === 'set' && !$set) || ($page === 'series' && !$series)
    || ($page === 'collection' && !$coll) || ($page === 'guide' && !$guide) || ($page === 'page' && !$info)) $page = 'notfound';
 /* addresses that moved: /shipping and /returns → /shipping-returns */
@@ -822,8 +826,8 @@ switch($page){
     if($h1 !== '') $crumbs[] = [$h1, '', []]; else $crumbs = [];
     if($page === 'notfound') $crumbs = [];
     $page_desc = ['shipping'=>(free_ship_min($STORE) ? 'Free shipping over '.money_whole(free_ship_min($STORE)).'. ' : '')
-                    .'Japanese Pokémon cards shipped from Japan to the UK with tracking: delivery times, rates, import VAT and duty, returns and refunds.',
-                  'faq'=>'Answers to common questions about buying Japanese Pokémon cards from Japan: shipping to the UK, payment, minimum order, import VAT and returns.',
+                    .'Pokémon cards shipped from Japan to the UK with tracking: delivery times, shipping rates, returns and refunds.',
+                  'faq'=>'Answers to common questions about buying Japanese Pokémon cards from Japan: shipping to the UK, payment, minimum order and returns.',
                   'how'=>'How to order Pokémon cards from FUDAKURA: bulk prices in pounds, pay by UK bank transfer or crypto, and tracked shipping from Japan to the UK.',
                   'payment'=>'How to pay for Japanese Pokémon cards at FUDAKURA: UK bank transfer in pounds or crypto, with payment details and your invoice sent by text or email.',
                   'contact'=>'Contact FUDAKURA about Japanese Pokémon card orders, bulk pricing, shipping from Japan or an existing order. We reply within '.(int)$CONFIG['reply_hours'].' hours.'][$page] ?? '';
@@ -847,7 +851,9 @@ $in_stock = array_values(array_filter($PRODUCTS, fn($p)=>!in_array($p['status'],
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title><?= h(preg_match_all('/./us', $page_title.' | '.$CONFIG['brand']) <= 60 ? $page_title.' | '.$CONFIG['brand'] : $page_title) ?></title>
 <meta name="description" content="<?= h($page_desc) ?>">
-<?php if($canonical): ?><link rel="canonical" href="<?= h($canonical) ?>"><?php endif; ?>
+<?php if($canonical): ?><link rel="canonical" href="<?= h($canonical) ?>">
+<link rel="alternate" hreflang="en-GB" href="<?= h($canonical) ?>">
+<link rel="alternate" hreflang="x-default" href="<?= h($canonical) ?>"><?php endif; ?>
 <meta name="robots" content="<?= $noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large' ?>">
 <?php
   $abs_img = fn($f)=>rtrim($CONFIG['domain'], '/').'/'.$f;
@@ -876,7 +882,6 @@ $graph = [
    'publisher'=>['@id'=>$org_id],
    'potentialAction'=>['@type'=>'SearchAction','target'=>abs_url('catalog', ['q'=>'QUERY']),'query-input'=>'required name=search_term_string']],
 ];
-if(trim($CONFIG['vat_number'] ?? '') !== '') $graph[0]['vatID'] = trim($CONFIG['vat_number']);
 if(trim($CONFIG['company_number'] ?? '') !== '') $graph[0]['identifier'] = ['@type'=>'PropertyValue','propertyID'=>'Companies House number','value'=>trim($CONFIG['company_number'])];
 $graph[1]['potentialAction']['target'] = str_replace('QUERY', '{search_term_string}', $graph[1]['potentialAction']['target']);
 if($prod){
@@ -1770,7 +1775,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
           <p>Shipped from Japan with tracking: <b><?= h($SM['standard']['label']) ?></b> <?= h($SM['standard']['days']) ?> or <b><?= h($SM['express']['label']) ?></b> <?= h($SM['express']['days']) ?>.
             Priced by weight — <?= (int)$prod['moq'] ?> of these to the UK ship for <?= money(shipping_cost($STORE, 'GB', $one, 'standard')) ?> Standard or <?= money(shipping_cost($STORE, 'GB', $one, 'express')) ?> Express.
             <?php if(free_ship_min($STORE)): ?><b>Free <?= h($SM['standard']['label']) ?> shipping on orders over <?= money_whole(free_ship_min($STORE)) ?>.</b><?php endif; ?>
-            Orders start at <?= money($MIN_ORDER) ?> including shipping.<?= vat_on() ? ' Prices include VAT for UK delivery.' : '' ?></p>
+            Orders start at <?= money($MIN_ORDER) ?> including shipping.</p>
           <p><?php if(array_filter($PAYMENTS, 'btc_method')): ?>Pay with Bitcoin straight after you order, or choose another method and we send the details within <?= (int)$CONFIG['reply_hours'] ?> hours.<?php else: ?>We send payment details for your chosen method within <?= (int)$CONFIG['reply_hours'] ?> hours.<?php endif; ?>
             <a href="<?= url('shipping') ?>">Shipping &amp; Returns</a> · <a href="<?= url('payment') ?>">Payment methods</a> · <a href="<?= url('how') ?>">How ordering works</a> · <a href="<?= url('faq') ?>">FAQ</a> · <a href="<?= url('contact') ?>">Contact us</a></p>
         </div>
@@ -1833,7 +1838,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
             <?php if(cart_saved()>0): ?><div style="font-size:13.5px;color:var(--muted)">You save <?= money(cart_saved()) ?> against single-unit pricing</div><?php endif; ?>
             <div style="font-size:26px;font-weight:900;margin:4px 0 4px">Goods total <?= money(cart_total()) ?></div>
             <?php free_ship_meter(cart_total()); ?>
-            <div style="font-size:13.5px;color:var(--muted);margin-bottom:10px">Shipping is calculated at checkout. Minimum order <?= money($MIN_ORDER) ?> including shipping.<?= vat_on() ? ' Prices include VAT for UK delivery.' : '' ?></div>
+            <div style="font-size:13.5px;color:var(--muted);margin-bottom:10px">Shipping is calculated at checkout. Minimum order <?= money($MIN_ORDER) ?> including shipping.</div>
             <a class="btn" href="<?= url('checkout') ?>">Continue to checkout</a>
           </div>
         </div>
@@ -1939,7 +1944,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
             We never ask for card details, passwords or wallet keys.
           </div>
           <div class="fld"><label for="notes">Order notes (optional)</label>
-            <textarea id="notes" name="notes" placeholder="Delivery instructions, preferred carrier, your VAT or EORI number for business orders, anything else we should know."><?= h($f['notes']??'') ?></textarea></div>
+            <textarea id="notes" name="notes" placeholder="Delivery instructions, preferred carrier, anything else we should know."><?= h($f['notes']??'') ?></textarea></div>
           <label class="agree">
             <input type="checkbox" name="agree" value="1" <?= !empty($_POST['agree'])?'checked':'' ?>>
             <span>I agree to the <a href="<?= h(url('page', ['pg'=>'terms'])) ?>" target="_blank">terms of sale</a> and the
@@ -1948,7 +1953,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
           <div class="minwarn" id="minWarn" hidden></div>
           <button class="btn wide" id="placeBtn" type="submit" style="margin-top:14px" data-btc-label="Place order and pay with Bitcoin">Place order</button>
           <p style="font-size:12.5px;color:var(--muted);margin-top:10px">
-            Shipping is calculated from your destination and shown in the order summary. <?= vat_on() ? 'UK orders include VAT; import duty and taxes in other countries are not included.' : 'Orders ship from Japan: import VAT, duty and carrier fees are not included.' ?></p>
+            Shipping is calculated from your destination and shown in the order summary. The order total is the full price you pay us.</p>
         </fieldset>
       </div>
 
@@ -1966,14 +1971,13 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
           <div class="sl"><span style="color:var(--muted)">Goods</span><span><?= money(cart_total()) ?></span></div>
           <div class="sl"><span style="color:var(--muted)" id="shipLabel">Shipping</span><span id="shipCost" style="color:var(--muted)">Select your country</span></div>
           <div class="tot"><span>Order total</span><span id="grandTotal"><?= money(cart_total()) ?></span></div>
-          <?php if(vat_on()): ?><div class="sl" id="vatLine" hidden><span style="color:var(--muted)">Includes VAT at <?= h(rtrim(rtrim(number_format(vat_rate(), 2), '0'), '.')) ?>%</span><span id="vatAmt"></span></div><?php endif; ?>
           <p style="font-size:12.5px;color:var(--muted);margin-top:8px">Minimum order <?= money($MIN_ORDER) ?> including shipping.</p>
           <?php
           /* per-country shipping for this cart, so the summary updates as the country changes */
           $cm = $CURRENCIES[cur_code()]; $kg = cart_weight(); $ship_by = [];
           foreach($COUNTRIES as $code=>$nm) foreach(SHIP_METHODS as $mk) $ship_by[$code][$mk] = shipping_cost($STORE, $code, $kg, $mk, cart_total());
           $labels = array_map(fn($m)=>$m['label'], ship_methods($STORE));
-          $co_data = ['ship'=>$ship_by, 'labels'=>$labels, 'goods'=>cart_total(), 'min'=>$MIN_ORDER, 'vat'=>vat_on() ? vat_rate() : 0,
+          $co_data = ['ship'=>$ship_by, 'labels'=>$labels, 'goods'=>cart_total(), 'min'=>$MIN_ORDER,
                       'btc'=>array_keys(array_filter($PAYMENTS, 'btc_method')),
                       'rate'=>$cm['rate'], 'sym'=>$cm['sym'], 'dec'=>$cm['dec']]; ?>
           <script>window.CO = <?= json_encode($co_data, JSON_HEX_TAG|JSON_HEX_AMP) ?>;</script>
@@ -2008,7 +2012,6 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
         <div class="sl" style="border:none;padding:0"><span>Goods</span><span><?= h($o['goods']) ?></span></div>
         <div class="sl" style="border:none;padding:4px 0 0"><span>Shipping<?= !empty($o['ship_label']) ? ' · '.h($o['ship_label']) : '' ?></span><span><?= h($o['shipping']) ?></span></div>
         <div class="sl" style="border:none;padding:4px 0 0"><span>Order total</span><b><?= h($o['total']) ?> <?= h($o['currency']) ?></b></div>
-        <?php if(!empty($o['vat'])): ?><div class="sl" style="border:none;padding:4px 0 0"><span>Includes VAT at <?= h($o['vat_rate']) ?>%</span><span><?= h($o['vat_shown']) ?></span></div><?php endif; ?>
         <div class="sl" style="border:none;padding:4px 0 0"><span>Shipping to</span><span><?= h($o['city']) ?>, <?= h($o['country_name']) ?></span></div>
         <p style="font-size:13.5px;color:var(--muted);margin-top:16px">
           Nothing heard within <?= (int)$CONFIG['reply_hours'] ?> hours? Check your spam folder, then email
@@ -2095,7 +2098,6 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
         <div class="sl"><span style="color:var(--muted)">Goods</span><span><?= h($o['goods']) ?></span></div>
         <div class="sl"><span style="color:var(--muted)">Shipping · <?= h($o['ship_label']) ?></span><span><?= !empty($o['free_shipping']) && (float)$o['shipping_usd'] == 0 ? 'Free' : h($o['shipping']) ?></span></div>
         <div class="tot"><span>Order total</span><span><?= h($o['total']) ?></span></div>
-        <?php if(!empty($o['vat'])): ?><div class="sl"><span style="color:var(--muted)">Includes VAT at <?= h($o['vat_rate']) ?>%</span><span><?= h($o['vat_shown']) ?></span></div><?php endif; ?>
         <p class="n">Ships to <?= h($o['city']) ?>, <?= h($o['country_name']) ?>.<?= $o['currency'] !== order_base($o) ? ' The BTC amount is worked out from the '.h(order_base($o)).' total, '.h(money_in($o['total_usd'], order_base($o))).'.' : '' ?></p>
         <p class="n">Questions? <a href="mailto:<?= h($CONFIG['email']) ?>?subject=<?= rawurlencode('Order '.$o['ref']) ?>"><?= h($CONFIG['email']) ?></a></p>
       </aside>
@@ -2155,7 +2157,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       we text or email the payment details with your invoice, holding your stock for <?= (int)$CONFIG['hold_hours'] ?> hours in the meantime. Always check
       payment details against the email we send from <?= h($CONFIG['email']) ?> and quote your order reference.
     </div>
-    <p style="font-size:14px;color:var(--ink2);margin-top:18px">Prices are set in <?= h(base_cur() === 'GBP' ? 'pounds sterling' : base_cur()) ?>, and invoices are issued in the currency you had selected at checkout. Shipping is calculated at checkout. <?= vat_on() ? 'Prices include UK VAT on UK orders, and exclude import duty, taxes and customs clearance fees in other countries.' : 'Orders ship from Japan, and prices exclude import VAT, duty and customs clearance fees.' ?></p>
+    <p style="font-size:14px;color:var(--ink2);margin-top:18px">Prices are set in <?= h(base_cur() === 'GBP' ? 'pounds sterling' : base_cur()) ?>, and invoices are issued in the currency you had selected at checkout. Shipping is calculated at checkout. The price at checkout is the total you pay us, with no extra charges added.</p>
   </div></section>
 
 <?php elseif($page==='shipping'):
@@ -2227,7 +2229,6 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
         <?php if($CONFIG['phone']): ?><tr><td class="nm">Phone</td><td><?= h($CONFIG['phone']) ?></td></tr><?php endif; ?>
         <tr><td class="nm">Business</td><td><?= h($CONFIG['legal_name']) ?>, <?= h($CONFIG['address']) ?></td></tr>
         <?php if(trim($CONFIG['company_number'] ?? '') !== ''): ?><tr><td class="nm">Company number</td><td><?= h($CONFIG['company_number']) ?></td></tr><?php endif; ?>
-        <?php if(vat_on()): ?><tr><td class="nm">VAT number</td><td><?= h($CONFIG['vat_number']) ?></td></tr><?php endif; ?>
         <tr><td class="nm">Existing order</td><td>Quote your order reference (format FK-26-XXXXX) in the subject line.</td></tr>
       </tbody>
     </table>
@@ -2344,7 +2345,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
       <li><a href="<?= url('sets') ?>">Pokémon card sets</a></li>
       <?php foreach($SERIES as $k=>$sr): if(series_sets($k)): ?><li><a href="<?= h(url('series', ['s'=>$sr['slug']])) ?>"><?= h($sr['name']) ?> sets</a></li><?php endif; endforeach; ?>
       <?php foreach($COLLECTIONS as $c): if(collection_products($c)): ?><li><a href="<?= h(url('collection', ['c'=>$c['slug']])) ?>"><?= h($c['title']) ?></a></li><?php endif; endforeach; ?>
-      <?php foreach(['where-to-buy-pokemon-cards'=>'Where to buy Pokémon cards in the UK', 'pokemon-card-shops-near-me'=>'Pokémon card shops near me', 'pokemon-card-packs'=>'Pokémon packs & booster boxes', 'new-pokemon-sets'=>'New Pokémon sets', 'pokemon-card-values'=>'Pokémon card values', 'pokemon-card-price-checker'=>'Pokémon price checker'] as $gs_=>$gl_):
+      <?php foreach(['where-to-buy-pokemon-cards'=>'Where to buy Pokémon cards in the UK', 'pokemon-cards-near-me'=>'Pokémon cards near me', 'pokemon-packs'=>'Pokémon packs & booster boxes', 'new-pokemon-sets'=>'New Pokémon sets', 'pokemon-card-values'=>'Pokémon card values', 'pokemon-price-checker'=>'Pokémon price checker'] as $gs_=>$gl_):
         if(guide_by_slug($gs_)): ?><li><a href="<?= h(url('guide', ['g'=>$gs_])) ?>"><?= h($gl_) ?></a></li><?php endif; endforeach; ?>
       <?php if($GUIDES): ?><li><a href="<?= url('guides') ?>">All Pokémon card guides</a></li><?php endif; ?>
     </ul></div>
@@ -2362,9 +2363,9 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
     </ul></div>
   </div>
   <div class="legal">
-    <div><?= vat_on() ? 'Shipped from Japan. Prices include UK VAT on UK orders; import duty and taxes in other countries are the buyer’s responsibility.' : 'Shipped from Japan — import VAT, duty and carrier fees are the buyer’s responsibility.' ?></div>
+    <div>Shipped from Japan to the UK with tracking. Prices in pounds; the total at checkout is what you pay us.</div>
     <div><?= h($CONFIG['legal_name']) ?> is an independent reseller of genuine product. We are not affiliated with, endorsed by or licensed by The Pokémon Company, Nintendo, Creatures Inc. or GAME FREAK Inc. All product names and trademarks are the property of their respective owners.</div>
-    <div>© <?= date('Y') ?> <?= h($CONFIG['legal_name']) ?><?= trim($CONFIG['company_number'] ?? '') !== '' ? ' · Registered in '.h(($CONFIG['company_registered'] ?? '') ?: 'England and Wales').', company number '.h($CONFIG['company_number']) : '' ?><?= vat_on() ? ' · VAT number '.h($CONFIG['vat_number']) : '' ?>.</div>
+    <div>© <?= date('Y') ?> <?= h($CONFIG['legal_name']) ?><?= trim($CONFIG['company_number'] ?? '') !== '' ? ' · Registered in '.h(($CONFIG['company_registered'] ?? '') ?: 'England and Wales').', company number '.h($CONFIG['company_number']) : '' ?>.</div>
   </div>
 </div></footer>
 
@@ -2387,12 +2388,6 @@ function fmt(usd){
   return CO.sym + (usd * CO.rate).toLocaleString('en-GB', {minimumFractionDigits: CO.dec, maximumFractionDigits: CO.dec});
 }
 function fmtShip(usd){ return usd > 0 ? fmt(usd) : 'Free'; }
-/* the VAT inside a UK order's total (prices include VAT once a VAT number is set) */
-function showVat(country, total){
-  const line = document.getElementById('vatLine'); if(!line) return;
-  line.hidden = country !== 'GB';
-  if(!line.hidden) document.getElementById('vatAmt').textContent = fmt(Math.round((total - total / (1 + CO.vat / 100)) * 100) / 100);
-}
 /* shipping, total and the minimum-order check follow the selected country; the server re-checks all of it */
 function updateTotals(country){
   if(!window.CO) return;
@@ -2401,12 +2396,11 @@ function updateTotals(country){
   const picked = (document.querySelector('input[name=ship_method]:checked') || {}).value || 'standard';
   document.querySelectorAll('[data-ship-price]').forEach(el => { el.textContent = rates ? fmtShip(rates[el.dataset.shipPrice]) : ''; });
   document.getElementById('shipLabel').textContent = 'Shipping · ' + (CO.labels[picked] || '');
-  if(rates === undefined){ cost.textContent = 'Select your country'; document.getElementById('grandTotal').textContent = fmt(CO.goods); showVat('', 0); warn.hidden = true; btn.disabled = false; return; }
+  if(rates === undefined){ cost.textContent = 'Select your country'; document.getElementById('grandTotal').textContent = fmt(CO.goods); warn.hidden = true; btn.disabled = false; return; }
   const ship = rates[picked];
   const total = Math.round((CO.goods + ship) * 100) / 100;
   cost.textContent = fmtShip(ship); cost.style.color = '';
   document.getElementById('grandTotal').textContent = fmt(total);
-  showVat(country, total);
   const short = total < CO.min;
   warn.hidden = !short; btn.disabled = short;
   if(short) warn.textContent = 'The minimum order is ' + fmt(CO.min) + ' including shipping. Your total is ' + fmt(total) + ', so add ' + fmt(CO.min - total) + ' more to place this order.';
