@@ -12,7 +12,7 @@ if(!defined('FK_ROOT')){ http_response_code(404); exit; }
 return [
   'settings' => [
     'strip_text'    => 'Sourced in Japan · Shipped to the UK with tracking · Prices in pounds on every listing',
-    'hero_title'    => 'Pokémon cards UK: Japanese booster boxes, packs and rare cards, shipped from Japan.',
+    'hero_title'    => 'Pokémon cards UK, straight from Japan.',
     'hero_lede'     => 'Sealed Japanese booster boxes, Elite Trainer Boxes, rare singles and PSA graded cards, sourced in Japan and shipped to the UK with tracking. Every quantity break is published in pounds, so collectors and card shops see the price before they order.',
     'footer_blurb'  => 'Japanese Pokémon cards shipped from Japan to collectors, resellers and card shops across the UK. Prices in pounds on every listing — no account needed.',
     'home_seo_title'=> 'Pokémon Cards UK — Japanese Booster Boxes & Rare Cards',
