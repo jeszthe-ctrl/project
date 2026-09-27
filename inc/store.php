@@ -19,7 +19,14 @@ function start_session(){
   if(session_status() === PHP_SESSION_ACTIVE) return;
   $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
   session_set_cookie_params(['lifetime'=>0, 'path'=>'/', 'secure'=>$https, 'httponly'=>true, 'samesite'=>'Lax']);
-  session_start();
+  /* some hosts' session folder isn't writable (or is outside open_basedir): keep sessions in data/ instead */
+  $path = preg_replace('/^.*;/', '', (string)session_save_path()) ?: sys_get_temp_dir();
+  if(!@is_dir($path) || !@is_writable($path)){
+    $own = FK_ROOT.'/data/sessions';
+    if(!is_dir($own)) @mkdir($own, 0700, true);
+    if(is_writable($own)){ session_save_path($own); @ini_set('session.gc_probability', '1'); @ini_set('session.gc_divisor', '100'); }
+  }
+  @session_start();
 }
 
 /* ---------------- data files ---------------- */
@@ -190,7 +197,7 @@ function shrink_image($file, $max=1600){
   if($type === IMAGETYPE_JPEG) imagejpeg($dst, $file, 85);
   elseif($type === IMAGETYPE_PNG) imagepng($dst, $file, 6);
   elseif(function_exists('imagewebp')) imagewebp($dst, $file, 85);
-  imagedestroy($src); imagedestroy($dst);
+  if(PHP_VERSION_ID < 80000){ imagedestroy($src); imagedestroy($dst); }   /* freed automatically since PHP 8 */
 }
 
 /* A $w-px copy of a product photo for grids and thumbnails, made once and kept in assets/products/thumbs.

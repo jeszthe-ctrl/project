@@ -18,7 +18,13 @@ You shouldn't need to edit any code. Day-to-day changes are made in `admin.php` 
 
 ## Install
 
-**One file:** upload the single `index.php` built by `php tools/build-installer.php [admin-password]` (it lands in `dist/`) to your web space and open your site. It unpacks everything below next to itself, keeps your host's own `.htaccess` rules, moves a placeholder `index.html` aside, and then becomes the shop's normal `index.php`. Your data in `data/` is never overwritten, so uploading a newer one later updates the shop. If PHP can't create files in the folder, use the zip instead:
+`php tools/build-installer.php [admin-password]` builds two things in `dist/` (with a password, both include that admin login). Needs PHP 7.4 or newer (8.2 or 8.3 recommended).
+
+**Easiest: the zip.** In your host's File Manager, open `public_html`, **Upload** `pokekura-upload.zip`, right-click it and choose **Extract**, then delete the zip. If the host put a placeholder page there (`index.html`, `default.php`), delete it too. Then open `https://your-domain/admin.php`.
+
+**Or one file:** upload `index.php` with File Manager's **Upload** button (FTP: *binary* mode) and open `https://your-domain/index.php` (with `/index.php`, in case the host's placeholder page would show first). It checks your hosting (PHP version and extensions, folder permissions), unpacks everything next to itself, keeps your host's own `.htaccess` rules, moves placeholder pages (`index.html`, `default.php`, …) aside, and becomes the shop's normal `index.php`. The site travels inside it as text with a fingerprint: if the file was damaged on the way (text-mode transfer, opened in an editor, cut off), it says so and changes nothing. Your data in `data/` is never overwritten, so uploading a newer one later updates the shop.
+
+Uploading the files by hand instead:
 
 1. Upload everything to your web space. Keep the folder structure.
 2. Make sure PHP can write to `data/` and `assets/products/` (most hosts allow this by default; otherwise set them to 755 or 775).

@@ -9,10 +9,11 @@
    ============================================================= */
 
 define('FK_ROOT', __DIR__);
+@ini_set('display_errors', '0');                    /* never print PHP messages into pages (they break redirects) */
+error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
 require FK_ROOT.'/inc/store.php';
 require FK_ROOT.'/inc/bitcoin.php';
 start_session();
-error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 header('X-Frame-Options: DENY');
 header('X-Robots-Tag: noindex, nofollow');
 header('Cache-Control: no-store');

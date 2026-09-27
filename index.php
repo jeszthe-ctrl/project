@@ -8,11 +8,12 @@
    ============================================================= */
 
 define('FK_ROOT', __DIR__);
+@ini_set('display_errors', '0');                    /* never print PHP messages into pages (they break redirects) */
+error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
 require FK_ROOT.'/inc/store.php';
 require FK_ROOT.'/inc/bitcoin.php';
 if(!ini_get('zlib.output_compression') && extension_loaded('zlib')) ob_start('ob_gzhandler');
 start_session();
-error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 
 /* ---------------- DATA (edited in admin.php) ---------------- */
 $STORE      = store_load();

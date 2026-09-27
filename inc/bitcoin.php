@@ -77,7 +77,7 @@ function btc_get($url, $timeout=6){
       CURLOPT_FOLLOWLOCATION=>true, CURLOPT_MAXREDIRS=>3, CURLOPT_USERAGENT=>'Mozilla/5.0 (shop payment check)',
       CURLOPT_HTTPHEADER=>['Accept: application/json']]);
     $body = curl_exec($c); $code = (int)curl_getinfo($c, CURLINFO_HTTP_CODE);
-    curl_close($c);
+    if(PHP_VERSION_ID < 80000) curl_close($c);   /* closed automatically since PHP 8 */
   } elseif(ini_get('allow_url_fopen')){
     $ctx = stream_context_create(['http'=>['timeout'=>$timeout, 'ignore_errors'=>true,
       'header'=>"Accept: application/json\r\nUser-Agent: Mozilla/5.0 (shop payment check)\r\n"]]);
