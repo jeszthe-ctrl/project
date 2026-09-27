@@ -77,7 +77,7 @@ function btc_get($url, $timeout=6){
       CURLOPT_FOLLOWLOCATION=>true, CURLOPT_MAXREDIRS=>3, CURLOPT_USERAGENT=>'Mozilla/5.0 (shop payment check)',
       CURLOPT_HTTPHEADER=>['Accept: application/json']]);
     $body = curl_exec($c); $code = (int)curl_getinfo($c, CURLINFO_HTTP_CODE);
-    if(PHP_VERSION_ID < 80000) curl_close($c);   /* closed automatically since PHP 8 */
+    curl_close($c);
   } elseif(ini_get('allow_url_fopen')){
     $ctx = stream_context_create(['http'=>['timeout'=>$timeout, 'ignore_errors'=>true,
       'header'=>"Accept: application/json\r\nUser-Agent: Mozilla/5.0 (shop payment check)\r\n"]]);
@@ -281,7 +281,7 @@ function btc_mail(&$o, $kind){
   }
   $detail = implode("\n", $lines);
   $shop = shop_mail($cfg['order_email'], $subj_shop,
-    "$shop_note\n\n$detail\n\nCustomer: {$o['name']} <{$o['email']}>\nOrder total: {$o['total']} {$o['currency']}".(($o['currency'] ?? 'USD') !== 'USD' ? ' ($'.number_format((float)$o['total_usd'], 2).' USD)' : '')."\n",
+    "$shop_note\n\n$detail\n\nCustomer: {$o['name']} <{$o['email']}>\nOrder total: {$o['total']} {$o['currency']} (\${$o['total_usd']} USD)\n",
     $o['email']);
   $cus = shop_mail($o['email'], $subj_cus,
     "$cus_note\n\n$detail\n\nYour order page: ".btc_pay_link($o)."\n\nQuestions: {$cfg['email']}\n{$cfg['legal_name']} — {$cfg['address']}\n",

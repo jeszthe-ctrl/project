@@ -1,6 +1,6 @@
 <?php
 /* =============================================================
-   POKEKURA — wholesale Japanese Pokémon TCG storefront. PHP 7.4+.
+   FUDAKURA — wholesale Japanese Pokémon TCG for Australia. PHP 7.4+.
 
    Day-to-day editing — products, prices, photos, shipping rates,
    payment methods, business details, FAQ, orders — is done in
@@ -8,12 +8,11 @@
    ============================================================= */
 
 define('FK_ROOT', __DIR__);
-@ini_set('display_errors', '0');                    /* never print PHP messages into pages (they break redirects) */
-error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
 require FK_ROOT.'/inc/store.php';
 require FK_ROOT.'/inc/bitcoin.php';
 if(!ini_get('zlib.output_compression') && extension_loaded('zlib')) ob_start('ob_gzhandler');
 start_session();
+error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 
 /* ---------------- DATA (edited in admin.php) ---------------- */
 $STORE      = store_load();
@@ -23,6 +22,7 @@ $CATEGORIES = $STORE['categories'];
 $PRODUCTS   = array_values(array_filter($STORE['products'], fn($p)=>empty($p['hidden']) && isset($CATEGORIES[$p['cat']])));
 $PAYMENTS   = array_filter($STORE['payments'], fn($m)=>!empty($m['enabled']) && (!btc_method($m) || btc_ready()));   /* Bitcoin only with a valid wallet address */
 $COUNTRIES  = $STORE['countries'];
+$HOME_CC    = (string)array_key_first($COUNTRIES);   /* the first country in Settings: shipping examples and Google's shipping data */
 $MIN_ORDER  = (float)$CONFIG['min_order_usd'];
 $SERIES     = $STORE['series'] ?? [];
 $COLLECTIONS= $STORE['collections'] ?? [];
@@ -63,8 +63,8 @@ function flash($msg){ $_SESSION['flash'][] = $msg; }
 
 function cur_code(){
   global $CURRENCIES;
-  $c = $_GET['cur'] ?? $_SESSION['cur'] ?? 'USD';
-  if(!is_string($c) || !isset($CURRENCIES[$c])) $c = 'USD';
+  $c = $_GET['cur'] ?? $_SESSION['cur'] ?? array_key_first($CURRENCIES);
+  if(!is_string($c) || !isset($CURRENCIES[$c])) $c = array_key_first($CURRENCIES);   /* the first currency in Settings */
   $_SESSION['cur'] = $c;
   return $c;
 }
@@ -111,13 +111,6 @@ const PAGE_PATHS = ['cart'=>'cart', 'checkout'=>'checkout', 'received'=>'order-r
 /* older addresses that now live on another page: path => [page, #section] */
 const MOVED_PATHS = ['shipping'=>['shipping', ''], 'returns'=>['shipping', 'returns']];
 
-/* the square logo mark: the last character of the Japanese name (蔵, "storehouse") */
-function brand_mark(){
-  global $CONFIG;
-  if(preg_match('/(.)$/u', trim((string)($CONFIG['kanji'] ?? '')), $m)) return $m[1];
-  return strtoupper(substr((string)$CONFIG['brand'], 0, 1));
-}
-
 function cat_slug($key){ global $CATEGORIES; return ($CATEGORIES[$key]['slug'] ?? '') ?: slugify($CATEGORIES[$key]['label'] ?? $key); }
 
 function url($p, $extra=[]){
@@ -150,7 +143,6 @@ function route_from_path(){
   if(strpos($path, $BASE) === 0) $path = substr($path, strlen($BASE));
   $path = trim($path, '/');
   if($path === '' || $path === 'index.php') return null;
-  if($path === 'rewrite-check') return ['p'=>'rewritecheck'];
   $seg = explode('/', $path);
   if(count($seg) === 1){
     if($path === 'shop') return ['p'=>'catalog'];
@@ -285,6 +277,7 @@ const GUIDE_ANCHORS = [
   'mew-mewtwo-arceus-pokemon-cards'=>'Mew, Mewtwo & Arceus cards', 'where-to-sell-pokemon-cards'=>'Where to sell Pokémon cards',
   'pokemon-card-size'=>'Pokémon card size', 'how-to-tell-if-a-pokemon-card-is-fake'=>'How to tell if a Pokémon card is fake',
   'pokemon-card-rarities'=>'Pokémon card rarities', 'pokemon-card-values'=>'Pokémon card values',
+  'pokemon-center-australia'=>'Pokémon Center Australia', 'pokemon-booster-packs'=>'Pokémon booster packs',
 ];
 const GUIDE_RELATED = [
   'japanese-pokemon-cards'=>['where-to-buy-pokemon-cards','pokemon-card-database','chinese-pokemon-cards','how-to-read-a-pokemon-card'],
@@ -292,8 +285,8 @@ const GUIDE_RELATED = [
   'rarest-pokemon-cards'=>['most-expensive-pokemon-cards','pokemon-card-rarities','coolest-pokemon-cards','mew-mewtwo-arceus-pokemon-cards'],
   'pokemon-card-price-checker'=>['pokemon-card-values','pokemon-card-scanner','where-to-sell-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card'],
   'pokemon-card-database'=>['pokemon-card-rarities','pokemon-card-price-checker','japanese-pokemon-cards','how-to-read-a-pokemon-card'],
-  'where-to-buy-pokemon-cards'=>['pokemon-card-shops-near-me','japanese-pokemon-cards','pokemon-card-price-checker','how-to-tell-if-a-pokemon-card-is-fake'],
-  'pokemon-card-shops-near-me'=>['where-to-buy-pokemon-cards','where-to-sell-pokemon-cards','pokemon-card-scanner','how-to-play-pokemon-cards'],
+  'where-to-buy-pokemon-cards'=>['pokemon-center-australia','pokemon-card-shops-near-me','pokemon-booster-packs','japanese-pokemon-cards'],
+  'pokemon-card-shops-near-me'=>['where-to-buy-pokemon-cards','pokemon-center-australia','where-to-sell-pokemon-cards','pokemon-card-scanner'],
   'pokemon-card-scanner'=>['pokemon-card-price-checker','pokemon-card-values','how-to-tell-if-a-pokemon-card-is-fake','where-to-sell-pokemon-cards'],
   'pokemon-card-template'=>['pokemon-card-size','how-to-read-a-pokemon-card','how-to-tell-if-a-pokemon-card-is-fake','how-to-play-pokemon-cards'],
   'how-to-play-pokemon-cards'=>['how-to-read-a-pokemon-card','pokemon-card-shops-near-me','coolest-pokemon-cards','pokemon-card-database'],
@@ -307,14 +300,16 @@ const GUIDE_RELATED = [
   'how-to-tell-if-a-pokemon-card-is-fake'=>['chinese-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','where-to-buy-pokemon-cards','pokemon-card-values'],
   'pokemon-card-rarities'=>['rarest-pokemon-cards','coolest-pokemon-cards','how-to-read-a-pokemon-card','pokemon-card-database'],
   'pokemon-card-values'=>['pokemon-card-price-checker','most-expensive-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','where-to-sell-pokemon-cards'],
+  'pokemon-center-australia'=>['where-to-buy-pokemon-cards','pokemon-card-shops-near-me','pokemon-booster-packs','japanese-pokemon-cards'],
+  'pokemon-booster-packs'=>['pokemon-card-rarities','japanese-pokemon-cards','where-to-buy-pokemon-cards','how-to-tell-if-a-pokemon-card-is-fake'],
 ];
 const PAGE_GUIDES = [
-  'cat:boxes'=>['japanese-pokemon-cards','pokemon-card-database','pokemon-card-price-checker','where-to-buy-pokemon-cards','chinese-pokemon-cards'],
-  'cat:etb'=>['how-to-play-pokemon-cards','where-to-buy-pokemon-cards','japanese-pokemon-cards','pokemon-card-database','pokemon-card-shops-near-me'],
+  'cat:boxes'=>['pokemon-booster-packs','japanese-pokemon-cards','pokemon-card-database','pokemon-card-price-checker','where-to-buy-pokemon-cards'],
+  'cat:etb'=>['how-to-play-pokemon-cards','pokemon-booster-packs','where-to-buy-pokemon-cards','pokemon-card-database','pokemon-center-australia'],
   'cat:premium'=>['how-to-play-pokemon-cards','how-to-read-a-pokemon-card','coolest-pokemon-cards','japanese-pokemon-cards','mew-mewtwo-arceus-pokemon-cards'],
   'cat:singles'=>['pokemon-card-values','most-expensive-pokemon-cards','rarest-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','how-to-tell-if-a-pokemon-card-is-fake'],
   'cat:accessories'=>['pokemon-card-size','pokemon-card-template','how-to-play-pokemon-cards','where-to-sell-pokemon-cards','pokemon-card-scanner'],
-  'shop'=>['where-to-buy-pokemon-cards','pokemon-card-price-checker','pokemon-card-database','japanese-pokemon-cards','pokemon-card-shops-near-me','chinese-pokemon-cards'],
+  'shop'=>['where-to-buy-pokemon-cards','pokemon-booster-packs','pokemon-card-price-checker','pokemon-card-database','japanese-pokemon-cards','pokemon-card-shops-near-me'],
   'set'=>['pokemon-card-database','pokemon-card-price-checker','pokemon-card-rarities','japanese-pokemon-cards'],
   'set:151'=>['most-expensive-pokemon-cards','pokemon-card-database','mew-mewtwo-arceus-pokemon-cards','pokemon-card-price-checker'],
   'set:30th-celebration'=>['mew-mewtwo-arceus-pokemon-cards','pokemon-card-database','coolest-pokemon-cards','pokemon-card-price-checker'],
@@ -325,18 +320,18 @@ const PAGE_GUIDES = [
   'coll:gengar-pokemon-cards'=>['coolest-pokemon-cards','pokemon-card-rarities','pokemon-card-price-checker','pokemon-card-values'],
   'coll:psa-graded-pokemon-cards'=>['how-much-does-it-cost-to-grade-a-pokemon-card','pokemon-card-values','how-to-tell-if-a-pokemon-card-is-fake','where-to-sell-pokemon-cards'],
   'faq'=>['how-to-play-pokemon-cards','where-to-buy-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','how-to-tell-if-a-pokemon-card-is-fake','pokemon-card-price-checker','japanese-pokemon-cards','pokemon-card-shops-near-me','chinese-pokemon-cards'],
-  'home'=>['most-expensive-pokemon-cards','pokemon-card-price-checker','where-to-buy-pokemon-cards','pokemon-card-database','how-to-play-pokemon-cards','rarest-pokemon-cards'],
+  'home'=>['where-to-buy-pokemon-cards','most-expensive-pokemon-cards','pokemon-center-australia','pokemon-booster-packs','pokemon-card-price-checker','rarest-pokemon-cards'],
 ];
 /* where each group of guides sends readers to shop */
 const GUIDE_SHOP = [
-  'collect'=>'Shop [rare Pokémon cards](category:singles), [PSA graded Pokémon cards](cards:psa-graded-pokemon-cards) and [Charizard Pokémon cards](cards:charizard-pokemon-cards), shipped from Japan.',
+  'collect'=>'Shop [rare Pokémon cards](category:singles), [PSA graded Pokémon cards](cards:psa-graded-pokemon-cards) and [Charizard Pokémon cards](cards:charizard-pokemon-cards), shipped from Japan to Australia.',
   'play'=>'Shop [Elite Trainer Boxes](category:etb), [starter decks and premium sets](category:premium) and [card sleeves, binders and playmats](category:accessories), shipped from Japan.',
-  'buy'=>'Shop [Japanese booster boxes](category:boxes), [Elite Trainer Boxes](category:etb) and [rare single cards](category:singles), shipped worldwide from Japan.',
+  'buy'=>'Shop [Japanese booster boxes](category:boxes), [Elite Trainer Boxes](category:etb) and [rare single cards](category:singles), shipped from Japan to Australia.',
 ];
 const GUIDE_GROUP = ['most-expensive-pokemon-cards'=>'collect','rarest-pokemon-cards'=>'collect','pokemon-card-values'=>'collect','pokemon-card-price-checker'=>'collect',
   'how-much-does-it-cost-to-grade-a-pokemon-card'=>'collect','where-to-sell-pokemon-cards'=>'collect','pokemon-card-scanner'=>'collect','coolest-pokemon-cards'=>'collect',
   'mew-mewtwo-arceus-pokemon-cards'=>'collect','pokemon-card-rarities'=>'collect','how-to-play-pokemon-cards'=>'play','how-to-read-a-pokemon-card'=>'play',
-  'pokemon-card-template'=>'play','pokemon-card-size'=>'play'];
+  'pokemon-card-template'=>'play','pokemon-card-size'=>'play','pokemon-booster-packs'=>'buy','pokemon-center-australia'=>'buy'];
 
 function guide_anchor($g){ return GUIDE_ANCHORS[$g['slug']] ?? fill($g['title']); }
 function guides_list($slugs){ return array_values(array_filter(array_map('guide_by_slug', $slugs))); }
@@ -409,13 +404,10 @@ function send_order_mail($order){
     $body .= sprintf("  %-46s %4d x %10s = %10s\n",
       $l['name'].' ('.$l['sku'].')', $l['qty'], $l['unit'], $l['total']);
   }
-  /* free shipping over the threshold: Standard is free, Express costs only the difference */
-  $ship_txt = empty($order['free_shipping']) ? $order['shipping']
-            : ((float)$order['shipping_usd'] == 0 ? 'Free' : $order['shipping'].' (free Standard shipping applied: Express difference only)');
   $body .= "\n  GOODS:    {$order['goods']}\n";
-  $body .= "  SHIPPING: $ship_txt ({$order['ship_zone']}, {$order['ship_label']})\n";
+  $body .= "  SHIPPING: ".((float)($order['shipping_usd'] ?? 1) == 0 ? 'Free' : $order['shipping'])." ({$order['ship_zone']}, {$order['ship_label']})\n";
   $body .= "  TOTAL:    {$order['total']} ({$order['currency']})\n";
-  $body .= "  Import duty and taxes are not included.\n\n";
+  $body .= "  GST, import duty and customs charges are not included.\n\n";
   if($order['notes']) $body .= "NOTES\n  {$order['notes']}\n\n";
   $body .= "Submitted: {$order['time']}\n";
 
@@ -425,7 +417,7 @@ function send_order_mail($order){
   $c  = "Thank you — we have your order.\n\n";
   $c .= "Order reference: {$order['ref']}\n";
   $c .= "Goods: {$order['goods']}\n";
-  $c .= "Shipping: $ship_txt — {$order['ship_label']}\n";
+  $c .= "Shipping: ".((float)($order['shipping_usd'] ?? 1) == 0 ? 'Free' : $order['shipping'])." — {$order['ship_label']}\n";
   $c .= "Order total: {$order['total']} ({$order['currency']})\n";
   $c .= "Payment method selected: {$order['payment_label']}\n\n";
   if(!empty($order['btc'])){
@@ -449,9 +441,13 @@ function send_order_mail($order){
     $c .= "Once payment clears we dispatch within {$CONFIG['hold_hours']} hours from Japan\n";
     $c .= "with tracking.\n\n";
   }
+  $c .= "Prices exclude GST. Orders over A$1,000 are charged GST, any duty and import\ncharges by Australian customs, collected by the carrier before delivery.\n\n";
   $c .= "Questions: {$CONFIG['email']}\n";
   $c .= "{$CONFIG['legal_name']} — {$CONFIG['address']}\n";
   $to_customer = shop_mail($order['email'], "Order {$order['ref']} received — {$CONFIG['brand']}", $c, $CONFIG['email']);
+  /* a copy of the customer's confirmation, so the order inbox has exactly what they were sent */
+  shop_mail($CONFIG['order_email'], "Confirmation sent: order {$order['ref']}", "This order confirmation was sent to {$order['email']}"
+    .($to_customer ? '' : ' — but sending FAILED, so contact the customer yourself').":\n\n".str_repeat('-', 50)."\n\n".$c, $order['email']);
   return ['shop'=>$to_shop, 'customer'=>$to_customer];
 }
 
@@ -615,17 +611,6 @@ if($from_path) $_GET = $from_path + $_GET;
 $page = $_GET['p'] ?? 'home';
 if(!is_string($page)) $page = 'home';
 if($_SERVER['REQUEST_METHOD']==='POST' && ($_POST['action']??'')==='order' && $errors) $page = 'checkout';
-/* Clean addresses switch themselves on: the installer and the admin ask for /rewrite-check, an address that can only
-   reach the shop through the host's rewrite rules. That happens once, so turning them off in the admin sticks. */
-if($page === 'rewritecheck' && $from_path){
-  header('Content-Type: application/json; charset=utf-8'); header('Cache-Control: no-store'); header('X-Robots-Tag: noindex');
-  if(empty($CONFIG['pretty_urls']) && empty($CONFIG['pretty_auto']) && (string)($_SERVER['REDIRECT_STATUS'] ?? '200') === '200'){
-    $STORE['settings']['pretty_urls'] = $STORE['settings']['pretty_auto'] = true;
-    if(store_save($STORE)) $CONFIG['pretty_urls'] = true;
-  }
-  echo json_encode(['clean_urls'=>!empty($CONFIG['pretty_urls'])]);
-  exit;
-}
 $PAGES = ['home','catalog','product','sets','set','series','collection','guides','guide','page','cart','checkout','received',
           'how','shipping','payment','faq','contact','sitemap','pay','paystatus','notfound'];
 if(!in_array($page, $PAGES, true)) $page = 'notfound';
@@ -732,7 +717,7 @@ $page_desc = '';
 switch($page){
   case 'home':
     $page_title = ($CONFIG['home_seo_title'] ?? '') ?: 'Japanese Pokémon Cards — Booster Boxes & Singles';
-    $page_desc  = ($CONFIG['home_seo_desc'] ?? '') ?: 'Authentic Japanese Pokémon cards shipped from Japan to the USA: sealed booster boxes, ETBs, rare singles and PSA graded cards, with bulk pricing published.';
+    $page_desc  = ($CONFIG['home_seo_desc'] ?? '') ?: 'Authentic Japanese Pokémon cards shipped from Japan to Australia: sealed booster boxes, ETBs, rare singles and PSA graded cards, with bulk pricing published.';
     $crumbs = [];
     break;
   case 'catalog':
@@ -743,8 +728,8 @@ switch($page){
       $page_desc  = ($cinfo['seo_desc'] ?? '') ?: plain($cinfo['blurb']);
       $h1 = ($cinfo['h1'] ?? '') ?: $cinfo['label'];
     } else {
-      $page_title = 'Shop Japanese Pokémon Cards — All Products';
-      $page_desc  = 'Shop Japanese Pokémon cards: sealed booster boxes, Elite Trainer Boxes, rare singles, PSA graded cards and accessories, shipped from Japan to the USA and worldwide.';
+      $page_title = 'Shop Pokémon Cards Australia — Japanese Trading Cards';
+      $page_desc  = 'Shop Japanese Pokémon cards: sealed booster boxes, Elite Trainer Boxes, rare singles, PSA graded cards and accessories, shipped from Japan to Australia.';
       $h1 = 'Shop Japanese Pokémon cards';
     }
     if($q !== '') $h1 = 'Results for “'.$q.'”';
@@ -759,7 +744,7 @@ switch($page){
     if(stripos($auto, 'japanese') === false && strlen($auto) < 34) $auto .= ' — Japanese Pokémon TCG';
     $page_title = ($prod['seo_title'] ?? '') ?: $auto;
     $from = unit_price($prod, $prod['moq']);
-    $page_desc  = ($prod['seo_desc'] ?? '') ?: plain(desc_parts($prod['desc'])[0], 105).' From $'.number_format($from, 2).' each; ships worldwide from Japan.';
+    $page_desc  = ($prod['seo_desc'] ?? '') ?: plain(desc_parts($prod['desc'])[0], 105).' From $'.number_format($from, 2).' each; ships from Japan to Australia.';
     break;
   case 'sets':
     $crumbs[] = ['Sets', '', []];
@@ -780,7 +765,7 @@ switch($page){
     $crumbs[] = [$set['name'], '', []];
     $label = $set['name'].($set['code'] !== '' ? ' ('.$set['code'].')' : '');
     $page_title = $set['seo_title'] ?: $label.' Japanese Booster Boxes & Cards';
-    $page_desc  = $set['seo_desc'] ?: (plain($set['intro']) ?: 'Japanese '.$set['name'].' booster boxes and cards, shipped from Japan to the USA and worldwide.');
+    $page_desc  = $set['seo_desc'] ?: (plain($set['intro']) ?: 'Japanese '.$set['name'].' booster boxes and cards, shipped from Japan to Australia.');
     $h1 = $label.' — Japanese Pokémon cards';
     break;
   case 'collection':
@@ -814,12 +799,12 @@ switch($page){
     if($page === 'notfound') $crumbs = [];
     $page_desc = ['shipping'=>(free_ship_usd($STORE) ? 'Free shipping over '.money_whole(free_ship_usd($STORE)).'. ' : '')
                     .'Japanese Pokémon cards shipped from Japan with tracking: delivery times, rates, duty, returns and refunds.',
-                  'faq'=>'Answers to common questions about buying Japanese Pokémon cards wholesale from Japan: shipping worldwide, payment, minimum order, duty and returns.',
-                  'how'=>'How wholesale ordering works at {brand}: public MOQs and quantity-break prices, pay by Bitcoin or invoice, and tracked shipping worldwide from Japan.',
-                  'payment'=>'How to pay for Japanese Pokémon cards at {brand}: Bitcoin straight from your wallet, or the method that suits you, with an invoice by email.',
+                  'faq'=>'Answers to common questions about buying Japanese Pokémon cards wholesale from Japan: shipping to Australia, payment, minimum order, GST and returns.',
+                  'how'=>'How wholesale ordering works at {brand}: public MOQs and quantity-break prices, pay by Bitcoin or invoice, and tracked shipping from Japan to Australia.',
+                  'payment'=>'How to pay for Pokémon cards at {brand} in Australia: PayID or bank transfer in AUD, Bitcoin straight from your wallet, or ETH and USDT, with an invoice by email.',
                   'contact'=>'Contact {brand} about wholesale Japanese Pokémon card orders, case pricing, shipping from Japan or an existing order. We reply within '.(int)$CONFIG['reply_hours'].' hours.'][$page] ?? '';
 }
-if($page_desc === '') $page_desc = 'Wholesale Japanese Pokémon cards shipped worldwide from Japan: sealed booster boxes, Elite Trainer Boxes, premium sets, singles and TCG accessories.';
+if($page_desc === '') $page_desc = 'Wholesale Japanese Pokémon cards shipped from Japan to Australia: sealed booster boxes, Elite Trainer Boxes, premium sets, singles and TCG accessories.';
 /* admin-written titles can use {brand} and the other placeholders, like the page text */
 $page_title = fill($page_title); $page_desc = fill($page_desc); $h1 = fill($h1);
 foreach($crumbs as $ci=>$cr) $crumbs[$ci][0] = fill($cr[0]);
@@ -834,7 +819,7 @@ $noindex = in_array($page, ['cart','checkout','received','pay','notfound'], true
 $in_stock = array_values(array_filter($PRODUCTS, fn($p)=>!in_array($p['status'], ['preorder','soldout'], true)));
 ?>
 <!DOCTYPE html>
-<html lang="en-US">
+<html lang="en-AU">
 <head>
 <meta charset="utf-8">
 <base href="<?= h($BASE) ?>">
@@ -854,7 +839,7 @@ $in_stock = array_values(array_filter($PRODUCTS, fn($p)=>!in_array($p['status'],
 <?php if($canonical): ?><meta property="og:url" content="<?= h($canonical) ?>"><?php endif; ?>
 <?php if($og): ?><meta property="og:image" content="<?= h($abs_img($og[0])) ?>"><?php endif; ?>
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#FFFFFF">
+<meta name="theme-color" content="#F6F1E7">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <?php if($page === 'home'): foreach(['google_verify'=>'google-site-verification', 'bing_verify'=>'msvalidate.01'] as $k=>$nm) if(($CONFIG[$k] ?? '') !== ''): ?><meta name="<?= $nm ?>" content="<?= h($CONFIG[$k]) ?>">
 <?php endif; endif; ?>
@@ -865,37 +850,30 @@ $graph = [
   ['@type'=>'Organization','@id'=>$org_id,'name'=>$CONFIG['brand'],'legalName'=>$CONFIG['legal_name'],'alternateName'=>$CONFIG['kanji'],'url'=>abs_url('home'),'email'=>$CONFIG['email'],
    'logo'=>rtrim($CONFIG['domain'], '/').'/assets/logo.svg',
    'address'=>['@type'=>'PostalAddress','streetAddress'=>$CONFIG['address'],'addressCountry'=>'JP'],
-   'description'=>'Independent distributor and reseller of authentic Japanese Pokémon Trading Card Game products, shipping wholesale orders worldwide directly from Japan.',
+   'description'=>'Independent distributor and reseller of authentic Japanese Pokémon Trading Card Game products, shipping wholesale orders to Australia directly from Japan.',
    'knowsAbout'=>['Japanese Pokémon Trading Card Game', 'Pokémon TCG wholesale', 'Pokémon booster boxes'],
-   'areaServed'=>'Worldwide'],
-  ['@type'=>'WebSite','@id'=>rtrim($CONFIG['domain'], '/').'/#site','url'=>abs_url('home'),'name'=>$CONFIG['brand'],'inLanguage'=>'en-US',
+   'areaServed'=>array_values($COUNTRIES)],
+  ['@type'=>'WebSite','@id'=>rtrim($CONFIG['domain'], '/').'/#site','url'=>abs_url('home'),'name'=>$CONFIG['brand'],'inLanguage'=>'en-AU',
    'publisher'=>['@id'=>$org_id],
    'potentialAction'=>['@type'=>'SearchAction','target'=>abs_url('catalog', ['q'=>'QUERY']),'query-input'=>'required name=search_term_string']],
 ];
 $graph[1]['potentialAction']['target'] = str_replace('QUERY', '{search_term_string}', $graph[1]['potentialAction']['target']);
 if($prod){
-  $offer = ['@type'=>'Offer','url'=>$canonical,'priceCurrency'=>'USD',
-    'price'=>number_format(unit_price($prod, $prod['moq']), 2, '.', ''),
+  $cc0 = array_key_first($CURRENCIES); $rate0 = (float)$CURRENCIES[$cc0]['rate'];   /* prices for Google in the shop's first currency */
+  $offer = ['@type'=>'Offer','url'=>$canonical,'priceCurrency'=>$cc0,
+    'price'=>number_format(unit_price($prod, $prod['moq']) * $rate0, 2, '.', ''),
     'eligibleQuantity'=>['@type'=>'QuantitativeValue','minValue'=>$prod['moq']],
     'availability'=>$prod['status']==='preorder' ? 'https://schema.org/PreOrder'
                     : (can_order($prod) ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'),
     'seller'=>['@id'=>$org_id]];
   if(($prod['cond'] ?? 'Sealed') === 'Sealed') $offer['itemCondition'] = 'https://schema.org/NewCondition';
-  /* the Returns section of Shipping & Returns: agreed returns within 7 days, back to Japan by post; the buyer pays
-     return shipping on a change of mind, and damaged, wrong or missing items cost nothing to return */
-  $offer['hasMerchantReturnPolicy'] = ['@type'=>'MerchantReturnPolicy', 'url'=>abs_url('shipping').'#returns',
-    'applicableCountry'=>array_slice(array_keys($COUNTRIES), 0, 50), 'returnPolicyCountry'=>'JP',
-    'returnPolicyCategory'=>'https://schema.org/MerchantReturnFiniteReturnWindow', 'merchantReturnDays'=>7,
-    'returnMethod'=>'https://schema.org/ReturnByMail',
-    'customerRemorseReturnFees'=>'https://schema.org/ReturnFeesCustomerResponsibility',
-    'itemDefectReturnFees'=>'https://schema.org/FreeReturn'];
   if(!empty($CONFIG['shipping_reviewed'])){   /* only once real rates are set */
     $offer['shippingDetails'] = [];
     foreach(ship_methods($STORE) as $mk=>$mm){
       [$dmin, $dmax] = ship_day_range($mm['days']);
       $offer['shippingDetails'][] = ['@type'=>'OfferShippingDetails',
-        'shippingDestination'=>['@type'=>'DefinedRegion','addressCountry'=>'US'],
-        'shippingRate'=>['@type'=>'MonetaryAmount','currency'=>'USD','value'=>number_format(shipping_usd($STORE, 'US', (float)($prod['weight'] ?? 0) * $prod['moq'], $mk, unit_price($prod, $prod['moq']) * $prod['moq']), 2, '.', '')],
+        'shippingDestination'=>['@type'=>'DefinedRegion','addressCountry'=>$HOME_CC],
+        'shippingRate'=>['@type'=>'MonetaryAmount','currency'=>$cc0,'value'=>number_format(shipping_usd($STORE, $HOME_CC, (float)($prod['weight'] ?? 0) * $prod['moq'], $mk, unit_price($prod, $prod['moq']) * $prod['moq']) * $rate0, 2, '.', '')],
         'deliveryTime'=>['@type'=>'ShippingDeliveryTime',
           'handlingTime'=>['@type'=>'QuantitativeValue','minValue'=>0,'maxValue'=>max(1, (int)ceil($CONFIG['hold_hours'] / 24)),'unitCode'=>'DAY'],
           'transitTime'=>['@type'=>'QuantitativeValue','minValue'=>$dmin,'maxValue'=>$dmax,'unitCode'=>'DAY']]];
@@ -908,7 +886,7 @@ if($prod){
 }
 if($guide){
   $graph[] = ['@type'=>'Article','headline'=>fill($guide['title']),'description'=>$page_desc,'url'=>$canonical,
-    'dateModified'=>$guide['updated'] ?? gmdate('Y-m-d'),'inLanguage'=>'en-US',
+    'dateModified'=>$guide['updated'] ?? gmdate('Y-m-d'),'inLanguage'=>'en-AU',
     'author'=>['@id'=>$org_id],'publisher'=>['@id'=>$org_id],'image'=>$og ? $abs_img($og[0]) : null];
 }
 if(count($crumbs) > 1){
@@ -923,260 +901,256 @@ if(count($crumbs) > 1){
 </script>
 
 <style>
-/* White theme: indigo and Pokémon-yellow accents on white. System fonts only: nothing to download before first paint. */
+/* "Washi" theme: warm paper, sumi ink, a vermilion hanko accent and indigo. Flat, ruled, square-cornered.
+   System fonts only: nothing to download before first paint. */
 :root{
   color-scheme:light;
-  --bg:#FFFFFF; --paper:#F5F7FB; --card:#FFFFFF; --card2:#F2F4F9; --tint:#EEF2FF; --tint2:#DCE3FB;
-  --ink:#0C1633; --ink2:#3A4566; --muted:#646E8B; --line:#E1E5EE; --hair:#ECEFF5;
-  --indigo:#2A44D4; --indigo2:#1E34B0; --yellow:#FFCC00; --amber:#935E00; --red:#B5241D; --green:#07774A;
-  --teal:#086E6D; --violet:#6A4DE0; --btc:#E8870F; --btc-text:#A0530A;
-  --brand:var(--indigo); --link:var(--indigo); --seal:var(--green); --gold:var(--amber);
+  --bg:#F6F1E7; --paper:#FFFDF8; --card:#FFFDF8; --card2:#F1EADC; --ink:#1C1A17; --ink2:#48433B; --muted:#7A7367;
+  --line:#DDD4C4; --hair:#EAE3D5;
+  --red:#C23A22; --red2:#A82E19; --gold:#9C6B12; --teal:#2F6B5E; --blue:#24476E; --violet:#5B4A7A; --green:#3C7A4B;
+  --indigo:#1E2F48; --seal:#C23A22;
+  --brand:var(--red); --link:#24476E;
+  --holo:var(--red); --hot:var(--red);
+  --serif:'Hiragino Mincho ProN','Yu Mincho','YuMincho','Noto Serif JP','Noto Serif',Georgia,'Times New Roman',serif;
   --sans:system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue','Hiragino Kaku Gothic ProN','Noto Sans JP',Arial,sans-serif;
-  --jp:'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic','Noto Sans JP',system-ui,sans-serif;
-  --r:12px;
-  --lift:0 1px 2px rgba(12,22,51,.04),0 10px 28px -14px rgba(12,22,51,.18);
+  --r:4px;
 }
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-padding-top:130px;background:var(--bg)}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.62;
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.65;
   -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
-h1,h2,h3{font-family:var(--sans);font-weight:800;line-height:1.14;margin:0;letter-spacing:-.022em;color:var(--ink)}
+h1,h2,h3{font-family:var(--serif);font-weight:700;line-height:1.18;margin:0;letter-spacing:.005em;color:var(--ink)}
 p{margin:0}a{color:inherit}img{max-width:100%;display:block;height:auto}
 button,input,select,textarea{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--indigo);outline-offset:3px;border-radius:4px}
-.wrap{width:min(1240px,calc(100% - 40px));margin-inline:auto}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:2px}
+.wrap{width:min(1200px,calc(100% - 48px));margin-inline:auto}
 @media(max-width:640px){.wrap{width:calc(100% - 32px)}}
-.holo-text{color:var(--indigo)}
+.holo-text{color:var(--red)}
+::selection{background:#F3D3C8}
 
 /* top strip */
-.strip{background:var(--yellow);color:var(--ink);font-size:12.5px;position:relative}
-.strip .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:36px;flex-wrap:wrap}
-.strip .st{color:rgba(12,22,51,.78)}
-.strip a{color:var(--ink);text-decoration:none;font-weight:800}
-.strip a.sl:hover{text-decoration:underline}
+.strip{background:var(--indigo);color:#D9D2C3;font-size:12px}
+.strip .wrap{display:flex;justify-content:space-between;align-items:center;gap:18px;min-height:36px}
+.strip .wrap>*{white-space:nowrap}
+.strip .st{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:center}
+@media(max-width:1100px){.strip .st{display:none}}
+.strip a{color:#F2C7A8;text-decoration:none;font-weight:700}
+.strip a:hover{text-decoration:underline}
 
 /* header */
-header.site{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.94);backdrop-filter:blur(12px) saturate(1.6);
-  -webkit-backdrop-filter:blur(12px) saturate(1.6);border-bottom:1px solid var(--line)}
-.bar{display:flex;align-items:center;gap:18px;min-height:70px}
-.brand{display:flex;align-items:center;gap:11px;text-decoration:none;flex:none}
-.brand .logo{position:relative;width:38px;height:38px;border-radius:10px;background:var(--indigo);color:#fff;display:grid;place-items:center;
-  font-family:var(--jp);font-size:21px;font-weight:700;line-height:1;flex:none}
-.brand .logo::after{content:"";position:absolute;right:-4px;top:-4px;width:12px;height:12px;border-radius:50%;background:var(--yellow);border:2px solid #fff}
-.brand .wm{display:flex;flex-direction:column;line-height:1.1}
-.brand .mk{font-weight:900;font-size:19px;letter-spacing:.07em;color:var(--ink)}
-.brand .kj{font-family:var(--jp);font-size:11px;color:var(--muted);letter-spacing:.08em;margin-top:3px}
-form.search{flex:1;max-width:500px;display:flex}
-form.search input{flex:1;background:var(--card2);border:1px solid var(--card2);border-right:none;color:var(--ink);
-  border-radius:10px 0 0 10px;padding:10px 15px;font-size:14px;min-width:0}
-form.search input:focus{background:#fff;border-color:var(--indigo);outline:none}
+header.site{position:sticky;top:0;z-index:60;background:rgba(255,253,248,.94);backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:22px;min-height:72px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;flex:none}
+.brand .mk{font-family:var(--serif);font-weight:700;font-size:22px;letter-spacing:.28em;color:var(--ink)}
+.brand .kj{font-family:var(--serif);font-size:13px;line-height:1.3;color:#fff;background:var(--seal);border-radius:3px;padding:3px 6px;
+  letter-spacing:.08em;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.35)}
+form.search{flex:1;max-width:460px;display:flex;border:1px solid var(--line);background:var(--paper);border-radius:var(--r)}
+form.search:focus-within{border-color:var(--ink)}
+form.search input{flex:1;background:transparent;border:0;color:var(--ink);padding:10px 14px;font-size:14px;min-width:0;outline:none}
 form.search input::placeholder{color:var(--muted)}
-form.search button{background:var(--indigo);color:#fff;border:1px solid var(--indigo);
-  border-radius:0 10px 10px 0;padding:0 18px;font-weight:700;cursor:pointer;font-size:14px}
-form.search button:hover{background:var(--indigo2)}
+form.search button{background:transparent;color:var(--ink);border:0;border-left:1px solid var(--line);padding:0 16px;font-weight:700;cursor:pointer;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+form.search button:hover{color:var(--red)}
 .tools{display:flex;align-items:center;gap:10px;margin-left:auto;flex:none}
-select.pick{appearance:none;background-color:#fff;border:1px solid var(--line);border-radius:10px;color:var(--ink);
-  padding:8px 28px 8px 12px;font-size:13px;font-weight:600;cursor:pointer;
+select.pick{appearance:none;background-color:var(--paper);border:1px solid var(--line);border-radius:var(--r);color:var(--ink);
+  padding:8px 28px 8px 12px;font-size:13px;cursor:pointer;
   background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
   background-position:calc(100% - 15px) 53%,calc(100% - 11px) 53%;background-size:4px 4px;background-repeat:no-repeat}
-select.pick:hover{border-color:var(--indigo)}
-.cartbtn{display:flex;align-items:center;gap:8px;background:var(--ink);color:#fff;text-decoration:none;border-radius:10px;
-  padding:9px 14px 9px 16px;font-size:13.5px;font-weight:700}
-.cartbtn:hover{background:var(--indigo)}
-.cartbtn b{background:var(--yellow);color:var(--ink);border-radius:999px;padding:0 7px;min-width:22px;text-align:center;font-size:12.5px;line-height:20px}
+.cartbtn{display:flex;align-items:center;gap:9px;background:var(--ink);color:var(--paper);text-decoration:none;border-radius:var(--r);
+  padding:10px 16px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.cartbtn:hover{background:var(--red)}
+.cartbtn b{background:var(--paper);color:var(--ink);border-radius:2px;padding:0 6px;min-width:22px;text-align:center;letter-spacing:0}
 
 /* category bar */
 .catbar{border-top:1px solid var(--hair)}
-.catbar .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.catbar .wrap{display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
 .catbar .wrap::-webkit-scrollbar{display:none}
-.catbar a{padding:12px 7px;text-decoration:none;font-size:14px;font-weight:500;color:var(--ink2);white-space:nowrap;position:relative}
-.catbar a::after{content:"";position:absolute;left:7px;right:7px;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:var(--indigo);opacity:0;transition:opacity .15s}
-.catbar a:hover{color:var(--indigo)}
-.catbar a.on{color:var(--indigo);font-weight:700}.catbar a.on::after{opacity:1}
-@media(max-width:820px){form.search{order:3;max-width:none;flex-basis:100%;margin-bottom:12px}.bar{flex-wrap:wrap;padding-top:10px}}
+.catbar a{padding:13px 8px;text-decoration:none;font-size:13.5px;font-weight:500;color:var(--ink2);white-space:nowrap;position:relative}
+.catbar a::after{content:"";position:absolute;left:8px;right:8px;bottom:-1px;height:2px;background:var(--red);transform:scaleX(0);transition:transform .15s}
+.catbar a:hover{color:var(--ink)}.catbar a:hover::after{transform:scaleX(.5)}
+.catbar a.on{color:var(--ink);font-weight:700}.catbar a.on::after{transform:scaleX(1)}
+@media(max-width:820px){form.search{order:3;max-width:none;flex-basis:100%;margin-bottom:12px}.bar{flex-wrap:wrap;padding-top:12px;gap:14px}}
 @media(max-width:520px){
-  .bar{gap:10px;min-height:60px}.brand{gap:8px}.brand .logo{width:32px;height:32px;font-size:18px;border-radius:9px}
-  .brand .mk{font-size:16px;letter-spacing:.05em}.brand .kj .x{display:none}
+  .bar{gap:10px}.brand{gap:8px}.brand .mk{font-size:17px;letter-spacing:.16em}.brand .kj{font-size:11px;padding:2px 5px}
   select.pick{padding:7px 22px 7px 10px;font-size:12.5px;background-position:calc(100% - 12px) 53%,calc(100% - 8px) 53%}
-  .cartbtn{padding:8px 10px 8px 12px;font-size:13px}.tools{gap:6px}
+  .cartbtn{padding:9px 12px;font-size:12px}.tools{gap:6px}
   .strip .st{display:none}.strip .fship~.sl{display:none}.strip .wrap{justify-content:center;min-height:32px}
-  .catbar a{padding:11px 11px;font-size:13.5px}
+  .catbar a{padding:12px 10px;font-size:13.5px}
 }
 
 /* crumbs */
-.crumbs{font-size:13px;color:var(--muted);padding:18px 0 0}
-.crumbs a{text-decoration:none;color:var(--ink2)}.crumbs a:hover{color:var(--indigo);text-decoration:underline}
+.crumbs{font-size:12.5px;color:var(--muted);padding:20px 0 0;letter-spacing:.02em}
+.crumbs a{text-decoration:none;color:var(--ink2)}.crumbs a:hover{color:var(--red)}
 
 /* buttons */
-.btn{display:inline-block;text-align:center;text-decoration:none;border:0;background:var(--indigo);color:#fff;border-radius:10px;
-  padding:12px 22px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 18px -10px rgba(42,68,212,.75);transition:transform .12s,background .12s,box-shadow .12s}
-.btn:hover{background:var(--indigo2);transform:translateY(-1px);box-shadow:0 12px 22px -10px rgba(42,68,212,.8)}
-.btn.g{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
-.btn.g:hover{box-shadow:inset 0 0 0 1px var(--indigo);color:var(--indigo)}
-.btn.gold{background:var(--yellow);color:var(--ink);box-shadow:0 8px 18px -10px rgba(168,106,0,.6)}
-.btn.gold:hover{background:#FFD83D}
+.btn{display:inline-block;text-align:center;text-decoration:none;border:1px solid var(--red);background:var(--red);color:#fff;border-radius:var(--r);
+  padding:12px 24px;font-size:14px;font-weight:700;letter-spacing:.05em;cursor:pointer;transition:background .12s,color .12s,border-color .12s}
+.btn:hover{background:var(--red2);border-color:var(--red2)}
+.btn.g{background:transparent;color:var(--ink);border-color:var(--ink)}
+.btn.g:hover{background:var(--ink);color:var(--paper)}
+.btn.gold{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.btn.gold:hover{background:var(--red);border-color:var(--red)}
 .btn.wide{width:100%;padding:15px}
-.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn:disabled{opacity:.45;cursor:not-allowed}
 
-section{padding:60px 0}
-.sechead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:26px;flex-wrap:wrap}
-.sechead h2{font-size:clamp(24px,2.8vw,34px)}
+section{padding:64px 0}
+.sechead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:26px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--ink)}
+.sechead h2{font-size:clamp(24px,3vw,34px)}
 .sechead h1{font-size:clamp(28px,3.6vw,42px);margin:0}
-.sechead p{color:var(--muted);font-size:15px;margin-top:8px;max-width:64ch}
-.sechead>a{font-size:14px;font-weight:700;color:var(--indigo);text-decoration:none;white-space:nowrap}
+.sechead p{color:var(--muted);font-size:14.5px;margin-top:8px;max-width:64ch}
+.sechead>a{font-size:13px;font-weight:700;color:var(--red);text-decoration:none;white-space:nowrap;letter-spacing:.06em;text-transform:uppercase}
 .sechead>a:hover{text-decoration:underline}
 .sechead .count{color:var(--muted);font-size:14px}
-section.top{padding-top:24px}
-.sub2{font-size:clamp(20px,2.4vw,27px);margin:40px 0 16px}
+section.top{padding-top:28px}
+.sub2{font-size:clamp(20px,2.4vw,27px);margin:44px 0 16px}
 
 /* hero */
-.hero{padding:60px 0 58px;position:relative;overflow:hidden;background:linear-gradient(180deg,#F2F5FF 0%,#FFFFFF 100%);border-bottom:1px solid var(--hair)}
-.hero::before{content:"";position:absolute;inset:0 0 0 45%;pointer-events:none;
-  background-image:radial-gradient(circle at 1px 1px,rgba(42,68,212,.16) 1.2px,transparent 0);background-size:22px 22px;
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 35%,#000 70%,transparent);mask-image:linear-gradient(90deg,transparent,#000 35%,#000 70%,transparent)}
-.hgrid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;position:relative}
+.hero{padding:64px 0 56px;position:relative;border-bottom:1px solid var(--line);
+  background:radial-gradient(circle at 100% 0,rgba(194,58,34,.07),transparent 38%)}
+.hgrid{display:grid;grid-template-columns:1.08fr .92fr;gap:64px;align-items:center}
 @media(max-width:960px){.hgrid{grid-template-columns:1fr;gap:36px}}
-.eyebrow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
-.eyebrow span{font-size:12px;font-weight:700;letter-spacing:.02em;padding:5px 11px;border-radius:999px;border:1px solid var(--line);color:var(--ink2);background:#fff}
-.eyebrow span:first-child{color:#fff;border-color:transparent;background:var(--indigo)}
-h1{font-size:clamp(32px,4.4vw,52px);margin-bottom:18px}
-.hero h1{letter-spacing:-.03em}
-@media(max-width:520px){.hero{padding:40px 0 44px}.lede{font-size:16.5px}}
-.lede{font-size:17.5px;color:var(--ink2);max-width:56ch;margin-bottom:28px}
-.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:36px}
-.stats{display:grid;grid-template-columns:repeat(4,auto);justify-content:start;gap:12px 0;font-size:13px;color:var(--muted)}
-.stats>div{padding:0 26px;border-left:1px solid var(--line)}.stats>div:first-child{padding-left:0;border-left:0}
-@media(max-width:560px){.stats{grid-template-columns:1fr 1fr;gap:16px 0}.stats>div:nth-child(3){padding-left:0;border-left:0}}
-.stats strong{display:block;font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
-.heroart{position:relative;border-radius:20px;aspect-ratio:4/3;background:#fff;border:1px solid var(--line);
-  box-shadow:16px 16px 0 0 var(--yellow),0 30px 60px -34px rgba(12,22,51,.35);margin:0 16px 16px 0}
-.heroart img,.heroart .ph{width:100%;height:100%;object-fit:cover;border-radius:19px}
+.eyebrow{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:22px}
+.eyebrow span{font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+.eyebrow span::before{content:"";width:6px;height:6px;background:var(--line);transform:rotate(45deg)}
+.eyebrow span:first-child{color:var(--red)}.eyebrow span:first-child::before{background:var(--red)}
+h1{font-size:clamp(34px,5vw,60px);margin-bottom:20px}
+.hero h1{font-weight:700;letter-spacing:-.005em}
+.lede{font-size:17.5px;color:var(--ink2);max-width:56ch;margin-bottom:30px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px}
+.stats{display:grid;grid-template-columns:repeat(4,auto);justify-content:start;gap:12px 0;font-size:12px;color:var(--muted);letter-spacing:.04em;border-top:1px solid var(--line);padding-top:18px}
+.stats>div{padding:0 28px 0 0;margin-right:28px;border-right:1px solid var(--line)}.stats>div:last-child{border-right:0}
+@media(max-width:560px){.stats{grid-template-columns:1fr 1fr;gap:16px 0}.stats>div:nth-child(2n){border-right:0}}
+.stats strong{display:block;font-family:var(--serif);font-size:24px;color:var(--ink);letter-spacing:0}
+.heroart{position:relative;aspect-ratio:4/3;background:var(--paper);border:1px solid var(--ink);box-shadow:14px 14px 0 var(--card2)}
+.heroart img,.heroart .ph{width:100%;height:100%;object-fit:cover}
+.heroart.light{background:#fff}
 .heroart.light img{object-fit:contain;padding:22px;background:#fff}
 .heroimg{display:block;width:100%;height:100%}
 
 /* featured release */
-.feature{position:relative;overflow:hidden;border-block:1px solid #F3E6B0;background:linear-gradient(120deg,#FFF6CF 0%,#FFFBEA 50%,#FFFFFF 100%)}
-.fgrid{display:grid;grid-template-columns:230px 1fr 400px;gap:40px;align-items:center}
+.feature{position:relative;background:var(--card2);border-block:1px solid var(--line)}
+.fgrid{display:grid;grid-template-columns:230px 1fr 400px;gap:44px;align-items:center}
 @media(max-width:1060px){.fgrid{grid-template-columns:200px 1fr}.fbox{grid-column:1 / -1}}
 @media(max-width:640px){.fgrid{grid-template-columns:1fr;gap:24px}.fpack{max-width:200px;margin:0 auto}}
-.fpack{display:block;border-radius:14px;overflow:hidden;transform:rotate(-4deg);box-shadow:0 28px 50px -24px rgba(120,80,0,.5),0 0 0 1px rgba(12,22,51,.06);transition:transform .2s}
-.fpack:hover{transform:rotate(-2deg) translateY(-4px)}
-.kicker{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--ink);padding:5px 12px;border-radius:999px;margin-bottom:14px}
+.fpack{display:block;overflow:hidden;border:1px solid var(--ink);box-shadow:10px 10px 0 var(--red);transition:transform .2s}
+.fpack:hover{transform:translate(-2px,-2px)}
+.kicker{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--red);border:1px solid var(--red);padding:5px 10px;margin-bottom:16px}
 .ftext h2{font-size:clamp(28px,3.6vw,44px);margin-bottom:14px}
 .ftext p{color:var(--ink2);font-size:16.5px;max-width:52ch}
-.fbox{margin:0;background:#fff;border-radius:14px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--lift)}
-.fbox figcaption{background:var(--paper);color:var(--ink2);font-size:13px;padding:10px 14px;border-top:1px solid var(--hair)}
+.fbox{margin:0;background:#fff;border:1px solid var(--line)}
+.fbox figcaption{background:var(--paper);color:var(--muted);font-size:13px;padding:10px 14px;border-top:1px solid var(--line)}
 
-/* placeholder art (until photos are uploaded) */
-.ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;text-align:center;padding:14px;
-  color:var(--muted);font-size:12px;
-  background:repeating-linear-gradient(135deg,rgba(12,22,51,.028) 0 2px,transparent 2px 11px),linear-gradient(160deg,#F4F6FC,#EDF1FB)}
-.ph span:first-child{font-family:var(--jp);font-size:28px;font-weight:700;color:var(--indigo);letter-spacing:.04em}
+/* placeholder art (until photos are uploaded): seigaiha waves and a red seal */
+.ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;text-align:center;padding:14px;
+  color:var(--muted);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;
+  background:radial-gradient(circle at 50% 100%,transparent 44%,rgba(36,71,110,.07) 45% 49%,transparent 50% 58%,rgba(36,71,110,.07) 59% 63%,transparent 64%) 0 0/36px 18px,
+             radial-gradient(circle at 50% 100%,transparent 44%,rgba(36,71,110,.07) 45% 49%,transparent 50% 58%,rgba(36,71,110,.07) 59% 63%,transparent 64%) 18px 9px/36px 18px,
+             var(--card2)}
+.ph span:first-child{font-family:var(--serif);font-size:24px;line-height:1.2;color:#fff;background:var(--seal);padding:8px 12px;letter-spacing:.12em;border-radius:3px;text-transform:none;box-shadow:inset 0 0 0 2px rgba(255,255,255,.3)}
 
 /* category tiles */
-.cats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.cats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:1px solid var(--line);border-left:1px solid var(--line)}
 @media(max-width:1000px){.cats{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){.cats{grid-template-columns:1fr}}
-.cats a{--c:var(--indigo);background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:20px 18px 18px;text-decoration:none;display:block;position:relative;
-  transition:transform .15s,border-color .15s,box-shadow .15s}
-.cats a::before{content:"";position:absolute;left:18px;top:0;width:34px;height:4px;border-radius:0 0 4px 4px;background:var(--c)}
-.cats a:nth-child(2){--c:var(--amber)}.cats a:nth-child(3){--c:var(--red)}.cats a:nth-child(4){--c:var(--teal)}.cats a:nth-child(5){--c:var(--violet)}
-.cats a:hover{transform:translateY(-2px);border-color:var(--c);box-shadow:var(--lift)}
-.cats .n{display:inline-block;font-size:11.5px;color:var(--c);font-weight:800;background:color-mix(in srgb,var(--c) 10%,#fff);padding:2px 8px;border-radius:999px}
-.cats h3{font-size:17px;margin:10px 0 6px}
-.cats p{font-size:13px;color:var(--ink2)}
+.cats.three{grid-template-columns:repeat(3,1fr)}
+@media(max-width:700px){.cats.three{grid-template-columns:1fr}}
+.cats a{background:var(--paper);border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px 20px 24px;text-decoration:none;display:block;transition:background .15s}
+.cats a:hover{background:#fff}
+.cats a:hover h3{color:var(--red)}
+.cats .n{font-size:11.5px;color:var(--red);font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.cats h3{font-size:19px;margin:10px 0 8px}
+.cats p{font-size:13.5px;color:var(--ink2)}
 
 /* chips (collections) */
-.chips{display:flex;flex-wrap:wrap;gap:10px}
-.chips a{padding:9px 16px;border-radius:999px;border:1px solid var(--line);text-decoration:none;font-size:14px;font-weight:600;color:var(--ink);background:#fff;transition:border-color .15s,color .15s}
-.chips a:hover{border-color:var(--indigo);color:var(--indigo)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips a{padding:8px 14px;border:1px solid var(--line);border-radius:var(--r);text-decoration:none;font-size:13.5px;font-weight:600;color:var(--ink);background:var(--paper);transition:border-color .15s,color .15s}
+.chips a:hover{border-color:var(--ink);color:var(--red)}
 
 /* product grid */
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
 @media(max-width:1040px){.grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){.grid{grid-template-columns:1fr}}
-.card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;
-  transition:transform .15s,box-shadow .15s,border-color .15s}
-.card:hover{transform:translateY(-3px);border-color:var(--tint2);box-shadow:var(--lift)}
-.card .art{aspect-ratio:1/1;position:relative;border-bottom:1px solid var(--hair);overflow:hidden;text-decoration:none;display:block;background:var(--paper)}
-.card .art img{width:100%;height:100%;object-fit:contain;padding:14px;mix-blend-mode:multiply}
-.flag{position:absolute;top:10px;left:10px;font-size:10.5px;font-weight:800;letter-spacing:.06em;padding:4px 9px;border-radius:999px;
-  background:#E6F6EE;color:var(--green);z-index:2}
-.flag.new{background:var(--tint);color:var(--indigo)}
-.flag.pre{background:#FFF1B8;color:#7A5300}
-.flag.low{background:#FDE8E7;color:var(--red)}
-.flag.out{background:var(--card2);color:var(--muted)}
-.card .in{padding:15px;display:flex;flex-direction:column;gap:7px;flex:1}
-.card h3{font-size:15px;font-weight:700;line-height:1.35;letter-spacing:-.005em}
-.card h3 a{text-decoration:none}.card h3 a:hover{color:var(--indigo)}
-.card .meta{font-size:12px;color:var(--muted)}
-.card .px{display:flex;align-items:baseline;gap:8px;margin-top:auto;flex-wrap:wrap}
-.card .px .u{font-size:22px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+.card{background:var(--paper);border:1px solid var(--line);display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s}
+.card:hover{border-color:var(--ink);box-shadow:6px 6px 0 var(--card2)}
+.card .art{aspect-ratio:1/1;position:relative;border-bottom:1px solid var(--line);overflow:hidden;text-decoration:none;display:block;background:var(--card2)}
+.card .art img{width:100%;height:100%;object-fit:cover}
+.flag{position:absolute;top:10px;left:10px;font-size:10.5px;font-weight:800;letter-spacing:.12em;padding:4px 8px;
+  background:var(--paper);color:var(--green);border:1px solid currentColor;z-index:2}
+.flag.new{color:var(--blue)}
+.flag.pre{color:var(--gold)}
+.flag.low{color:var(--red)}
+.flag.out{color:var(--muted)}
+.card .in{padding:16px;display:flex;flex-direction:column;gap:7px;flex:1}
+.card h3{font-family:var(--serif);font-size:16px;font-weight:700;line-height:1.35}
+.card h3 a{text-decoration:none}.card h3 a:hover{color:var(--red)}
+.card .meta{font-size:11.5px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.card .px{display:flex;align-items:baseline;gap:8px;margin-top:auto;flex-wrap:wrap;padding-top:8px;border-top:1px dashed var(--line)}
+.card .px .u{font-size:21px;font-weight:800;color:var(--ink)}
 .card .px .w{font-size:12.5px;color:var(--muted);text-decoration:line-through}
 .card .px .per{font-size:12px;color:var(--muted);margin-left:-4px}
 .card .drop{font-size:12.5px;color:var(--ink2)}
-.card .drop b{color:var(--green)}
-.card form{padding:0 15px 15px;display:flex;gap:8px}
-.card form .btn{flex:1;padding:10px;font-size:13.5px}
+.card .drop b{color:var(--red)}
+.card form{padding:0 16px 16px;display:flex;gap:8px}
+.card form .btn{flex:1;padding:10px;font-size:13px}
 
 /* catalogue filters */
-.filters{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:22px}
-.filters label{display:flex;flex-direction:column;gap:5px;font-size:11.5px;font-weight:700;letter-spacing:.03em;color:var(--muted);flex:1 1 150px;min-width:0;text-transform:uppercase}
-.filters select,.filters input{background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-size:14px;font-weight:400;color:var(--ink);width:100%;text-transform:none;letter-spacing:0}
-.filters select:focus,.filters input:focus{border-color:var(--indigo);outline:none}
+.filters{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end;background:var(--paper);border:1px solid var(--line);padding:16px;margin-bottom:24px}
+.filters label{display:flex;flex-direction:column;gap:6px;font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--muted);flex:1 1 150px;min-width:0;text-transform:uppercase}
+.filters select,.filters input{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:9px 10px;font-size:14px;font-weight:400;color:var(--ink);width:100%;text-transform:none;letter-spacing:0}
 .filters .price span{display:flex;gap:6px}
 .filters .fbtns{display:flex;gap:8px}
-.filters .fbtns .btn{padding:10px 16px;font-size:14px}
-@media(max-width:560px){.filters label{flex-basis:calc(50% - 6px)}.filters label.price{flex-basis:100%}}
+.filters .fbtns .btn{padding:10px 16px;font-size:13px}
+@media(max-width:560px){.filters label{flex-basis:calc(50% - 7px)}.filters label.price{flex-basis:100%}}
 
 /* qty stepper */
-.step{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
-.step button{background:transparent;border:none;padding:6px 12px;cursor:pointer;font-weight:700;color:var(--ink2)}
-.step button:hover{background:var(--tint);color:var(--indigo)}
-.step input{width:52px;border:none;border-inline:1px solid var(--line);background:transparent;text-align:center;padding:6px 0;font-size:14px;color:var(--ink);font-weight:600}
+.step{display:flex;border:1px solid var(--ink);border-radius:var(--r);overflow:hidden;background:#fff}
+.step button{background:transparent;border:none;padding:6px 12px;cursor:pointer;font-weight:700;color:var(--ink)}
+.step button:hover{background:var(--ink);color:var(--paper)}
+.step input{width:52px;border:none;border-inline:1px solid var(--line);background:transparent;text-align:center;padding:6px 0;font-size:14px;color:var(--ink)}
 
 /* product page */
-.pdp{display:grid;grid-template-columns:1.02fr .98fr;gap:46px;padding:24px 0 10px}
-@media(max-width:900px){.pdp{grid-template-columns:1fr;gap:28px}}
-.gal-main{aspect-ratio:1/1;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff}
-.gal-main img{width:100%;height:100%;object-fit:contain;padding:18px}
-.gal-main .ph{border-radius:0}
+.pdp{display:grid;grid-template-columns:1.02fr .98fr;gap:56px;padding:28px 0 10px}
+@media(max-width:900px){.pdp{grid-template-columns:1fr;gap:30px}}
+.gal-main{aspect-ratio:1/1;border:1px solid var(--line);overflow:hidden;background:var(--card2)}
+.gal-main img{width:100%;height:100%;object-fit:cover}
 .gal-thumbs{display:flex;gap:9px;margin-top:10px}
-.gal-thumbs button{width:72px;height:72px;border:1px solid var(--line);border-radius:10px;overflow:hidden;padding:0;cursor:pointer;background:#fff}
-.gal-thumbs button[aria-current="true"]{border:2px solid var(--indigo)}
-.gal-thumbs img{width:100%;height:100%;object-fit:contain;padding:4px}
-.pdp h1{font-size:clamp(26px,3.4vw,38px);margin-bottom:10px}
-.pdp .sub{font-size:13.5px;color:var(--muted);margin-bottom:16px}
-.pdp .summary-line{color:var(--ink2);font-size:16px;margin-bottom:20px;max-width:60ch}
-.ladder{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:18px;background:#fff}
-.ladder .lh{padding:11px 16px;background:var(--paper);font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.gal-thumbs button{width:72px;height:72px;border:1px solid var(--line);overflow:hidden;padding:0;cursor:pointer;background:var(--paper)}
+.gal-thumbs button[aria-current="true"]{border:2px solid var(--ink)}
+.gal-thumbs img{width:100%;height:100%;object-fit:cover}
+.pdp h1{font-size:clamp(28px,3.4vw,40px);margin-bottom:10px}
+.pdp .sub{font-size:12px;color:var(--muted);margin-bottom:18px;letter-spacing:.08em;text-transform:uppercase}
+.pdp .summary-line{color:var(--ink2);font-size:16px;margin-bottom:22px;max-width:60ch}
+.ladder{border:1px solid var(--line);margin-bottom:18px;background:var(--paper)}
+.ladder .lh{padding:11px 16px;background:var(--card2);font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);border-bottom:1px solid var(--line)}
 .ladder .row{display:flex;justify-content:space-between;padding:11px 16px;font-size:14.5px;border-top:1px solid var(--hair);color:var(--ink2)}
-.ladder .row.on{color:var(--ink);font-weight:800;background:var(--tint);box-shadow:inset 3px 0 0 var(--indigo)}
-.ladder .row:last-child span:last-child{color:var(--green);font-weight:800}
-.buybox{border:1px solid var(--tint2);border-radius:var(--r);padding:20px;background:linear-gradient(180deg,#F7F9FF,#fff);position:relative;overflow:hidden}
-.buybox .big{font-size:40px;font-weight:800;line-height:1.1;color:var(--ink);letter-spacing:-.03em}
+.ladder .lh+.row{border-top:0}
+.ladder .row.on{color:var(--ink);font-weight:700;background:#FBEDE7;box-shadow:inset 3px 0 0 var(--red)}
+.ladder .row:last-child span:last-child{color:var(--red);font-weight:700}
+.buybox{border:1px solid var(--ink);padding:22px;background:#fff;position:relative}
+.buybox .big{font-family:var(--serif);font-size:42px;font-weight:700;line-height:1.1;color:var(--ink)}
 .buybox .sm{font-size:13.5px;color:var(--muted);margin-bottom:14px}
 .buybox form{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
 .buybox form .btn{flex:1;min-width:150px}
-.trustline{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;margin-top:16px}
-.trustline span{padding:5px 10px;border-radius:999px;background:#E9F7F0;color:var(--green);font-weight:600}
-.pinfo{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;margin-top:10px}
+.trustline{display:flex;gap:6px 16px;flex-wrap:wrap;font-size:12px;margin-top:16px;letter-spacing:.04em}
+.trustline span{color:var(--teal);display:flex;align-items:center;gap:6px}
+.trustline span::before{content:"✓";font-weight:800}
+.pinfo{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;margin-top:14px}
 @media(max-width:900px){.pinfo{grid-template-columns:1fr}}
-.panel{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:22px}
-.panel h2{font-size:21px;margin-bottom:14px}
+.panel{background:var(--paper);border:1px solid var(--line);padding:24px}
+.panel h2{font-size:22px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--hair)}
 .specs{display:grid;grid-template-columns:auto 1fr;gap:0;margin:0;font-size:14.5px}
 .specs dt,.specs dd{padding:10px 0;border-bottom:1px solid var(--hair);margin:0}
 .specs dt{color:var(--muted);padding-right:18px}
 .specs dd{color:var(--ink);font-weight:600}
-.specs dd a{color:var(--link);text-decoration:none}.specs dd a:hover{text-decoration:underline}
+.specs dd a{color:var(--link);text-decoration:none}
 .specs dt:last-of-type,.specs dd:last-of-type{border-bottom:none}
 .plinks{display:grid;gap:8px;margin-top:4px}
 .plinks a{color:var(--link);text-decoration:none;font-weight:600;font-size:14.5px}
 .plinks a:hover{text-decoration:underline}
 
 /* tables / cart */
-.tbl{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-.tbl th{text-align:left;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--paper)}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;background:var(--paper);border:1px solid var(--line)}
+.tbl th{text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:12px 14px;border-bottom:1px solid var(--ink);background:var(--paper)}
 .tbl td{padding:14px;border-bottom:1px solid var(--hair);font-size:14.5px;vertical-align:top;color:var(--ink2)}
 .tbl tr:last-child td{border-bottom:none}
 .tbl .r{text-align:right;white-space:nowrap}
@@ -1187,177 +1161,177 @@ h1{font-size:clamp(32px,4.4vw,52px);margin-bottom:18px}
   .tbl tr{display:block;border-bottom:1px solid var(--line);padding:10px 0}.tbl .r{text-align:left}}
 
 /* checkout */
-.cogrid{display:grid;grid-template-columns:1.25fr .75fr;gap:38px;align-items:start}
+.cogrid{display:grid;grid-template-columns:1.25fr .75fr;gap:40px;align-items:start}
 @media(max-width:900px){.cogrid{grid-template-columns:1fr}}
-fieldset{border:1px solid var(--line);border-radius:var(--r);padding:20px;margin:0 0 18px;background:#fff}
-legend{font-weight:800;font-size:18px;padding:0 8px;color:var(--ink);letter-spacing:-.01em}
+fieldset{border:1px solid var(--line);padding:22px;margin:0 0 20px;background:var(--paper)}
+legend{font-family:var(--serif);font-weight:700;font-size:19px;padding:0 10px;color:var(--ink)}
 .fld{margin-bottom:14px}
-.fld label{display:block;font-size:13px;font-weight:700;color:var(--ink2);margin-bottom:5px}
-.fld input,.fld select,.fld textarea{width:100%;background:#fff;border:1px solid #D5DBE7;border-radius:8px;padding:11px 12px;font-size:15px;color:var(--ink)}
-.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--indigo);outline:none;box-shadow:0 0 0 3px rgba(42,68,212,.14)}
+.fld label{display:block;font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:6px;letter-spacing:.06em;text-transform:uppercase}
+.fld input,.fld select,.fld textarea{width:100%;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:11px 12px;font-size:15px;color:var(--ink)}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--ink);outline:none;box-shadow:0 0 0 3px rgba(28,26,23,.06)}
 .fld textarea{min-height:82px;resize:vertical}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:560px){.two{grid-template-columns:1fr}}
 .pay{display:grid;gap:9px}
-.pay label{display:flex;gap:11px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:13px 14px;cursor:pointer;background:#fff}
-.pay label:hover{border-color:var(--tint2)}
-.pay label:has(input:checked){border-color:var(--indigo);background:var(--tint)}
+.pay label{display:flex;gap:11px;align-items:flex-start;border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;cursor:pointer;background:#fff}
+.pay label:has(input:checked){border-color:var(--red);background:#FBEDE7;box-shadow:inset 3px 0 0 var(--red)}
 .pay label[hidden]{display:none}
-.pay input{margin-top:4px;accent-color:var(--indigo)}
+.pay input{margin-top:4px;accent-color:var(--red)}
 .pay .t{font-weight:700;font-size:14.5px;color:var(--ink)}
 .pay .n{font-size:12.5px;color:var(--muted)}
-.notice{border-left:3px solid var(--indigo);background:var(--tint);padding:13px 15px;font-size:13.5px;color:var(--ink2);border-radius:0 8px 8px 0;margin:14px 0}
+.notice{border-left:3px solid var(--blue);background:#EDF1F5;padding:13px 15px;font-size:13.5px;color:var(--ink2);margin:14px 0}
 .notice a{color:var(--link)}
 .agree{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--ink2);margin:14px 0 4px}
-.agree input{margin-top:4px;accent-color:var(--indigo)}
-.summary{border:1px solid var(--line);border-radius:var(--r);background:#fff;padding:18px;position:sticky;top:130px;box-shadow:var(--lift)}
-.summary h3{font-size:19px;margin-bottom:12px}
+.agree input{margin-top:4px;accent-color:var(--red)}
+.summary{border:1px solid var(--ink);background:#fff;padding:20px;position:sticky;top:130px}
+.summary h3{font-size:20px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--hair)}
 .sl{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;padding:8px 0;border-bottom:1px solid var(--hair)}
 .sl:last-of-type{border-bottom:none}
 .sl .q{color:var(--muted);font-size:12px}
-.tot{display:flex;justify-content:space-between;font-size:20px;font-weight:800;padding-top:12px;margin-top:8px;border-top:1px solid var(--line);color:var(--ink)}
-.errs{border:1px solid #F3B8B5;border-radius:var(--r);padding:14px 16px;margin-bottom:20px;background:#FEF1F0;font-size:14px;color:#8E1F19}
+.tot{display:flex;justify-content:space-between;font-family:var(--serif);font-size:22px;font-weight:700;padding-top:12px;margin-top:8px;border-top:2px solid var(--ink);color:var(--ink)}
+.errs{border:1px solid var(--red);padding:14px 16px;margin-bottom:20px;background:#FBEDE7;font-size:14px;color:var(--ink)}
 .errs ul{margin:6px 0 0;padding-left:18px}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
-.minwarn{border-left:3px solid var(--red);background:#FEF1F0;color:#8E1F19;padding:11px 14px;font-size:13.5px;border-radius:0 8px 8px 0;margin-top:12px}
+.minwarn{border-left:3px solid var(--red);background:#FBEDE7;padding:11px 14px;font-size:13.5px;margin-top:12px}
 .minwarn[hidden]{display:none}
 
 /* confirmation */
-.done{max-width:720px;margin:0 auto;text-align:center;padding:20px 0}
-.done .ref{font-size:36px;font-weight:800;letter-spacing:.05em;margin:14px 0 6px;color:var(--indigo)}
-.done .card2{border:1px solid var(--line);border-radius:var(--r);background:#fff;padding:26px;text-align:left;margin-top:26px}
+.done{max-width:720px;margin:0 auto;text-align:center;padding:24px 0}
+.done .ref{font-family:var(--serif);font-size:36px;letter-spacing:.1em;margin:14px 0 6px;color:var(--red)}
+.done .card2{border:1px solid var(--line);background:var(--paper);padding:26px;text-align:left;margin-top:26px}
 .done ol{padding-left:20px;margin:12px 0 0}
 .done li{margin-bottom:10px;font-size:14.5px;color:var(--ink2)}
 
 /* feature band */
-.deep{position:relative;background:#F1F4FF;border-block:1px solid var(--tint2);overflow:hidden}
+.deep{position:relative;background:var(--indigo);color:#E9E3D6}
 .deep .wrap{position:relative}
-.deep p{color:var(--ink2);margin-top:14px;font-size:15.5px}
-.deep .two2{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center}
+.deep h2{color:#FFFDF8}.deep p{color:#CFC8BA;margin-top:14px;font-size:15.5px}
+.deep .btn.g{color:#FFFDF8;border-color:#FFFDF8}.deep .btn.g:hover{background:#FFFDF8;color:var(--indigo)}
+.deep .two2{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
 @media(max-width:860px){.deep .two2{grid-template-columns:1fr;gap:26px}}
-.spec{border:1px solid var(--tint2);border-radius:var(--r);background:#fff;box-shadow:var(--lift)}
-.spec div{display:flex;justify-content:space-between;gap:12px;padding:12px 17px;font-size:14px;border-bottom:1px solid var(--hair)}
+.spec{border:1px solid rgba(255,253,248,.22)}
+.spec div{display:flex;justify-content:space-between;gap:12px;padding:12px 17px;font-size:14px;border-bottom:1px solid rgba(255,253,248,.14)}
 .spec div:last-child{border-bottom:none}
-.spec span:first-child{color:var(--muted)}.spec span:last-child{font-weight:700;color:var(--ink);text-align:right}
+.spec span:first-child{color:#A9B3C2}.spec span:last-child{font-weight:700;color:#FFFDF8;text-align:right}
 
 /* steps */
-.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--ink)}
 @media(max-width:900px){.steps{grid-template-columns:1fr 1fr}}
 @media(max-width:540px){.steps{grid-template-columns:1fr}}
-.steps>div{padding:20px 18px 22px;border:1px solid var(--line);border-radius:var(--r);background:#fff}
-.steps .n{width:36px;height:36px;border-radius:10px;background:var(--indigo);color:#fff;font-size:16px;font-weight:800;display:grid;place-items:center;margin-bottom:12px}
-.steps>div:nth-child(2) .n{background:var(--ink)}.steps>div:nth-child(3) .n{background:var(--yellow);color:var(--ink)}.steps>div:nth-child(4) .n{background:var(--green)}
-.steps h3{font-size:17px;margin-bottom:7px}
+.steps>div{padding:22px 22px 24px 0;margin-right:22px;border-right:1px solid var(--line)}
+.steps>div:last-child{border-right:0}
+@media(max-width:900px){.steps>div{border-right:0;border-bottom:1px solid var(--line)}}
+.steps .n{font-family:var(--serif);font-size:32px;font-weight:700;margin-bottom:6px;color:var(--red);display:inline-block}
+.steps h3{font-size:18px;margin-bottom:7px}
 .steps p{font-size:14px;color:var(--ink2)}
 
 /* faq */
-.faq details{border-bottom:1px solid var(--line);padding:16px 0}
-.faq summary{cursor:pointer;font-weight:700;font-size:16px;list-style:none;display:flex;justify-content:space-between;gap:14px;color:var(--ink)}
-.faq summary:hover{color:var(--indigo)}
+.faq details{border-bottom:1px solid var(--line);padding:17px 0}
+.faq summary{cursor:pointer;font-family:var(--serif);font-weight:700;font-size:17px;list-style:none;display:flex;justify-content:space-between;gap:14px;color:var(--ink)}
 .faq summary::-webkit-details-marker{display:none}
-.faq summary::after{content:"+";color:var(--indigo);font-size:22px;line-height:1;font-weight:500}
+.faq summary::after{content:"+";color:var(--red);font-size:22px;line-height:1;font-family:var(--sans)}
 .faq details[open] summary::after{content:"–"}
 .faq p{margin-top:9px;font-size:14.5px;color:var(--ink2);max-width:80ch}
 
 /* footer */
-footer.site{background:var(--paper);color:var(--ink2);padding:52px 0 30px;margin-top:30px;border-top:1px solid var(--line)}
+footer.site{background:var(--indigo);color:#CFC8BA;padding:56px 0 30px;margin-top:40px}
+footer .brand .mk{color:#FFFDF8}
 .fg{display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:28px}
 @media(max-width:860px){.fg{grid-template-columns:1fr 1fr}}
 @media(max-width:520px){.fg{grid-template-columns:1fr}}
-footer h4{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin:0 0 12px}
+footer h4{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#F2C7A8;margin:0 0 14px}
 footer ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-footer a{color:var(--ink2);text-decoration:none;font-size:14px}
-footer a:hover{color:var(--indigo);text-decoration:underline}
-footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
-.legal{margin-top:32px;padding-top:18px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);display:grid;gap:9px}
+footer a{color:#DCD5C7;text-decoration:none;font-size:14px}
+footer a:hover{color:#fff;text-decoration:underline}
+footer .bl{font-size:14px;color:#A9B3C2;margin-top:14px;max-width:44ch}
+.legal{margin-top:36px;padding-top:18px;border-top:1px solid rgba(255,253,248,.14);font-size:12.5px;color:#A9B3C2;display:grid;gap:9px}
 .empty{padding:40px 0;color:var(--muted)}
 .empty a{color:var(--link)}
 
 /* long-form text */
-.prose{max-width:760px;color:var(--ink2);font-size:16px;line-height:1.74}
+.prose{max-width:740px;color:var(--ink2);font-size:16.5px;line-height:1.78}
 .prose>:first-child{margin-top:0}
-.prose h2{font-size:clamp(22px,2.4vw,28px);margin:36px 0 12px}
-.prose h3{font-size:19px;margin:24px 0 8px}
-.prose p{margin:0 0 15px}
-.prose ul{margin:0 0 15px;padding-left:0;list-style:none}
+.prose h2{font-size:clamp(23px,2.4vw,29px);color:var(--ink);margin:40px 0 12px;padding-top:6px}
+.prose h3{font-size:19.5px;color:var(--ink);margin:26px 0 8px}
+.prose p{margin:0 0 16px}
+.prose ul{margin:0 0 16px;padding-left:0;list-style:none}
 .prose li{margin-bottom:8px;padding-left:22px;position:relative}
-.prose li::before{content:"";position:absolute;left:5px;top:.66em;width:7px;height:7px;border-radius:50%;background:var(--indigo)}
-.prose a{color:var(--link);font-weight:600;text-decoration:underline;text-decoration-color:rgba(42,68,212,.3);text-underline-offset:3px}
-.prose a:hover{text-decoration-color:var(--link)}
+.prose li::before{content:"";position:absolute;left:4px;top:.68em;width:6px;height:6px;background:var(--red);transform:rotate(45deg)}
+.prose a{color:var(--link);font-weight:600;text-decoration:none;border-bottom:1px solid rgba(36,71,110,.3)}
+.prose a:hover{color:var(--red);border-bottom-color:var(--red)}
 .prose strong{color:var(--ink)}
-.prose.lead{margin-bottom:26px}
-.prose.after{margin-top:48px;padding-top:28px;border-top:1px solid var(--line)}
+.prose.lead{margin-bottom:28px}
+.prose.after{margin-top:52px;padding-top:30px;border-top:1px solid var(--line)}
 
 /* set tiles and guide cards */
 .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
-.tiles a{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:15px 16px;text-decoration:none;display:flex;flex-direction:column;gap:3px;position:relative;overflow:hidden;transition:border-color .15s,transform .15s,box-shadow .15s}
-.tiles a::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--indigo);opacity:0;transition:opacity .15s}
-.tiles a:hover{border-color:var(--tint2);transform:translateY(-2px);box-shadow:var(--lift)}.tiles a:hover::before{opacity:1}
-.tiles b{font-size:15.5px;line-height:1.3;color:var(--ink);font-weight:700}
+.tiles a{background:var(--paper);border:1px solid var(--line);padding:15px 16px;text-decoration:none;display:flex;flex-direction:column;gap:3px;transition:border-color .15s}
+.tiles a:hover{border-color:var(--ink)}
+.tiles a:hover b{color:var(--red)}
+.tiles b{font-family:var(--serif);font-size:16px;line-height:1.3;color:var(--ink)}
 .tiles .n{font-size:12px;color:var(--muted)}
-.tiles .n:first-child{color:var(--indigo);font-weight:800;letter-spacing:.05em}
-.gcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
-.gcards a{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:20px;text-decoration:none;display:flex;flex-direction:column;gap:9px;transition:border-color .15s,transform .15s,box-shadow .15s}
-.gcards a:hover{border-color:var(--tint2);transform:translateY(-2px);box-shadow:var(--lift)}
-.gcards h3{font-size:18px}
+.tiles .n:first-child{color:var(--red);font-weight:700;letter-spacing:.1em}
+.gcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0;border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.gcards a{background:var(--paper);border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px;text-decoration:none;display:flex;flex-direction:column;gap:9px;transition:background .15s}
+.gcards a:hover{background:#fff}
+.gcards a:hover h3{color:var(--red)}
+.gcards h3{font-size:18.5px;color:var(--ink)}
 .gcards p{font-size:14px;color:var(--ink2)}
-.gcards span{margin-top:auto;font-size:13.5px;font-weight:700;color:var(--indigo)}
+.gcards span{margin-top:auto;font-size:12px;font-weight:700;color:var(--red);letter-spacing:.1em;text-transform:uppercase}
 
 /* guides */
-.article{max-width:780px}
-.article h1{font-size:clamp(30px,4.2vw,46px);margin-bottom:10px}
-.article .meta{font-size:13px;color:var(--muted);margin-bottom:22px}
-.toc{border:1px solid var(--line);border-radius:var(--r);background:var(--paper);padding:16px 20px;margin:0 0 28px}
-.toc b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.article{max-width:760px}
+.article h1{font-size:clamp(30px,4.2vw,48px);margin-bottom:12px}
+.article .meta{font-size:12px;color:var(--muted);margin-bottom:24px;letter-spacing:.08em;text-transform:uppercase}
+.toc{border-top:1px solid var(--ink);border-bottom:1px solid var(--line);padding:16px 0;margin:0 0 30px}
+.toc b{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 .toc ol{margin:0;padding-left:20px;display:grid;gap:5px}
 .toc a{color:var(--link);text-decoration:none;font-size:14.5px}
-.toc a:hover{text-decoration:underline}
+.toc a:hover{color:var(--red);text-decoration:underline}
 
 /* free shipping: top bar, cart and checkout */
-.strip .fship{display:inline-flex;align-items:center;gap:7px;color:var(--ink);font-weight:800;letter-spacing:.01em}
-.strip .fship svg{flex:none}
+.strip .fship{display:inline-flex;align-items:center;gap:7px;color:#FFFDF8;font-weight:700;letter-spacing:.03em}
+.strip .fship svg{color:#F2C7A8;flex:none}
 .strip .fship:hover span{text-decoration:underline}
 .fsm{margin:10px 0 12px;max-width:420px;margin-left:auto;text-align:left}
 .fsm .t{font-size:13.5px;color:var(--ink2);margin-bottom:7px}.fsm .t b{color:var(--ink)}
-.fsm .meter{height:8px;border-radius:9px;background:var(--hair);overflow:hidden}
-.fsm .meter i{display:block;height:100%;background:linear-gradient(90deg,var(--indigo),#5A72F0);border-radius:9px}
+.fsm .meter{height:5px;background:var(--hair);overflow:hidden}
+.fsm .meter i{display:block;height:100%;background:var(--red)}
 .fsm.c{max-width:none;margin:12px 0 0}
 
 /* Bitcoin payment page */
-.payhead{margin-bottom:22px}
-.payhead .kick{font-size:13px;color:var(--muted);letter-spacing:.04em}.payhead .kick b{color:var(--btc-text)}
+.payhead{margin-bottom:24px}
+.payhead .kick{font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}.payhead .kick b{color:var(--red)}
 .payhead h1{font-size:clamp(28px,3.6vw,42px);margin:6px 0 10px}
 .payhead .lede{margin-bottom:0}
-.paygrid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:26px;align-items:start}
+.paygrid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:28px;align-items:start}
 @media(max-width:960px){.paygrid{grid-template-columns:1fr}.paygrid .summary{position:static}}
-.paybox{border:1px solid var(--line);border-radius:16px;background:#fff;padding:24px;position:relative;overflow:hidden;box-shadow:var(--lift)}
-.paybox::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:var(--btc)}
+.paybox{border:1px solid var(--ink);background:#fff;padding:24px;position:relative;box-shadow:inset 0 3px 0 #D9822B}
 .payrow{display:grid;grid-template-columns:250px minmax(0,1fr);gap:26px;align-items:start}
 @media(max-width:640px){.payrow{grid-template-columns:1fr}.qrcol{max-width:300px;margin:0 auto;width:100%}}
-.qr{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px;aspect-ratio:1;display:grid;place-items:center;margin-bottom:12px}
+.qr{background:#fff;border:1px solid var(--line);padding:10px;aspect-ratio:1;display:grid;place-items:center;margin-bottom:12px}
 .qr svg{width:100%;height:100%;display:block}
-.qr .qrph{color:var(--muted);font-size:13px}
-.pf .l{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:6px}
+.qr .qrph{color:#666;font-size:13px}
+.pf .l{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:6px}
 .pf .v{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.pf .amt span{font-size:clamp(26px,3.4vw,34px);font-weight:800;color:var(--ink);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
-.pf .amt small{font-size:16px;font-weight:800;color:var(--btc-text)}
+.pf .amt span{font-family:var(--serif);font-size:clamp(26px,3.4vw,34px);font-weight:700;color:var(--ink);letter-spacing:.01em;font-variant-numeric:tabular-nums}
+.pf .amt small{font-size:16px;font-weight:800;color:#C36A12}
 .pf .n{font-size:13px;color:var(--muted);margin-top:6px}
-.pf .addr code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14.5px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:9px 11px;word-break:break-all;flex:1;min-width:0}
-.copy{background:#fff;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
-.copy:hover{border-color:var(--btc);color:var(--btc-text)}
-.hold{font-size:13.5px;color:var(--ink2);margin-top:16px}.hold b{color:var(--ink);font-variant-numeric:tabular-nums}
-.watch{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--teal);margin-top:14px;padding:11px 13px;border-radius:10px;background:#E8F6F6;border:1px solid #BFE5E4}
-.pulse{width:9px;height:9px;border-radius:50%;background:var(--teal);flex:none;box-shadow:0 0 0 0 rgba(12,133,132,.6);animation:pulse 1.8s infinite}
-@keyframes pulse{70%{box-shadow:0 0 0 10px rgba(12,133,132,0)}100%{box-shadow:0 0 0 0 rgba(12,133,132,0)}}
+.pf .addr code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14.5px;color:var(--ink);background:var(--card2);border:1px solid var(--line);padding:9px 11px;word-break:break-all;flex:1;min-width:0}
+.copy{background:#fff;border:1px solid var(--ink);color:var(--ink);border-radius:var(--r);padding:7px 14px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+.copy:hover{background:var(--ink);color:var(--paper)}
+.hold{font-size:13.5px;color:var(--ink2);margin-top:16px}.hold b{color:var(--red);font-variant-numeric:tabular-nums}
+.watch{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--teal);margin-top:14px;padding:11px 13px;background:#EAF2EF;border:1px solid #C8DDD6}
+.pulse{width:9px;height:9px;border-radius:50%;background:var(--teal);flex:none;box-shadow:0 0 0 0 rgba(47,107,94,.6);animation:pulse 1.8s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 10px rgba(47,107,94,0)}100%{box-shadow:0 0 0 0 rgba(47,107,94,0)}}
 .paytips{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:9px;font-size:13.5px;color:var(--ink2)}
 .paytips li{padding-left:22px;position:relative}.paytips b{color:var(--ink)}
-.paytips li::before{content:"";position:absolute;left:5px;top:.6em;width:7px;height:7px;border-radius:50%;background:var(--btc)}
+.paytips li::before{content:"";position:absolute;left:4px;top:.6em;width:6px;height:6px;background:#D9822B;transform:rotate(45deg)}
 .txform{margin-top:20px;border-top:1px solid var(--hair);padding-top:14px}
 .txform summary{cursor:pointer;font-size:14px;font-weight:700;color:var(--link)}
 .txform label{display:block;font-size:13px;color:var(--muted);margin:12px 0 6px}
 .txrow{display:flex;gap:10px;flex-wrap:wrap}
-.txrow input{flex:1;min-width:220px;background:#fff;border:1px solid #D5DBE7;border-radius:10px;padding:11px 13px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
-.txrow input:focus{border-color:var(--indigo);outline:none}
+.txrow input{flex:1;min-width:220px;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:11px 13px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
 .timeline{list-style:none;margin:0;padding:0;display:grid;gap:0}
 .timeline li{position:relative;padding:0 0 22px 38px;display:grid;gap:2px}
 .timeline li::before{content:"";position:absolute;left:0;top:1px;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);background:#fff}
@@ -1365,75 +1339,74 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
 .timeline li:last-child::after{display:none}
 .timeline li.ok::before{background:var(--green);border-color:var(--green);box-shadow:inset 0 0 0 5px var(--green)}
 .timeline li.ok::after{background:var(--green)}
-.timeline li.now::before{border-color:var(--btc);animation:pulse 1.8s infinite}
+.timeline li.now::before{border-color:var(--red);animation:pulse 1.8s infinite}
 .timeline b{color:var(--ink);font-size:15.5px}.timeline span{font-size:13.5px;color:var(--muted)}
-.txbox{margin-top:8px;padding:14px;border-radius:10px;background:var(--paper);border:1px solid var(--line);display:grid;gap:6px}
-.txbox .l{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.txbox{margin-top:8px;padding:14px;background:var(--card2);border:1px solid var(--line);display:grid;gap:6px}
+.txbox .l{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
 .txbox code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;color:var(--ink);word-break:break-all}
 .txbox a{color:var(--link);font-weight:700;font-size:14px;text-decoration:none}
 .summary .n{font-size:12.5px;color:var(--muted);margin-top:10px}.summary .n a{color:var(--link)}
 
 /* guide links on category, set, collection and FAQ pages */
 .glinks{margin-top:8px}
-.gchips{display:flex;flex-wrap:wrap;gap:10px}
-.gchips a{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:600;color:var(--ink);text-decoration:none}
-.gchips a:hover{border-color:var(--indigo);color:var(--indigo)}
+.gchips{display:flex;flex-wrap:wrap;gap:8px}
+.gchips a{border:1px solid var(--line);background:var(--paper);border-radius:var(--r);padding:8px 14px;font-size:13.5px;font-weight:600;color:var(--ink);text-decoration:none}
+.gchips a:hover{border-color:var(--ink);color:var(--red)}
 
 /* guide tools */
 .pcheck{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
 .pcheck label{font-weight:800;color:var(--ink)}
-.pcheck input{flex:1;min-width:220px;background:#fff;border:1px solid #D5DBE7;border-radius:10px;padding:11px 16px;font-size:15px;color:var(--ink)}
-.pcheck input:focus{border-color:var(--indigo);outline:none;box-shadow:0 0 0 3px rgba(42,68,212,.14)}
+.pcheck input{flex:1;min-width:220px;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:11px 14px;font-size:15px;color:var(--ink)}
+.pcheck input:focus{border-color:var(--ink);outline:none}
 .pcheck span{font-size:13px;color:var(--muted)}
 .tbl.pc .sk{font-weight:500}
-.tplbox{display:grid;grid-template-columns:200px minmax(0,1fr);gap:22px;align-items:center;border:1px solid var(--line);border-radius:14px;background:var(--paper);padding:18px;margin:6px 0 20px}
-.tplbox img{width:100%;height:auto;background:#fff;border-radius:10px;border:1px solid var(--line)}
-.tplbox b{color:var(--ink);font-size:17px}.tplbox p{margin:8px 0 0}
-.prose .tplbox .btn{color:#fff;text-decoration:none;margin:4px 6px 0 0}.prose .tplbox .btn.g{color:var(--ink)}
+.tplbox{display:grid;grid-template-columns:200px minmax(0,1fr);gap:22px;align-items:center;border:1px solid var(--line);background:var(--paper);padding:18px;margin:6px 0 20px}
+.tplbox img{width:100%;height:auto;background:#fff;border:1px solid var(--line)}
+.tplbox b{color:var(--ink);font-size:17px;font-family:var(--serif)}.tplbox p{margin:8px 0 0}
+.prose .tplbox .btn{color:#fff;border-bottom:1px solid var(--red);margin:4px 6px 0 0}.prose .tplbox .btn.g{color:var(--ink);border-bottom-color:var(--ink)}
 @media(max-width:560px){.tplbox{grid-template-columns:1fr}.tplbox img{max-width:220px}}
 
 /* Shipping & Returns */
 .srhead h1{font-size:clamp(30px,4vw,46px)}
-.srhead .lede{margin:12px 0 26px}
-.srcards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:40px}
+.srhead .lede{margin:12px 0 28px}
+.srcards{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-bottom:44px;border-top:1px solid var(--ink);border-bottom:1px solid var(--line)}
 @media(max-width:900px){.srcards{grid-template-columns:1fr 1fr}}
-@media(max-width:520px){.srcards{gap:10px}.srcards>div{padding:14px}.srcards .ic{width:32px;height:32px}.srcards b{font-size:15px}}
-.srcards>div{--c:var(--amber);border:1px solid color-mix(in srgb,var(--c) 22%,#fff);border-radius:14px;padding:18px;display:grid;gap:4px;
-  background:color-mix(in srgb,var(--c) 6%,#fff)}
-.srcards .k2{--c:var(--teal)}.srcards .k3{--c:var(--red)}.srcards .k4{--c:var(--indigo)}
-.srcards .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;color:var(--c);background:color-mix(in srgb,var(--c) 14%,#fff);margin-bottom:6px}
-.srcards .ic svg{width:21px;height:21px}
-.srcards b{color:var(--ink);font-size:16px}.srcards span:last-child{font-size:13.5px;color:var(--ink2)}
-.srgrid{display:grid;grid-template-columns:230px minmax(0,1fr);gap:48px;align-items:start}
-.srtoc{position:sticky;top:140px;border-left:2px solid var(--line);padding-left:16px}
-.srtoc b{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+@media(max-width:520px){.srcards>div{padding:14px 10px 14px 0}.srcards .ic{width:30px;height:30px}.srcards b{font-size:15px}}
+.srcards>div{--c:var(--red);padding:20px 20px 22px 0;margin-right:20px;display:grid;gap:4px;border-right:1px solid var(--line)}
+.srcards>div:last-child{border-right:0}
+@media(max-width:900px){.srcards>div:nth-child(2n){border-right:0}}
+.srcards .k2{--c:var(--teal)}.srcards .k3{--c:var(--gold)}.srcards .k4{--c:var(--blue)}
+.srcards .ic{width:36px;height:36px;display:grid;place-items:center;color:var(--c);border:1px solid currentColor;margin-bottom:8px}
+.srcards .ic svg{width:19px;height:19px}
+.srcards b{color:var(--ink);font-size:16px;font-family:var(--serif)}.srcards span:last-child{font-size:13.5px;color:var(--ink2)}
+.srgrid{display:grid;grid-template-columns:230px minmax(0,1fr);gap:52px;align-items:start}
+.srtoc{position:sticky;top:140px;border-left:2px solid var(--ink);padding-left:16px}
+.srtoc b{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .srtoc ol{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:2px}
 .srtoc a{display:block;padding:5px 0;font-size:14px;color:var(--ink2);text-decoration:none}
-.srtoc a:hover{color:var(--indigo)}
+.srtoc a:hover{color:var(--red)}
 @media(max-width:960px){
-  .srgrid{grid-template-columns:1fr;gap:10px}
-  .srtoc{position:static;border:none;padding:0}
+  .srgrid{grid-template-columns:minmax(0,1fr);gap:10px}
+  .srtoc{position:static;border:none;padding:0;min-width:0}
   .srtoc ol{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:6px}
-  .srtoc a{white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;background:#fff}
+  .srtoc a{white-space:nowrap;border:1px solid var(--line);border-radius:var(--r);padding:6px 12px;font-size:13px;background:var(--paper)}
 }
 .prose.sr{max-width:780px}
 .prose.sr h2{scroll-margin-top:140px;padding-top:8px}
 .prose.sr h3{scroll-margin-top:140px}
-.prose ol{margin:0 0 15px;padding:0;list-style:none;counter-reset:step}
+.prose ol{margin:0 0 16px;padding:0;list-style:none;counter-reset:step}
 .prose ol li{counter-increment:step;padding-left:40px;margin-bottom:12px;min-height:28px}
-.prose ol li::before{content:counter(step);position:absolute;left:0;top:0;width:28px;height:28px;border-radius:8px;background:var(--tint);
-  color:var(--indigo);font-weight:800;font-size:13px;display:grid;place-items:center}
+.prose ol li::before{content:counter(step);position:absolute;left:0;top:.1em;width:26px;height:26px;background:transparent;
+  border:1px solid var(--red);color:var(--red);font-weight:800;font-size:12.5px;display:grid;place-items:center;transform:none;font-family:var(--serif)}
 .prose .tblwrap{overflow-x:auto;margin:0 0 16px}
 .prose .tbl small{color:var(--muted);font-weight:500}
 .prose .tbl .free{color:var(--green)}
 .prose p.small{font-size:13.5px;color:var(--muted)}
-.prose code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;color:var(--ink);background:var(--card2);padding:2px 6px;border-radius:5px;word-break:break-all}
-.srcontact{margin-top:40px;border:1px solid var(--tint2);border-radius:14px;padding:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
-  background:#F4F6FF}
-.srcontact b{display:block;color:var(--ink);font-size:17px}.srcontact span{font-size:14px;color:var(--ink2)}
+.prose code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;color:var(--ink);background:var(--card2);padding:2px 6px;word-break:break-all}
+.srcontact{margin-top:44px;border:1px solid var(--ink);padding:22px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;background:#fff;box-shadow:8px 8px 0 var(--card2)}
+.srcontact b{display:block;color:var(--ink);font-size:18px;font-family:var(--serif)}.srcontact span{font-size:14px;color:var(--ink2)}
 .srcontact .row2{display:flex;gap:10px;flex-wrap:wrap}
-.prose .srcontact .btn{color:#fff;text-decoration:none}.prose .srcontact .btn.g{color:var(--ink)}
-.prose a.btn{color:#fff;text-decoration:none}.prose a.btn.g{color:var(--ink)}.prose a.btn.gold{color:var(--ink)}
+.prose .srcontact .btn{color:#fff;border-bottom:1px solid var(--red)}.prose .srcontact .btn.g{color:var(--ink);border-bottom-color:var(--ink)}
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -1448,9 +1421,9 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
 
 <header class="site">
   <div class="wrap bar">
-    <a class="brand" href="<?= h(url('home')) ?>" aria-label="<?= h($CONFIG['brand']) ?> home">
-      <span class="logo" aria-hidden="true"><?= h(brand_mark()) ?></span>
-      <span class="wm"><span class="mk"><?= h($CONFIG['brand']) ?></span><span class="kj"><?= h($CONFIG['kanji']) ?><span class="x"> · Japan wholesale</span></span></span>
+    <a class="brand" href="<?= h(url('home')) ?>">
+      <span class="mk"><?= h($CONFIG['brand']) ?></span>
+      <span class="kj"><?= h($CONFIG['kanji']) ?></span>
     </a>
     <form class="search" action="<?= empty($CONFIG['pretty_urls']) ? 'index.php' : 'shop' ?>" method="get" role="search">
       <?php if(empty($CONFIG['pretty_urls'])): ?><input type="hidden" name="p" value="catalog"><?php endif; ?>
@@ -1458,7 +1431,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
       <button type="submit">Search</button>
     </form>
     <div class="tools">
-      <select class="pick" onchange="location.href=this.value" aria-label="Currency">
+      <?php if(count($CURRENCIES) > 1): ?><select class="pick" onchange="location.href=this.value" aria-label="Currency">
         <?php $here_args = $_GET; unset($here_args['p'], $here_args['id'], $here_args['s'], $here_args['c'], $here_args['g'], $here_args['pg']);
         if($from_path && isset($from_path['cat'])) unset($here_args['cat']);
         $here = $page === 'notfound' ? 'home' : $page;
@@ -1467,7 +1440,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
           $u += ($canon_args[$here] ?? []); ?>
           <option value="<?= h(url($here, $u)) ?>" <?= cur_code()===$code?'selected':'' ?>><?= h($code) ?></option>
         <?php endforeach; ?>
-      </select>
+      </select><?php else: ?><span style="border:1px solid var(--line);border-radius:4px;padding:8px 12px;font-size:12.5px;color:var(--ink2);letter-spacing:.06em" title="Prices in <?= h(cur_code()) ?>"><?= h(cur_code()) ?></span><?php endif; ?>
       <a class="cartbtn" href="<?= url('cart') ?>">Order <b><?= cart_units() ?></b></a>
     </div>
   </div>
@@ -1499,7 +1472,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
 
   <section class="hero"><div class="wrap hgrid">
     <div>
-      <div class="eyebrow"><span>Japan direct</span><span>Sealed &amp; authentic</span><span>Ships worldwide</span><span>Wholesale MOQs</span></div>
+      <div class="eyebrow"><span>Japan direct</span><span>Sealed &amp; authentic</span><span>Ships to Australia</span><span>Wholesale MOQs</span></div>
       <h1><?= h($CONFIG['hero_title']) ?></h1>
       <p class="lede"><?= h($CONFIG['hero_lede']) ?></p>
       <div class="hero-cta">
@@ -1509,7 +1482,8 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
       <div class="stats">
         <div><strong><?= count($in_stock) ?></strong>SKUs in stock</div>
         <div><strong><?= money($MIN_ORDER) ?></strong>Minimum order, incl. shipping</div>
-        <div><strong><?= count($COUNTRIES) ?></strong>Countries served</div>
+        <?php if(count($COUNTRIES) === 1 && free_ship_usd($STORE)): ?><div><strong><?= money_whole(free_ship_usd($STORE)) ?></strong>Free shipping from</div>
+        <?php else: ?><div><strong><?= count($COUNTRIES) ?></strong>Countries served</div><?php endif; ?>
         <div><strong><?= (int)$CONFIG['hold_hours'] ?>h</strong>Stock held on order</div>
       </div>
     </div>
@@ -1779,7 +1753,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
         <div class="prose" style="font-size:14.5px">
           <?php $SM = ship_methods($STORE); $one = (float)($prod['weight'] ?? 0) * $prod['moq']; ?>
           <p>Shipped from Japan with tracking: <b><?= h($SM['standard']['label']) ?></b> <?= h($SM['standard']['days']) ?> or <b><?= h($SM['express']['label']) ?></b> <?= h($SM['express']['days']) ?>.
-            Priced by weight — <?= (int)$prod['moq'] ?> of these to the USA ship for <?= money(shipping_usd($STORE, 'US', $one, 'standard')) ?> Standard or <?= money(shipping_usd($STORE, 'US', $one, 'express')) ?> Express.
+            Priced by weight — <?= (int)$prod['moq'] ?> of these to <?= h($COUNTRIES[$HOME_CC] ?? $HOME_CC) ?> ship for <?= money(shipping_usd($STORE, $HOME_CC, $one, 'standard')) ?> Standard or <?= money(shipping_usd($STORE, $HOME_CC, $one, 'express')) ?> Express.
             <?php if(free_ship_usd($STORE)): ?><b>Free <?= h($SM['standard']['label']) ?> shipping on orders over <?= money_whole(free_ship_usd($STORE)) ?>.</b><?php endif; ?>
             Orders start at <?= money($MIN_ORDER) ?> including shipping.</p>
           <p><?php if(array_filter($PAYMENTS, 'btc_method')): ?>Pay with Bitcoin straight after you order, or choose another method and we send the details within <?= (int)$CONFIG['reply_hours'] ?> hours.<?php else: ?>We send payment details for your chosen method within <?= (int)$CONFIG['reply_hours'] ?> hours.<?php endif; ?>
@@ -1853,6 +1827,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
   </div></section>
 
 <?php elseif($page==='checkout'): $lines = cart_lines(); $f = $form ?? [];
+  if(empty($f['country']) && count($COUNTRIES) === 1) $f['country'] = $HOME_CC;   /* one country: nothing to pick */
   $_SESSION['co_token'] = $_SESSION['co_token'] ?? bin2hex(random_bytes(16));
   $_SESSION['co_time']  = time(); ?>
   <section style="padding-top:22px"><div class="wrap">
@@ -1899,15 +1874,15 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
             </select></div>
           <div class="fld"><label for="address1">Street address</label>
             <input id="address1" name="address1" required value="<?= h($f['address1']??'') ?>"></div>
-          <div class="fld"><label for="address2">Apartment, suite, unit (optional)</label>
+          <div class="fld"><label for="address2">Unit, suite or level (optional)</label>
             <input id="address2" name="address2" value="<?= h($f['address2']??'') ?>"></div>
           <div class="two">
-            <div class="fld"><label for="city">City</label>
+            <div class="fld"><label for="city">Suburb / city</label>
               <input id="city" name="city" required value="<?= h($f['city']??'') ?>"></div>
-            <div class="fld"><label for="region">State / province / region</label>
+            <div class="fld"><label for="region">State / territory</label>
               <input id="region" name="region" value="<?= h($f['region']??'') ?>"></div>
           </div>
-          <div class="fld" style="max-width:260px"><label for="postcode">Postal code</label>
+          <div class="fld" style="max-width:260px"><label for="postcode">Postcode</label>
             <input id="postcode" name="postcode" value="<?= h($f['postcode']??'') ?>"></div>
         </fieldset>
 
@@ -1922,7 +1897,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
               </label>
             <?php endforeach; ?>
           </div>
-          <p class="n" style="font-size:12.5px;color:var(--muted);margin-top:10px">Priced by the weight of your order (<?= h(rtrim(rtrim(number_format(cart_weight(), 2), '0'), '.')) ?> kg). Choose your country to see prices.</p>
+          <p class="n" style="font-size:12.5px;color:var(--muted);margin-top:10px">Priced by the weight of your order (<?= h(rtrim(rtrim(number_format(cart_weight(), 2), '0'), '.')) ?> kg).<?= count($COUNTRIES) > 1 ? ' Choose your country to see prices.' : '' ?></p>
           <?php free_ship_meter(cart_total(), true); ?>
         </fieldset>
 
@@ -1949,7 +1924,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
             We never ask for card details, passwords or wallet keys.
           </div>
           <div class="fld"><label for="notes">Order notes (optional)</label>
-            <textarea id="notes" name="notes" placeholder="Delivery instructions, preferred carrier, VAT/EORI number, anything else we should know."><?= h($f['notes']??'') ?></textarea></div>
+            <textarea id="notes" name="notes" placeholder="Your ABN (for your invoice), delivery instructions, preferred carrier, anything else we should know."><?= h($f['notes']??'') ?></textarea></div>
           <label class="agree">
             <input type="checkbox" name="agree" value="1" <?= !empty($_POST['agree'])?'checked':'' ?>>
             <span>I agree to the <a href="<?= h(url('page', ['pg'=>'terms'])) ?>" target="_blank">terms of sale</a> and the
@@ -1958,7 +1933,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
           <div class="minwarn" id="minWarn" hidden></div>
           <button class="btn wide" id="placeBtn" type="submit" style="margin-top:14px" data-btc-label="Place order and pay with Bitcoin">Place order</button>
           <p style="font-size:12.5px;color:var(--muted);margin-top:10px">
-            Shipping is calculated from your destination and shown in the order summary. Import duty and taxes are not included.</p>
+            Shipping is calculated from your order's weight and shown in the order summary. Prices exclude GST; orders over A$1,000 are charged GST and import charges by Australian customs.</p>
         </fieldset>
       </div>
 
@@ -2103,7 +2078,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
         <div class="sl"><span style="color:var(--muted)">Goods</span><span><?= h($o['goods']) ?></span></div>
         <div class="sl"><span style="color:var(--muted)">Shipping · <?= h($o['ship_label']) ?></span><span><?= !empty($o['free_shipping']) && (float)$o['shipping_usd'] == 0 ? 'Free' : h($o['shipping']) ?></span></div>
         <div class="tot"><span>Order total</span><span><?= h($o['total']) ?></span></div>
-        <p class="n">Ships to <?= h($o['city']) ?>, <?= h($o['country_name']) ?>.<?= $o['currency'] !== 'USD' ? ' The BTC amount is worked out from the US-dollar total, $'.number_format($o['total_usd'], 2).'.' : '' ?></p>
+        <p class="n">Ships to <?= h($o['city']) ?>, <?= h($o['country_name']) ?>. The BTC amount is worked out from your order total at the live Bitcoin price.</p>
         <p class="n">Questions? <a href="mailto:<?= h($CONFIG['email']) ?>?subject=<?= rawurlencode('Order '.$o['ref']) ?>"><?= h($CONFIG['email']) ?></a></p>
       </aside>
     </div>
@@ -2115,8 +2090,8 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
     <div class="sechead"><div><h1><?= h($h1) ?></h1>
       <p>Four steps from cart to courier, with no account approval: minimum order quantities, case multiples and quantity breaks are on every listing. Pay by Bitcoin straight from your wallet, or settle an invoice from your own bank or payment app.<?php if(info_page('wholesale')): ?> See our <a href="<?= h(url('page', ['pg'=>'wholesale'])) ?>">wholesale terms</a>.<?php endif; ?></p></div></div>
     <?php steps_block($CONFIG); ?>
-    <div style="margin-top:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px" class="cats">
-      <a href="<?= url('payment') ?>"><h3>Payment methods</h3><p>What we accept, by country.</p></a>
+    <div style="margin-top:40px" class="cats three">
+      <a href="<?= url('payment') ?>"><h3>Payment methods</h3><p>Crypto and PayID, and how each works.</p></a>
       <a href="<?= url('shipping') ?>"><h3>Shipping &amp; Returns</h3><p>Rates, timings, duty, returns and refunds.</p></a>
       <a href="<?= url('faq') ?>"><h3>Wholesale FAQ</h3><p>MOQs, preorders, returns and more.</p></a>
     </div>
@@ -2153,7 +2128,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
       we send the payment details, holding your stock for <?= (int)$CONFIG['hold_hours'] ?> hours in the meantime. Always check
       payment details against the email we send from <?= h($CONFIG['email']) ?> and quote your order reference.
     </div>
-    <p style="font-size:14px;color:var(--ink2);margin-top:18px">Invoices are issued in the currency you had selected at checkout. Shipping is calculated at checkout. Prices exclude import duty, VAT or GST and customs clearance fees.</p>
+    <p style="font-size:14px;color:var(--ink2);margin-top:18px">Invoices are issued in the currency you had selected at checkout. Shipping is calculated at checkout. Prices exclude GST, import duty and customs clearance fees.</p>
   </div></section>
 
 <?php elseif($page==='shipping'):
@@ -2224,7 +2199,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
         <tr><td class="nm">Email</td><td><a href="mailto:<?= h($CONFIG['email']) ?>"><?= h($CONFIG['email']) ?></a></td></tr>
         <?php if($CONFIG['phone']): ?><tr><td class="nm">Phone</td><td><?= h($CONFIG['phone']) ?></td></tr><?php endif; ?>
         <tr><td class="nm">Business</td><td><?= h($CONFIG['legal_name']) ?>, <?= h($CONFIG['address']) ?></td></tr>
-        <tr><td class="nm">Existing order</td><td>Quote your order reference (format PK-26-XXXXX) in the subject line.</td></tr>
+        <tr><td class="nm">Existing order</td><td>Quote your order reference (format FK-26-XXXXX) in the subject line.</td></tr>
       </tbody>
     </table>
     <p style="margin-top:22px;font-size:14.5px;color:var(--ink2)">For standing orders, full-case volumes or allocation on an upcoming release, email us with the sets and quantities you want and we will come back with pricing.</p>
@@ -2330,8 +2305,8 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
 <footer class="site"><div class="wrap">
   <div class="fg">
     <div>
-      <div class="brand"><span class="logo" aria-hidden="true"><?= h(brand_mark()) ?></span>
-        <span class="wm"><span class="mk"><?= h($CONFIG['brand']) ?></span><span class="kj"><?= h($CONFIG['kanji']) ?> · Japan wholesale</span></span></div>
+      <div class="brand"><span class="mk"><?= h($CONFIG['brand']) ?></span>
+        <span class="kj"><?= h($CONFIG['kanji']) ?></span></div>
       <p class="bl"><?= h($CONFIG['footer_blurb']) ?></p>
     </div>
     <div><h4>Shop</h4><ul>
@@ -2344,7 +2319,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
       <li><a href="<?= url('sets') ?>">Pokémon card sets</a></li>
       <?php foreach($SERIES as $k=>$sr): if(series_sets($k)): ?><li><a href="<?= h(url('series', ['s'=>$sr['slug']])) ?>"><?= h($sr['name']) ?> sets</a></li><?php endif; endforeach; ?>
       <?php foreach($COLLECTIONS as $c): if(collection_products($c)): ?><li><a href="<?= h(url('collection', ['c'=>$c['slug']])) ?>"><?= h($c['title']) ?></a></li><?php endif; endforeach; ?>
-      <?php foreach(['where-to-buy-pokemon-cards'=>'Where to buy Pokémon cards', 'pokemon-card-price-checker'=>'Pokémon card price checker', 'most-expensive-pokemon-cards'=>'Most expensive Pokémon cards', 'pokemon-card-database'=>'Pokémon card database'] as $gs_=>$gl_):
+      <?php foreach(['where-to-buy-pokemon-cards'=>'Where to buy Pokémon cards', 'pokemon-card-price-checker'=>'Pokémon card price checker', 'most-expensive-pokemon-cards'=>'Most expensive Pokémon cards', 'pokemon-card-database'=>'Pokémon card database', 'pokemon-center-australia'=>'Pokémon Center Australia'] as $gs_=>$gl_):
         if(guide_by_slug($gs_)): ?><li><a href="<?= h(url('guide', ['g'=>$gs_])) ?>"><?= h($gl_) ?></a></li><?php endif; endforeach; ?>
       <?php if($GUIDES): ?><li><a href="<?= url('guides') ?>">All Pokémon card guides</a></li><?php endif; ?>
     </ul></div>
@@ -2363,7 +2338,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
     </ul></div>
   </div>
   <div class="legal">
-    <div>Shipped from Japan — import duties and taxes are the buyer's responsibility.</div>
+    <div>Shipped from Japan to Australia with tracking · Prices in AUD, excluding GST · GST and import charges on orders over A$1,000 are the buyer's responsibility.</div>
     <div><?= h($CONFIG['legal_name']) ?> is an independent reseller of genuine product. We are not affiliated with, endorsed by or licensed by The Pokémon Company, Nintendo, Creatures Inc. or GAME FREAK Inc. All product names and trademarks are the property of their respective owners.</div>
     <div>© <?= date('Y') ?> <?= h($CONFIG['legal_name']) ?>.</div>
   </div>
@@ -2385,7 +2360,7 @@ function bump(btn, delta, min){
   input.value = Math.max(min, (parseInt(input.value,10) || min) + delta);
 }
 function fmt(usd){
-  return CO.sym + (usd * CO.rate).toLocaleString('en-US', {minimumFractionDigits: CO.dec, maximumFractionDigits: CO.dec});
+  return CO.sym + (usd * CO.rate).toLocaleString('en-AU', {minimumFractionDigits: CO.dec, maximumFractionDigits: CO.dec});
 }
 function fmtShip(usd){ return usd > 0 ? fmt(usd) : 'Free'; }
 /* shipping, total and the minimum-order check follow the selected country; the server re-checks all of it */
@@ -2550,7 +2525,8 @@ function ship_rates_block(){
   <div class="tblwrap"><table class="tbl">
     <thead><tr><th>Destination</th><?php foreach($SM as $mm): ?><th class="r"><?= h($mm['label']) ?></th><?php endforeach; ?></tr></thead>
     <tbody>
-      <?php foreach(array_merge($STORE['shipping']['zones'], [['name'=>'Rest of world']+$STORE['shipping']['rest']]) as $z): $zr = zone_rates($z); ?>
+      <?php $zoned = array_merge([], ...array_map(fn($z)=>$z['countries'], $STORE['shipping']['zones']));   /* "Rest of world" only while some country has no zone */
+      foreach(array_merge($STORE['shipping']['zones'], array_diff(array_keys($GLOBALS['COUNTRIES']), $zoned) ? [['name'=>'Rest of world']+$STORE['shipping']['rest']] : []) as $z): $zr = zone_rates($z); ?>
         <tr><td class="nm"><?= h($z['name']) ?></td><?php foreach(array_keys($SM) as $mk): ?><td class="r"><?= $cell($zr[$mk]) ?></td><?php endforeach; ?></tr>
       <?php endforeach; ?>
     </tbody>
@@ -2558,10 +2534,10 @@ function ship_rates_block(){
   <?php $ex = [['A single card', 0.05, 30], ['6 booster boxes (about 2.4 kg)', 2.4, 900], ['6 Elite Trainer Boxes (about 5.4 kg)', 5.4, 250]];
   if($fs) $ex[] = ['36 booster boxes (about 14.4 kg), over '.money_whole($fs), 14.4, $fs]; ?>
   <div class="tblwrap"><table class="tbl ex">
-    <thead><tr><th>Examples to the USA</th><?php foreach($SM as $mm): ?><th class="r"><?= h($mm['label']) ?></th><?php endforeach; ?></tr></thead>
+    <thead><tr><th>Examples to <?= h($GLOBALS['COUNTRIES'][$GLOBALS['HOME_CC']] ?? $GLOBALS['HOME_CC']) ?></th><?php foreach($SM as $mm): ?><th class="r"><?= h($mm['label']) ?></th><?php endforeach; ?></tr></thead>
     <tbody>
       <?php foreach($ex as [$label, $kg, $goods]): ?>
-        <tr><td><?= h($label) ?></td><?php foreach(array_keys($SM) as $mk): $v = shipping_usd($STORE, 'US', $kg, $mk, $goods); ?><td class="r"><?= $v > 0 ? money($v) : '<b class="free">Free</b>' ?></td><?php endforeach; ?></tr>
+        <tr><td><?= h($label) ?></td><?php foreach(array_keys($SM) as $mk): $v = shipping_usd($STORE, $GLOBALS['HOME_CC'], $kg, $mk, $goods); ?><td class="r"><?= $v > 0 ? money($v) : '<b class="free">Free</b>' ?></td><?php endforeach; ?></tr>
       <?php endforeach; ?>
     </tbody>
   </table></div>
@@ -2618,7 +2594,7 @@ function card_template_block(){ ?>
       <b>Free printable card template</b>
       <p>63 × 88 mm (2.5 × 3.5 in), the size of a Pokémon card, with 3 mm bleed, the trim line, rounded corners and a safe area for text. Vector files: print at 100% (“actual size”), not “fit to page”.</p>
       <p><a class="btn" href="assets/site/trading-card-template-63x88mm.svg" download>Download one card (SVG)</a>
-         <a class="btn g" href="assets/site/trading-card-template-sheet-letter.svg" download>Download a sheet of 9 (US Letter)</a></p>
+         <a class="btn g" href="assets/site/trading-card-template-sheet-a4.svg" download>Download a sheet of 9 (A4)</a></p>
     </div>
   </div>
 <?php }

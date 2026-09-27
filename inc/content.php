@@ -11,26 +11,30 @@ if(!defined('FK_ROOT')){ http_response_code(404); exit; }
 
 return [
   'settings' => [
-    'strip_text'    => 'Authentic Japanese Pokémon TCG · Wholesale MOQs & case pricing · Shipped worldwide from Japan',
-    'hero_title'    => 'Wholesale Japanese Pokémon cards, shipped worldwide from Japan.',
-    'hero_lede'     => 'Authentic sealed booster boxes, Elite Trainer Boxes, premium sets, singles and TCG accessories for card shops, online retailers, tournament organizers and distributors. No approval process: minimum order quantities, case multiples and quantity-break prices are built into every listing.',
-    'footer_blurb'  => 'Independent distributor and reseller of authentic Japanese Pokémon TCG products, shipping wholesale orders worldwide from Japan to card shops, online retailers, tournament organizers and distributors.',
-    'home_seo_title'=> 'Japanese Pokémon Cards Wholesale: Booster Boxes & Singles',
-    'home_seo_desc' => 'Wholesale Japanese Pokémon cards from Japan: sealed booster boxes, ETBs, premium sets and singles for card shops and retailers, with MOQ and case pricing.',
+    'strip_text'    => 'Authentic Japanese Pokémon TCG · Wholesale MOQs & case pricing · Shipped from Japan to Australia',
+    'hero_title'    => 'Wholesale Japanese Pokémon cards for Australia, shipped direct from Japan.',
+    'hero_lede'     => 'Authentic sealed booster boxes, Elite Trainer Boxes, premium sets, singles and TCG accessories for Australian card shops, online retailers, tournament organisers and distributors. No approval process: minimum order quantities, case multiples and quantity-break prices are built into every listing, shown in Australian dollars.',
+    'footer_blurb'  => 'Independent distributor and reseller of authentic Japanese Pokémon TCG products, shipping wholesale orders from Japan to card shops, online retailers, tournament organisers and distributors across Australia.',
+    'home_seo_title'=> 'Pokémon Cards Australia: Wholesale Japanese Booster Boxes',
+    'home_seo_desc' => 'Wholesale Japanese Pokémon cards for Australia: sealed booster boxes, ETBs, premium sets and singles shipped from Japan, with MOQ and case pricing in AUD.',
     'home_intro'    => <<<'MD'
+## Poké cards across Aus: Pokémon cards straight from Japan
+
+{brand} supplies Pokémon cards across Australia: sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb), [rare Pokémon cards](category:singles) and [card binders and sleeves](category:accessories), priced in Australian dollars and shipped from Japan with tracking. Looking for English trading cards in store? See [where to buy Pokémon cards in Australia](guide:where-to-buy-pokemon-cards) and the [Pokémon Center Australia](guide:pokemon-center-australia) online store.
+
 ## Why buy Japanese Pokémon cards?
 
 Japanese sets come out first, often months before their English versions, so Japanese booster boxes are how collectors get the newest cards early. Many collectors also prefer Japanese printing and card quality, and Japanese special sets like [151](set:151) and [Terastal Festival ex](set:terastal-festival-ex) are some of the most sought-after boxes in the hobby.
 
-Everything we sell is sourced in Japan and shipped worldwide, including to the USA, sealed exactly as it left the factory. Browse [booster boxes](category:boxes), [rare single cards](category:singles), [PSA graded cards](cards:psa-graded-pokemon-cards) or [card binders and sleeves](category:accessories), or start with our guide to [Japanese Pokémon cards](guide:japanese-pokemon-cards).
+Everything we sell is sourced in Japan and shipped to Australia with tracking, sealed exactly as it left the factory. Browse [booster boxes](category:boxes), [rare single cards](category:singles), [PSA graded cards](cards:psa-graded-pokemon-cards) or [card binders and sleeves](category:accessories), or start with our guide to [Japanese Pokémon cards](guide:japanese-pokemon-cards).
 
-## Wholesale Japanese Pokémon cards
+## Wholesale Japanese Pokémon cards in Australia
 
-{brand} is an independent distributor and reseller of Japanese Pokémon TCG products. There's no approval-gated registration: every listing shows its minimum order quantity, case multiple and full quantity-break ladder, so card shops, online retailers, tournament organizers and distributors can price a complete order up front. Orders start at {min_order} including shipping. See our [wholesale terms](page:wholesale).
+{brand} is an independent distributor and reseller of Japanese Pokémon TCG products, supplying businesses in every Australian state and territory. There's no approval-gated registration: every listing shows its minimum order quantity, case multiple and full quantity-break ladder, so card shops, online retailers, tournament organisers and distributors can price a complete order up front. Orders start at {min_order} including shipping. See our [wholesale terms](page:wholesale).
 MD,
     /* the Shipping & Returns page ({rates} = the delivery options and rate tables) */
     'shipping_policy' => <<<'MD'
-Every {brand} order ships from Japan with tracking. This page explains how we ship, what it costs, how long it takes and what happens if something goes wrong, in plain English. The price at checkout is always the final word on shipping for your order.
+Every {brand} order ships from Japan to Australia with tracking. This page explains how we ship, what it costs, how long it takes and what happens if something goes wrong, in plain English. The price at checkout is always the final word on shipping for your order.
 
 ## Delivery options and rates
 
@@ -38,9 +42,9 @@ Every {brand} order ships from Japan with tracking. This page explains how we sh
 
 ## Free shipping
 
-Orders with a goods total over **{free_ship}** ship free with {standard} delivery, to every country we ship to. It's applied automatically at checkout, with no code to enter. Want it faster? Choose {express} and you pay only the difference between {express} and {standard}.
+Orders with a goods total over **{free_ship}** ship free with {standard} delivery, anywhere in Australia. It's applied automatically at checkout, with no code to enter. Want it faster? Choose {express} and you pay only the difference between {express} and {standard}.
 
-The threshold counts the goods in your order (after quantity breaks, before shipping) in US dollars. Import duty and taxes are never included.
+The threshold counts the goods in your order (after quantity breaks, before shipping). GST, duty and import charges are never included.
 
 ## From order to doorstep
 
@@ -55,7 +59,7 @@ Delivery times start when your parcel leaves us, not when you order.
 
 ## Tracking your parcel
 
-Every parcel is tracked, and we email your tracking number the day the label is created. A new tracking number can take 24–48 hours to show its first scan, which is normal. Tracking usually runs: label created → accepted in Japan → export customs → in transit → import customs → out for delivery → delivered.
+Every parcel is tracked, and we email your tracking number the day the label is created. A new tracking number can take 24–48 hours to show its first scan, which is normal. Tracking usually runs: label created → accepted in Japan → export customs → in transit → Australian customs → handed to Australia Post or a courier → out for delivery → delivered.
 
 If tracking hasn't changed for 5 working days, email us and we'll chase the carrier.
 
@@ -63,17 +67,21 @@ If tracking hasn't changed for 5 working days, email us and we'll chase the carr
 
 Delivery times are estimates in working days after dispatch, not guarantees. They can stretch when:
 
-- customs in your country holds a parcel for inspection
-- it's a holiday in Japan (New Year, Golden Week in early May, Obon in mid-August) or where you are
+- Australian customs or biosecurity holds a parcel for inspection
+- it's a holiday in Japan (New Year, Golden Week in early May, Obon in mid-August) or a public holiday in your state
 - severe weather or natural disasters disrupt flights and roads
 - carriers are backlogged, for example in the run-up to Christmas
-- the address is remote, incomplete or hard to reach
+- the address is remote or regional (much of WA, the NT and Far North Queensland), incomplete or hard to reach
 
 Planning a store launch, a release event or a stream? Choose {express} and give yourself a few spare days.
 
-## Customs, duty and taxes
+## Customs, GST and duty
 
-Your order ships from Japan, so it clears customs in your country. Import duty, VAT/GST, sales tax and carrier clearance fees are **not included** in our prices or shipping, and are paid by the buyer. Your carrier collects them before or on delivery. US orders of any value can be charged import duty and carrier fees.
+Your order ships from Japan, so it clears Australian customs. GST, customs duty and import charges are **not included** in our prices or shipping, and are paid by the buyer.
+
+- **Orders over A$1,000** need a formal import declaration. The Australian Border Force charges 10% GST, any customs duty and import processing charges, and the carrier (or your customs broker) collects them before delivery.
+- **GST-registered businesses** can usually claim the import GST back as a GST credit on their BAS. Put your ABN in the order notes and we'll show it on your invoice.
+- Need origin or product details for your customs broker? Email us before we ship.
 
 We declare every parcel honestly, with its true contents and value. We can't mark orders as gifts or declare a lower value.
 
@@ -81,7 +89,7 @@ If import charges are refused, the parcel comes back to Japan. See [returned to 
 
 ## Your delivery address
 
-Please double-check the recipient's name, street address, apartment or suite number, city, state or region, ZIP or postal code and phone number before you order. Carriers use your phone number for customs questions and to arrange delivery.
+Please double-check the recipient's name, business name, street address, unit or suite number, suburb, state, postcode and phone number before you order. Carriers use your phone number for customs questions and to arrange delivery. Express couriers can't deliver to PO Boxes or Parcel Lockers, so give a street address for {express}.
 
 Need to change the address? Email us straight away with your order reference. We can change it until your parcel is handed to the carrier. After that, it usually can't be redirected.
 
@@ -131,7 +139,7 @@ Parcels come back to us when the address is wrong or incomplete, delivery attemp
 
 Pokémon cards and sealed product are collectibles. Their value depends on their condition and on knowing exactly what's inside. So:
 
-- **Contact us within 7 days of delivery, before sending anything back.** We can't accept returns we haven't agreed.
+- **Contact us before sending anything back.** We can't accept returns we haven't agreed.
 - **Sealed product** can come back only unopened, in its original shrink wrap and in the condition it arrived.
 - **Opened product** (boxes, packs, cases or tins) can't be returned, because its contents can no longer be verified.
 - **Single cards and graded slabs** must come back in the same holder or slab, in the same condition. We check slab certification numbers against what we shipped.
@@ -142,10 +150,10 @@ Pokémon cards and sealed product are collectibles. Their value depends on their
 
 Once we approve a refund, we send it within 5 working days, the same way you paid:
 
-- **Bitcoin and other crypto:** sent to a wallet address you confirm by email, for the US-dollar value of the refunded items, converted at the rate on the day we refund. Network fees come out of the amount sent.
-- **Other methods:** back through the same method where it allows refunds, or by bank transfer.
+- **Bitcoin and other crypto:** sent to a wallet address you confirm by email, for the value of the refunded items, converted at the rate on the day we refund. Network fees come out of the amount sent.
+- **PayID and bank transfer:** back to the account you paid from, in Australian dollars.
 
-Your bank, card or wallet may take a few more days to show it. Shipping is refunded when the problem was ours.
+Your bank, card or wallet may take a few more days to show it. Shipping is refunded when the problem was ours. Nothing in this policy limits your rights under the Australian Consumer Law.
 
 ## Cancellations and preorders
 
@@ -159,25 +167,25 @@ Everything we sell is genuine, bought through Japanese distribution and shipped 
 
 ## Questions
 
-### Do you ship Pokémon cards to the USA?
+### Do you ship Pokémon cards to Australia?
 
-Yes. Everything ships from Japan to the USA with tracking: {standard} takes {standard_days} and {express} takes {express_days}.
+Yes. Everything ships from Japan to every Australian state and territory with tracking: {standard} takes {standard_days} and {express} takes {express_days}.
 
 ### Do you offer free shipping?
 
-Yes. Orders over {free_ship} ship free with {standard} delivery, anywhere we ship. {express} costs only the difference.
+Yes. Orders over {free_ship} ship free with {standard} delivery, anywhere in Australia. {express} costs only the difference.
 
 ### How much is shipping?
 
-It depends on your order's weight and where it's going. The exact price shows at checkout before you order, and the rate table on this page shows how it's worked out.
+It depends on your order's weight. The exact price shows at checkout before you order, and the rate table on this page shows how it's worked out.
 
 ### How do I track my order?
 
 We email your tracking number when your order ships. New tracking numbers can take 24–48 hours to show their first scan.
 
-### Will I pay import duty or taxes?
+### Will I pay GST or import duty?
 
-Possibly. Import duty, taxes and carrier fees aren't included in our prices, and your carrier collects them before or on delivery.
+Orders over A$1,000 are charged 10% GST, any duty and import processing charges by Australian customs, collected by the carrier before delivery. GST-registered businesses can usually claim the GST back. These charges aren't included in our prices.
 
 ### My order arrived damaged. What do I do?
 
@@ -197,7 +205,7 @@ Yes, free of charge until it's dispatched. Email us with your order reference.
 
 ### How are Bitcoin payments refunded?
 
-To a wallet address you confirm by email, for the US-dollar value of the refunded items at that day's rate, less network fees.
+To a wallet address you confirm by email, for the value of the refunded items at that day's rate, less network fees.
 
 ## Contact us
 
@@ -212,15 +220,19 @@ MD,
     'boxes' => [
       'label' => 'Booster Boxes', 'slug' => 'booster-boxes',
       'blurb' => 'Sealed Japanese Pokémon booster boxes and cases, straight from Japan.',
-      'h1' => 'Japanese Pokémon booster boxes & card packs',
-      'seo_title' => 'Japanese Pokémon Booster Boxes & Card Packs',
-      'seo_desc' => 'Sealed Japanese Pokémon booster boxes and cases — 151, Terastal Festival ex, Mega Evolution sets and more — shipped from Japan to the USA with bulk pricing.',
+      'h1' => 'Pokémon booster boxes & card packs from Japan',
+      'seo_title' => 'Pokémon Booster Box Australia: Japanese Booster Boxes & Packs',
+      'seo_desc' => 'Sealed Japanese Pokémon booster boxes and cases — 151, Terastal Festival ex, Mega Evolution sets and more — shipped from Japan to Australia with bulk pricing.',
       'intro' => <<<'MD'
 ## Pokémon booster boxes from Japan
 
-A Pokémon booster box is a sealed display of card packs from a single set, and the best-value way to buy Pokémon card packs. Japanese boxes are smaller than English ones: most Japanese main-set boxes hold 30 packs of 5 cards, while special sets differ — a [151](set:151) box holds 20 packs of 7 cards.
+A Pokémon booster box (or box of Pokémon booster packs) is a sealed display of card packs from a single set, and the best-value way to buy Pokémon card packs. Japanese boxes are smaller than English ones: most Japanese main-set boxes hold 30 packs of 5 cards, while special sets differ — a [151](set:151) box holds 20 packs of 7 cards.
 
 We stock the current Japanese [Mega Evolution](set:mega-evolution) sets alongside favourites from the [Scarlet & Violet](set:scarlet-violet) era, plus full sealed cases for bulk buyers. Every Pokémon box ships sealed from Japan, and the price per box drops as you order more — the full ladder is on each listing.
+
+## 151 booster box and other favourites
+
+The Japanese [151 booster box](product:151-booster-box) is one of the most sought-after Pokémon boxes, alongside [30th Celebration](set:30th-celebration) and [Terastal Festival ex](set:terastal-festival-ex). Buying packs rather than boxes? See [Pokémon booster packs](guide:pokemon-booster-packs) for what's inside each pack.
 
 New to Japanese product? Read [what makes Japanese Pokémon cards different](guide:japanese-pokemon-cards).
 MD,
@@ -228,15 +240,19 @@ MD,
     'etb' => [
       'label' => 'Elite Trainer Boxes', 'slug' => 'elite-trainer-boxes',
       'blurb' => 'Elite Trainer Boxes and cases, with packs, sleeves and accessories inside.',
-      'h1' => 'Pokémon Elite Trainer Boxes',
-      'seo_title' => 'Pokémon Elite Trainer Boxes: Perfect Order, Ascended Heroes',
+      'h1' => 'Pokémon Elite Trainer Boxes (ETB)',
+      'seo_title' => 'Pokémon ETB: Elite Trainer Boxes — Perfect Order ETB & More',
       'seo_desc' => 'Sealed Pokémon TCG Elite Trainer Boxes, including Mega Evolution Perfect Order, Ascended Heroes, Chaos Rising and 30th Celebration, with bulk pricing by the case.',
       'intro' => <<<'MD'
-## Elite Trainer Boxes
+## Pokémon ETB: what's in an Elite Trainer Box
 
 An Elite Trainer Box (ETB) bundles booster packs with card sleeves, dice, damage counters and a storage box, which makes it one of the most popular Pokémon gifts and a steady seller for card shops.
 
 We carry ETBs across the Pokémon Trading Card Game Mega Evolution series — including [Perfect Order](product:perfect-order-elite-trainer-box), [Ascended Heroes](product:mega-evolution-ascended-heroes-elite-trainer-box), [Chaos Rising](product:chaos-rising-elite-trainer-box) and [Pitch Black](product:pitch-black-elite-trainer-box) — plus the [30th Celebration](set:30th-celebration) ETB and full cases.
+
+## Perfect Order ETB and Ascended Heroes ETB
+
+The [Perfect Order ETB](product:perfect-order-elite-trainer-box) is built around Mega Zygarde ex, and the [Ascended Heroes ETB](product:mega-evolution-ascended-heroes-elite-trainer-box) is the main way to open the Ascended Heroes special set, which has no standard booster box.
 
 ETBs are sold in multiples of four, or by the 10-box case, with lower prices from 24 boxes.
 MD,
@@ -246,7 +262,7 @@ MD,
       'blurb' => 'Collection boxes, starter decks, premium sets and 30th Celebration specials.',
       'h1' => 'Pokémon collection boxes, starter sets & premium sets',
       'seo_title' => 'Pokémon Collection Boxes, Starter Sets & Premium Sets',
-      'seo_desc' => 'Pokémon collection boxes, Starter Set ex decks, Premium Trainer Box MEGA and 30th Celebration special sets, shipped from Japan to the USA with bulk pricing.',
+      'seo_desc' => 'Pokémon collection boxes, Starter Set ex decks, Premium Trainer Box MEGA and 30th Celebration special sets, shipped from Japan to Australia with bulk pricing.',
       'intro' => <<<'MD'
 ## Pokémon boxes beyond the booster box
 
@@ -272,13 +288,13 @@ MD,
     'accessories' => [
       'label' => 'Accessories', 'slug' => 'accessories',
       'blurb' => 'Card binders, sleeves, deck boxes, playmats and storage.',
-      'h1' => 'Pokémon card binders, sleeves & deck boxes',
-      'seo_title' => 'Pokémon Card Binders, Sleeves & Deck Boxes',
-      'seo_desc' => 'Pokémon card binders, card sleeves, deck boxes, playmats and storage — including 9-pocket Mega Evolution binders and Ultra PRO Pikachu sleeves — with bulk pricing.',
+      'h1' => 'Pokémon card binders, folders, sleeves & deck boxes',
+      'seo_title' => 'Pokémon Card Binder & Folder, Sleeves & Deck Boxes',
+      'seo_desc' => 'Pokémon card binders and card folders, card sleeves, deck boxes, playmats and storage — including 9-pocket Mega Evolution binders and Ultra PRO Pikachu sleeves — with bulk pricing.',
       'intro' => <<<'MD'
-## Pokémon card binders and sleeves
+## Pokémon card binders and folders
 
-A good card binder and the right sleeves keep a collection in Near Mint condition. Our [9-pocket Pokémon card binder](product:pokemon-tcg-9-pocket-binder-mega-evolution-series) holds nine cards per page in Mega Evolution series artwork, and our Pokémon card sleeves range from [Ultra PRO Pikachu Deck Protectors](product:ultra-pro-pikachu-deck-protector-sleeves-65-ct) to character sleeves like [Celebi & Furret](product:celebi-and-furret-deck-sleeves) and [Mega Rayquaza](product:storm-emeralda-mega-rayquaza-deck-sleeves).
+A good card binder for Pokémon cards — some people call it a Pokémon card folder or a Pokémon Trading Card Game folder — and the right sleeves keep a collection in Near Mint condition. Our [9-pocket Pokémon card binder](product:pokemon-tcg-9-pocket-binder-mega-evolution-series) holds nine cards per page in Mega Evolution series artwork, and our Pokémon card sleeves range from [Ultra PRO Pikachu Deck Protectors](product:ultra-pro-pikachu-deck-protector-sleeves-65-ct) to character sleeves like [Celebi & Furret](product:celebi-and-furret-deck-sleeves) and [Mega Rayquaza](product:storm-emeralda-mega-rayquaza-deck-sleeves).
 
 Pokémon cards are 63 × 88 mm, so they need standard-size sleeves — see our [Pokémon card size guide](guide:pokemon-card-size) before you buy. Accessories are sold in bulk packs for card shops, with lower prices at higher quantities.
 MD,
@@ -301,7 +317,7 @@ MD,
       'name' => 'Scarlet & Violet', 'slug' => 'scarlet-violet',
       'h1' => 'Pokémon Trading Card Game: Scarlet & Violet sets',
       'seo_title' => 'Pokémon TCG Scarlet & Violet Sets — Japanese Boxes',
-      'seo_desc' => 'Japanese Pokémon TCG Scarlet & Violet sets: 151, Terastal Festival ex, Heat Wave Arena and Glory of Team Rocket booster boxes and singles, shipped to the USA.',
+      'seo_desc' => 'Japanese Pokémon TCG Scarlet & Violet sets: 151, Terastal Festival ex, Heat Wave Arena and Glory of Team Rocket booster boxes and singles, shipped to Australia.',
       'intro' => <<<'MD'
 The Pokémon Trading Card Game Scarlet & Violet era ran from 2023 until the Mega Evolution series began in 2025, and produced some of the most collected Japanese sets ever — including [151](set:151), which revisits the original 151 Pokémon, and [Terastal Festival ex](set:terastal-festival-ex).
 
@@ -340,7 +356,7 @@ MD,
       'intro'=>'Terastal Festival ex (SV8a) is the Scarlet & Violet special set built around Terastal Pokémon and the Eevee evolutions, released in English as Prismatic Evolutions. Japanese boxes hold 10 packs of 10 cards.'],
     '151' => ['slug'=>'151', 'series'=>'sv', 'code'=>'SV2a',
       'seo_title'=>'151 Pokémon Cards — Japanese 151 Booster Box & Charizard',
-      'seo_desc'=>'Japanese 151 Pokémon cards (SV2a): sealed 151 booster boxes and the Charizard ex Special Illustration Rare, shipped from Japan to the USA.',
+      'seo_desc'=>'Japanese 151 Pokémon cards (SV2a): sealed 151 booster boxes and the Charizard ex Special Illustration Rare, shipped from Japan to Australia.',
       'intro'=>"Pokémon Card 151 (SV2a) is the Japanese special set that revisits the original 151 Pokémon from Red and Green, from Bulbasaur to Mew. It is one of the most collected sets of the Scarlet & Violet era, released in English as Scarlet & Violet—151. Japanese 151 booster boxes hold 20 packs of 7 cards, and the chase cards include the Charizard ex Special Illustration Rare.\n\n## Pokémon 151 card list\n\nJapanese 151 (released on 16 June 2023) has 210 cards: a 165-card main set covering the original 151 Pokémon plus Trainer and Energy cards, and 45 secret rares: 18 Art Rares (AR), 16 Super Rares (SR), 8 Special Art Rares (SAR) and 3 gold Ultra Rares (UR). More in our [Pokémon card database](guide:pokemon-card-database).\n\nWe stock sealed 151 booster boxes and the 151 Charizard ex SAR. Looking for more 151 Pokémon cards? See all our [Charizard Pokémon cards](cards:charizard-pokemon-cards)."],
   ],
 
@@ -350,7 +366,7 @@ MD,
     ['slug'=>'charizard-pokemon-cards', 'title'=>'Charizard Pokémon cards', 'h1'=>'Charizard Pokémon cards (Japanese)',
      'match'=>'charizard', 'ids'=>[], 'cond'=>'',
      'seo_title'=>'Charizard Pokémon Cards — Japanese SAR & Hyper Rare',
-     'seo_desc'=>'Japanese Charizard Pokémon cards: the 151 Charizard ex Special Illustration Rare and Mega Charizard Y ex Hyper Rare, Near Mint and shipped from Japan to the USA.',
+     'seo_desc'=>'Japanese Charizard Pokémon cards: the 151 Charizard ex Special Illustration Rare and Mega Charizard Y ex Hyper Rare, Near Mint and shipped from Japan to Australia.',
      'intro'=><<<'MD'
 Charizard is one of the most collected Pokémon in the Trading Card Game, and its cards are often the most valuable in a set. Our Japanese Charizard cards include the Charizard ex Special Illustration Rare from [151](set:151) and the gold Mega Charizard Y ex Hyper Rare from the Mega Evolution series.
 
@@ -375,7 +391,7 @@ MD],
     ['slug'=>'psa-graded-pokemon-cards', 'title'=>'PSA graded Pokémon cards', 'h1'=>'PSA graded Pokémon cards',
      'match'=>'', 'ids'=>[], 'cond'=>'Graded',
      'seo_title'=>'PSA Graded Pokémon Cards — PSA 10 Gem Mint',
-     'seo_desc'=>'PSA graded Pokémon cards, including a PSA 10 Gem Mint Pikachu ex Special Illustration Rare, shipped in the original PSA slab from Japan to the USA.',
+     'seo_desc'=>'PSA graded Pokémon cards, including a PSA 10 Gem Mint Pikachu ex Special Illustration Rare, shipped in the original PSA slab from Japan to Australia.',
      'intro'=><<<'MD'
 Graded Pokémon cards have been assessed and sealed in a tamper-evident case by a grading company. PSA grades on a 1–10 scale: PSA 10 (Gem Mint) is a virtually perfect card, PSA 9 is Mint and PSA 8 is Near Mint–Mint. Because a grade takes the guesswork out of condition, graded cards — especially PSA 10s — usually sell for a significant premium over raw copies.
 
@@ -384,10 +400,10 @@ MD],
   ],
 
   'guides' => [
-    ['slug'=>'japanese-pokemon-cards', 'updated'=>'2026-09-24',
+    ['slug'=>'japanese-pokemon-cards', 'updated'=>'2026-09-26',
      'title'=>'Japanese Pokémon cards: what\'s different and why collectors buy them',
      'seo_title'=>'Japanese Pokémon Cards: Differences, Sets & Where to Buy',
-     'seo_desc'=>'Why collectors buy Japanese Pokémon cards: earlier releases, print quality, how Japanese booster boxes compare with English ones, and buying them in the USA.',
+     'seo_desc'=>'Why collectors buy Japanese Pokémon cards: earlier releases, print quality, how Japanese booster boxes compare with English ones, and buying them in Australia.',
      'body'=><<<'MD'
 Japanese Pokémon cards are the original version of every modern Pokémon Trading Card Game set. The same cards are later released in English, but many collectors — and plenty of players — prefer to buy Japanese. Here's what's different, and what to know before you buy.
 
@@ -411,18 +427,18 @@ Many collectors say Japanese cards have more consistent printing, cutting and ce
 
 Japanese cards work exactly like English ones in casual play — the attacks, HP and rules are the same, just written in Japanese. Official tournaments have their own rules on card language, so check with your organiser before bringing Japanese cards to an event. Our guides to [how to read a Pokémon card](guide:how-to-read-a-pokemon-card) and [how to play Pokémon cards](guide:how-to-play-pokemon-cards) work for both languages.
 
-## Buying Japanese Pokémon cards in the USA
+## Buying Japanese Pokémon cards in Australia
 
-US stores such as Walmart and Target sell English cards ([where to buy Pokémon cards](guide:where-to-buy-pokemon-cards)), so Japanese cards mostly come from importers. Official Chinese-language cards are a different product again: see [Chinese Pokémon cards](guide:chinese-pokemon-cards).
+Australian stores such as Kmart, Big W and EB Games sell English cards ([where to buy Pokémon cards](guide:where-to-buy-pokemon-cards)), so Japanese cards mostly come from importers. Official Chinese-language cards are a different product again: see [Chinese Pokémon cards](guide:chinese-pokemon-cards).
 
-We source every [booster box](category:boxes) and [single card](category:singles) in Japan and ship it to the USA with tracking. Shipping is calculated at checkout and free on orders over {free_ship}, orders start at {min_order} including shipping, and US import duty may be charged on delivery — see [Shipping & Returns](page:shipping) for details.
+We source every [booster box](category:boxes) and [single card](category:singles) in Japan and ship it to Australia with tracking. Shipping is calculated at checkout and free on orders over {free_ship}, orders start at {min_order} including shipping, and orders over A$1,000 are charged GST by Australian customs — see [Shipping & Returns](page:shipping) for details.
 MD],
-    ['slug'=>'most-expensive-pokemon-cards', 'updated'=>'2026-09-25',
-     'title'=>'The most expensive Pokémon cards ever sold',
-     'seo_title'=>'Most Expensive Pokémon Card Ever Sold: Top Cards (2026)',
-     'seo_desc'=>'What is the most expensive Pokémon card? A PSA 10 Pikachu Illustrator sold for $16.49M in 2026. The record sales, first edition cards and why they cost so much.',
+    ['slug'=>'most-expensive-pokemon-cards', 'updated'=>'2026-09-26',
+     'title'=>'The most expensive and most valuable Pokémon cards ever sold',
+     'seo_title'=>'Most Expensive Pokémon Card Ever Sold: Most Valuable Cards',
+     'seo_desc'=>'What is the most expensive Pokémon card? A PSA 10 Pikachu Illustrator sold for US$16.49M in 2026. The record sales, first edition cards and why they cost so much.',
      'body'=><<<'MD'
-The most expensive Pokémon card ever sold is a **PSA 10 Pikachu Illustrator**. It sold at Goldin Auctions in February 2026 for **$16,492,000**, one of the highest prices ever paid for any trading card. Here's what makes it, and the other most expensive Pokémon cards, worth so much.
+The most expensive Pokémon card ever sold is a **PSA 10 Pikachu Illustrator**. It sold at Goldin Auctions in February 2026 for **US$16,492,000**, one of the highest prices ever paid for any trading card. Here's what makes it, and the other most expensive Pokémon cards, worth so much.
 
 ## What is the most expensive Pokémon card?
 
@@ -434,13 +450,13 @@ The card's artwork is by Atsuko Nishida, the artist who drew the original Pikach
 
 ## Logan Paul's Pokémon card
 
-The record copy belonged to YouTuber and wrestler Logan Paul. He bought it privately for **$5,275,000**, which Guinness World Records recognised as the most expensive Pokémon card sold in a private sale, and wore it to WrestleMania 38 in 2022. He sold it through Goldin in February 2026 for $16.49 million, roughly three times what he paid.
+The record copy belonged to YouTuber and wrestler Logan Paul. He bought it privately for **US$5,275,000**, which Guinness World Records recognised as the most expensive Pokémon card sold in a private sale, and wore it to WrestleMania 38 in 2022. He sold it through Goldin in February 2026 for US$16.49 million, roughly three times what he paid.
 
-## The most expensive Pokémon cards sold
+## The most valuable Pokémon cards: highest prices paid
 
-- **Pikachu Illustrator, PSA 10:** $16,492,000 at Goldin, February 2026.
-- **Pikachu Illustrator, PSA 10:** $5,275,000 in a private sale to Logan Paul.
-- **1st Edition Base Set Charizard, PSA 10:** $420,000 at PWCC in March 2022; another copy was reported sold for $550,000 at Heritage Auctions in late 2025.
+- **Pikachu Illustrator, PSA 10:** US$16,492,000 at Goldin, February 2026.
+- **Pikachu Illustrator, PSA 10:** US$5,275,000 in a private sale to Logan Paul.
+- **1st Edition Base Set Charizard, PSA 10:** US$420,000 at PWCC in March 2022; another copy was reported sold for US$550,000 at Heritage Auctions in late 2025.
 - **Trophy cards** from the first official tournaments, such as the Pikachu No. 3 Trainer card from Japan's first official Pokémon card tournament in June 1997. Only a handful exist, and they rarely come up for sale.
 
 Prices for cards this rare only move when a copy is sold, so records change every few years rather than every season.
@@ -455,7 +471,7 @@ First edition cards come from the first print run of the early English sets, mar
 
 The holo rares, above all Charizard, Blastoise and Venusaur, carry most of the value. Condition decides the rest: a PSA 10 can be worth many times a PSA 8 of the same card. First edition stamps are also faked, so buy graded copies from reputable sellers ([how to tell if a Pokémon card is fake](guide:how-to-tell-if-a-pokemon-card-is-fake)).
 
-## Why are some Pokémon cards so expensive?
+## Why are some Pokémon cards very expensive?
 
 - **Rarity:** contest and tournament prizes were made in tiny numbers ([the rarest Pokémon cards](guide:rarest-pokemon-cards)).
 - **Condition:** top grades are scarce for older cards.
@@ -466,15 +482,23 @@ The holo rares, above all Charizard, Blastoise and Venusaur, carry most of the v
 
 You don't need a 1990s card for a valuable collection. Modern chase cards — Special Illustration Rares, gold Hyper Rares and the Mega Evolution series' top rarities — can sell for hundreds or thousands of dollars in top condition. Examples we stock include the [151 Charizard ex Special Illustration Rare](product:151-charizard-ex-special-illustration-rare), the [Mega Rayquaza ex Master Ultra Rare](product:mega-rayquaza-ex-mur) and a [PSA 10 Pikachu ex Special Illustration Rare](product:pikachu-ex-sar-240-191-psa-10-gem-mint). See all [rare Pokémon cards](category:singles), check prices with our [Pokémon card price checker](guide:pokemon-card-price-checker), or read [how much Pokémon cards are worth](guide:pokemon-card-values).
 
+## The greatest Pokémon card?
+
+Collectors argue about it, but the Pikachu Illustrator is usually called the greatest Pokémon card: the rarest, the most expensive and a piece of the game's history. For English cards, the 1st Edition Base Set Charizard is the classic answer, and for modern cards it's the chase card of each new set.
+
 ## Questions
 
 ### What is the most expensive Pokémon card?
 
-A PSA 10 Pikachu Illustrator, which sold for $16,492,000 at Goldin Auctions in February 2026.
+A PSA 10 Pikachu Illustrator, which sold for US$16,492,000 at Goldin Auctions in February 2026.
+
+### What is the highest price paid for a Pokémon card?
+
+US$16,492,000, for the PSA 10 Pikachu Illustrator at Goldin Auctions in February 2026 — the highest Pokémon card sale on record.
 
 ### How much did Logan Paul pay for his Pokémon card?
 
-$5,275,000, for the PSA 10 Pikachu Illustrator. He sold it in February 2026 for $16.49 million.
+US$5,275,000, for the PSA 10 Pikachu Illustrator. He sold it in February 2026 for US$16.49 million.
 
 ### Are first edition Pokémon cards worth money?
 
@@ -482,7 +506,7 @@ Yes, especially the holo rares from the 1999 Base Set in high grades. Condition 
 
 ### What is the most expensive Charizard card?
 
-A 1st Edition Base Set holo Charizard graded PSA 10, which sold for $420,000 in 2022; a copy was reported sold for $550,000 in late 2025.
+A 1st Edition Base Set holo Charizard graded PSA 10, which sold for US$420,000 in 2022; a copy was reported sold for US$550,000 in late 2025.
 MD],
     ['slug'=>'rarest-pokemon-cards', 'updated'=>'2026-09-25',
      'title'=>'The rarest Pokémon cards, and the gold cards collectors chase',
@@ -579,7 +603,7 @@ Our prices are for the Japanese products we sell, shipped from Japan.
 
 Our sealed product is sold by the case, and every listing shows its quantity breaks, so the unit price drops as you buy more.
 MD],
-    ['slug'=>'pokemon-card-database', 'updated'=>'2026-09-25',
+    ['slug'=>'pokemon-card-database', 'updated'=>'2026-09-26',
      'title'=>'Pokémon card database: Japanese sets, set codes and card lists',
      'seo_title'=>'Pokémon Card Database: Japanese Sets & Card Lists (2026)',
      'seo_desc'=>'A Pokémon card database of Japanese sets: Mega Evolution and Scarlet & Violet set codes, the 151 card list, and the Perfect Order and Ascended Heroes sets.',
@@ -608,6 +632,10 @@ The **Mega Evolution** series began in 2025 and brings back Mega Evolution as **
 
 **Mega Evolution—Ascended Heroes** was released in English on 30 January 2026 with more than 290 cards, including over 30 Trainer cards. Its Japanese counterpart is the special set [Mega Dream ex](set:mega-dream-ex) (M2a), home of the [Mega Gengar ex Special Illustration Rare](product:mega-gengar-ex-sir). We stock the [Ascended Heroes Elite Trainer Box](product:mega-evolution-ascended-heroes-elite-trainer-box).
 
+## Is there an Ascended Heroes booster box?
+
+Ascended Heroes is a special set, and like most English special sets it wasn't released as a standard 36-pack booster box. Its packs come in Elite Trainer Boxes, 6-pack Booster Bundles, collections and single booster packs of 10 cards. Want a sealed box of the same cards? The Japanese [Mega Dream ex booster box](product:mega-dream-ex-m2a-booster-box) is the Japanese counterpart.
+
 ## Pokémon 151 card list
 
 Japanese **Pokémon Card 151 (SV2a)**, released on 16 June 2023, has **210 cards**: a 165-card main set covering the original 151 Pokémon plus Trainer and Energy cards, and 45 secret rares: 18 Art Rares (AR), 16 Super Rares (SR), 8 Special Art Rares (SAR) and 3 gold Ultra Rares (UR). The star card is the [Charizard ex Special Art Rare](product:151-charizard-ex-special-illustration-rare). See the [151 set](set:151) and the [151 booster box](product:151-booster-box).
@@ -633,113 +661,240 @@ Mega Evolution—Perfect Order was released in English on 27 March 2026.
 ### How many cards are in Ascended Heroes?
 
 More than 290, including over 30 Trainer cards. It was released in English on 30 January 2026.
+
+### Is there an Ascended Heroes booster box?
+
+Not a standard 36-pack booster box: Ascended Heroes packs come in Elite Trainer Boxes, Booster Bundles and collections. The Japanese [Mega Dream ex booster box](product:mega-dream-ex-m2a-booster-box) has the Japanese versions of its cards.
 MD],
-    ['slug'=>'where-to-buy-pokemon-cards', 'updated'=>'2026-09-25',
-     'title'=>'Where to buy Pokémon cards: Walmart, Target, Costco, GameStop and more',
-     'seo_title'=>'Where to Buy Pokémon Cards: Walmart, Target & GameStop',
-     'seo_desc'=>'Pokémon cards at Walmart, Target, Costco, GameStop, Best Buy, CVS, Walgreens, Dollar General, Barnes & Noble and TCGplayer, and buying Japanese cards online.',
+    ['slug'=>'where-to-buy-pokemon-cards', 'updated'=>'2026-09-26',
+     'title'=>'Where to buy Pokémon cards in Australia: Kmart, Big W, EB Games and more',
+     'seo_title'=>'Where to Buy Pokémon Cards in Australia: Kmart, Big W & More',
+     'seo_desc'=>'Where to buy Pokémon cards in Australia: Kmart, Big W, Target, EB Games, JB Hi-Fi, Costco, local card shops and online, plus buying Japanese cards wholesale.',
      'body'=><<<'MD'
-Pokémon cards are sold almost everywhere in the USA: big-box stores, pharmacies, game stores and online marketplaces. Here's what each kind of store usually carries, how restocks work, and when it's better to buy online.
+Where do you buy Pokémon cards in Australia? Almost anywhere: department stores, game and toy stores, the official Pokémon Center online store, local card shops and online marketplaces. Here's what each kind of store usually carries, how restocks work, and when it's better to buy online.
 
 {brand} is an independent distributor and online shop, and isn't affiliated with any retailer on this page. Store names are used only to describe where Pokémon cards are sold, and are trademarks of their owners.
 
-## Walmart Pokémon cards
+## Kmart Pokémon cards
 
-Walmart sells English Pokémon TCG products, from booster packs, blister packs and tins to collection boxes and Elite Trainer Boxes, in the trading card section of most stores and on its website. Online, check who the seller is: many listings come from third-party Marketplace sellers, often above retail price, so look for items sold and shipped by Walmart itself.
+Kmart sells English Pokémon TCG products, from booster packs, blister packs and tins to collection boxes, in the toy section of most stores and online. New sets and popular products can sell out quickly and often come with purchase limits per customer.
+
+## Big W Pokémon cards
+
+Big W carries English Pokémon cards in store and online, usually booster packs, tins, collection boxes and Elite Trainer Boxes. Stock of new releases varies a lot from store to store.
 
 ## Target Pokémon cards
 
-Target carries English Pokémon cards in stores, often in the trading card aisle near electronics, and online. New sets and popular products sell out quickly and can come with purchase limits.
+Target Australia carries a smaller range of Pokémon cards in many stores, mostly booster packs, blisters and tins in the toy aisle.
 
-## When does Target restock Pokémon cards?
+## When do Kmart, Big W and Target restock Pokémon cards?
 
-Target doesn't publish a restock schedule. Trading cards in stores are usually stocked by third-party vendors on a weekly route, so every store has its own restock day. The most reliable tip is to ask staff which day the card vendor comes in. Online restocks appear without notice and sell out fast.
+None of them publishes a restock schedule. Trading cards are often stocked on a weekly delivery, so every store has its own restock day. The most reliable tip is to ask staff which day new stock comes in. Online restocks appear without notice and sell out fast.
+
+## EB Games Pokémon cards
+
+EB Games sells sealed Pokémon products in stores and online, including preorders for new English sets, Elite Trainer Boxes and special collections.
+
+## JB Hi-Fi Pokémon cards
+
+JB Hi-Fi (JBHiFi) stocks Pokémon TCG products in many stores and online, often next to its video games, with preorders for popular releases. Searching "JBHiFi Pokémon" on its website shows what's in stock at your nearest store.
 
 ## Costco Pokémon cards
 
-Costco sells Pokémon cards mostly as bundles, with several collection boxes, tins or Elite Trainer Boxes packed together, online and in some warehouses from time to time. Stock comes and goes, and you need a membership to buy.
+Costco sometimes sells Pokémon cards as bundles, with several collection boxes, tins or Elite Trainer Boxes packed together. Stock comes and goes, and you need a membership to buy.
 
-## GameStop Pokémon cards
+## Pokémon Center Australia
 
-GameStop sells sealed Pokémon products in stores and online, including preorders for new sets.
+The official Pokémon Center online store serves Australia and New Zealand, with Pokémon TCG products, Pokémon Center exclusives and plush. Orders ship from overseas, so delivery is slower than from Australian shops. See our [Pokémon Center Australia guide](guide:pokemon-center-australia).
 
-## GameStop Pokémon drops
+## Toy stores and newsagents
 
-A "drop" is a limited release that goes live online at a set time: a new set, a special collection or an exclusive. Drops often sell out in minutes, so follow the store's announcements and be signed in with your payment details saved before it starts.
+Toy stores such as **Toyworld**, and some newsagents, carry single booster packs, blisters and tins. They're handy for a pack or two, but stock varies a lot from store to store.
 
-## Best Buy Pokémon cards
+## Local card shops
 
-Best Buy sells Pokémon TCG products online, often as preorders and drops for popular releases.
+Local trading card and game stores stock sealed English product, keep a case of singles and run Play! Pokémon events. See [Pokémon card shops near me](guide:pokemon-card-shops-near-me) for how to find one.
 
-## Walgreens, CVS and Dollar General Pokémon cards
+## Buying Pokémon cards online in Australia
 
-Pharmacies and discount stores such as **Walgreens**, **CVS** and **Dollar General** usually carry a small range of single booster packs, blister packs and mini tins, near the checkout or in the toy aisle. They're handy for a pack or two, but stock varies a lot from store to store.
+Marketplaces such as **eBay** and **Amazon Australia** have a huge range of singles and sealed product from many sellers. Check each seller's rating, where the item ships from, and the total price including shipping.
 
-## Barnes and Noble Pokémon cards
+## Buying Japanese Pokémon cards wholesale
 
-Barnes & Noble carries Pokémon TCG products, such as booster bundles, collection boxes and Elite Trainer Boxes, in many stores and online, next to its Pokémon books.
-
-## TCGplayer Pokémon cards
-
-TCGplayer is an online marketplace where many sellers list Pokémon singles and sealed product, with market prices based on recent sales. It's a good place to find a specific English single: check each seller's rating and shipping cost.
-
-## Buying Japanese Pokémon cards online
-
-Every store above sells **English** cards. Japanese sets come out first, often months before their English versions, and many collectors prefer their print quality ([why collectors buy Japanese Pokémon cards](guide:japanese-pokemon-cards)). We ship sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb) and [rare singles](category:singles) from Japan with tracking, publish every quantity break on the listing, and ship free on orders over {free_ship}. Compare prices with our [Pokémon card price checker](guide:pokemon-card-price-checker).
+Every store above mostly sells **English** cards. Japanese sets come out first, often months before their English versions, and many collectors prefer their print quality ([why collectors buy Japanese Pokémon cards](guide:japanese-pokemon-cards)). We ship sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb) and [rare singles](category:singles) from Japan to Australia with tracking, show every quantity break in Australian dollars, and ship free on orders over {free_ship}. Card shops and resellers: see our [wholesale terms](page:wholesale), and compare prices with our [Pokémon card price checker](guide:pokemon-card-price-checker).
 
 ## Questions
 
-### Does Walmart sell Pokémon cards?
+### Does Kmart sell Pokémon cards?
 
-Yes, in most stores and online. Online, check whether the seller is Walmart or a third-party Marketplace seller.
+Yes, in most stores and online, usually with a limit on how many of a new release each customer can buy.
 
-### When does Target restock Pokémon cards?
+### When does Big W restock Pokémon cards?
 
-There's no published schedule. Vendors restock each store on their own weekly route, so ask your store which day. Online restocks are unannounced.
+There's no published schedule. Each store gets its own deliveries, so ask your store which day. Online restocks are unannounced.
 
-### Does Costco sell Pokémon cards?
+### Does EB Games sell Pokémon cards?
 
-Sometimes, usually as multi-product bundles online and in some warehouses.
+Yes, in stores and online, including preorders for new English sets.
 
-### Where can I buy Japanese Pokémon cards in the USA?
+### Where can I buy Japanese Pokémon cards in Australia?
 
-From shops that import them from Japan. We ship Japanese booster boxes, Elite Trainer Boxes and singles from Japan to the USA with tracking.
+From shops that import them from Japan. We ship Japanese booster boxes, Elite Trainer Boxes and singles from Japan to every Australian state and territory with tracking.
 MD],
-    ['slug'=>'pokemon-card-shops-near-me', 'updated'=>'2026-09-25',
-     'title'=>'Pokémon card shops near me: local stores, card shows and buying online',
-     'seo_title'=>'Pokémon Card Shops Near Me: Stores, Card Shows & Online',
-     'seo_desc'=>'How to find Pokémon card shops and trading card stores near you, what to expect at Pokémon card shows, and how to shop Japanese Pokémon cards online instead.',
+    ['slug'=>'pokemon-center-australia', 'updated'=>'2026-09-26',
+     'title'=>'Pokémon Center Australia: the official Pokémon Centre online store',
+     'seo_title'=>'Pokémon Center Australia: Pokémon Centre AU Online Store',
+     'seo_desc'=>'Is there a Pokémon Center in Australia? The official Pokémon Centre AU online store explained: what it sells, delivery to Australia, and other ways to buy cards.',
      'body'=><<<'MD'
-Looking for a Pokémon card shop near you? Here's how to find local trading card stores and card shows, what to look for when you get there, and when ordering online is the better option. {brand} is an online distributor, so we don't have a store to visit, but we deliver to every US state and worldwide.
+**Pokémon Center** is The Pokémon Company's official store. In Australia it's an **online store** — there's no permanent Pokémon Center shop to walk into — and Australians often call it the **Pokémon Centre**. Here's what it sells, how delivery works, and where else to buy Pokémon cards.
 
-## How to find Pokémon card shops near me
+{brand} isn't affiliated with The Pokémon Company or Pokémon Center. This guide is general information; check the official site for current products and delivery terms.
 
-- **Search a map app** for "trading card store", "card shop" or "game store" and read recent reviews.
+## Is there a Pokémon Center in Australia?
+
+Yes, online. The Pokémon Center online store opened for Australia and New Zealand in mid-2024, after a soft launch at the end of May, at pokemoncenter.com (the Australian site is under /en-au). It delivers only to addresses in Australia and New Zealand. There isn't a permanent Pokémon Center retail store in Australia; the physical Pokémon Center stores are in Japan and a few other countries.
+
+## What does Pokémon Center AU sell?
+
+- **Pokémon TCG products:** booster packs, Elite Trainer Boxes, collections and tins, including Pokémon Center Elite Trainer Box editions with extra goodies.
+- **Plush and figures,** including plush imported from Japan.
+- **Clothing, accessories, homewares and books,** and collaborations with other brands.
+
+## Pokémon Centre AU delivery
+
+Pokémon Center Australia sends orders from overseas rather than from a local warehouse, so delivery takes longer than from Australian shops: standard delivery has been reported at around two weeks. Delivery is charged on every order, and popular Pokémon TCG releases can sell out or come with purchase limits.
+
+## Pokémon Center vs other ways to buy
+
+- **Pokémon Center:** official exclusives, such as Pokémon Center ETBs and plush, but slower delivery and frequent sell-outs.
+- **Australian retailers** such as Kmart, Big W, EB Games and JB Hi-Fi: English sets at retail price in store and online ([where to buy Pokémon cards in Australia](guide:where-to-buy-pokemon-cards)).
+- **Local card shops:** singles, events and advice ([Pokémon card shops near me](guide:pokemon-card-shops-near-me)).
+- **Japanese product:** Pokémon Center Australia sells English cards. For sealed Japanese [booster boxes](category:boxes) and [Elite Trainer Boxes](category:etb), we ship direct from Japan with tracking, and card shops can buy at [wholesale prices](page:wholesale).
+
+## Questions
+
+### Is there a Pokémon Center store in Australia?
+
+There's no permanent Pokémon Center shop in Australia. The official Pokémon Center online store serves Australia and New Zealand at pokemoncenter.com.
+
+### Does Pokémon Center ship to Australia?
+
+Yes. Pokémon Center Australia and New Zealand delivers to Australian and New Zealand addresses, from overseas, so allow a couple of weeks for standard delivery.
+
+### Does Pokémon Center Australia sell Japanese Pokémon cards?
+
+It sells English Pokémon TCG products. Japanese cards come from importers: see [Japanese Pokémon cards](guide:japanese-pokemon-cards).
+MD],
+    ['slug'=>'pokemon-booster-packs', 'updated'=>'2026-09-26',
+     'title'=>'Pokémon booster packs: what\'s in a Pokémon card pack, and packs vs boxes',
+     'seo_title'=>'Pokémon Booster Packs: What\'s in a Pokémon Card Pack?',
+     'seo_desc'=>'What\'s inside a Pokémon booster pack, Japanese vs English card packs, how many packs are in a booster box, and when a box beats buying Pokémon packs one by one.',
+     'body'=><<<'MD'
+A **Pokémon booster pack** is a sealed pack of random Pokémon Trading Card Game cards from one set. Booster packs are how most people start collecting, and every rare card in a set is pulled from one. Here's what's inside Pokémon card packs, how Japanese and English packs differ, and when it's worth buying a booster box instead.
+
+## What's in a Pokémon booster pack?
+
+- **English booster packs** hold **10 cards**: commons, uncommons, reverse holos, at least one rare, and a basic Energy or code card.
+- **Japanese booster packs** from main sets hold **5 cards**, with one guaranteed rare slot.
+- **Japanese special sets** differ: a [151](set:151) pack has 7 cards and a [Terastal Festival ex](set:terastal-festival-ex) pack has 10.
+
+Chase cards — Special Illustration Rares, gold Hyper Rares and top-rarity Mega Evolution cards — turn up in only a small share of packs. See [Pokémon card rarities](guide:pokemon-card-rarities) for the rarity codes.
+
+## Pokémon trading card booster packs: Japanese vs English
+
+Japanese packs come out first, often months before the English version of the same cards, cost less per pack and are prized for their print quality ([why collectors buy Japanese Pokémon cards](guide:japanese-pokemon-cards)). English packs have more cards per pack and are what Australian retailers stock. Both are the same card size and work the same in play.
+
+## How many packs are in a Pokémon booster box?
+
+- **Japanese main-set booster box:** 30 packs of 5 cards
+- **Japanese 151 booster box:** 20 packs of 7 cards
+- **Japanese Terastal Festival ex booster box:** 10 packs of 10 cards
+- **English booster box:** 36 packs of 10 cards
+
+## Pokémon packs vs a booster box
+
+- **Price per pack:** a sealed [booster box](category:boxes) almost always works out cheaper per pack than buying packs one at a time.
+- **Pull rates:** a whole box gives you a much better chance of the set's rares than a handful of packs.
+- **Condition:** a factory-sealed box protects the packs until you open them, and a sealed box of a popular set is collectable in its own right.
+- **Packs for events:** card shops open boxes to sell packs singly, run pack-opening nights and give packs as prizes.
+
+Other ways to buy packs: [Elite Trainer Boxes](category:etb) have 9 packs plus accessories, and [collection boxes and premium sets](category:premium) pair packs with promo cards.
+
+## Buying Pokémon card packs safely
+
+Resealed and fake packs exist. Buy from reputable sellers, check the wrapping is tight and unbroken with clean crimps at both ends, and be wary of packs priced well below retail ([how to tell if a Pokémon card is fake](guide:how-to-tell-if-a-pokemon-card-is-fake)). Every pack we sell comes in its factory-sealed box, sourced through Japanese distribution.
+
+## Questions
+
+### How many cards are in a Pokémon booster pack?
+
+English packs have 10 cards. Japanese main-set packs have 5, while Japanese special-set packs vary: 7 in 151, 10 in Terastal Festival ex.
+
+### Is it cheaper to buy a booster box or packs?
+
+A booster box is almost always cheaper per pack, and a better chance at the set's rare cards.
+
+### Where can I buy Pokémon booster packs in Australia?
+
+English packs are sold at Kmart, Big W, Target, EB Games, JB Hi-Fi and card shops ([where to buy Pokémon cards](guide:where-to-buy-pokemon-cards)). We sell Japanese packs by the sealed box, shipped from Japan.
+MD],
+    ['slug'=>'pokemon-card-shops-near-me', 'updated'=>'2026-09-26',
+     'title'=>'Pokémon card shops near me: TCG stores in Australia, card shows and buying online',
+     'seo_title'=>'Pokémon Card Shops Near Me: Good Games & TCG Stores in Australia',
+     'seo_desc'=>'Find Pokémon card shops and TCG stores near you in Australia: Good Games stores, Melbourne TCG shops like Purplish and PokéBox, card shows, and buying online.',
+     'body'=><<<'MD'
+Looking for a Pokémon card shop near you? Here's how to find trading card stores and card shows in Australia, some of the TCG store names Australians search for most, and when ordering online is the better option. {brand} is an online distributor, so we don't have a store to visit, but we deliver to every Australian state and territory.
+
+{brand} isn't affiliated with any store on this page. Store names are used only to help you find them, and are trademarks of their owners. Opening hours and stock change, so check each store's own website or social media before you visit.
+
+## How to find card shops near me
+
+- **Search a map app** for "trading card store", "card shop", "TCG" or "game store" and read recent reviews.
 - **Use the Play! Pokémon event locator** on pokemon.com. Stores that run official Pokémon TCG leagues and prereleases are listed there, and nearly all of them are card shops.
-- **Ask local collectors** in community groups on Facebook or Discord; they'll know which shops are fairly priced.
+- **Ask local collectors** in community groups on Facebook, Discord or Reddit; they'll know which shops are fairly priced.
 - **Ask at a card show**, where local shop owners often have tables.
 
-## Trading card shops near me: what they sell
+## TCG near me: what trading card shops sell
 
-Local trading card shops, often called local game stores, usually sell sealed English booster packs and boxes at or near retail price, keep a case of singles, stock sleeves and binders, and run weekly play events. Many also buy cards, which makes them a good place to trade in duplicates.
+Local trading card shops, often called local game stores, usually sell sealed English booster packs and boxes at or near retail price, keep a case of singles, stock sleeves and binders, and run weekly play events. Many also buy cards, which makes them a good place to trade in duplicates. Most stock other trading card games too, such as Magic: The Gathering, Yu-Gi-Oh! and One Piece.
 
-## Trading card stores near me: what to check
+## Good Games stores
 
-- **Sealed product** should be factory sealed, with no loose or resealed wrapping.
-- **Prices for singles** should be close to recent sold prices; check with a [price checker](guide:pokemon-card-price-checker) or a [scanner app](guide:pokemon-card-scanner).
-- **Graded cards** should have an intact slab and a certification number you can look up on the grading company's website.
+Good Games is an Australian chain of game stores that sell Pokémon TCG products alongside board games and other card games, and run TCG events. Stores people often look for include:
+
+- **Victoria:** Good Games Box Hill (Whitehorse Road), Good Games Greensborough and Good Games Ballarat
+- **New South Wales:** Good Games Chatswood and Good Games Newcastle
+- **Queensland:** Good Games Strathpine
+- **South Australia:** Good Games Adelaide and Good Games Modbury
+- **Western Australia:** Good Games Cannington and Good Games North (Joondalup)
+
+Each store has its own website and event calendar: search "goodgames" plus your suburb or city (for example "goodgames Adelaide") to find your nearest one.
+
+## Good Games TCG events and singles
+
+Like most local game stores, Good Games stores run Pokémon TCG league nights and prereleases, and several list Pokémon singles as well as sealed product. Each store runs its own events and stock, so check your nearest store's page.
+
+## Pokémon trading stores in Melbourne and online
+
+Australia also has independent TCG stores, many of which sell online as well as in store. A few names collectors search for:
+
+- **PokéBox Australia (Pokebox):** a Melbourne-based TCG store selling Pokémon booster boxes, Elite Trainer Boxes, graded cards and other TCGs, with an online shop.
+- **Purplish TCG:** a Melbourne TCG store near Southern Cross Station that buys, sells and trades singles, graded cards and sealed product.
+- **Gamers Village:** a game store on the Gold Coast (Upper Coomera) with card games, Warhammer and a play space.
 
 ## Trading card store near me or online?
 
 A local trading card store is great for playing, trading and seeing cards in person. Online shops usually have a far bigger range, especially of Japanese product, which few local stores carry, and deliver to your door.
 
-## Card shops: what to expect
+## What to check at a card shop
 
-Card shops range from small counters in a game store to large stores with hundreds of graded cards. Expect to pay around retail for new English product, and expect more choice (and more negotiating) on singles.
+- **Sealed product** should be factory sealed, with no loose or resealed wrapping.
+- **Prices for singles** should be close to recent sold prices; check with a [price checker](guide:pokemon-card-price-checker) or a [scanner app](guide:pokemon-card-scanner).
+- **Graded cards** should have an intact slab and a certification number you can look up on the grading company's website.
 
 ## Pokémon card shows near me
 
-Card shows are events where many sellers set up tables to buy, sell and trade cards, usually for a day or a weekend, in convention centres, hotel ballrooms or community halls. To find Pokémon card shows near you, check local card shops and collector groups, and search for trading card shows in your city on event listing sites and social media.
+Card shows are events where many sellers set up tables to buy, sell and trade cards, usually for a day or a weekend, in convention centres, hotel function rooms or community halls; the bigger Australian shows run in Sydney, Melbourne, Brisbane and Perth. To find Pokémon card shows near you, check local card shops and collector groups, and search event listings and social media for trading card shows in your city.
 
 ## Pokémon card shows: tips
 
@@ -748,9 +903,9 @@ Card shows are events where many sellers set up tables to buy, sell and trade ca
 - **Inspect before you buy,** especially graded cards and expensive singles.
 - **Negotiate politely,** and bundle several cards for a better price.
 
-## Shop Pokémon cards near me, delivered from Japan
+## Pokémon near me, delivered from Japan
 
-If there's no card shop near you, or you want Japanese cards, shop online. We ship sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb), [rare singles](category:singles) and [accessories](category:accessories) from Japan to the USA with tracking: {standard} delivery in {standard_days}, or {express} in {express_days}, free on orders over {free_ship}. See [Shipping & Returns](page:shipping).
+If there's no card shop near you, or you want Japanese cards, shop online. We ship sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb), [rare singles](category:singles) and [accessories](category:accessories) from Japan to Australia with tracking: {standard} delivery in {standard_days}, or {express} in {express_days}, free on orders over {free_ship}. Card shops can stock up at [wholesale prices](page:wholesale).
 
 ## Questions
 
@@ -758,9 +913,13 @@ If there's no card shop near you, or you want Japanese cards, shop online. We sh
 
 Search a map app for trading card or game stores, and check the Play! Pokémon event locator on pokemon.com for stores that run official events.
 
+### Where are Good Games stores?
+
+Good Games has stores across Australia, including Box Hill, Greensborough and Ballarat in Victoria, Chatswood and Newcastle in NSW, Strathpine in Queensland, Adelaide and Modbury in South Australia, and Cannington and Joondalup (Good Games North) in WA.
+
 ### Do you have a store I can visit?
 
-No. {brand} is online only. We ship from Japan to every US state, and worldwide, with tracking.
+No. {brand} is online only. We ship from Japan to every Australian state and territory with tracking.
 
 ### How do I find Pokémon card shows near me?
 
@@ -814,9 +973,9 @@ Most are free to download and scan with, and some charge for extra features.
 
 No. A scanner identifies which card it is, not whether it's genuine or what condition it's in.
 MD],
-    ['slug'=>'pokemon-card-template', 'updated'=>'2026-09-25',
+    ['slug'=>'pokemon-card-template', 'updated'=>'2026-09-26',
      'title'=>'Pokémon card template: make your own custom Pokémon cards',
-     'seo_title'=>'Pokémon Card Template: Free Printable for Custom Cards',
+     'seo_title'=>'Pokémon Card Template: Free Printable Custom & Customisable Cards',
      'seo_desc'=>'A free printable Pokémon card template at the exact card size (63 × 88 mm) with bleed and safe area, and how to design, print and sleeve custom Pokémon cards.',
      'body'=><<<'MD'
 Making a custom Pokémon card, for a birthday, a school project or just for fun, starts with the right size. Our free template below is the exact size of a Pokémon card, so your custom cards fit standard sleeves, toploaders and binders.
@@ -837,7 +996,7 @@ The template is blank, with no logos or artwork, so it works in any design app: 
 
 More detail in our guide to [Pokémon card size](guide:pokemon-card-size).
 
-## How to make a custom Pokémon card
+## Customisable Pokémon cards: how to make a custom card
 
 1. **Pick a Pokémon, or invent one,** and add its name and HP to the top bar.
 2. **Add artwork** to the art window: your own drawing, a photo of your pet, or a picture you have the right to use.
@@ -1265,14 +1424,14 @@ Many do, usually at a discount to market price, in cash or store credit.
 
 Only valuable cards in near-perfect condition, where a high grade will add more than the cost of grading.
 MD],
-    ['slug'=>'pokemon-card-size', 'updated'=>'2026-09-24',
+    ['slug'=>'pokemon-card-size', 'updated'=>'2026-09-26',
      'title'=>'Pokémon card size: dimensions in mm and inches',
      'seo_title'=>'Pokémon Card Size & Dimensions (mm and inches)',
      'seo_desc'=>'Pokémon cards measure 63 × 88 mm (2.48 × 3.46 inches). The standard Pokémon card size, how Japanese cards compare, and which sleeves, toploaders and binders fit.',
      'body'=><<<'MD'
 A standard Pokémon card measures **63 × 88 mm**, or about **2.48 × 3.46 inches** — usually rounded to 2.5 × 3.5 inches. That's the same size as most trading cards, including Magic: The Gathering, so Pokémon cards fit standard-size card accessories.
 
-## Pokémon card dimensions at a glance
+## Pokémon trading card dimensions at a glance
 
 - Width: 63 mm (2.48 in)
 - Height: 88 mm (3.46 in)
@@ -1384,9 +1543,9 @@ The rarest Pokémon cards were never sold in packs at all: prize cards from cont
 
 Two cards of the same rarity can be worth very different amounts. The Pokémon on the card matters — [Charizard](cards:charizard-pokemon-cards), [Pikachu](cards:pikachu-pokemon-cards) and [Gengar](cards:gengar-pokemon-cards) are always in demand — and so do condition and grading. To see what cards sell for, use our [Pokémon card price checker](guide:pokemon-card-price-checker), or read about [the most expensive Pokémon cards](guide:most-expensive-pokemon-cards).
 MD],
-    ['slug'=>'pokemon-card-values', 'updated'=>'2026-09-24',
+    ['slug'=>'pokemon-card-values', 'updated'=>'2026-09-26',
      'title'=>'Pokémon card values: how much are Pokémon cards worth?',
-     'seo_title'=>'Pokémon Card Values: How Much Are Pokémon Cards Worth?',
+     'seo_title'=>'Pokémon Card Values & Valuation: What Are Your Cards Worth?',
      'seo_desc'=>'What makes a Pokémon card worth money: rarity, condition, PSA grading and language. How to check Pokémon card values, and the most expensive card sold.',
      'body'=><<<'MD'
 Most Pokémon cards are worth very little — but the right card, in the right condition, can be worth hundreds or thousands of dollars. Here's what decides a Pokémon card's value, and how to check what yours is worth.
@@ -1404,9 +1563,9 @@ Most Pokémon cards are worth very little — but the right card, in the right c
 
 As a rough guide: common and uncommon cards are usually worth a few cents; holo rares and regular Pokémon ex a few dollars; full arts and Illustration Rares a few dollars to tens of dollars; and Special Illustration Rares, gold cards and chase cards of popular Pokémon tens to hundreds of dollars, or more in a high grade. Vintage holos, first edition cards and graded gems can be worth thousands.
 
-## How to check Pokémon card values
+## Pokémon card valuation: how to check what a card is worth
 
-The best guide to what a card is worth is what the same card has actually sold for recently. Search for the exact card — name, set number and language — and filter for sold listings on marketplaces, or use a price guide site. Always compare like for like: a raw card and a PSA 10 of the same card are different items, and so are Japanese and English versions. A [Pokémon card scanner](guide:pokemon-card-scanner) app gives a quick first estimate.
+The best guide to what a card is worth is what the same card has actually sold for recently. Search for the exact card — name, set number and language — and filter for sold listings on marketplaces, or use a price guide site. Always compare like for like: a raw card and a PSA 10 of the same card are different items, and so are Japanese and English versions. A [Pokémon card scanner](guide:pokemon-card-scanner) app gives a quick first estimate. Many price guides quote US dollars, so convert to Australian dollars before you buy or sell, and for a formal valuation of a valuable collection (for insurance, say), ask a reputable card shop or auction house.
 
 ## Pokémon card prices: price vs value
 
@@ -1414,7 +1573,7 @@ A card's price is what a seller asks; its value is what buyers actually pay. Whe
 
 ## What is the most expensive Pokémon card?
 
-**Pikachu Illustrator**, a prize card from Japanese illustration contests in 1997–98; only 39 were awarded. A PSA 10 copy sold for $16,492,000 at Goldin Auctions in February 2026. Its seller, Logan Paul, had bought it privately for $5,275,000. Other high-value cards include first edition Base Set Charizards in top grades and rare tournament prize cards. See [the most expensive Pokémon cards](guide:most-expensive-pokemon-cards) and [the rarest Pokémon cards](guide:rarest-pokemon-cards).
+**Pikachu Illustrator**, a prize card from Japanese illustration contests in 1997–98; only 39 were awarded. A PSA 10 copy sold for US$16,492,000 at Goldin Auctions in February 2026. Its seller, Logan Paul, had bought it privately for US$5,275,000. Other high-value cards include first edition Base Set Charizards in top grades and rare tournament prize cards. See [the most expensive Pokémon cards](guide:most-expensive-pokemon-cards) and [the rarest Pokémon cards](guide:rarest-pokemon-cards).
 
 ## Are modern Pokémon cards worth money?
 
@@ -1426,18 +1585,18 @@ MD],
      Extra placeholders here: {brand} {company} {address} {email}. Review the policies for your own business. */
   'pages' => [
     ['slug'=>'about', 'title'=>'About {brand}',
-     'seo_title'=>'About {brand} — Japanese Pokémon TCG Distributor',
-     'seo_desc'=>'{brand} is an independent distributor and reseller of authentic Japanese Pokémon TCG products, shipping wholesale worldwide from Japan.',
+     'seo_title'=>'About {brand} — Japanese Pokémon TCG Distributor for Australia',
+     'seo_desc'=>'{brand} is an independent distributor and reseller of authentic Japanese Pokémon TCG products, shipping wholesale orders from Japan to Australia.',
      'body'=><<<'MD'
-{brand} is an independent distributor and reseller of authentic Japanese Pokémon Trading Card Game products. We specialise in wholesale: sealed booster boxes, premium sets, Elite Trainer Boxes, singles and TCG accessories, shipped worldwide directly from Japan.
+{brand} is an independent distributor and reseller of authentic Japanese Pokémon Trading Card Game products. We specialise in wholesale for Australia: sealed booster boxes, premium sets, Elite Trainer Boxes, singles and TCG accessories, shipped directly from Japan to every Australian state and territory.
 
 ## Our name
 
-{brand} ({kanji}) ends in **kura** (蔵), the Japanese word for a storehouse: a storehouse of Japanese trading cards.
+{brand} ({kanji}) joins two Japanese words: **fuda** (札), a card, and **kura** (蔵), a storehouse. A storehouse of Japanese trading cards.
 
 ## Who we work with
 
-We supply local card shops, online retailers, tournament organizers and independent distributors, and collectors who buy by the box. See our [wholesale terms](page:wholesale).
+We supply Australian card shops, online retailers, tournament organisers and independent distributors, and collectors who buy by the box. See our [wholesale terms](page:wholesale).
 
 ## What we sell
 
@@ -1450,7 +1609,7 @@ We supply local card shops, online retailers, tournament organizers and independ
 
 - **Wholesale without the paperwork.** There's no approval-gated registration. Minimum order quantities, case multiples and tiered quantity-break pricing are built into every listing, and applied automatically.
 - **Sourced in Japan.** Everything is bought through Japanese distribution and ships sealed in its original factory packaging. We never sell resealed, reprinted or fake product.
-- **Shipped worldwide.** Every order ships from Japan with tracking; see [Shipping & Returns](page:shipping).
+- **Shipped to Australia.** Every order ships from Japan with tracking, priced in Australian dollars; see [Shipping & Returns](page:shipping).
 - **Straight answers.** Questions go to a real person at [{email}](mailto:{email}).
 
 ## Independent
@@ -1461,11 +1620,11 @@ We supply local card shops, online retailers, tournament organizers and independ
 
 {company} · {address} · [{email}](mailto:{email})
 MD],
-    ['slug'=>'wholesale', 'title'=>'Wholesale Japanese Pokémon cards for shops and distributors',
-     'seo_title'=>'Wholesale Japanese Pokémon Cards & TCG Distributor',
-     'seo_desc'=>'Wholesale Japanese Pokémon TCG from Japan for card shops, online retailers, tournament organizers and distributors: MOQs, case pricing, no approval.',
+    ['slug'=>'wholesale', 'title'=>'Wholesale Japanese Pokémon cards for Australian shops and distributors',
+     'seo_title'=>'Pokémon Cards Wholesale Australia — Japanese TCG Distributor',
+     'seo_desc'=>'Wholesale Japanese Pokémon TCG for Australian card shops, online retailers, tournament organisers and distributors: MOQs, case pricing in AUD, no approval.',
      'body'=><<<'MD'
-{brand} is an independent distributor and reseller of authentic Japanese Pokémon Trading Card Game products. We supply sealed booster boxes, Elite Trainer Boxes, premium sets, singles and TCG accessories to businesses worldwide, shipped directly from Japan.
+{brand} is an independent distributor and reseller of authentic Japanese Pokémon Trading Card Game products. We supply sealed booster boxes, Elite Trainer Boxes, premium sets, singles and TCG accessories to businesses across Australia, shipped directly from Japan.
 
 ## Wholesale without an application
 
@@ -1480,9 +1639,9 @@ Check any price with our [Pokémon card price checker](guide:pokemon-card-price-
 
 ## Who we supply
 
-- **Local card shops:** sealed Japanese boxes for the shelf and for pack-opening events, plus singles for the display case.
+- **Local card shops and game stores:** sealed Japanese boxes for the shelf and for pack-opening events, plus singles for the display case.
 - **Online retailers:** case quantities of new Japanese sets from release, with tracking on every consignment.
-- **Tournament organizers:** booster boxes for prize support, plus Elite Trainer Boxes and accessories for events.
+- **Tournament organisers:** booster boxes for prize support, plus Elite Trainer Boxes and accessories for events.
 - **Independent distributors:** larger case orders at our best quantity-break prices.
 
 ## What we supply
@@ -1492,13 +1651,17 @@ Check any price with our [Pokémon card price checker](guide:pokemon-card-price-
 - **[High-value single cards](category:singles)**, including [PSA graded cards](cards:psa-graded-pokemon-cards).
 - **[TCG accessories](category:accessories):** sleeves, binders, deck boxes, playmats and storage.
 
-## Worldwide shipping from Japan
+## Shipping from Japan to Australia
 
-Orders ship directly from Japan with tracking: {standard} ({standard_days}) or {express} ({express_days}), priced by weight and shown at checkout. Orders over {free_ship} ship free with {standard}. Import duty and taxes are paid by the buyer. See [Shipping & Returns](page:shipping).
+Orders ship directly from Japan to every Australian state and territory with tracking: {standard} ({standard_days}) or {express} ({express_days}), priced by weight and shown at checkout. Orders over {free_ship} ship free with {standard}.
+
+## GST and customs
+
+Our prices don't include GST. Orders over A$1,000 are charged 10% GST, any customs duty and import processing charges by Australian customs, collected by the carrier before delivery. If you're registered for GST you can usually claim the import GST back on your BAS. Add your ABN in the order notes and it goes on your invoice. See [Shipping & Returns](page:shipping#customs-gst-and-duty).
 
 ## Paying for wholesale orders
 
-Pay by Bitcoin straight from your wallet on the order page, or choose another method and we send payment details with your invoice within {reply_hours} hours. See [payment methods](page:payment).
+Pay by PayID or bank transfer in Australian dollars, or by Bitcoin straight from your wallet on the order page. For methods other than Bitcoin, we send payment details with your invoice within {reply_hours} hours. See [payment methods](page:payment).
 
 ## Preorders and allocations
 
@@ -1511,8 +1674,8 @@ Everything is sourced through Japanese distribution and ships sealed in its orig
 ## How to place a wholesale order
 
 1. Add products to your order in the quantities you need: the unit price updates at each break.
-2. Enter your company name and shipping address at checkout.
-3. Pay by Bitcoin on the next page, or get payment details by email.
+2. Enter your business name, shipping address and, if you have one, your ABN at checkout.
+3. Pay by Bitcoin on the next page, or get PayID or bank details by email.
 4. We dispatch within {hold_hours} hours of payment, from Japan, with tracking.
 
 More detail in [how ordering works](page:how).
@@ -1527,9 +1690,13 @@ No. Wholesale pricing is public on every listing, with no application or approva
 
 {min_order} including shipping. Each product also has its own minimum quantity and case multiple, shown on the listing.
 
-### Do you ship wholesale orders worldwide?
+### Do you ship wholesale orders anywhere in Australia?
 
-Yes. We ship from Japan with tracking to {countries} countries; the rates are on [Shipping & Returns](page:shipping).
+Yes. We ship from Japan with tracking to every Australian state and territory, including regional and remote addresses; the rates are on [Shipping & Returns](page:shipping).
+
+### Are your prices in Australian dollars?
+
+Yes. Every price is in Australian dollars (AUD), and so is your invoice. Prices don't include GST.
 
 ### Do you offer distributor pricing for larger volumes?
 
@@ -1581,7 +1748,7 @@ These terms apply to orders placed on {brand}.
 
 ## Prices and currency
 
-Prices are set in US dollars. Prices shown in other currencies are converted at our current rates for guidance, and your invoice is issued in the currency you selected at checkout.
+Prices are in Australian dollars (AUD) and exclude GST. Your invoice is issued in Australian dollars.
 
 ## Orders
 
@@ -1589,7 +1756,7 @@ Placing an order reserves stock for {hold_hours} hours while we send payment det
 
 ## Payment
 
-**Bitcoin** is paid from your order page, straight after you order, to the wallet address shown there. The BTC amount is fixed for a limited time and renewed at the current rate if it runs out before you pay; send the exact amount shown. For **other methods**, we send payment details within {reply_hours} hours: always quote your order reference, and check payment details against our email from {email}. We never ask for card details, passwords or wallet keys.
+**Bitcoin** is paid from your order page, straight after you order, to the wallet address shown there. The BTC amount is fixed for a limited time and renewed at the current rate if it runs out before you pay; send the exact amount shown. For **PayID / bank transfer**, we send payment details within {reply_hours} hours: always quote your order reference, and check payment details against our email from {email}. We never ask for card details, passwords or wallet keys.
 
 ## Preorders
 
@@ -1597,7 +1764,7 @@ Preorders are invoiced when stock is allocated, not when you order.
 
 ## Shipping and duties
 
-Orders ship from Japan with tracking, and shipping is calculated at checkout. Orders over {free_ship} (goods total) ship free with Standard delivery. Import duty, taxes and carrier fees charged on delivery are the buyer's responsibility. See [Shipping & Returns](page:shipping).
+Orders ship from Japan to Australia with tracking, and shipping is calculated at checkout. Orders over {free_ship} (goods total) ship free with Standard delivery. The buyer is the importer: GST, customs duty and import charges are the buyer's responsibility. See [Shipping & Returns](page:shipping).
 
 ## Damage and shortages
 
@@ -1606,20 +1773,24 @@ Report damage, shortages or wrong items within seven days of delivery. Returns, 
 ## Authenticity and trademarks
 
 All product is genuine and sourced through Japanese distribution. {company} is an independent distributor and reseller and is not affiliated with, endorsed by or licensed by The Pokémon Company, Nintendo, Creatures Inc. or GAME FREAK Inc.
+
+## Australian Consumer Law
+
+Our goods come with guarantees that cannot be excluded under the Australian Consumer Law. Nothing in these terms limits those rights.
 MD],
   ],
 
   'faqs' => [
-    ['Do you ship Japanese Pokémon cards to the USA?', 'Yes. Everything ships from Japan to the USA with tracking. Choose Standard delivery (3–6 working days) or Express (1–2 working days) at checkout; shipping is priced by the weight of your order, and orders start at {min_order} including shipping.'],
+    ['Do you ship Japanese Pokémon cards to Australia?', 'Yes. Everything ships from Japan to every Australian state and territory with tracking. Choose {standard} delivery ({standard_days}) or {express} ({express_days}) at checkout; shipping is priced by the weight of your order, and orders start at {min_order} including shipping.'],
     ['Do I need a wholesale account to see pricing?', 'No. Every product shows its minimum order quantity, case multiple and full quantity-break ladder publicly, so you can price a complete order before contacting anyone. There is no application form and no approval wait.'],
-    ['Who do you sell to?', 'Local card shops, online retailers, tournament organizers and independent distributors, as well as collectors who buy by the box. Wholesale terms are on every listing, with no registration needed.'],
-    ['Do you ship worldwide?', 'Yes. Every order ships from Japan with tracking to {countries} countries, by Standard or Express delivery, priced by weight and shown at checkout.'],
+    ['Who do you sell to?', 'Australian card shops, online retailers, tournament organisers and independent distributors, as well as collectors who buy by the box. Wholesale terms are on every listing, with no registration needed.'],
+    ['Are prices in Australian dollars?', 'Yes. Every price is in Australian dollars (AUD), and so is your invoice. Prices do not include GST.'],
     ['What is the minimum order?', 'Every order must total at least {min_order} including shipping. Sealed product is sold in cases (usually multiples of four or six); single cards start at one.'],
     ['Are Japanese Pokémon cards the same size as English cards?', 'Yes. Both are 63 × 88 mm (about 2.5 × 3.5 inches), so they fit standard sleeves, toploaders and binders.'],
-    ['How do I pay?', 'Choose a method at checkout. Bitcoin is paid on your order page straight after you order: scan the QR code, or copy the amount and address into your wallet. For other methods, we send the details to your email and phone within {reply_hours} hours, together with your invoice.'],
-    ['Do you offer free shipping?', 'Yes. Orders with a goods total over {free_ship} ship free with Standard delivery to every country we ship to, applied automatically at checkout. Choose Express and you pay only the difference.'],
+    ['How do I pay?', 'Choose a method at checkout: PayID or bank transfer in Australian dollars, Bitcoin or other crypto. Bitcoin is paid on your order page straight after you order: scan the QR code, or copy the amount and address into your wallet. For other methods, we send the details to your email and phone within {reply_hours} hours, together with your invoice.'],
+    ['Do you offer free shipping?', 'Yes. Orders with a goods total over {free_ship} ship free with Standard delivery anywhere in Australia, applied automatically at checkout. Choose Express and you pay only the difference.'],
     ['When is my stock allocated?', 'Placing an order reserves your stock for {hold_hours} hours. Once payment clears, the allocation is confirmed and we dispatch within {hold_hours} hours. If payment does not clear inside the window, high-demand stock returns to general availability.'],
-    ['Will I pay import duty in the USA?', 'Possibly. US imports of any value can be charged import duty and carrier fees, which your carrier collects on delivery. These are not included in our prices.'],
+    ['Will I pay GST or import duty?', 'Orders over A$1,000 are charged 10% GST, any customs duty and import processing charges by Australian customs, collected by the carrier before delivery. GST-registered businesses can usually claim the GST back on their BAS. These charges are not included in our prices.'],
     ['Can I preorder an upcoming set?', 'Yes. Preorder lines commit an allocation ahead of release at the same published prices, and are invoiced at allocation rather than at request.'],
     ['Are your Pokémon cards authentic?', 'Yes. Everything is sourced through Japanese distribution and ships sealed in its original factory packaging. We do not deal in resealed, reprinted or fake product.'],
     ['What if something arrives damaged or short?', 'Report transit damage, a short shipment or a wrong item within seven days of delivery, with photos, and we replace, credit or refund the affected items and their shipping. Our Shipping & Returns page has the details.'],

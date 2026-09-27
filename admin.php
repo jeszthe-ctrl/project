@@ -1,6 +1,6 @@
 <?php
 /* =============================================================
-   POKEKURA — admin backend. Open /admin.php in your browser.
+   FUDAKURA — admin backend. Open /admin.php in your browser.
 
    The first visit asks you to create the admin password, so do
    that straight after uploading. Everything saved here goes to
@@ -9,11 +9,10 @@
    ============================================================= */
 
 define('FK_ROOT', __DIR__);
-@ini_set('display_errors', '0');                    /* never print PHP messages into pages (they break redirects) */
-error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
 require FK_ROOT.'/inc/store.php';
 require FK_ROOT.'/inc/bitcoin.php';
 start_session();
+error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 header('X-Frame-Options: DENY');
 header('X-Robots-Tag: noindex, nofollow');
 header('Cache-Control: no-store');
@@ -38,6 +37,8 @@ function codes($s){
   return array_values(array_unique($out));
 }
 function usd($v){ return '$'.number_format((float)$v, 2); }
+/* what shoppers see for a USD amount: "≈ A$100.00" with the shop's first currency */
+function shown($v){ $c = $GLOBALS['STORE']['currencies'] ?? []; $m = reset($c); return $m ? '≈ '.$m['sym'].number_format((float)$v * $m['rate'], (int)$m['dec']).' to shoppers' : ''; }
 
 function is_admin(){ global $AUTH; return !empty($AUTH['key']) && hash_equals($AUTH['key'], (string)($_SESSION['admin'] ?? '')); }
 function csrf(){ if(empty($_SESSION['admin_csrf'])) $_SESSION['admin_csrf'] = bin2hex(random_bytes(16)); return $_SESSION['admin_csrf']; }
@@ -496,7 +497,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     $s['domain'] = rtrim($s['domain'], '/');
     $mv = rtrim(in_str('moved_to'), '/');
     if($mv === '' || preg_match('#^https?://[a-z0-9.-]+(:\d+)?$#i', $mv)) $s['moved_to'] = $mv;
-    else note('“This site has moved to” needs just the new address, like https://pokekura.com, so it was left unchanged.', 'err');
+    else note('“This site has moved to” needs just the new address, like https://fudakura.com.au, so it was left unchanged.', 'err');
     foreach(['reply_hours','hold_hours'] as $k){ $n = num(in_str($k), 1); if($n !== null) $s[$k] = (int)$n; }
     $min = num(in_str('min_order_usd'), 0); if($min !== null) $s['min_order_usd'] = round($min, 2);
     $s['home_seo_title'] = str(in_arr('home')['seo_title'] ?? '');
@@ -526,8 +527,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
       if($rate === null){ note("$code was skipped: enter a rate above 0.", 'err'); continue; }
       $curs[$code] = ['rate'=>$code === 'USD' ? 1 : $rate, 'sym'=>str($row['sym'] ?? '') ?: $code.' ', 'dec'=>max(0, min(3, (int)($row['dec'] ?? 2)))];
     }
-    if(!isset($curs['USD'])) $curs = ['USD'=>['rate'=>1,'sym'=>'$','dec'=>2]] + $curs;
-    $STORE['currencies'] = $curs;
+    if($curs) $STORE['currencies'] = $curs; else note('At least one currency is needed, so the old list was kept.', 'err');
 
     $countries = [];
     foreach(preg_split('/\R/', (string)($_POST['countries'] ?? '')) as $line){
@@ -782,13 +782,12 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   $visible = array_filter($STORE['products'], fn($p)=>empty($p['hidden'])); ?>
   <h1>Dashboard</h1>
   <p class="sub">Everything you change here updates the shop straight away.</p>
-  <?php if(empty($S['shipping_reviewed'])): ?><div class="msg warn">Shipping rates are still the <b>placeholder values</b> the site shipped with. Set your real rates in <a href="<?= h(self_url('shipping')) ?>">Shipping</a> — they decide the order total and the <?= usd($S['min_order_usd']) ?> minimum.</div><?php endif; ?>
+  <?php if(empty($S['shipping_reviewed'])): ?><div class="msg warn">Shipping rates are still the <b>placeholder values</b> the site shipped with. Set your real rates in <a href="<?= h(self_url('shipping')) ?>">Shipping</a> — they decide the order total and the <?= usd($S['min_order_usd']) ?> (<?= h(shown($S['min_order_usd'])) ?>) minimum.</div><?php endif; ?>
   <?php if(in_array(trim($S['address']), ['', 'Japan'], true)): ?><div class="msg warn">Your business address is just “<?= h($S['address'] ?: 'blank') ?>”. Add the full address in <a href="<?= h(self_url('settings')) ?>">Settings</a> — buyers look for it before ordering.</div><?php endif; ?>
   <?php $failed = array_filter(array_slice($orders, 0, 20), fn($o)=>isset($o['mail_shop']) && !$o['mail_shop']);
   if($failed): ?><div class="msg err"><?= count($failed) ?> recent order email<?= count($failed)===1?'':'s' ?> to <?= h($S['order_email']) ?> failed to send. The orders are safe here, but check with your host that PHP can send mail from <?= h($S['email']) ?>.</div><?php endif; ?>
   <?php if(!data_read('mail-test')): ?><div class="msg warn">Send yourself a test email in <a href="<?= h(self_url('settings')) ?>#email-settings">Settings → Email</a> to check that order emails reach <?= h($S['order_email']) ?> and your customers.</div><?php endif; ?>
-  <?php if(empty($S['pretty_urls'])): ?><div class="msg warn">Clean page addresses are off. They help Google — see <a href="<?= h(self_url('settings')) ?>">Settings → Google &amp; web addresses</a> to test and turn them on.</div>
-  <?php if(empty($S['pretty_auto'])): /* they switch on by themselves once the host is seen to support them */ ?><script>fetch('rewrite-check', {cache:'no-store'}).then(function(r){ return r.ok ? r.json() : {}; }).then(function(j){ if(j.clean_urls) location.reload(); }).catch(function(){});</script><?php endif; endif; ?>
+  <?php if(empty($S['pretty_urls'])): ?><div class="msg warn">Clean page addresses are off. They help Google — see <a href="<?= h(self_url('settings')) ?>">Settings → Google &amp; web addresses</a> to test and turn them on.</div><?php endif; ?>
   <?php if($no_photo): ?><div class="msg warn"><?= count($no_photo) ?> product<?= count($no_photo)===1?' has':'s have' ?> no photo yet. Add photos from <a href="<?= h(self_url('products')) ?>">Products</a>.</div><?php endif; ?>
   <div class="stats">
     <div><b><?= (int)($by['new'] ?? 0) ?></b><span>New orders</span></div>
@@ -1167,11 +1166,12 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 
 <?php elseif($v === 'shipping'):
   $sh = $STORE['shipping']; $SM = ship_methods($STORE);
-  $ex = fn($c, $kg, $m)=>usd(shipping_usd($STORE, $c, $kg, $m)); ?>
+  $ex = fn($c, $kg, $m)=>usd(shipping_usd($STORE, $c, $kg, $m));
+  $home = (string)array_key_first($STORE['countries']); ?>
   <h1>Shipping rates</h1>
   <p class="sub">Customers choose <b><?= h($SM['standard']['label']) ?></b> or <b><?= h($SM['express']['label']) ?></b> at checkout. Each costs the zone’s <b>per-order</b> price + its <b>per-kg</b> price × the order’s weight (each product’s weight × quantity), in USD.
-    The <?= usd($S['min_order_usd']) ?> minimum order counts goods plus the shipping chosen.</p>
-  <?php if(empty($S['shipping_reviewed'])): ?><div class="msg warn">These are starting rates: a single card to the US comes to $12 Standard (TCGplayer’s $11.99 international rate, rounded up), then more per kg. Check them against what your carrier actually charges from Japan, then save.</div><?php endif; ?>
+    The <?= usd($S['min_order_usd']) ?> (<?= h(shown($S['min_order_usd'])) ?>) minimum order counts goods plus the shipping chosen.</p>
+  <?php if(empty($S['shipping_reviewed'])): ?><div class="msg warn">These are starting rates: a single card to Australia comes to $10 Standard (US$, about A$15), then more per kg. Check them against what your carrier actually charges from Japan, then save.</div><?php endif; ?>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="shipping_save">
     <div class="card"><h2>Delivery options</h2>
       <div class="grid2">
@@ -1187,7 +1187,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
     <div class="card"><h2>Free shipping</h2>
       <div class="fld" style="max-width:320px"><label class="f" for="free_ship_usd">Free <?= h($SM['standard']['label']) ?> shipping on orders over (USD)</label>
         <input type="number" id="free_ship_usd" name="free_ship_usd" min="0" step="1" value="<?= h($S['free_ship_usd'] ?? 0) ?>">
-        <div class="hint">Counts the goods total, before shipping. <?= h($SM['express']['label']) ?> then costs only the difference. 0 turns it off. It shows in the bar at the top of every page.</div></div>
+        <div class="hint">Counts the goods total, before shipping. <?= h($SM['express']['label']) ?> then costs only the difference. 0 turns it off. It shows in the bar at the top of every page. Now <?= h(shown($S['free_ship_usd'] ?? 0)) ?>.</div></div>
     </div>
     <div class="card scroll"><table class="t">
       <thead><tr><th>Zone name</th><th>Country codes</th>
@@ -1195,7 +1195,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
       <?php $zones = $sh['zones']; for($i=0; $i<count($zones)+2; $i++): $z = $zones[$i] ?? ['name'=>'','countries'=>[]];
         $zr = isset($zones[$i]) ? zone_rates($z) : ['standard'=>['base'=>'','per_kg'=>''], 'express'=>['base'=>'','per_kg'=>'']]; ?>
         <tr><td><input type="text" name="zones[<?= $i ?>][name]" value="<?= h($z['name']) ?>" placeholder="<?= isset($zones[$i])?'':'New zone' ?>" aria-label="Zone name"></td>
-            <td><input type="text" name="zones[<?= $i ?>][countries]" value="<?= h(implode(', ', $z['countries'])) ?>" placeholder="e.g. US, CA" aria-label="Country codes" style="min-width:170px"></td>
+            <td><input type="text" name="zones[<?= $i ?>][countries]" value="<?= h(implode(', ', $z['countries'])) ?>" placeholder="e.g. AU, NZ" aria-label="Country codes" style="min-width:170px"></td>
             <?php foreach($SM as $m=>$mm): ?>
             <td><input type="number" name="zones[<?= $i ?>][<?= $m ?>][base]" value="<?= h($zr[$m]['base']) ?>" min="0" step="0.01" aria-label="<?= h($mm['label']) ?> per order"></td>
             <td><input type="number" name="zones[<?= $i ?>][<?= $m ?>][per_kg]" value="<?= h($zr[$m]['per_kg']) ?>" min="0" step="0.01" aria-label="<?= h($mm['label']) ?> per kg"></td>
@@ -1208,12 +1208,12 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
             <td><input type="number" name="rest[<?= $m ?>][per_kg]" value="<?= h($rr[$m]['per_kg']) ?>" min="0" step="0.01" aria-label="Rest of world <?= h($mm['label']) ?> per kg"></td>
             <?php endforeach; ?><td></td></tr>
       </tbody></table>
-      <p class="small muted">Country codes are the two-letter codes from your country list in <a href="<?= h(self_url('settings')) ?>">Settings</a> (US, GB, DE…), separated by commas.</p>
+      <p class="small muted">Country codes are the two-letter codes from your country list in <a href="<?= h(self_url('settings')) ?>">Settings</a> (AU, NZ, JP…), separated by commas.</p>
     </div>
-    <div class="card"><h2>What customers pay to the US (current rates, before free shipping)</h2>
+    <div class="card"><h2>What customers pay to <?= h($STORE['countries'][$home] ?? $home) ?> (current rates, before free shipping)</h2>
       <table class="t"><thead><tr><th>Order</th><th class="r">Weight</th><?php foreach($SM as $mm): ?><th class="r"><?= h($mm['label']) ?></th><?php endforeach; ?></tr></thead><tbody>
         <?php foreach([['1 single card', 0.05], ['24 packs of sleeves', 1.44], ['6 booster boxes', 2.4], ['6 Elite Trainer Boxes', 5.4], ['12-box case', 5.6], ['36 booster boxes', 14.4]] as [$lbl, $kg]): ?>
-          <tr><td><?= h($lbl) ?></td><td class="r"><?= h($kg) ?> kg</td><?php foreach(array_keys($SM) as $m): ?><td class="r"><?= $ex('US', $kg, $m) ?></td><?php endforeach; ?></tr>
+          <tr><td><?= h($lbl) ?></td><td class="r"><?= h($kg) ?> kg</td><?php foreach(array_keys($SM) as $m): ?><td class="r"><?= $ex($home, $kg, $m) ?></td><?php endforeach; ?></tr>
         <?php endforeach; ?>
       </tbody></table>
     </div>
@@ -1229,7 +1229,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 
 <?php elseif($v === 'payments'): ?>
   <h1>Payment methods</h1>
-  <p class="sub">Customers pick one at checkout. <b>Bitcoin</b> methods are paid on the site, straight to your wallet; for the others, you send the customer the details. Leave “Countries” as * for everywhere, or list country codes (e.g. US, GB).</p>
+  <p class="sub">Customers pick one at checkout. <b>Bitcoin</b> methods are paid on the site, straight to your wallet; for the others, you send the customer the details. Leave “Countries” as * for everywhere, or list country codes (e.g. AU, NZ).</p>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="payments_save">
     <div class="card"><h2>Bitcoin wallet</h2>
       <?php $ba = $S['btc_address'] ?? ''; ?>
@@ -1282,14 +1282,14 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
         <div class="fld"><label class="f" for="order_email">Send new orders to</label><input type="email" id="order_email" name="order_email" value="<?= h($S['order_email']) ?>"></div>
         <div class="fld"><label class="f" for="phone">Phone (optional)</label><input type="text" id="phone" name="phone" value="<?= h($S['phone']) ?>"></div>
       </div>
-      <div class="fld"><label class="f" for="domain">Website address</label><input type="url" id="domain" name="domain" value="<?= h($S['domain']) ?>"><div class="hint">Used for Google and link previews, e.g. https://pokekura.com</div></div>
+      <div class="fld"><label class="f" for="domain">Website address</label><input type="url" id="domain" name="domain" value="<?= h($S['domain']) ?>"><div class="hint">Used for Google and link previews, e.g. https://fudakura.com.au</div></div>
       <div class="fld"><label class="f" for="moved_to">This site has moved to (only for an old domain)</label><input type="url" id="moved_to" name="moved_to" value="<?= h($S['moved_to'] ?? '') ?>" placeholder="leave empty">
         <div class="hint">Fill this in <b>only</b> on an old domain you’re retiring: every shop page then redirects permanently (301) to the same page on the new address, which moves your Google rankings across. The admin keeps working. Leave it empty on your main site.</div></div>
     </div>
 
     <div class="card"><h2>Store rules</h2>
       <div class="grid3">
-        <div class="fld"><label class="f" for="min_order_usd">Minimum order (USD, incl. shipping)</label><input type="number" id="min_order_usd" name="min_order_usd" min="0" step="0.01" value="<?= h($S['min_order_usd']) ?>"></div>
+        <div class="fld"><label class="f" for="min_order_usd">Minimum order (USD, incl. shipping)</label><input type="number" id="min_order_usd" name="min_order_usd" min="0" step="0.01" value="<?= h($S['min_order_usd']) ?>"><div class="hint"><?= h(shown($S['min_order_usd'])) ?></div></div>
         <div class="fld"><label class="f" for="reply_hours">Hours to send payment details</label><input type="number" id="reply_hours" name="reply_hours" min="1" value="<?= (int)$S['reply_hours'] ?>"></div>
         <div class="fld"><label class="f" for="hold_hours">Hours stock is held / to dispatch</label><input type="number" id="hold_hours" name="hold_hours" min="1" value="<?= (int)$S['hold_hours'] ?>"></div>
       </div>
@@ -1309,7 +1309,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
       <p class="small muted" style="margin-top:0">Your sitemap to submit: <b><?= h(rtrim($S['domain'], '/')) ?>/<?= !empty($S['pretty_urls']) ? 'sitemap.xml' : 'index.php?p=sitemap' ?></b></p>
       <label class="row small" style="align-items:flex-start"><input type="checkbox" name="pretty_urls" value="1" <?= !empty($S['pretty_urls'])?'checked':'' ?> style="margin-top:4px">
         <span><b>Clean page addresses</b>, like /products/151-booster-box instead of index.php?p=product&amp;id=…
-        They switch on by themselves when your host supports them. To check yours, open <a href="shop" target="_blank" rel="noopener">your-domain/shop</a>: if it shows the shop, you can tick this.
+        First open <a href="shop" target="_blank" rel="noopener">your-domain/shop</a>: if it shows the shop, your host supports them and you can tick this.
         If it shows an error, leave it off (the shop works either way).</span></label>
     </div>
 
@@ -1351,7 +1351,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
     </div>
 
     <div class="card"><h2>Currencies</h2>
-      <p class="small muted" style="margin-top:0">Prices are set in USD; other currencies are converted with these rates. Update the rates now and then.</p>
+      <p class="small muted" style="margin-top:0">Product prices, the minimum order and shipping are entered in USD; shoppers see them converted with these rates. Keep the AUD rate up to date. Shoppers see the <b>first</b> currency; with just one, there's no currency switch.</p>
       <div class="scroll"><table class="t"><thead><tr><th>Code</th><th>Symbol</th><th>1 USD =</th><th>Decimals</th><th>Delete</th></tr></thead><tbody>
       <?php $i = 0; foreach($STORE['currencies'] + ['' => ['rate'=>'','sym'=>'','dec'=>2]] as $code=>$m): ?>
         <tr><td><input type="text" name="curs[<?= $i ?>][code]" value="<?= h($code) ?>" maxlength="3" placeholder="New" aria-label="Code" <?= $code==='USD'?'readonly':'' ?>></td>
@@ -1364,7 +1364,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
     </div>
 
     <div class="card"><h2>Countries you ship to</h2>
-      <p class="small muted" style="margin-top:0">One per line: two-letter code = name. These fill the country list at checkout.</p>
+      <p class="small muted" style="margin-top:0">One per line: two-letter code = name. These fill the country list at checkout; the first one is the default, and is used for the shipping examples.</p>
       <textarea name="countries" rows="12"><?= h(implode("\n", array_map(fn($c, $n)=>"$c = $n", array_keys($STORE['countries']), $STORE['countries']))) ?></textarea>
     </div>
     <button class="btn" type="submit">Save settings</button>
@@ -1409,14 +1409,14 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 <?php
 function orders_table($orders){ ?>
   <div class="scroll"><table class="t">
-    <thead><tr><th>Order</th><th>Placed</th><th>Customer</th><th>Country</th><th>Payment</th><th class="r">Total (USD)</th><th>Status</th></tr></thead><tbody>
+    <thead><tr><th>Order</th><th>Placed</th><th>Customer</th><th>Country</th><th>Payment</th><th class="r">Total</th><th>Status</th></tr></thead><tbody>
     <?php foreach($orders as $o): $st = $o['status'] ?? 'new'; ?>
       <tr><td><a href="<?= h(self_url('order', ['ref'=>$o['ref']])) ?>"><b><?= h($o['ref']) ?></b></a></td>
           <td class="small"><?= h($o['time']) ?></td>
           <td><?= h($o['name']) ?><?php if($o['company']): ?><br><span class="muted small"><?= h($o['company']) ?></span><?php endif; ?></td>
           <td><?= h($o['country_name']) ?></td>
           <td><?= h($o['payment_label']) ?><?php if(!empty($o['btc'])): ?><br><span class="muted small">₿ <?= h(btc_state_label(btc_state($o))) ?></span><?php endif; ?></td>
-          <td class="r"><?= usd($o['total_usd'] ?? 0) ?></td>
+          <td class="r"><?= h($o['total'] ?? usd($o['total_usd'] ?? 0)) ?><div class="muted small">US<?= usd($o['total_usd'] ?? 0) ?></div></td>
           <td><span class="pill s-<?= h($st) ?>"><?= h(status_label(ORDER_STATUSES, $st)) ?></span></td></tr>
     <?php endforeach; ?>
     </tbody></table></div>
