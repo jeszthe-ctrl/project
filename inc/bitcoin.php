@@ -77,7 +77,7 @@ function btc_get($url, $timeout=6){
       CURLOPT_FOLLOWLOCATION=>true, CURLOPT_MAXREDIRS=>3, CURLOPT_USERAGENT=>'Mozilla/5.0 (shop payment check)',
       CURLOPT_HTTPHEADER=>['Accept: application/json']]);
     $body = curl_exec($c); $code = (int)curl_getinfo($c, CURLINFO_HTTP_CODE);
-    curl_close($c);
+    if(PHP_VERSION_ID < 80000) curl_close($c);   /* closed automatically since PHP 8 */
   } elseif(ini_get('allow_url_fopen')){
     $ctx = stream_context_create(['http'=>['timeout'=>$timeout, 'ignore_errors'=>true,
       'header'=>"Accept: application/json\r\nUser-Agent: Mozilla/5.0 (shop payment check)\r\n"]]);
@@ -242,14 +242,18 @@ function btc_sync(&$o, $force=false){
 /* ---------------- emails ---------------- */
 function btc_pay_link($o){
   $d = rtrim($GLOBALS['STORE']['settings']['domain'], '/');
-  return $d.'/index.php?'.http_build_query(['p'=>'pay', 'ref'=>$o['ref'], 'k'=>order_key($o['ref'])]);
+  return $d.'/index.php?'.http_build_query(['p'=>'pay', 'l'=>$o['lang'] ?? array_key_first(LANGS), 'ref'=>$o['ref'], 'k'=>order_key($o['ref'])]);
 }
 
-/* payment receipts to the shop (order email) and the customer, with a link to follow the transaction */
+/* payment receipts to the shop (order email, in English) and the customer (in the language they ordered in),
+   with a link to follow the transaction */
 function btc_mail(&$o, $kind){
   $cfg = $GLOBALS['STORE']['settings']; $b = $o['btc'];
   $paid = btc_amount($b['paid_sats'] ?? 0); $due = btc_amount($b['expected_sats'] ?? ($b['sats'] ?? 0));
   $usd  = '$'.number_format(($b['paid_sats'] ?? 0) / 1e8 * ($b['rate'] ?? 0), 2);
+  $conf = (int)($b['confirmations'] ?? 0);
+  $need = btc_settings()['confs'];
+  $short = btc_amount(max(0, ($b['expected_sats'] ?? 0) - ($b['paid_sats'] ?? 0)));
   $lines = [
     "Order:          {$o['ref']}",
     "Amount paid:    $paid BTC (about $usd)",
@@ -258,34 +262,47 @@ function btc_mail(&$o, $kind){
     "Transaction ID: {$b['txid']}",
     "Track it:       ".btc_tx_url($b['txid']),
   ];
-  $conf = (int)($b['confirmations'] ?? 0);
-  $need = btc_settings()['confs'];
   if($kind === 'received'){
     $subj_shop = "Bitcoin payment received — {$o['ref']} — $paid BTC";
-    $subj_cus  = "Payment received — order {$o['ref']}";
     $lines[] = "Status:         on the blockchain, $conf of $need confirmation".($need === 1 ? '' : 's');
     $shop_note = "A customer has paid by Bitcoin. It isn't confirmed yet — you'll get another email when it confirms (usually 10–60 minutes). Don't ship until then.";
-    $cus_note  = "We've received your Bitcoin payment. It's waiting for confirmation on the Bitcoin network, which usually takes 10–60 minutes — you don't need to do anything else. We'll email you again when it confirms, and your tracking number as soon as your order ships.";
   } elseif($kind === 'confirmed'){
     $subj_shop = "Bitcoin payment CONFIRMED — {$o['ref']} — ready to ship";
-    $subj_cus  = "Payment confirmed — order {$o['ref']}";
     $lines[] = "Status:         confirmed ($conf confirmation".($conf === 1 ? '' : 's').")";
     $shop_note = "The payment has confirmed and the order is marked Paid. Pack and ship it.";
-    $cus_note  = "Your payment has confirmed — thank you. We're packing your order now and will email your tracking number as soon as it ships from Japan.";
   } else {   // short
     $subj_shop = "Bitcoin payment SHORT — {$o['ref']}";
-    $subj_cus  = "Payment received, but less than the amount due — order {$o['ref']}";
-    $lines[] = "Status:         confirmed, ".btc_amount(max(0, ($b['expected_sats'] ?? 0) - ($b['paid_sats'] ?? 0)))." BTC short";
+    $lines[] = "Status:         confirmed, $short BTC short";
     $shop_note = "The customer paid less than the amount quoted. Contact them before shipping.";
-    $cus_note  = "Your payment confirmed, but it was less than the amount due. Please reply to this email and we'll sort out the difference — often an exchange or wallet takes its fee from the amount sent.";
   }
-  $detail = implode("\n", $lines);
   $shop = shop_mail($cfg['order_email'], $subj_shop,
-    "$shop_note\n\n$detail\n\nCustomer: {$o['name']} <{$o['email']}>\nOrder total: {$o['total']} {$o['currency']} (\${$o['total_usd']} USD)\n",
+    "$shop_note\n\n".implode("\n", $lines)."\n\nCustomer: {$o['name']} <{$o['email']}> (".(LANGS[$o['lang'] ?? ''] ?? 'Nederlands').")\nOrder total: {$o['total']} {$o['currency']} (\${$o['total_usd']} USD)\n",
     $o['email']);
+
+  /* the customer's copy, in their language */
+  $was = $GLOBALS['LANG'] ?? null; $GLOBALS['LANG'] = $o['lang'] ?? array_key_first(LANGS);
+  $cl = [
+    t('Order: %s', $o['ref']),
+    t('Amount paid: %s BTC', $paid),
+    t('Amount due: %s BTC', $due),
+    t('To address: %s', $b['address']),
+    t('Transaction ID: %s', $b['txid']),
+    t('Follow it: %s', btc_tx_url($b['txid'])),
+  ];
+  if($kind === 'received'){
+    $subj_cus = t('Payment received — order %s', $o['ref']);
+    $cus_note = t('We’ve received your Bitcoin payment. It’s waiting for confirmation on the Bitcoin network, which usually takes 10–60 minutes; you don’t need to do anything else. We’ll email you again when it confirms, and send your tracking number as soon as your order ships.');
+  } elseif($kind === 'confirmed'){
+    $subj_cus = t('Payment confirmed — order %s', $o['ref']);
+    $cus_note = t('Your payment has confirmed. Thank you! We’re packing your order now and will email your tracking number as soon as it ships from Japan.');
+  } else {
+    $subj_cus = t('Payment received, but less than the amount due — order %s', $o['ref']);
+    $cus_note = t('Your payment confirmed, but it was %s BTC less than the amount due. Please reply to this email and we’ll sort out the difference: often an exchange or wallet takes its fee from the amount sent.', $short);
+  }
   $cus = shop_mail($o['email'], $subj_cus,
-    "$cus_note\n\n$detail\n\nYour order page: ".btc_pay_link($o)."\n\nQuestions: {$cfg['email']}\n{$cfg['legal_name']} — {$cfg['address']}\n",
+    "$cus_note\n\n".implode("\n", $cl)."\n\n".t('Your order page: %s', btc_pay_link($o))."\n\n".t('Questions? %s', $cfg['email'])."\n{$cfg['legal_name']} — {$cfg['address']}\n",
     $cfg['email']);
+  $GLOBALS['LANG'] = $was;
   $o['btc']['mails'][] = [$kind, time(), $shop, $cus];
   return $shop;
 }

@@ -2,6 +2,7 @@
 /* Shared by index.php (storefront) and admin.php (backend):
    data storage, sessions and the few helpers both need. */
 if(!defined('FK_ROOT')){ http_response_code(404); exit; }
+require_once FK_ROOT.'/inc/i18n.php';
 
 /* Every data file starts with this line, so opening one in a browser shows nothing
    even on hosts that ignore data/.htaccess. The JSON follows on the next line. */
@@ -19,7 +20,14 @@ function start_session(){
   if(session_status() === PHP_SESSION_ACTIVE) return;
   $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
   session_set_cookie_params(['lifetime'=>0, 'path'=>'/', 'secure'=>$https, 'httponly'=>true, 'samesite'=>'Lax']);
-  session_start();
+  /* some hosts' session folder isn't writable (or is outside open_basedir): keep sessions in data/ instead */
+  $path = preg_replace('/^.*;/', '', (string)session_save_path()) ?: sys_get_temp_dir();
+  if(!@is_dir($path) || !@is_writable($path)){
+    $own = FK_ROOT.'/data/sessions';
+    if(!is_dir($own)) @mkdir($own, 0700, true);
+    if(is_writable($own)){ session_save_path($own); @ini_set('session.gc_probability', '1'); @ini_set('session.gc_divisor', '100'); }
+  }
+  @session_start();
 }
 
 /* ---------------- data files ---------------- */
@@ -57,141 +65,86 @@ function store_defaults(){ return require FK_ROOT.'/inc/defaults.php'; }
 function store_load(){
   $d = store_defaults();
   $s = data_read('store');
-  if(!$s){ $s = $d; data_write('store', $s); }   // first run: seed from defaults
-  $version = (int)($s['settings']['content_version'] ?? 1);
+  /* first run, or data from a version of the shop without French and Dutch text: seed from the defaults
+     (store_save keeps the old file in data/backups/) */
+  if(!$s || !isset($s['i18n'])){ $s = $d; store_save($s); }
   $s += $d;                                       // sections added by later versions
   $s['settings'] += $d['settings'];
-  if($version < CONTENT_VERSION){ $s = content_upgrade($s, $d, $version); store_save($s); }
+  foreach(array_keys(LANGS) as $L){
+    $s['i18n'][$L] = ($s['i18n'][$L] ?? []) + ($d['i18n'][$L] ?? []);
+    $s['i18n'][$L]['settings'] = ($s['i18n'][$L]['settings'] ?? []) + ($d['i18n'][$L]['settings'] ?? []);
+  }
+  if((int)($s['settings']['content_version'] ?? 1) < CONTENT_VERSION){ $s['settings']['content_version'] = CONTENT_VERSION; store_save($s); }
   return $s;
 }
 
-/* Content that a newer version of the shop adds or improves, applied once to shops installed
-   earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
-   replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 8;
-function content_upgrade($s, $d, $version){
-  $new = array_column($d['guides'], null, 'slug');
-  /* replace a guide with today's default, but only if it still matches the default it shipped with */
-  $refresh = function($untouched) use(&$s, $new){
-    foreach($s['guides'] ?? [] as $i=>$g){
-      $slug = $g['slug'] ?? '';
-      if(isset($untouched[$slug], $new[$slug]) && md5(json_encode([$g['title'] ?? '', $g['seo_title'] ?? '', $g['seo_desc'] ?? '', $g['body'] ?? ''])) === $untouched[$slug])
-        $s['guides'][$i] = $new[$slug];
-    }
+/* Content that a newer version of the shop adds or improves is applied once, by version number. */
+const CONTENT_VERSION = 1;
+
+/* ---------------- two languages ----------------
+   data/store.php keeps the text of each language next to the shared data:
+   - products, categories, series, sets and payment methods carry their text per language in 'tr' => ['nl'=>[…], 'fr'=>[…]]
+   - the delivery options carry theirs the same way (shipping → methods)
+   - settings text, collections, guides, pages and the FAQ live in 'i18n' => ['nl'=>[…], 'fr'=>[…]]
+   store_view() turns that into one language's plain store (what index.php and admin.php work with);
+   store_unview() puts an edited plain store back. Text missing in one language falls back to the other. */
+const I18N_KEYED    = ['products'=>['name','desc','seo_title','seo_desc','release'],
+                       'categories'=>['label','blurb','slug','h1','seo_title','seo_desc','intro'],
+                       'series'=>['name','h1','seo_title','seo_desc','intro'],
+                       'sets'=>['intro','seo_title','seo_desc'],
+                       'payments'=>['label','note']];
+const I18N_METHODS  = ['label','days'];
+const I18N_SETTINGS = ['tagline','strip_text','strip_link_text','strip_link_url','hero_title','hero_lede','footer_blurb',
+                       'home_seo_title','home_seo_desc','home_intro','shipping_policy'];
+const I18N_LISTS    = ['collections','guides','pages','faqs'];
+
+function lang_other($L){ foreach(array_keys(LANGS) as $x) if($x !== $L) return $x; return $L; }
+
+function store_view($raw, $L){
+  $o = lang_other($L);
+  $s = $raw; unset($s['i18n']);
+  $pick = function($e, $fields) use($L, $o){
+    $tr = ($e['tr'][$L] ?? []) + ($e['tr'][$o] ?? []);
+    foreach($fields as $f) $e[$f] = (string)($tr[$f] ?? ($e[$f] ?? ''));
+    return $e;
   };
-  if($version < 2){   /* keyword guides (September 2026) */
-    $refresh(['pokemon-card-values'=>'e1c8e64401879ebcac7b241e90fae22f', 'how-to-tell-if-a-pokemon-card-is-fake'=>'76d9a8000302730c1310037025f38a90',
-              'pokemon-card-rarities'=>'e521c0cb0e9db5519b7ee1e7a71f2e76']);
-    $have = array_column($s['guides'] ?? [], 'slug');
-    $add = array_values(array_filter($d['guides'], fn($g)=>!in_array($g['slug'], $have, true)));
-    $at = array_search('japanese-pokemon-cards', $have, true);
-    array_splice($s['guides'], $at === false ? count($have) : $at + 1, 0, $add);
-    foreach(['mega'=>'Pokémon TCG Mega Evolution sets (Japanese)', 'sv'=>'Pokémon TCG Scarlet & Violet sets (Japanese)'] as $k=>$old)
-      if(($s['series'][$k]['h1'] ?? '') === $old && isset($d['series'][$k])) $s['series'][$k]['h1'] = $d['series'][$k]['h1'];
-    if(isset($s['sets']['151'], $d['sets']['151']) && md5($s['sets']['151']['intro'] ?? '') === 'f5fcaf3d3354a7554c4bc324e1733a6e') $s['sets']['151']['intro'] = $d['sets']['151']['intro'];
-  }
-  if($version < 3){   /* links from the original guides to the keyword guides */
-    $refresh(['japanese-pokemon-cards'=>'a8fd982a383ce3bdcc5ab6e036190916', 'pokemon-card-size'=>'1234128d8b1cbbee998b58fe1e6efc36',
-              'pokemon-card-rarities'=>'73fc2cb21f9ba24cc5ce4fef927e2bd9', 'pokemon-card-values'=>'477ebb8b3fb7c80b7daefe58f72801a3',
-              'how-to-tell-if-a-pokemon-card-is-fake'=>'23aa0b44bf81b80c8383baccf145b71f',
-              'how-to-play-pokemon-cards'=>'b45490267d5e4fccd47b333d7f20026c', 'coolest-pokemon-cards'=>'88e6f3ed3e446bc3ec6b73d30d13246d']);
-  }
-  if($version < 4){   /* wholesale distributor wording, the Wholesale page, brand names from Settings */
-    $refresh(['where-to-buy-pokemon-cards'=>'4fdc2230f979fc188a9d06a23266a88f', 'pokemon-card-shops-near-me'=>'8f5c69f1d5cffb3bfc5b51ec6af47666']);
-    $pages = array_column($d['pages'], null, 'slug');
-    foreach(['about', 'privacy-policy', 'terms'] as $slug) foreach($s['pages'] ?? [] as $i=>$pg)
-      if(($pg['slug'] ?? '') === $slug && isset($pages[$slug]) && md5(json_encode([$pg['title'] ?? '', $pg['seo_title'] ?? '', $pg['seo_desc'] ?? '', $pg['body'] ?? ''])) === (['about'=>'3f57bf8a4a119889d4c9b38a8dfb6666', 'privacy-policy'=>'6be9c9e62d077e720658b7cef36b55bc', 'terms'=>'514392504c356be7be64d5314efef00d'][$slug] ?? ''))
-        $s['pages'][$i] = $pages[$slug];
-    if(isset($pages['wholesale']) && !in_array('wholesale', array_column($s['pages'] ?? [], 'slug'), true)){
-      $at = array_search('about', array_column($s['pages'] ?? [], 'slug'), true);
-      array_splice($s['pages'], $at === false ? 0 : $at + 1, 0, [$pages['wholesale']]);
+  foreach(I18N_KEYED as $sec=>$fields) foreach($s[$sec] ?? [] as $k=>$e) $s[$sec][$k] = $pick($e, $fields);
+  foreach($s['shipping']['methods'] ?? [] as $k=>$e) $s['shipping']['methods'][$k] = $pick($e, I18N_METHODS);
+  $s['settings'] = array_filter(($raw['i18n'][$L]['settings'] ?? []) + ($raw['i18n'][$o]['settings'] ?? []), fn($v)=>$v !== null) + $raw['settings'];
+  foreach(I18N_LISTS as $sec) $s[$sec] = $raw['i18n'][$L][$sec] ?? [];
+  $s['lang'] = $L;
+  return $s;
+}
+
+function store_unview($raw, $s, $L){
+  $o = lang_other($L);
+  /* a field this language didn't have, still showing the other language's text (or nothing), stays unset,
+     so it keeps following the other language until someone writes it here */
+  $put = function($e, $fields, $old) use($L, $o){
+    $tr = $e['tr'] ?? $old;
+    $mine = $tr[$L] ?? []; $tr[$L] = [];
+    foreach($fields as $f){
+      $v = (string)($e[$f] ?? ''); unset($e[$f]);
+      if(!isset($mine[$f]) && ($v === '' || $v === (string)($tr[$o][$f] ?? ''))) continue;
+      $tr[$L][$f] = $v;
     }
-    foreach(['strip_text'=>'639b0e5dcdf2570e5a40852f446be957',
-                 'hero_title'=>'b67f33909591fa24b4083c451f729f19',
-                 'hero_lede'=>'60ad9c5e4f67a6dff88857730b107312',
-                 'footer_blurb'=>'b91eecc775f89174becc6ae7a6343a4d',
-                 'home_seo_title'=>'d19142018d6bb97c2405b054e57a52db',
-                 'home_seo_desc'=>'a6d815b569384fa6345fa8f3efb02b6e',
-                 'home_intro'=>'4bc6da20381f5dc69b7aa87e26f8928e',
-                 'tagline'=>'88a66b2e6a19be0a5fd4eb4f36d5e068'] as $k=>$old)
-      if(isset($d['settings'][$k]) && md5((string)($s['settings'][$k] ?? '')) === $old) $s['settings'][$k] = $d['settings'][$k];
-    if(md5(json_encode($s['faqs'] ?? [])) === '0f9897f07b6679311ae3226baed0dd1b') $s['faqs'] = $d['faqs'];
+    $e['tr'] = $tr;
+    return $e;
+  };
+  foreach(I18N_KEYED as $sec=>$fields){
+    $old = [];
+    foreach($raw[$sec] ?? [] as $k=>$e) $old[(string)($sec === 'products' ? ($e['id'] ?? $k) : $k)] = $e['tr'] ?? [];
+    foreach($s[$sec] ?? [] as $k=>$e) $s[$sec][$k] = $put($e, $fields, $old[(string)($sec === 'products' ? ($e['id'] ?? $k) : $k)] ?? []);
   }
-  if($version < 5){   /* FUDAKURA for Australia: brand, AUD first, Australia-only shipping, PayID, GST wording */
-    $refresh(['japanese-pokemon-cards'=>'68e34c04a2ffcf73e137a783ccd767a3', 'where-to-buy-pokemon-cards'=>'e5728bd4b6c15e381e5e04d7d346cb55',
-              'pokemon-card-shops-near-me'=>'21ef6829acfa93cff30e709f20de653e']);
-    $pages = array_column($d['pages'], null, 'slug');
-    $old = ['about'=>'0418c3ac237c9c1706056b0b10d6bad6', 'wholesale'=>'ca6ddaa0b345ccef9b0f89ebe7e9e367', 'terms'=>'13b3c63ef94279bf567c42fcfada15b4'];
-    foreach($s['pages'] ?? [] as $i=>$pg){
-      $slug = $pg['slug'] ?? '';
-      if(isset($old[$slug], $pages[$slug]) && md5(json_encode([$pg['title'] ?? '', $pg['seo_title'] ?? '', $pg['seo_desc'] ?? '', $pg['body'] ?? ''])) === $old[$slug]) $s['pages'][$i] = $pages[$slug];
-    }
-    foreach(['strip_text'=>'5b58f6519756d546f96e65d6fc937c5e', 'hero_title'=>'934ce3e45f73057c7ed78ee9822ab2fb', 'hero_lede'=>'628b05243156d2077cd22a193a9e2132',
-             'footer_blurb'=>'3b5a83841bb2cdf685127d2077a903f3', 'home_seo_title'=>'1f1881f9a10142afc42c03c056dcec31', 'home_seo_desc'=>'05a428fd0753777a9384ecc7e47c7c25',
-             'home_intro'=>'dd6305dd672a74a81213c4913293d47c', 'shipping_policy'=>'6fc5100a55b8ac83dbc3673897fc6bce', 'brand'=>'1ced9b4f46b33b13b961e7fc176b1fab',
-             'kanji'=>'e9c8f768c5f2dbf3f0611d8cc8861a69', 'tagline'=>'a88152cff1d02b1de5f9be62c3a63174', 'legal_name'=>'00094c5c938533b485533fbccc75c19c',
-             'email'=>'4c2458c192ea6127204c1b6545229717', 'order_email'=>'4c2458c192ea6127204c1b6545229717', 'domain'=>'3c0669997a57b0d028b892a6111efc96'] as $k=>$h)
-      if(isset($d['settings'][$k]) && md5((string)($s['settings'][$k] ?? '')) === $h) $s['settings'][$k] = $d['settings'][$k];
-    /* page descriptions that said "to the USA" */
-    foreach([['categories', 'boxes', '6244614d72c8b59c7fd306bc80c6c4f5'], ['categories', 'premium', 'b9256501522a80cb327fe807fd9b4f74'],
-             ['series', 'sv', '12769b0360183224cf61024c660e3203'], ['sets', '151', '7fa61b2e597137d463951674dea7f996']] as [$sec, $key, $h])
-      if(isset($s[$sec][$key], $d[$sec][$key]) && md5($s[$sec][$key]['seo_desc'] ?? '') === $h) $s[$sec][$key]['seo_desc'] = $d[$sec][$key]['seo_desc'];
-    $cols = array_column($d['collections'], null, 'slug');
-    foreach($s['collections'] ?? [] as $i=>$c)
-      if(md5($c['seo_desc'] ?? '') === (['charizard-pokemon-cards'=>'c7feda1d12592a4e1fef608df119ff7a', 'psa-graded-pokemon-cards'=>'7de8c3d6b2acb9a725a29faf0d17a113'][$c['slug'] ?? ''] ?? '') && isset($cols[$c['slug']]))
-        $s['collections'][$i]['seo_desc'] = $cols[$c['slug']]['seo_desc'];
-    if(md5(json_encode($s['faqs'] ?? [])) === 'b4df40ddf21d45cff807a1cbc26e024a') $s['faqs'] = $d['faqs'];
-    /* countries, payment methods and shipping zones the owner hasn't changed become the Australian ones */
-    foreach(['countries'=>'c6b03417b515ed426f5f61f9a012bdbd', 'payments'=>'fba54cf2be310172f9448d07f66ed5e8', 'shipping'=>'661cba6bac4a6fe139a1b796ae669e12'] as $k=>$h)
-      if(md5(json_encode($s[$k] ?? [])) === $h) $s[$k] = $d[$k];
-    /* Australian dollars first: the first currency is the one shoppers see */
-    if(md5(json_encode($s['currencies'] ?? [])) === '55869b1bb781bca13e67d1d307200da5') $s['currencies'] = $d['currencies'];
-    elseif(isset($s['currencies']['AUD'])) $s['currencies'] = ['AUD'=>$s['currencies']['AUD']] + $s['currencies'];
-    /* PK- SKUs from the POKEKURA version go back to FK- */
-    foreach($s['products'] ?? [] as $i=>$p)
-      if(strncmp((string)($p['sku'] ?? ''), 'PK-', 3) === 0) $s['products'][$i]['sku'] = 'FK-'.substr($p['sku'], 3);
+  foreach($s['shipping']['methods'] ?? [] as $k=>$e) $s['shipping']['methods'][$k] = $put($e, I18N_METHODS, $raw['shipping']['methods'][$k]['tr'] ?? []);
+  $s['i18n'] = $raw['i18n'] ?? [];
+  foreach(I18N_SETTINGS as $f){
+    $v = (string)($s['settings'][$f] ?? ''); unset($s['settings'][$f]);
+    if(!isset($raw['i18n'][$L]['settings'][$f]) && ($v === '' || $v === (string)($raw['i18n'][$o]['settings'][$f] ?? ''))) continue;
+    $s['i18n'][$L]['settings'][$f] = $v;
   }
-  if($version < 6){   /* Australian keywords: Pokémon Center Australia and booster packs guides, card shops, ETB, binders and folders */
-    $refresh(['most-expensive-pokemon-cards'=>'1a33780d02dea4a60760f6c4f1cb3561', 'pokemon-card-database'=>'3930dd7cf2d1911d308a0266757ddc3e',
-              'where-to-buy-pokemon-cards'=>'4e87ecc11eb049329d269b61f370a598', 'pokemon-card-shops-near-me'=>'c3f45472857a355d3dd88839714eefd2',
-              'pokemon-card-template'=>'455d552c71fd8a500984e0c9e53bc730', 'pokemon-card-size'=>'f0b530515830b28502b5c71677ea9e06',
-              'pokemon-card-values'=>'d27e6dbfb162f29490fc2fca6bcc3a8c']);
-    $have = array_column($s['guides'] ?? [], 'slug');
-    $add = array_values(array_filter($d['guides'], fn($g)=>in_array($g['slug'], ['pokemon-center-australia', 'pokemon-booster-packs'], true) && !in_array($g['slug'], $have, true)));
-    $at = array_search('where-to-buy-pokemon-cards', $have, true);
-    array_splice($s['guides'], $at === false ? count($have) : $at + 1, 0, $add);
-    foreach(['home_seo_title'=>'1de4b3d2f57fb53c15469c14204154b8', 'home_intro'=>'6dd1939a191505accb5deacc50d0d256'] as $k=>$h)
-      if(isset($d['settings'][$k]) && md5((string)($s['settings'][$k] ?? '')) === $h) $s['settings'][$k] = $d['settings'][$k];
-    foreach(['boxes'=>['h1'=>'9242e234e1a0defb16661012d1d38167', 'seo_title'=>'8e50dc48588277a6c46ebe159404ea29', 'intro'=>'893a9729c4844c0bb85ac430ea1cc9a1'],
-             'etb'=>['h1'=>'8e85bca151c8f5f1ac7349c81cc9a246', 'seo_title'=>'7554fd5ab16ac0a3458235ca7d24bfd1', 'intro'=>'50e0d8849162969cc8bb322f41c1536d'],
-             'accessories'=>['h1'=>'e6f54924c18bdca5bc5702aa7d34f6f5', 'seo_title'=>'d0e27066071932be32c827e4099f0388', 'seo_desc'=>'5d7228f2f0d934d089efb3fa933a52db', 'intro'=>'fe20bbd06088d2dfed67c296bc363882']] as $cat=>$fields)
-      foreach($fields as $f=>$h)
-        if(isset($s['categories'][$cat], $d['categories'][$cat][$f]) && md5((string)($s['categories'][$cat][$f] ?? '')) === $h) $s['categories'][$cat][$f] = $d['categories'][$cat][$f];
-  }
-  if($version < 7){   /* clean Australian shop: AUD only, crypto and PayID only, last keywords */
-    $refresh(['where-to-buy-pokemon-cards'=>'e7db410a425a2b35a3c3bef2782874fc', 'pokemon-card-shops-near-me'=>'62ea382de9b796c5d73ff9a25f68c262']);
-    $pages = array_column($d['pages'], null, 'slug');
-    $old = ['wholesale'=>'2e5799f30e7d884f737566cce8e18855', 'terms'=>'d33c6e9fc0974eb26f51a5a0bcc40d6b'];
-    foreach($s['pages'] ?? [] as $i=>$pg){
-      $slug = $pg['slug'] ?? '';
-      if(isset($old[$slug], $pages[$slug]) && md5(json_encode([$pg['title'] ?? '', $pg['seo_title'] ?? '', $pg['seo_desc'] ?? '', $pg['body'] ?? ''])) === $old[$slug]) $s['pages'][$i] = $pages[$slug];
-    }
-    foreach(['home_intro'=>'bbfc0510bae4ba61e7ec6c58d0ee0f45', 'shipping_policy'=>'d61e1ce6a45b48b5261da17a5652430e'] as $k=>$h)
-      if(isset($d['settings'][$k]) && md5((string)($s['settings'][$k] ?? '')) === $h) $s['settings'][$k] = $d['settings'][$k];
-    if(md5(json_encode($s['faqs'] ?? [])) === '4b3ed2cc9c1df4080cd43d9a8da82692') $s['faqs'] = $d['faqs'];
-    /* payment methods: crypto and PayID only */
-    if(md5(json_encode($s['payments'] ?? [])) === '61c0508f991129f73047fac1f59c0de2') $s['payments'] = $d['payments'];
-    else foreach(['other', 'cashapp', 'applepay', 'ukbank'] as $k) unset($s['payments'][$k]);
-    /* Australian dollars only */
-    if(md5(json_encode($s['currencies'] ?? [])) === 'a92fc7aec14c5783676b6eb9cc025b12') $s['currencies'] = $d['currencies'];
-    elseif(isset($s['currencies']['AUD'])) $s['currencies'] = ['AUD'=>$s['currencies']['AUD']];
-  }
-  if($version < 8){   /* round Australian-dollar amounts: A$100 minimum order, free shipping from A$3,000 */
-    if((float)($s['settings']['min_order_usd'] ?? 0) == 100) $s['settings']['min_order_usd'] = $d['settings']['min_order_usd'];
-    if((float)($s['settings']['free_ship_usd'] ?? 0) == 2000) $s['settings']['free_ship_usd'] = $d['settings']['free_ship_usd'];
-    if(($s['payments']['payid']['note'] ?? '') === 'Australian customers. We email our PayID and account details with your invoice; quote your order reference.') $s['payments']['payid']['note'] = $d['payments']['payid']['note'];
-  }
-  $s['settings']['content_version'] = CONTENT_VERSION;
+  foreach(I18N_LISTS as $sec){ $s['i18n'][$L][$sec] = array_values($s[$sec] ?? []); unset($s[$sec]); }
+  unset($s['lang']);
   return $s;
 }
 
@@ -250,7 +203,7 @@ function shrink_image($file, $max=1600){
   if($type === IMAGETYPE_JPEG) imagejpeg($dst, $file, 85);
   elseif($type === IMAGETYPE_PNG) imagepng($dst, $file, 6);
   elseif(function_exists('imagewebp')) imagewebp($dst, $file, 85);
-  imagedestroy($src); imagedestroy($dst);
+  if(PHP_VERSION_ID < 80000){ imagedestroy($src); imagedestroy($dst); }   /* freed automatically since PHP 8 */
 }
 
 /* A $w-px copy of a product photo for grids and thumbnails, made once and kept in assets/products/thumbs.
@@ -280,7 +233,7 @@ function img_tag($rel, $alt, $sizes='(max-width:520px) 100vw, (max-width:1040px)
 }
 
 function slugify($s){
-  $s = strtolower(strtr(trim((string)$s), ['é'=>'e','è'=>'e','ê'=>'e','É'=>'e','á'=>'a','à'=>'a','ä'=>'a','ó'=>'o','ö'=>'o','ú'=>'u','ü'=>'u','í'=>'i','ñ'=>'n','—'=>'-','–'=>'-']));
+  $s = strtolower(strtr(trim((string)$s), ['é'=>'e','è'=>'e','ê'=>'e','ë'=>'e','É'=>'e','È'=>'e','á'=>'a','à'=>'a','â'=>'a','ä'=>'a','ó'=>'o','ô'=>'o','ö'=>'o','ú'=>'u','ù'=>'u','û'=>'u','ü'=>'u','í'=>'i','î'=>'i','ï'=>'i','ç'=>'c','ñ'=>'n','œ'=>'oe','’'=>'','\''=>'','—'=>'-','–'=>'-']));
   return trim(preg_replace('/[^a-z0-9]+/', '-', $s), '-');
 }
 
@@ -289,7 +242,7 @@ function ship_zone($store, $country){
   foreach($store['shipping']['zones'] as $z){
     if(in_array($country, $z['countries'], true)) return $z;
   }
-  return ['name'=>'Rest of world', 'countries'=>[]] + $store['shipping']['rest'];
+  return ['name'=>t('Rest of world'), 'countries'=>[]] + $store['shipping']['rest'];
 }
 
 const SHIP_METHODS = ['standard', 'express'];
@@ -297,8 +250,8 @@ const SHIP_METHODS = ['standard', 'express'];
 /* delivery options shown at checkout, with their names and delivery times */
 function ship_methods($store){
   $m = $store['shipping']['methods'] ?? [];
-  return ['standard'=>($m['standard'] ?? []) + ['label'=>'Standard', 'days'=>'3–6 working days'],
-          'express' =>($m['express'] ?? [])  + ['label'=>'Express',  'days'=>'1–2 working days']];
+  return ['standard'=>array_filter($m['standard'] ?? [], fn($v)=>$v !== '') + ['label'=>'Standard', 'days'=>'5–9'],
+          'express' =>array_filter($m['express'] ?? [], fn($v)=>$v !== '')  + ['label'=>'Express',  'days'=>'2–4']];
 }
 
 /* a zone's rates per method (older data had one flat rate: that becomes Standard, Express is double) */

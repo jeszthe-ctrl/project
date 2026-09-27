@@ -2,6 +2,10 @@
 /* =============================================================
    FUDAKURA — admin backend. Open /admin.php in your browser.
 
+   The shop is in Dutch and French. Prices, stock, shipping rates and
+   orders are shared; the text of products, categories, guides, pages,
+   the FAQ and the home page is edited per language (switch at the top).
+
    The first visit asks you to create the admin password, so do
    that straight after uploading. Everything saved here goes to
    data/store.php (last 30 versions kept in data/backups/) and
@@ -9,16 +13,22 @@
    ============================================================= */
 
 define('FK_ROOT', __DIR__);
+@ini_set('display_errors', '0');                    /* never print PHP messages into pages (they break redirects) */
+error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
 require FK_ROOT.'/inc/store.php';
 require FK_ROOT.'/inc/bitcoin.php';
 start_session();
-error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 header('X-Frame-Options: DENY');
 header('X-Robots-Tag: noindex, nofollow');
 header('Cache-Control: no-store');
 header('Referrer-Policy: same-origin');
 
-$STORE = store_load();
+$RAW   = store_load();
+/* the language whose text is being edited: ?lang=nl|fr, remembered for the session */
+if(isset(LANGS[$_GET['lang'] ?? ''])) $_SESSION['admin_lang'] = $_GET['lang'];
+$AL    = isset(LANGS[$_SESSION['admin_lang'] ?? '']) ? $_SESSION['admin_lang'] : (string)array_key_first(LANGS);
+$LANG  = $AL;   /* so shared helpers (country names, emails) speak the language being edited */
+$STORE = store_view($RAW, $AL);
 $AUTH  = data_read('auth') ?: [];
 $IP    = $_SERVER['REMOTE_ADDR'] ?? '';
 const IMG_EXTS = ['jpg','jpeg','png','webp'];
@@ -64,17 +74,23 @@ function log_in(){
 }
 
 function save($msg){
-  global $STORE;
-  if(store_save($STORE)) note($msg);
+  global $STORE, $RAW, $AL;
+  $RAW = store_unview($RAW, $STORE, $AL);
+  if(store_save($RAW)) note($msg);
   else note('Could not save. The data folder is not writable — ask your host to make it writable by PHP.', 'err');
 }
 
 /* formatting accepted in intros and guides (rendered by the shop) */
 const FORMAT_HELP = 'Blank line = new paragraph · "## " heading, "### " subheading · "- " bullet, "1. " numbered step · **bold** · links: [text](product:ID), category:KEY, set:SLUG, cards:SLUG, guide:SLUG, page:shipping, or a full https:// address · {min_order} {free_ship} fill in your current values · in guides, a line with just {price_list}, {set_table} or {card_template} shows that tool · questions under "## Questions" written as "### Question" become FAQs for Google.';
 /* first path segments the shop uses itself, so categories can't take them */
-const RESERVED_SLUGS = ['shop','products','sets','cards','guides','cart','checkout','order-received','how-it-works','shipping',
-                        'shipping-returns','returns','pay','pay-status',
-                        'payment-methods','faq','contact','sitemap-xml','admin-php','index-php','assets','data','inc'];
+const RESERVED_SLUGS = ['nl','fr','pay-status','sitemap-xml','admin-php','index-php','assets','data','inc',
+                        /* the shop's own first path segments in each language (see LANG_PATHS in inc/i18n.php) */
+                        'winkel','producten','sets','kaarten','gidsen','winkelwagen','afrekenen','bestelling-ontvangen','hoe-bestellen',
+                        'verzending-en-retour','betaalmethoden','veelgestelde-vragen','contact','betalen',
+                        'boutique','produits','series','cartes','guides','panier','commander','commande-recue','comment-commander',
+                        'livraison-et-retours','moyens-de-paiement','questions-frequentes','payer'];
+/* a shop link for "View in shop", in the language being edited */
+function shop_link($args){ global $AL; return 'index.php?'.http_build_query($args + ['l'=>$AL]); }
 
 function unique_slug($slug, $taken){
   $base = $slug; $n = 2;
@@ -247,6 +263,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     if(!$p['ladder'])                             $form_errors[] = 'Enter at least one price (quantity and unit price).';
     if($old_id !== '' && $idx === null)           $form_errors[] = 'That product no longer exists.';
 
+    if($idx !== null) $p['tr'] = $STORE['products'][$idx]['tr'] ?? [];   /* the other language's text stays with the product */
     if($form_errors){ $form = $p + ['old_id'=>$old_id]; $v = 'product'; }
     else {
       /* photos: keep the ones not ticked for removal, chosen main first, then new uploads */
@@ -362,6 +379,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     $c = ['title'=>in_str('title'), 'h1'=>in_str('h1'), 'match'=>in_str('match'), 'cond'=>in_array(in_str('cond'), CONDITIONS, true) ? in_str('cond') : '',
           'ids'=>array_values(array_intersect(array_map('strval', in_arr('ids')), array_column($STORE['products'], 'id'))),
           'intro'=>in_str('intro'), 'seo_title'=>str(in_arr('seo')['seo_title'] ?? ''), 'seo_desc'=>str(in_arr('seo')['seo_desc'] ?? '')];
+    $c += ['key'=>$exists ? ($STORE['collections'][$i]['key'] ?? '') : ''];
     $others = array_column(array_filter($STORE['collections'], fn($x, $k)=>$k !== $i || !$exists, ARRAY_FILTER_USE_BOTH), 'slug');
     $c['slug'] = unique_slug(slugify(in_str('slug') ?: $c['title']), $others);
     if($c['title'] === '') $form_errors[] = 'Enter a title.';
@@ -381,8 +399,9 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
       if($exists){ $t = $STORE['guides'][$i]['title']; array_splice($STORE['guides'], $i, 1); save("Deleted “{$t}”."); }
       go('guides');
     }
-    $g = ['title'=>in_str('title'), 'body'=>in_str('body'), 'updated'=>gmdate('Y-m-d'),
+    $g = ['title'=>in_str('title'), 'body'=>in_str('body'), 'updated'=>gmdate('Y-m-d'), 'anchor'=>in_str('anchor'),
           'seo_title'=>str(in_arr('seo')['seo_title'] ?? ''), 'seo_desc'=>str(in_arr('seo')['seo_desc'] ?? '')];
+    $g += ['key'=>$exists ? ($STORE['guides'][$i]['key'] ?? '') : ''];
     $others = array_column(array_filter($STORE['guides'], fn($x, $k)=>$k !== $i || !$exists, ARRAY_FILTER_USE_BOTH), 'slug');
     $g['slug'] = unique_slug(slugify(in_str('slug') ?: $g['title']), $others);
     if($g['title'] === '') $form_errors[] = 'Enter a title.';
@@ -399,11 +418,12 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
   if($do === 'page_save' || $do === 'page_delete'){
     $i = (int)in_str('i'); $exists = isset($STORE['pages'][$i]);
     if($do === 'page_delete'){
-      if($exists){ $t = $STORE['pages'][$i]['title']; array_splice($STORE['pages'], $i, 1); save("Deleted “{$t}”."); }
+      if($exists){ $t = $STORE['pages'][$i]['title']; array_splice($STORE['pages'], $i, 1); save("Deleted “{$t}” (".LANGS[$AL]." only)."); }
       go('pages');
     }
     $g = ['title'=>in_str('title'), 'body'=>in_str('body'),
           'seo_title'=>str(in_arr('seo')['seo_title'] ?? ''), 'seo_desc'=>str(in_arr('seo')['seo_desc'] ?? '')];
+    $g += ['key'=>$exists ? ($STORE['pages'][$i]['key'] ?? '') : ''];
     $others = array_column(array_filter($STORE['pages'], fn($x, $k)=>$k !== $i || !$exists, ARRAY_FILTER_USE_BOTH), 'slug');
     $g['slug'] = unique_slug(slugify(in_str('slug') ?: $g['title']), array_merge($others, RESERVED_SLUGS, array_map(fn($k)=>($STORE['categories'][$k]['slug'] ?? '') ?: $k, array_keys($STORE['categories']))));
     if($g['title'] === '') $form_errors[] = 'Enter a title.';
@@ -497,7 +517,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     $s['domain'] = rtrim($s['domain'], '/');
     $mv = rtrim(in_str('moved_to'), '/');
     if($mv === '' || preg_match('#^https?://[a-z0-9.-]+(:\d+)?$#i', $mv)) $s['moved_to'] = $mv;
-    else note('“This site has moved to” needs just the new address, like https://fudakura.com.au, so it was left unchanged.', 'err');
+    else note('“This site has moved to” needs just the new address, like https://fudakura.eu, so it was left unchanged.', 'err');
     foreach(['reply_hours','hold_hours'] as $k){ $n = num(in_str($k), 1); if($n !== null) $s[$k] = (int)$n; }
     $min = num(in_str('min_order_usd'), 0); if($min !== null) $s['min_order_usd'] = round($min, 2);
     $s['home_seo_title'] = str(in_arr('home')['seo_title'] ?? '');
@@ -664,6 +684,10 @@ button,input,select,textarea{font:inherit;color:inherit}
 .top .in{max-width:1180px;margin:auto;padding:0 16px;display:flex;align-items:center;gap:14px;min-height:52px}
 .top b{letter-spacing:.14em}.top .sp{margin-left:auto;display:flex;gap:14px;font-size:14px}
 .top a{color:var(--ondeep)}
+.langs{display:flex;align-items:center;gap:4px;margin-left:18px;font-size:13.5px}
+.langs a{padding:4px 10px;border:1px solid rgba(255,255,255,.25);border-radius:4px;text-decoration:none}
+.langs a.on{background:var(--ondeep);color:var(--deep);font-weight:700}
+.msg.lang{border-left-color:var(--brand);background:color-mix(in srgb,var(--brand) 8%,var(--card))}
 nav.tabs{background:var(--card);border-bottom:1px solid var(--line)}
 nav.tabs .in{max-width:1180px;margin:auto;padding:0 10px;display:flex;overflow-x:auto;scrollbar-width:none}
 nav.tabs a{padding:12px 12px;text-decoration:none;color:var(--ink2);white-space:nowrap;border-bottom:2px solid transparent;font-size:14.5px}
@@ -736,7 +760,9 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 <div class="top"><div class="in">
   <b><?= h($S['brand']) ?></b><span class="muted small">admin</span>
   <?php if(is_admin()): ?>
-  <div class="sp"><a href="index.php" target="_blank" rel="noopener">View shop ↗</a><a href="<?= h(self_url('logout')) ?>">Sign out</a></div>
+  <div class="langs" role="group" aria-label="Language of the text you edit"><span class="muted small">Editing text in</span>
+    <?php foreach(LANGS as $L=>$lname): ?><a href="<?= h(self_url($v === 'setup' || $v === 'login' ? 'dashboard' : $v, array_filter(['lang'=>$L, 'ref'=>str($_GET['ref'] ?? ''), 'id'=>str($_GET['id'] ?? ''), 'i'=>str($_GET['i'] ?? '')], fn($x)=>$x !== ''))) ?>" class="<?= $L === $AL ? 'on' : '' ?>"><?= h($lname) ?></a><?php endforeach; ?></div>
+  <div class="sp"><a href="<?= h(shop_link([])) ?>" target="_blank" rel="noopener">View shop ↗</a><a href="<?= h(self_url('logout')) ?>">Sign out</a></div>
   <?php endif; ?>
 </div></div>
 
@@ -752,6 +778,10 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 <main>
 <?php foreach($flash as [$type, $msg]): ?><div class="msg <?= $type==='err'?'err':'' ?>"><?= h($msg) ?></div><?php endforeach; ?>
 <?php if($form_errors): ?><div class="msg err"><?php foreach($form_errors as $e) echo '<div>'.h($e).'</div>'; ?></div><?php endif; ?>
+<?php if(is_admin() && in_array($v, ['products','product','categories','sets','collections','collection','guides','guide','pages','page','faq','settings','shipping','payments'], true)): ?>
+  <div class="msg lang">You’re editing the <b><?= h(LANGS[$AL]) ?></b> text<?= in_array($v, ['products','product','shipping','payments','settings'], true) ? ' (prices, quantities, rates and business details are shared by both languages)' : '' ?>.
+    Switch to <a href="<?= h(self_url($v, array_filter(['lang'=>lang_other($AL), 'id'=>str($_GET['id'] ?? ''), 'i'=>str($_GET['i'] ?? '')], fn($x)=>$x !== ''))) ?>"><?= h(LANGS[lang_other($AL)]) ?></a> to edit the other language.</div>
+<?php endif; ?>
 <?php if(!$writable): ?><div class="msg err">The <b>data</b> or <b>assets/products</b> folder is not writable, so changes can’t be saved. Ask your host to make them writable by PHP.</div><?php endif; ?>
 
 <?php if($v === 'setup'): ?>
@@ -826,6 +856,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   <div class="grid2">
     <div class="card"><h2>Customer</h2><dl class="kv">
       <dt>Name</dt><dd><?= h($o['name']) ?></dd>
+      <dt>Language</dt><dd><?= h(LANGS[$o['lang'] ?? ''] ?? '—') ?> <span class="muted small">— write to them in this language</span></dd>
       <?php if($o['company']): ?><dt>Company</dt><dd><?= h($o['company']) ?></dd><?php endif; ?>
       <dt>Email</dt><dd><a href="mailto:<?= h($o['email']) ?>?subject=<?= rawurlencode('Your order '.$o['ref']) ?>"><?= h($o['email']) ?></a></dd>
       <dt>Phone</dt><dd><a href="tel:<?= h(preg_replace('/[^0-9+]/', '', $o['phone'])) ?>"><?= h($o['phone']) ?></a></dd>
@@ -916,7 +947,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   $ph = $p['old_id'] !== '' ? photos($p['old_id']) : []; ?>
   <p class="small"><a href="<?= h(self_url('products')) ?>">← Products</a></p>
   <h1><?= $is_new ? 'Add a product' : h($p['name']) ?></h1>
-  <p class="sub"><?php if(!$is_new): ?><a href="index.php?<?= h(http_build_query(['p'=>'product','id'=>$p['old_id']])) ?>" target="_blank" rel="noopener">View in shop ↗</a><?php else: ?>Fill this in and save — the product appears in the shop straight away unless you tick “Hide”.<?php endif; ?></p>
+  <p class="sub"><?php if(!$is_new): ?><a href="<?= h(shop_link(['p'=>'product','id'=>$p['old_id']])) ?>" target="_blank" rel="noopener">View in shop ↗</a><?php else: ?>Fill this in and save — the product appears in the shop straight away unless you tick “Hide”.<?php endif; ?></p>
   <form method="post" enctype="multipart/form-data"><?= csrf_field() ?>
     <input type="hidden" name="do" value="product_save"><input type="hidden" name="old_id" value="<?= h($p['old_id']) ?>">
     <div class="card"><h2>Details</h2>
@@ -1014,12 +1045,12 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 <?php elseif($v === 'sets'):
   $counts = array_count_values(array_column($STORE['products'], 'set')); ?>
   <h1>Sets</h1>
-  <p class="sub">Every set on your products gets its own page (e.g. /sets/151), grouped into series pages. New sets appear here automatically when you type them on a product.</p>
+  <p class="sub">Every set on your products gets its own page (e.g. /nl/sets/151 and /fr/series/151), grouped into series pages. Set names and web addresses are shared by both languages; the intro and Google text are per language. New sets appear here automatically when you type them on a product.</p>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="sets_save">
     <h2 style="font-size:18px;margin:6px 0 10px">Series</h2>
     <?php foreach($STORE['series'] as $k=>$sr): ?>
     <details class="card">
-      <summary><b><?= h($sr['name']) ?></b> <span class="muted small">· /sets/<?= h($sr['slug']) ?></span></summary>
+      <summary><b><?= h($sr['name']) ?></b> <span class="muted small">· /<?= h($AL.'/'.LANG_PATHS[$AL]['sets'].'/'.$sr['slug']) ?></span></summary>
       <div class="grid3" style="margin-top:12px">
         <div class="fld"><label class="f">Name</label><input type="text" name="series[<?= h($k) ?>][name]" value="<?= h($sr['name']) ?>"></div>
         <div class="fld"><label class="f">Web address</label><input type="text" name="series[<?= h($k) ?>][slug]" value="<?= h($sr['slug']) ?>"></div>
@@ -1049,11 +1080,11 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 
 <?php elseif($v === 'collections'): ?>
   <div class="row" style="justify-content:space-between"><div><h1>Collections</h1>
-    <p class="sub">Pages that gather products around a search people make, like “Charizard Pokémon cards”. Each has its own address (e.g. /cards/charizard-pokemon-cards).</p></div>
+    <p class="sub">Pages that gather products around a search people make, like “Charizard Pokémon cards”. Each has its own address (e.g. /nl/kaarten/charizard-pokemon-kaarten), per language.</p></div>
     <a class="btn" href="<?= h(self_url('collection', ['i'=>'new'])) ?>">+ Add a collection</a></div>
   <div class="card scroll"><table class="t"><thead><tr><th>Title</th><th>Address</th><th class="r">Products</th><th></th></tr></thead><tbody>
     <?php foreach($STORE['collections'] as $i=>$c): ?>
-      <tr><td><a href="<?= h(self_url('collection', ['i'=>$i])) ?>"><b><?= h($c['title']) ?></b></a></td><td class="muted small">/cards/<?= h($c['slug']) ?></td>
+      <tr><td><a href="<?= h(self_url('collection', ['i'=>$i])) ?>"><b><?= h($c['title']) ?></b></a></td><td class="muted small">/<?= h($AL.'/'.LANG_PATHS[$AL]['collection'].'/'.$c['slug']) ?></td>
           <td class="r"><?= count(coll_products($c)) ?></td><td class="r"><a class="btn g s" href="<?= h(self_url('collection', ['i'=>$i])) ?>">Edit</a></td></tr>
     <?php endforeach; ?>
   </tbody></table><?php if(!$STORE['collections']): ?><p class="muted">No collections yet.</p><?php endif; ?></div>
@@ -1066,7 +1097,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   $c = ($c ?? []) + ['title'=>'','slug'=>'','h1'=>'','match'=>'','ids'=>[],'cond'=>'','intro'=>'','seo_title'=>'','seo_desc'=>'']; ?>
   <p class="small"><a href="<?= h(self_url('collections')) ?>">← Collections</a></p>
   <h1><?= $idx === -1 ? 'Add a collection' : h($c['title']) ?></h1>
-  <?php if($idx !== -1): ?><p class="sub"><a href="index.php?<?= h(http_build_query(['p'=>'collection','c'=>$c['slug']])) ?>" target="_blank" rel="noopener">View in shop ↗</a> · <?= count(coll_products($c)) ?> products</p><?php endif; ?>
+  <?php if($idx !== -1): ?><p class="sub"><a href="<?= h(shop_link(['p'=>'collection','c'=>$c['slug']])) ?>" target="_blank" rel="noopener">View in shop ↗</a> · <?= count(coll_products($c)) ?> products</p><?php endif; ?>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="collection_save"><input type="hidden" name="i" value="<?= (int)$idx ?>">
     <div class="card">
       <div class="grid3">
@@ -1100,7 +1131,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
     <a class="btn" href="<?= h(self_url('guide', ['i'=>'new'])) ?>">+ Write a guide</a></div>
   <div class="card scroll"><table class="t"><thead><tr><th>Title</th><th>Address</th><th>Updated</th><th></th></tr></thead><tbody>
     <?php foreach($STORE['guides'] as $i=>$g): ?>
-      <tr><td><a href="<?= h(self_url('guide', ['i'=>$i])) ?>"><b><?= h($g['title']) ?></b></a></td><td class="muted small">/guides/<?= h($g['slug']) ?></td>
+      <tr><td><a href="<?= h(self_url('guide', ['i'=>$i])) ?>"><b><?= h($g['title']) ?></b></a></td><td class="muted small">/<?= h($AL.'/'.LANG_PATHS[$AL]['guides'].'/'.$g['slug']) ?></td>
           <td class="small"><?= h($g['updated'] ?? '') ?></td><td class="r"><a class="btn g s" href="<?= h(self_url('guide', ['i'=>$i])) ?>">Edit</a></td></tr>
     <?php endforeach; ?>
   </tbody></table><?php if(!$STORE['guides']): ?><p class="muted">No guides yet.</p><?php endif; ?></div>
@@ -1109,16 +1140,18 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   $gi = str($_GET['i'] ?? 'new');
   $g = $form ?? ($gi !== 'new' ? ($STORE['guides'][(int)$gi] ?? null) : null);
   $idx = $form ? $form['i'] : ($g ? (int)$gi : -1);
-  $g = ($g ?? []) + ['title'=>'','slug'=>'','body'=>'','seo_title'=>'','seo_desc'=>'']; ?>
+  $g = ($g ?? []) + ['title'=>'','slug'=>'','body'=>'','seo_title'=>'','seo_desc'=>'','anchor'=>'']; ?>
   <p class="small"><a href="<?= h(self_url('guides')) ?>">← Guides</a></p>
   <h1><?= $idx === -1 ? 'Write a guide' : h($g['title']) ?></h1>
-  <?php if($idx !== -1): ?><p class="sub"><a href="index.php?<?= h(http_build_query(['p'=>'guide','g'=>$g['slug']])) ?>" target="_blank" rel="noopener">View in shop ↗</a></p><?php endif; ?>
+  <?php if($idx !== -1): ?><p class="sub"><a href="<?= h(shop_link(['p'=>'guide','g'=>$g['slug']])) ?>" target="_blank" rel="noopener">View in shop ↗</a></p><?php endif; ?>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="guide_save"><input type="hidden" name="i" value="<?= (int)$idx ?>">
     <div class="card">
       <div class="grid2">
         <div class="fld"><label class="f">Title (page heading)</label><input type="text" name="title" value="<?= h($g['title']) ?>" required></div>
         <div class="fld"><label class="f">Web address</label><input type="text" name="slug" value="<?= h($g['slug']) ?>" placeholder="made from the title"></div>
       </div>
+      <div class="fld"><label class="f">Link text</label><input type="text" name="anchor" value="<?= h($g['anchor'] ?? '') ?>" placeholder="the title">
+        <div class="hint">The short text other pages use to link here, ideally the search term the guide targets (e.g. “Pokémon kaarten waarde”).</div></div>
       <div class="fld"><label class="f">Text</label><textarea name="body" rows="22" style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px"><?= h($g['body']) ?></textarea>
         <div class="hint"><?= h(FORMAT_HELP) ?></div></div>
       <?php seo_inputs('seo', $g, $g['title']); ?>
@@ -1135,7 +1168,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
     <a class="btn" href="<?= h(self_url('page', ['i'=>'new'])) ?>">+ Add a page</a></div>
   <div class="card scroll"><table class="t"><thead><tr><th>Title</th><th>Address</th><th></th></tr></thead><tbody>
     <?php foreach($STORE['pages'] as $i=>$g): ?>
-      <tr><td><a href="<?= h(self_url('page', ['i'=>$i])) ?>"><b><?= h($g['title']) ?></b></a></td><td class="muted small">/<?= h($g['slug']) ?></td>
+      <tr><td><a href="<?= h(self_url('page', ['i'=>$i])) ?>"><b><?= h($g['title']) ?></b></a></td><td class="muted small">/<?= h($AL.'/'.$g['slug']) ?></td>
           <td class="r"><a class="btn g s" href="<?= h(self_url('page', ['i'=>$i])) ?>">Edit</a></td></tr>
     <?php endforeach; ?>
   </tbody></table><?php if(!$STORE['pages']): ?><p class="muted">No pages yet.</p><?php endif; ?></div>
@@ -1147,7 +1180,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   $g = ($g ?? []) + ['title'=>'','slug'=>'','body'=>'','seo_title'=>'','seo_desc'=>'']; ?>
   <p class="small"><a href="<?= h(self_url('pages')) ?>">← Pages</a></p>
   <h1><?= $idx === -1 ? 'Add a page' : h($g['title']) ?></h1>
-  <?php if($idx !== -1): ?><p class="sub"><a href="index.php?<?= h(http_build_query(['p'=>'page','pg'=>$g['slug']])) ?>" target="_blank" rel="noopener">View in shop ↗</a></p><?php endif; ?>
+  <?php if($idx !== -1): ?><p class="sub"><a href="<?= h(shop_link(['p'=>'page','pg'=>$g['slug']])) ?>" target="_blank" rel="noopener">View in shop ↗</a></p><?php endif; ?>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="page_save"><input type="hidden" name="i" value="<?= (int)$idx ?>">
     <div class="card">
       <div class="grid2">
@@ -1171,7 +1204,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   <h1>Shipping rates</h1>
   <p class="sub">Customers choose <b><?= h($SM['standard']['label']) ?></b> or <b><?= h($SM['express']['label']) ?></b> at checkout. Each costs the zone’s <b>per-order</b> price + its <b>per-kg</b> price × the order’s weight (each product’s weight × quantity), in USD.
     The <?= usd($S['min_order_usd']) ?> (<?= h(shown($S['min_order_usd'])) ?>) minimum order counts goods plus the shipping chosen.</p>
-  <?php if(empty($S['shipping_reviewed'])): ?><div class="msg warn">These are starting rates: a single card to Australia comes to $10 Standard (US$, about A$15), then more per kg. Check them against what your carrier actually charges from Japan, then save.</div><?php endif; ?>
+  <?php if(empty($S['shipping_reviewed'])): ?><div class="msg warn">These are starting rates: a single card to Belgium comes to $12 Standard (US$, about €10), then more per kg. Check them against what your carrier actually charges from Japan, then save.</div><?php endif; ?>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="shipping_save">
     <div class="card"><h2>Delivery options</h2>
       <div class="grid2">
@@ -1195,7 +1228,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
       <?php $zones = $sh['zones']; for($i=0; $i<count($zones)+2; $i++): $z = $zones[$i] ?? ['name'=>'','countries'=>[]];
         $zr = isset($zones[$i]) ? zone_rates($z) : ['standard'=>['base'=>'','per_kg'=>''], 'express'=>['base'=>'','per_kg'=>'']]; ?>
         <tr><td><input type="text" name="zones[<?= $i ?>][name]" value="<?= h($z['name']) ?>" placeholder="<?= isset($zones[$i])?'':'New zone' ?>" aria-label="Zone name"></td>
-            <td><input type="text" name="zones[<?= $i ?>][countries]" value="<?= h(implode(', ', $z['countries'])) ?>" placeholder="e.g. AU, NZ" aria-label="Country codes" style="min-width:170px"></td>
+            <td><input type="text" name="zones[<?= $i ?>][countries]" value="<?= h(implode(', ', $z['countries'])) ?>" placeholder="e.g. BE, NL, LU" aria-label="Country codes" style="min-width:170px"></td>
             <?php foreach($SM as $m=>$mm): ?>
             <td><input type="number" name="zones[<?= $i ?>][<?= $m ?>][base]" value="<?= h($zr[$m]['base']) ?>" min="0" step="0.01" aria-label="<?= h($mm['label']) ?> per order"></td>
             <td><input type="number" name="zones[<?= $i ?>][<?= $m ?>][per_kg]" value="<?= h($zr[$m]['per_kg']) ?>" min="0" step="0.01" aria-label="<?= h($mm['label']) ?> per kg"></td>
@@ -1208,7 +1241,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
             <td><input type="number" name="rest[<?= $m ?>][per_kg]" value="<?= h($rr[$m]['per_kg']) ?>" min="0" step="0.01" aria-label="Rest of world <?= h($mm['label']) ?> per kg"></td>
             <?php endforeach; ?><td></td></tr>
       </tbody></table>
-      <p class="small muted">Country codes are the two-letter codes from your country list in <a href="<?= h(self_url('settings')) ?>">Settings</a> (AU, NZ, JP…), separated by commas.</p>
+      <p class="small muted">Country codes are the two-letter codes from your country list in <a href="<?= h(self_url('settings')) ?>">Settings</a> (BE, NL, LU…), separated by commas.</p>
     </div>
     <div class="card"><h2>What customers pay to <?= h($STORE['countries'][$home] ?? $home) ?> (current rates, before free shipping)</h2>
       <table class="t"><thead><tr><th>Order</th><th class="r">Weight</th><?php foreach($SM as $mm): ?><th class="r"><?= h($mm['label']) ?></th><?php endforeach; ?></tr></thead><tbody>
@@ -1218,7 +1251,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
       </tbody></table>
     </div>
     <div class="card"><h2>Shipping &amp; Returns page</h2>
-      <p class="small muted" style="margin-top:0">The text of your <a href="index.php?p=shipping" target="_blank" rel="noopener">Shipping &amp; Returns page</a>. Keep the line <b>{rates}</b> where the delivery options and rate tables should appear.
+      <p class="small muted" style="margin-top:0">The text of your <a href="<?= h(shop_link(['p'=>'shipping'])) ?>" target="_blank" rel="noopener">Shipping &amp; Returns page</a>. Keep the line <b>{rates}</b> where the delivery options and rate tables should appear.
         Numbered steps start with “1. ”, and questions under “## Questions” start with “### ” (Google reads those as FAQs).
         {free_ship} {standard} {express} {standard_days} {express_days} {hold_hours} {reply_hours} {min_order} {email} {company} {address} are filled in for you.</p>
       <textarea name="shipping_policy" rows="26" style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px"><?= h($S['shipping_policy'] ?? '') ?></textarea>
@@ -1229,7 +1262,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 
 <?php elseif($v === 'payments'): ?>
   <h1>Payment methods</h1>
-  <p class="sub">Customers pick one at checkout. <b>Bitcoin</b> methods are paid on the site, straight to your wallet; for the others, you send the customer the details. Leave “Countries” as * for everywhere, or list country codes (e.g. AU, NZ).</p>
+  <p class="sub">Customers pick one at checkout. <b>Bitcoin</b> methods are paid on the site, straight to your wallet; for the others, you send the customer the details. Leave “Countries” as * for everywhere, or list country codes (e.g. BE, NL). Names and notes are per language; switch language at the top to edit the other one.</p>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="payments_save">
     <div class="card"><h2>Bitcoin wallet</h2>
       <?php $ba = $S['btc_address'] ?? ''; ?>
@@ -1265,7 +1298,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 <?php elseif($v === 'settings'):
   $hero = photos('hero'); ?>
   <h1>Settings</h1>
-  <p class="sub">Business details, store rules and the text on the home page.</p>
+  <p class="sub">Business details and store rules (shared), and the home page text (per language).</p>
   <form method="post" enctype="multipart/form-data"><?= csrf_field() ?><input type="hidden" name="do" value="settings_save">
     <div class="card"><h2>Business</h2>
       <div class="grid3">
@@ -1282,7 +1315,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
         <div class="fld"><label class="f" for="order_email">Send new orders to</label><input type="email" id="order_email" name="order_email" value="<?= h($S['order_email']) ?>"></div>
         <div class="fld"><label class="f" for="phone">Phone (optional)</label><input type="text" id="phone" name="phone" value="<?= h($S['phone']) ?>"></div>
       </div>
-      <div class="fld"><label class="f" for="domain">Website address</label><input type="url" id="domain" name="domain" value="<?= h($S['domain']) ?>"><div class="hint">Used for Google and link previews, e.g. https://fudakura.com.au</div></div>
+      <div class="fld"><label class="f" for="domain">Website address</label><input type="url" id="domain" name="domain" value="<?= h($S['domain']) ?>"><div class="hint">Used for Google and link previews, e.g. https://fudakura.eu</div></div>
       <div class="fld"><label class="f" for="moved_to">This site has moved to (only for an old domain)</label><input type="url" id="moved_to" name="moved_to" value="<?= h($S['moved_to'] ?? '') ?>" placeholder="leave empty">
         <div class="hint">Fill this in <b>only</b> on an old domain you’re retiring: every shop page then redirects permanently (301) to the same page on the new address, which moves your Google rankings across. The admin keeps working. Leave it empty on your main site.</div></div>
     </div>
@@ -1296,6 +1329,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
     </div>
 
     <div class="card"><h2>Google &amp; web addresses</h2>
+      <p class="small muted" style="margin-top:0">The home page title, description and text below are for the <b><?= h(LANGS[$AL]) ?></b> home page.</p>
       <?php seo_inputs('home', ['seo_title'=>$S['home_seo_title'] ?? '', 'seo_desc'=>$S['home_seo_desc'] ?? ''], 'Japanese Pokémon Cards — Booster Boxes & Singles'); ?>
       <div class="fld"><label class="f" for="home_intro">Home page text (shown near the bottom of the home page)</label>
         <textarea id="home_intro" name="home_intro" rows="10"><?= h($S['home_intro'] ?? '') ?></textarea>
@@ -1308,16 +1342,16 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
       </div>
       <p class="small muted" style="margin-top:0">Your sitemap to submit: <b><?= h(rtrim($S['domain'], '/')) ?>/<?= !empty($S['pretty_urls']) ? 'sitemap.xml' : 'index.php?p=sitemap' ?></b></p>
       <label class="row small" style="align-items:flex-start"><input type="checkbox" name="pretty_urls" value="1" <?= !empty($S['pretty_urls'])?'checked':'' ?> style="margin-top:4px">
-        <span><b>Clean page addresses</b>, like /products/151-booster-box instead of index.php?p=product&amp;id=…
-        First open <a href="shop" target="_blank" rel="noopener">your-domain/shop</a>: if it shows the shop, your host supports them and you can tick this.
+        <span><b>Clean page addresses</b>, like /nl/producten/151-booster-box and /fr/produits/151-booster-box instead of index.php?p=product&amp;id=…
+        First open <a href="nl/winkel" target="_blank" rel="noopener">your-domain/nl/winkel</a>: if it shows the shop, your host supports them and you can tick this.
         If it shows an error, leave it off (the shop works either way).</span></label>
     </div>
 
-    <div class="card"><h2>Home page &amp; announcement bar</h2>
+    <div class="card"><h2>Home page &amp; announcement bar (<?= h(LANGS[$AL]) ?>)</h2>
       <div class="fld"><label class="f" for="strip_text">Announcement bar text</label><input type="text" id="strip_text" name="strip_text" value="<?= h($S['strip_text']) ?>"></div>
       <div class="grid2">
         <div class="fld"><label class="f" for="strip_link_text">Announcement link text (optional)</label><input type="text" id="strip_link_text" name="strip_link_text" value="<?= h($S['strip_link_text']) ?>"></div>
-        <div class="fld"><label class="f" for="strip_link_url">Announcement link goes to</label><input type="text" id="strip_link_url" name="strip_link_url" value="<?= h($S['strip_link_url']) ?>"><div class="hint">Copy a page address from your shop, e.g. index.php?p=product&amp;id=…</div></div>
+        <div class="fld"><label class="f" for="strip_link_url">Announcement link goes to</label><input type="text" id="strip_link_url" name="strip_link_url" value="<?= h($S['strip_link_url']) ?>"><div class="hint">A shop link such as product:151-booster-box, guide:prices or category:boxes (works in both languages), or a full https:// address.</div></div>
       </div>
       <div class="fld"><label class="f" for="hero_title">Headline</label><input type="text" id="hero_title" name="hero_title" value="<?= h($S['hero_title']) ?>"></div>
       <div class="fld"><label class="f" for="hero_lede">Intro paragraph</label><textarea id="hero_lede" name="hero_lede"><?= h($S['hero_lede']) ?></textarea></div>
@@ -1351,7 +1385,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
     </div>
 
     <div class="card"><h2>Currencies</h2>
-      <p class="small muted" style="margin-top:0">Product prices, the minimum order and shipping are entered in USD; shoppers see them converted with these rates. Keep the AUD rate up to date. Shoppers see the <b>first</b> currency; with just one, there's no currency switch.</p>
+      <p class="small muted" style="margin-top:0">Product prices, the minimum order and shipping are entered in USD; shoppers see them converted with these rates. Keep the EUR rate up to date. Shoppers see the <b>first</b> currency; with just one, there's no currency switch.</p>
       <div class="scroll"><table class="t"><thead><tr><th>Code</th><th>Symbol</th><th>1 USD =</th><th>Decimals</th><th>Delete</th></tr></thead><tbody>
       <?php $i = 0; foreach($STORE['currencies'] + ['' => ['rate'=>'','sym'=>'','dec'=>2]] as $code=>$m): ?>
         <tr><td><input type="text" name="curs[<?= $i ?>][code]" value="<?= h($code) ?>" maxlength="3" placeholder="New" aria-label="Code" <?= $code==='USD'?'readonly':'' ?>></td>
@@ -1364,7 +1398,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
     </div>
 
     <div class="card"><h2>Countries you ship to</h2>
-      <p class="small muted" style="margin-top:0">One per line: two-letter code = name. These fill the country list at checkout; the first one is the default, and is used for the shipping examples.</p>
+      <p class="small muted" style="margin-top:0">One per line: two-letter code = name. These fill the country list at checkout; the first one is the default, and is used for the shipping examples. Shoppers see Belgium, the Netherlands, Luxembourg, France and Germany in their own language.</p>
       <textarea name="countries" rows="12"><?= h(implode("\n", array_map(fn($c, $n)=>"$c = $n", array_keys($STORE['countries']), $STORE['countries']))) ?></textarea>
     </div>
     <button class="btn" type="submit">Save settings</button>
