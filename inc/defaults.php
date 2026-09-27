@@ -17,7 +17,7 @@ $d = [
     'domain'        => 'https://fudakura.com.au',
     'reply_hours'   => 12,
     'hold_hours'    => 48,
-    'min_order_usd' => 100,
+    'min_order_usd' => 65.79,          /* A$100 at the A$1.52 rate; set in Admin → Settings */
     'strip_text'    => 'Sealed product, sourced in Japan · Quantity breaks published on every listing',
     'strip_link_text' => 'Aura Seeker preorders open →',
     'strip_link_url'  => 'index.php?p=product&id=aura-seeker-booster-box',
@@ -26,8 +26,8 @@ $d = [
     'footer_blurb'  => 'Wholesale Japanese Pokémon TCG, shipped worldwide from Japan to retailers, resellers and card shops. Pricing published on every product — order direct, no account needed.',
     'shipping_reviewed' => false,
     'pretty_urls'   => false,            /* clean addresses like /products/151-booster-box; turn on in Admin → Settings */
-    'free_ship_usd' => 2000,             /* free Standard shipping from this goods total (USD); 0 = off */
-    'content_version' => 7,              /* set by the shop: which built-in content updates are applied */
+    'free_ship_usd' => 1974,             /* free Standard shipping from this goods total (USD); 0 = off */
+    'content_version' => 8,              /* set by the shop: which built-in content updates are applied */
     'moved_to'      => '',               /* an old domain running this code can send every visitor here (301) */
     'google_verify' => '', 'bing_verify' => '',   /* Search Console / Bing verification codes (Admin → Settings) */
     /* SMTP for order emails (Admin → Settings → Email); blank host = the web host's mail() */
@@ -649,7 +649,7 @@ Terastal Festival ex is built around Terastal Pokémon and all of the Eevee evol
   'payments' => [
     'bitcoin'  => ['label'=>'Bitcoin (BTC) — pay now', 'note'=>'Pay from any Bitcoin wallet as soon as you order. The exact amount and a QR code appear on the next page.', 'countries'=>'*', 'enabled'=>true, 'type'=>'bitcoin'],
     'crypto'   => ['label'=>'Other crypto (ETH, USDT)', 'note'=>'ETH or USDT (TRC-20 / ERC-20). We send the wallet address with your invoice. Network fees are the sender\'s.', 'countries'=>'*', 'enabled'=>true],
-    'payid'    => ['label'=>'PayID / bank transfer (AUD)', 'note'=>'Australian customers. We email our PayID and account details with your invoice; quote your order reference.', 'countries'=>['AU'], 'enabled'=>true],
+    'payid'    => ['label'=>'PayID / bank transfer (AUD)', 'note'=>'Pay in AUD from any Australian bank. We email our PayID and account details with your invoice; quote your order reference.', 'countries'=>['AU'], 'enabled'=>true],
   ],
 
   'countries' => ['AU'=>'Australia'],

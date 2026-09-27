@@ -1382,8 +1382,8 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
 .srtoc a{display:block;padding:5px 0;font-size:14px;color:var(--ink2);text-decoration:none}
 .srtoc a:hover{color:#fff}
 @media(max-width:960px){
-  .srgrid{grid-template-columns:1fr;gap:10px}
-  .srtoc{position:static;border:none;padding:0}
+  .srgrid{grid-template-columns:minmax(0,1fr);gap:10px}
+  .srtoc{position:static;border:none;padding:0;min-width:0}
   .srtoc ol{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:6px}
   .srtoc a{white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;background:var(--card)}
 }
@@ -1894,7 +1894,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
               </label>
             <?php endforeach; ?>
           </div>
-          <p class="n" style="font-size:12.5px;color:var(--muted);margin-top:10px">Priced by the weight of your order (<?= h(rtrim(rtrim(number_format(cart_weight(), 2), '0'), '.')) ?> kg). Choose your country to see prices.</p>
+          <p class="n" style="font-size:12.5px;color:var(--muted);margin-top:10px">Priced by the weight of your order (<?= h(rtrim(rtrim(number_format(cart_weight(), 2), '0'), '.')) ?> kg).<?= count($COUNTRIES) > 1 ? ' Choose your country to see prices.' : '' ?></p>
           <?php free_ship_meter(cart_total(), true); ?>
         </fieldset>
 
@@ -1930,7 +1930,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
           <div class="minwarn" id="minWarn" hidden></div>
           <button class="btn wide" id="placeBtn" type="submit" style="margin-top:14px" data-btc-label="Place order and pay with Bitcoin">Place order</button>
           <p style="font-size:12.5px;color:var(--muted);margin-top:10px">
-            Shipping is calculated from your destination and shown in the order summary. Import duty and taxes are not included.</p>
+            Shipping is calculated from your order's weight and shown in the order summary. Prices exclude GST; orders over A$1,000 are charged GST and import charges by Australian customs.</p>
         </fieldset>
       </div>
 
@@ -2335,7 +2335,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:12px;max-width:44ch}
     </ul></div>
   </div>
   <div class="legal">
-    <div>Shipped from Japan — import duties and taxes are the buyer's responsibility.</div>
+    <div>Shipped from Japan to Australia with tracking · Prices in AUD, excluding GST · GST and import charges on orders over A$1,000 are the buyer's responsibility.</div>
     <div><?= h($CONFIG['legal_name']) ?> is an independent reseller of genuine product. We are not affiliated with, endorsed by or licensed by The Pokémon Company, Nintendo, Creatures Inc. or GAME FREAK Inc. All product names and trademarks are the property of their respective owners.</div>
     <div>© <?= date('Y') ?> <?= h($CONFIG['legal_name']) ?>.</div>
   </div>

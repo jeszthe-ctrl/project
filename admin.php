@@ -37,6 +37,8 @@ function codes($s){
   return array_values(array_unique($out));
 }
 function usd($v){ return '$'.number_format((float)$v, 2); }
+/* what shoppers see for a USD amount: "≈ A$100.00" with the shop's first currency */
+function shown($v){ $c = $GLOBALS['STORE']['currencies'] ?? []; $m = reset($c); return $m ? '≈ '.$m['sym'].number_format((float)$v * $m['rate'], (int)$m['dec']).' to shoppers' : ''; }
 
 function is_admin(){ global $AUTH; return !empty($AUTH['key']) && hash_equals($AUTH['key'], (string)($_SESSION['admin'] ?? '')); }
 function csrf(){ if(empty($_SESSION['admin_csrf'])) $_SESSION['admin_csrf'] = bin2hex(random_bytes(16)); return $_SESSION['admin_csrf']; }
@@ -780,7 +782,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   $visible = array_filter($STORE['products'], fn($p)=>empty($p['hidden'])); ?>
   <h1>Dashboard</h1>
   <p class="sub">Everything you change here updates the shop straight away.</p>
-  <?php if(empty($S['shipping_reviewed'])): ?><div class="msg warn">Shipping rates are still the <b>placeholder values</b> the site shipped with. Set your real rates in <a href="<?= h(self_url('shipping')) ?>">Shipping</a> — they decide the order total and the <?= usd($S['min_order_usd']) ?> minimum.</div><?php endif; ?>
+  <?php if(empty($S['shipping_reviewed'])): ?><div class="msg warn">Shipping rates are still the <b>placeholder values</b> the site shipped with. Set your real rates in <a href="<?= h(self_url('shipping')) ?>">Shipping</a> — they decide the order total and the <?= usd($S['min_order_usd']) ?> (<?= h(shown($S['min_order_usd'])) ?>) minimum.</div><?php endif; ?>
   <?php if(in_array(trim($S['address']), ['', 'Japan'], true)): ?><div class="msg warn">Your business address is just “<?= h($S['address'] ?: 'blank') ?>”. Add the full address in <a href="<?= h(self_url('settings')) ?>">Settings</a> — buyers look for it before ordering.</div><?php endif; ?>
   <?php $failed = array_filter(array_slice($orders, 0, 20), fn($o)=>isset($o['mail_shop']) && !$o['mail_shop']);
   if($failed): ?><div class="msg err"><?= count($failed) ?> recent order email<?= count($failed)===1?'':'s' ?> to <?= h($S['order_email']) ?> failed to send. The orders are safe here, but check with your host that PHP can send mail from <?= h($S['email']) ?>.</div><?php endif; ?>
@@ -1168,7 +1170,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   $home = (string)array_key_first($STORE['countries']); ?>
   <h1>Shipping rates</h1>
   <p class="sub">Customers choose <b><?= h($SM['standard']['label']) ?></b> or <b><?= h($SM['express']['label']) ?></b> at checkout. Each costs the zone’s <b>per-order</b> price + its <b>per-kg</b> price × the order’s weight (each product’s weight × quantity), in USD.
-    The <?= usd($S['min_order_usd']) ?> minimum order counts goods plus the shipping chosen.</p>
+    The <?= usd($S['min_order_usd']) ?> (<?= h(shown($S['min_order_usd'])) ?>) minimum order counts goods plus the shipping chosen.</p>
   <?php if(empty($S['shipping_reviewed'])): ?><div class="msg warn">These are starting rates: a single card to Australia comes to $10 Standard (US$, about A$15), then more per kg. Check them against what your carrier actually charges from Japan, then save.</div><?php endif; ?>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="shipping_save">
     <div class="card"><h2>Delivery options</h2>
@@ -1185,7 +1187,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
     <div class="card"><h2>Free shipping</h2>
       <div class="fld" style="max-width:320px"><label class="f" for="free_ship_usd">Free <?= h($SM['standard']['label']) ?> shipping on orders over (USD)</label>
         <input type="number" id="free_ship_usd" name="free_ship_usd" min="0" step="1" value="<?= h($S['free_ship_usd'] ?? 0) ?>">
-        <div class="hint">Counts the goods total, before shipping. <?= h($SM['express']['label']) ?> then costs only the difference. 0 turns it off. It shows in the bar at the top of every page.</div></div>
+        <div class="hint">Counts the goods total, before shipping. <?= h($SM['express']['label']) ?> then costs only the difference. 0 turns it off. It shows in the bar at the top of every page. Now <?= h(shown($S['free_ship_usd'] ?? 0)) ?>.</div></div>
     </div>
     <div class="card scroll"><table class="t">
       <thead><tr><th>Zone name</th><th>Country codes</th>
@@ -1287,7 +1289,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 
     <div class="card"><h2>Store rules</h2>
       <div class="grid3">
-        <div class="fld"><label class="f" for="min_order_usd">Minimum order (USD, incl. shipping)</label><input type="number" id="min_order_usd" name="min_order_usd" min="0" step="0.01" value="<?= h($S['min_order_usd']) ?>"></div>
+        <div class="fld"><label class="f" for="min_order_usd">Minimum order (USD, incl. shipping)</label><input type="number" id="min_order_usd" name="min_order_usd" min="0" step="0.01" value="<?= h($S['min_order_usd']) ?>"><div class="hint"><?= h(shown($S['min_order_usd'])) ?></div></div>
         <div class="fld"><label class="f" for="reply_hours">Hours to send payment details</label><input type="number" id="reply_hours" name="reply_hours" min="1" value="<?= (int)$S['reply_hours'] ?>"></div>
         <div class="fld"><label class="f" for="hold_hours">Hours stock is held / to dispatch</label><input type="number" id="hold_hours" name="hold_hours" min="1" value="<?= (int)$S['hold_hours'] ?>"></div>
       </div>
@@ -1407,14 +1409,14 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 <?php
 function orders_table($orders){ ?>
   <div class="scroll"><table class="t">
-    <thead><tr><th>Order</th><th>Placed</th><th>Customer</th><th>Country</th><th>Payment</th><th class="r">Total (USD)</th><th>Status</th></tr></thead><tbody>
+    <thead><tr><th>Order</th><th>Placed</th><th>Customer</th><th>Country</th><th>Payment</th><th class="r">Total</th><th>Status</th></tr></thead><tbody>
     <?php foreach($orders as $o): $st = $o['status'] ?? 'new'; ?>
       <tr><td><a href="<?= h(self_url('order', ['ref'=>$o['ref']])) ?>"><b><?= h($o['ref']) ?></b></a></td>
           <td class="small"><?= h($o['time']) ?></td>
           <td><?= h($o['name']) ?><?php if($o['company']): ?><br><span class="muted small"><?= h($o['company']) ?></span><?php endif; ?></td>
           <td><?= h($o['country_name']) ?></td>
           <td><?= h($o['payment_label']) ?><?php if(!empty($o['btc'])): ?><br><span class="muted small">₿ <?= h(btc_state_label(btc_state($o))) ?></span><?php endif; ?></td>
-          <td class="r"><?= usd($o['total_usd'] ?? 0) ?></td>
+          <td class="r"><?= h($o['total'] ?? usd($o['total_usd'] ?? 0)) ?><div class="muted small">US<?= usd($o['total_usd'] ?? 0) ?></div></td>
           <td><span class="pill s-<?= h($st) ?>"><?= h(status_label(ORDER_STATUSES, $st)) ?></span></td></tr>
     <?php endforeach; ?>
     </tbody></table></div>
