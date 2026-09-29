@@ -68,7 +68,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 10;
+const CONTENT_VERSION = 11;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -237,6 +237,9 @@ function content_upgrade($s, $d, $version){
         if(md5((string)($c[$f] ?? '')) === $h) $s['collections'][$i][$f] = $cols['charizard-pokemon-cards'][$f];
       if(($c['ids'] ?? []) === []) $s['collections'][$i]['ids'] = $cols['charizard-pokemon-cards']['ids'];
     }
+  }
+  if($version < 11){   /* the fudakura-australia.com Tawk.to chat widget, unless the owner has pasted their own */
+    if(md5((string)($s['settings']['chat_code'] ?? '')) === 'f7e12a3732fffe88d8c50a516f94d618') $s['settings']['chat_code'] = $d['settings']['chat_code'];
   }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;
