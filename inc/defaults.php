@@ -28,7 +28,7 @@ $d = [
     'pretty_urls'   => false,            /* clean addresses like /products/151-booster-box: switched on by themselves when the host supports them */
     'pretty_auto'   => false,            /* set once that automatic switch has happened, so turning them off in the admin sticks */
     'free_ship_usd' => 2000,             /* free Standard shipping from this goods total (USD); 0 = off */
-    'content_version' => 5,              /* set by the shop: which built-in content updates are applied */
+    'content_version' => 6,              /* set by the shop: which built-in content updates are applied */
     'moved_to'      => '',               /* an old domain running this code can send every visitor here (301) */
     'google_verify' => '', 'bing_verify' => '',   /* Search Console / Bing verification codes (Admin → Settings) */
     /* SMTP for order emails (Admin → Settings → Email); blank host = the web host's mail() */
@@ -39,7 +39,7 @@ $d = [
     'btc_quote_minutes' => 60,           /* how long a BTC amount is held before it is renewed at the current price */
     'btc_confirmations' => 1,            /* blockchain confirmations before an order is marked Paid */
 
-    /* live chat (Tawk.to): loaded after the page has finished loading, so it never slows the shop down */
+    /* live chat (Tawk.to, POKEKURA's own property): loaded after the page has finished loading, so it never slows the shop down */
     'chat_code' => <<<'HTML'
 <!--Start of Tawk.to Script-->
 <script type="text/javascript">
@@ -47,7 +47,7 @@ var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
 (function(){
 var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
 s1.async=true;
-s1.src='https://embed.tawk.to/6ab599650aebd43443ef66b2/default';
+s1.src='https://embed.tawk.to/6abb9f8e86a597344956abe4/default';
 s1.charset='UTF-8';
 s1.setAttribute('crossorigin','*');
 s0.parentNode.insertBefore(s1,s0);

@@ -54,6 +54,9 @@ function record_fail(){
   }
   data_write('auth', $AUTH);
 }
+/* the sign-in name: shops set up before names existed have none, and then only the password counts */
+function valid_user($u){ return (bool)preg_match('/^[A-Za-z0-9._@-]{3,40}$/', $u); }
+function user_ok($u){ global $AUTH; return empty($AUTH['user']) || hash_equals(strtolower($AUTH['user']), strtolower(trim((string)$u))); }
 function log_in(){
   global $AUTH, $IP;
   session_regenerate_id(true);
@@ -188,11 +191,12 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && $do !== '' && !hash_equals(csrf(), i
 
 if(empty($AUTH['hash'])){
   if($do === 'setup'){
-    $pw = (string)($_POST['password'] ?? '');
-    if(strlen($pw) < 10)                         $form_errors[] = 'Use at least 10 characters.';
+    $pw = (string)($_POST['password'] ?? ''); $user = in_str('user');
+    if(!valid_user($user))                       $form_errors[] = 'Choose a username of 3–40 letters or numbers (dots, dashes, _ and @ are fine).';
+    elseif(strlen($pw) < 10)                     $form_errors[] = 'Use at least 10 characters.';
     elseif($pw !== (string)($_POST['confirm'] ?? '')) $form_errors[] = 'The two passwords do not match.';
     else {
-      $AUTH = ['hash'=>password_hash($pw, PASSWORD_DEFAULT), 'key'=>bin2hex(random_bytes(16)), 'fails'=>[]];
+      $AUTH = ['user'=>$user, 'hash'=>password_hash($pw, PASSWORD_DEFAULT), 'key'=>bin2hex(random_bytes(16)), 'fails'=>[]];
       if(data_write('auth', $AUTH)){ log_in(); note('Password set. Welcome to your shop admin.'); go(); }
       $form_errors[] = 'Could not save. The data folder is not writable — ask your host to make it writable by PHP.';
     }
@@ -201,8 +205,8 @@ if(empty($AUTH['hash'])){
 } elseif(!is_admin()){
   if($do === 'login'){
     if(count(recent_fails()) >= 5) $form_errors[] = 'Too many attempts. Wait 15 minutes and try again.';
-    elseif(password_verify((string)($_POST['password'] ?? ''), $AUTH['hash'])){ log_in(); go(); }
-    else { record_fail(); usleep(400000); $form_errors[] = 'Wrong password.'; }
+    elseif(password_verify((string)($_POST['password'] ?? ''), $AUTH['hash']) && user_ok($_POST['user'] ?? '')){ log_in(); go(); }
+    else { record_fail(); usleep(400000); $form_errors[] = 'Wrong username or password.'; }
   }
   $v = 'login';
 }
@@ -614,15 +618,19 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
 
   /* ----- password ----- */
   if($do === 'password'){
-    $new = (string)($_POST['new'] ?? '');
+    $new = (string)($_POST['new'] ?? ''); $user = in_str('user');
     if(!password_verify((string)($_POST['current'] ?? ''), $AUTH['hash'])) $form_errors[] = 'Your current password is wrong.';
-    elseif(strlen($new) < 10)                                    $form_errors[] = 'Use at least 10 characters.';
+    elseif(!valid_user($user))                                   $form_errors[] = 'Choose a username of 3–40 letters or numbers (dots, dashes, _ and @ are fine).';
+    elseif($new !== '' && strlen($new) < 10)                     $form_errors[] = 'Use at least 10 characters for the new password.';
     elseif($new !== (string)($_POST['confirm'] ?? ''))           $form_errors[] = 'The two new passwords do not match.';
     else {
-      $AUTH['hash'] = password_hash($new, PASSWORD_DEFAULT);
-      $AUTH['key']  = bin2hex(random_bytes(16));      // signs out every other session
-      if(data_write('auth', $AUTH)){ $_SESSION['admin'] = $AUTH['key']; note('Password changed. Other devices have been signed out.'); go(); }
-      $form_errors[] = 'Could not save the new password.';
+      $AUTH['user'] = $user;
+      if($new !== ''){
+        $AUTH['hash'] = password_hash($new, PASSWORD_DEFAULT);
+        $AUTH['key']  = bin2hex(random_bytes(16));      // signs out every other session
+      }
+      if(data_write('auth', $AUTH)){ $_SESSION['admin'] = $AUTH['key']; note($new !== '' ? 'Sign-in details saved. Other devices have been signed out.' : 'Username saved.'); go(); }
+      $form_errors[] = 'Could not save your sign-in details.';
     }
     $v = 'password';
   }
@@ -631,7 +639,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
 /* ---------------- view data ---------------- */
 $NAV = ['dashboard'=>'Dashboard', 'orders'=>'Orders', 'products'=>'Products', 'categories'=>'Categories',
         'sets'=>'Sets', 'collections'=>'Collections', 'guides'=>'Guides', 'pages'=>'Pages',
-        'shipping'=>'Shipping', 'payments'=>'Payments', 'settings'=>'Settings', 'faq'=>'FAQ', 'password'=>'Password'];
+        'shipping'=>'Shipping', 'payments'=>'Payments', 'settings'=>'Settings', 'faq'=>'FAQ', 'password'=>'Sign-in'];
 if(is_admin() && !isset($NAV[$v]) && !in_array($v, ['product','order','collection','guide','page'], true)) $v = 'dashboard';
 $nav_on = ['product'=>'products', 'order'=>'orders', 'collection'=>'collections', 'guide'=>'guides', 'page'=>'pages'][$v] ?? $v;
 $flash = $_SESSION['admin_flash'] ?? []; unset($_SESSION['admin_flash']);
@@ -645,6 +653,7 @@ $S = $STORE['settings'];
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title><?= h(($NAV[$nav_on] ?? 'Sign in').' · '.$S['brand'].' admin') ?></title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <style>
 :root{
   color-scheme: light dark;
@@ -662,7 +671,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--brand2);outline-offset:2px}
 .top{background:var(--deep);color:var(--ondeep)}
 .top .in{max-width:1180px;margin:auto;padding:0 16px;display:flex;align-items:center;gap:14px;min-height:52px}
-.top b{letter-spacing:.14em}.top .sp{margin-left:auto;display:flex;gap:14px;font-size:14px}
+.top b{letter-spacing:.14em}.top svg.mk{width:28px;height:28px;display:block;flex:none;margin-right:-4px}.top .sp{margin-left:auto;display:flex;gap:14px;font-size:14px}
 .top a{color:var(--ondeep)}
 nav.tabs{background:var(--card);border-bottom:1px solid var(--line)}
 nav.tabs .in{max-width:1180px;margin:auto;padding:0 10px;display:flex;overflow-x:auto;scrollbar-width:none}
@@ -734,7 +743,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 <body>
 
 <div class="top"><div class="in">
-  <b><?= h($S['brand']) ?></b><span class="muted small">admin</span>
+  <?= brand_svg('logo-mark', 'mk', 'lg-a') ?><b><?= h($S['brand']) ?></b><span class="muted small">admin</span>
   <?php if(is_admin()): ?>
   <div class="sp"><a href="index.php" target="_blank" rel="noopener">View shop ↗</a><a href="<?= h(self_url('logout')) ?>">Sign out</a></div>
   <?php endif; ?>
@@ -756,12 +765,13 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
 
 <?php if($v === 'setup'): ?>
   <div class="auth card">
-    <h1>Create your admin password</h1>
-    <p class="sub">This is the first visit to your shop admin. Choose a password of at least 10 characters — you’ll use it to sign in from now on.</p>
+    <h1>Create your admin sign-in</h1>
+    <p class="sub">This is the first visit to your shop admin. Choose a username and a password of at least 10 characters — you’ll use them to sign in from now on.</p>
     <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="setup">
+      <div class="fld"><label class="f" for="un">Username</label><input type="text" id="un" name="user" value="<?= h(in_str('user')) ?>" autocomplete="username" required minlength="3" maxlength="40" autocapitalize="none" spellcheck="false"></div>
       <div class="fld"><label class="f" for="pw">Password</label><input type="password" id="pw" name="password" autocomplete="new-password" required minlength="10"></div>
       <div class="fld"><label class="f" for="pw2">Repeat password</label><input type="password" id="pw2" name="confirm" autocomplete="new-password" required minlength="10"></div>
-      <button class="btn" type="submit">Create password</button>
+      <button class="btn" type="submit">Create sign-in</button>
     </form>
   </div>
 
@@ -770,7 +780,8 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
     <h1>Sign in</h1>
     <p class="sub"><?= h($S['brand']) ?> shop admin</p>
     <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="login">
-      <div class="fld"><label class="f" for="pw">Password</label><input type="password" id="pw" name="password" autocomplete="current-password" required autofocus></div>
+      <div class="fld"><label class="f" for="un">Username</label><input type="text" id="un" name="user" value="<?= h(in_str('user')) ?>" autocomplete="username" autocapitalize="none" spellcheck="false" autofocus<?= empty($AUTH['user']) ? '' : ' required' ?>></div>
+      <div class="fld"><label class="f" for="pw">Password</label><input type="password" id="pw" name="password" autocomplete="current-password" required></div>
       <button class="btn" type="submit">Sign in</button>
     </form>
   </div>
@@ -1392,14 +1403,15 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   </form>
 
 <?php elseif($v === 'password'): ?>
-  <h1>Change password</h1>
-  <p class="sub">Changing it signs out every other device.</p>
+  <h1>Sign-in details</h1>
+  <p class="sub">Change your username, your password, or both. A new password signs out every other device.</p>
   <div class="card" style="max-width:420px">
     <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="password">
-      <div class="fld"><label class="f" for="cur">Current password</label><input type="password" id="cur" name="current" autocomplete="current-password" required></div>
-      <div class="fld"><label class="f" for="new">New password</label><input type="password" id="new" name="new" autocomplete="new-password" minlength="10" required></div>
-      <div class="fld"><label class="f" for="conf">Repeat new password</label><input type="password" id="conf" name="confirm" autocomplete="new-password" minlength="10" required></div>
-      <button class="btn" type="submit">Change password</button>
+      <div class="fld"><label class="f" for="un">Username</label><input type="text" id="un" name="user" value="<?= h($AUTH['user'] ?? '') ?>" autocomplete="username" required minlength="3" maxlength="40" autocapitalize="none" spellcheck="false"></div>
+      <div class="fld"><label class="f" for="new">New password <span class="muted small">(leave empty to keep your current one)</span></label><input type="password" id="new" name="new" autocomplete="new-password" minlength="10"></div>
+      <div class="fld"><label class="f" for="conf">Repeat new password</label><input type="password" id="conf" name="confirm" autocomplete="new-password" minlength="10"></div>
+      <div class="fld"><label class="f" for="cur">Current password <span class="muted small">(to confirm it’s you)</span></label><input type="password" id="cur" name="current" autocomplete="current-password" required></div>
+      <button class="btn" type="submit">Save</button>
     </form>
   </div>
 <?php endif; ?>

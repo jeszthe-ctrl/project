@@ -12,13 +12,14 @@
    was damaged on the way (text-mode FTP, an editor, a cut-off upload) is detected before anything
    is written, instead of half-installing.
 
-   Run:  php tools/build-installer.php [admin-password]
-   With a password, a fresh install also gets that admin login (otherwise admin.php asks for one). */
+   Run:  php tools/build-installer.php [admin-password] [admin-username]
+   With a password, a fresh install also gets that admin sign-in (username "admin" unless given);
+   otherwise admin.php asks for one on the first visit. */
 if(PHP_SAPI !== 'cli'){ http_response_code(404); exit; }
 
 $root = dirname(__DIR__);
 $list = [];
-foreach(['index.php', 'admin.php', '.htaccess', 'robots.txt', 'README.md', 'data/.htaccess', 'data/index.html', 'assets/products/.gitkeep'] as $f) $list[] = $f;
+foreach(['index.php', 'admin.php', '.htaccess', 'robots.txt', 'favicon.ico', 'README.md', 'data/.htaccess', 'data/index.html', 'assets/products/.gitkeep'] as $f) $list[] = $f;
 foreach(['inc', 'assets'] as $dir){
   $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator("$root/$dir", FilesystemIterator::SKIP_DOTS));
   foreach($it as $file){
@@ -38,7 +39,9 @@ foreach($list as $rel){
 }
 if(isset($argv[1]) && $argv[1] !== ''){
   if(strlen($argv[1]) < 10){ fwrite(STDERR, "Use a password of at least 10 characters.\n"); exit(1); }
-  $files['data/auth.php'] = "<?php http_response_code(404); exit; ?>\n".json_encode(['hash'=>password_hash($argv[1], PASSWORD_DEFAULT), 'key'=>bin2hex(random_bytes(16)), 'fails'=>[]]);
+  $user = $argv[2] ?? 'admin';
+  if(!preg_match('/^[A-Za-z0-9._@-]{3,40}$/', $user)){ fwrite(STDERR, "Use a username of 3-40 letters or numbers.\n"); exit(1); }
+  $files['data/auth.php'] = "<?php http_response_code(404); exit; ?>\n".json_encode(['user'=>$user, 'hash'=>password_hash($argv[1], PASSWORD_DEFAULT), 'key'=>bin2hex(random_bytes(16)), 'fails'=>[]]);
 }
 $pack = '';
 foreach($files as $rel=>$data) $pack .= pack('N', strlen($rel)).$rel.pack('N', strlen($data)).$data;
@@ -75,8 +78,8 @@ function pk_page($title, $html, $refresh = 0){
        'main{max-width:680px;margin:8vh auto;padding:0 20px}h1{font-size:28px;letter-spacing:-.02em;line-height:1.2}h2{font-size:18px;margin:26px 0 6px}',
        'a.b{display:inline-block;background:#2A44D4;color:#fff;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:700;margin:6px 8px 0 0}a.b+a.b{background:#fff;color:#0C1633;box-shadow:inset 0 0 0 1px #E1E5EE}',
        'code{background:#F2F4F9;padding:2px 6px;border-radius:5px}.n{color:#3A4566}.w{border-left:3px solid #E8870F;background:#FFF7EC;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0}',
-       '.e{border-left:3px solid #B5241D;background:#FEF1F0;padding:12px 16px;border-radius:0 8px 8px 0;margin:14px 0}ol,ul{padding-left:22px}li{margin:4px 0}</style></head><body><main>',
-       $html, '</main></body></html>';
+       '.e{border-left:3px solid #B5241D;background:#FEF1F0;padding:12px 16px;border-radius:0 8px 8px 0;margin:14px 0}ol,ul{padding-left:22px}li{margin:4px 0}.lg{width:220px;margin-bottom:26px}.lg svg{display:block;width:100%;height:auto}</style></head><body><main>',
+       '<div class="lg">%%LOGO%%</div>', $html, '</main></body></html>';
   exit;
 }
 function pk_damaged(){
@@ -183,7 +186,9 @@ PHP;
 
 $b64 = chunk_split(base64_encode($pack), 76, "\n");
 @mkdir("$root/dist", 0755, true);
-file_put_contents("$root/dist/index.php", str_replace('%%SHA256%%', hash('sha256', $pack), $stub).'PKB64:'."\n".$b64);
+$logo = preg_replace('#<title>.*?</title>#s', '', trim((string)@file_get_contents("$root/assets/logo.svg")));
+$logo = str_replace(["'", '\\'], ['&#39;', ''], $logo);          /* it sits inside a '…' PHP string in the installer */
+file_put_contents("$root/dist/index.php", str_replace(['%%SHA256%%', '%%LOGO%%'], [hash('sha256', $pack), $logo], $stub).'PKB64:'."\n".$b64);
 printf("dist/index.php: %d files, %.0f KB%s\n", count($files), filesize("$root/dist/index.php") / 1024, isset($files['data/auth.php']) ? ', with admin login' : '');
 
 /* the same files as a zip, for hosts where uploading a zip and choosing "Extract" is easier */

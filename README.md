@@ -16,9 +16,13 @@ POKEKURA (ポケ蔵) is an independent distributor and reseller of authentic Jap
 
 You shouldn't need to edit any code. Day-to-day changes are made in `admin.php` and saved to `data/`, so uploading a newer version of the code never overwrites your products or orders.
 
+## Logo
+
+`assets/logo.svg` is the full logo (the kura mark, POKEKURA and ポケ蔵 · JAPAN TCG WHOLESALE), `assets/logo-white.svg` the version for dark backgrounds, `assets/logo-mark.svg` the square mark, and `assets/wordmark.svg` the name alone. The lettering is converted to shapes, so it looks the same everywhere. The browser icons are `favicon.ico`, `assets/favicon.svg` and `assets/apple-touch-icon.png`; `assets/logo-512.png` is the logo Google shows for the business, and `assets/site/share-pokekura.jpg` is the picture shown when a page is shared on social media or in messages.
+
 ## Install
 
-`php tools/build-installer.php [admin-password]` builds two things in `dist/` (with a password, both include that admin login). Needs PHP 7.4 or newer (8.2 or 8.3 recommended).
+`php tools/build-installer.php [admin-password] [admin-username]` builds two things in `dist/` (with a password, both include that admin sign-in; the username is `admin` unless you give one). Needs PHP 7.4 or newer (8.2 or 8.3 recommended).
 
 **Easiest: the zip.** In your host's File Manager, open `public_html`, **Upload** `pokekura-upload.zip`, right-click it and choose **Extract**, then delete the zip. If the host put a placeholder page there (`index.html`, `default.php`), delete it too. Then open `https://your-domain/admin.php`.
 
@@ -28,7 +32,7 @@ Uploading the files by hand instead:
 
 1. Upload everything to your web space. Keep the folder structure.
 2. Make sure PHP can write to `data/` and `assets/products/` (most hosts allow this by default; otherwise set them to 755 or 775).
-3. Open `https://your-domain/admin.php`. If the installer was built with a password, sign in with it and change it under **Password**. Otherwise, **straight away**, create your admin password there: the first person to open that page sets it.
+3. Open `https://your-domain/admin.php` (or just `/admin`). If the installer was built with a sign-in, use that username and password, and change them under **Sign-in**. Otherwise, **straight away**, create your admin username and password there: the first person to open that page sets them.
 4. In the admin:
    - **Settings**: your registered company name, full business address, emails and website address. Then **Send a test email** (Settings, bottom) to your business address and to a personal one to check order emails arrive. If they don't, or land in spam, enter your mailbox's SMTP details under **Email**.
    - **Shipping**: your real shipping rates, the free-shipping amount and the Shipping & Returns page text. The site ships with starting rates, and the dashboard warns you until you save this page.

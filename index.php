@@ -103,7 +103,7 @@ function cart_weight(){ $kg=0; foreach(cart_lines() as $l) $kg += (float)($l['p'
    Otherwise index.php?p=…  Links are written relative to <base href>, so the shop also works in a subfolder. */
 /* site photos (assets/site): the home page image until you upload your own in Settings, and the link-preview image */
 const SITE_HERO  = 'assets/site/pokemon-30th-celebration-elite-trainer-box.webp';
-const SITE_SHARE = 'assets/site/share-30th-celebration.jpg';
+const SITE_SHARE = 'assets/site/share-pokekura.jpg';   /* 1200 x 630 */
 $BASE = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/index.php')), '/').'/';
 const PAGE_PATHS = ['cart'=>'cart', 'checkout'=>'checkout', 'received'=>'order-received', 'how'=>'how-it-works',
                     'shipping'=>'shipping-returns', 'payment'=>'payment-methods', 'faq'=>'faq', 'contact'=>'contact',
@@ -151,6 +151,7 @@ function route_from_path(){
   $path = trim($path, '/');
   if($path === '' || $path === 'index.php') return null;
   if($path === 'rewrite-check') return ['p'=>'rewritecheck'];
+  if($path === 'admin' || $path === 'login'){ header('Location: '.$BASE.'admin.php', true, 302); exit; }   /* easy to remember */
   $seg = explode('/', $path);
   if(count($seg) === 1){
     if($path === 'shop') return ['p'=>'catalog'];
@@ -852,10 +853,13 @@ $in_stock = array_values(array_filter($PRODUCTS, fn($p)=>!in_array($p['status'],
 <meta property="og:title" content="<?= h($page_title) ?>">
 <meta property="og:description" content="<?= h($page_desc) ?>">
 <?php if($canonical): ?><meta property="og:url" content="<?= h($canonical) ?>"><?php endif; ?>
-<?php if($og): ?><meta property="og:image" content="<?= h($abs_img($og[0])) ?>"><?php endif; ?>
+<?php if($og): ?><meta property="og:image" content="<?= h($abs_img($og[0])) ?>">
+<?php if($og[0] === SITE_SHARE): ?><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="<?= h($CONFIG['brand']) ?>: wholesale Japanese Pokémon cards, shipped worldwide from Japan"><?php endif; endif; ?>
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#FFFFFF">
+<link rel="icon" href="favicon.ico" sizes="48x48">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <?php if($page === 'home'): foreach(['google_verify'=>'google-site-verification', 'bing_verify'=>'msvalidate.01'] as $k=>$nm) if(($CONFIG[$k] ?? '') !== ''): ?><meta name="<?= $nm ?>" content="<?= h($CONFIG[$k]) ?>">
 <?php endif; endif; ?>
 
@@ -863,7 +867,7 @@ $in_stock = array_values(array_filter($PRODUCTS, fn($p)=>!in_array($p['status'],
 $org_id = rtrim($CONFIG['domain'], '/').'/#org';
 $graph = [
   ['@type'=>'Organization','@id'=>$org_id,'name'=>$CONFIG['brand'],'legalName'=>$CONFIG['legal_name'],'alternateName'=>$CONFIG['kanji'],'url'=>abs_url('home'),'email'=>$CONFIG['email'],
-   'logo'=>rtrim($CONFIG['domain'], '/').'/assets/logo.svg',
+   'logo'=>rtrim($CONFIG['domain'], '/').'/assets/'.(is_file(FK_ROOT.'/assets/logo-512.png') ? 'logo-512.png' : 'logo.svg'),
    'address'=>['@type'=>'PostalAddress','streetAddress'=>$CONFIG['address'],'addressCountry'=>'JP'],
    'description'=>'Independent distributor and reseller of authentic Japanese Pokémon Trading Card Game products, shipping wholesale orders worldwide directly from Japan.',
    'knowsAbout'=>['Japanese Pokémon Trading Card Game', 'Pokémon TCG wholesale', 'Pokémon booster boxes'],
@@ -960,12 +964,14 @@ header.site{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.94);ba
   -webkit-backdrop-filter:blur(12px) saturate(1.6);border-bottom:1px solid var(--line)}
 .bar{display:flex;align-items:center;gap:18px;min-height:70px}
 .brand{display:flex;align-items:center;gap:11px;text-decoration:none;flex:none}
-.brand .logo{position:relative;width:38px;height:38px;border-radius:10px;background:var(--indigo);color:#fff;display:grid;place-items:center;
+.brand svg.logo{display:block;width:42px;height:42px;flex:none}
+.brand svg.word{display:block;height:19px;width:auto;aspect-ratio:570/73.5}
+.brand span.logo{position:relative;width:38px;height:38px;border-radius:10px;background:var(--indigo);color:#fff;display:grid;place-items:center;
   font-family:var(--jp);font-size:21px;font-weight:700;line-height:1;flex:none}
-.brand .logo::after{content:"";position:absolute;right:-4px;top:-4px;width:12px;height:12px;border-radius:50%;background:var(--yellow);border:2px solid #fff}
+.brand span.logo::after{content:"";position:absolute;right:-4px;top:-4px;width:12px;height:12px;border-radius:50%;background:var(--yellow);border:2px solid #fff}
 .brand .wm{display:flex;flex-direction:column;line-height:1.1}
 .brand .mk{font-weight:900;font-size:19px;letter-spacing:.07em;color:var(--ink)}
-.brand .kj{font-family:var(--jp);font-size:11px;color:var(--muted);letter-spacing:.08em;margin-top:3px}
+.brand .kj{font-family:var(--jp);font-size:11px;color:var(--muted);letter-spacing:.08em;margin-top:4px}
 form.search{flex:1;max-width:500px;display:flex}
 form.search input{flex:1;background:var(--card2);border:1px solid var(--card2);border-right:none;color:var(--ink);
   border-radius:10px 0 0 10px;padding:10px 15px;font-size:14px;min-width:0}
@@ -995,7 +1001,8 @@ select.pick:hover{border-color:var(--indigo)}
 .catbar a.on{color:var(--indigo);font-weight:700}.catbar a.on::after{opacity:1}
 @media(max-width:820px){form.search{order:3;max-width:none;flex-basis:100%;margin-bottom:12px}.bar{flex-wrap:wrap;padding-top:10px}}
 @media(max-width:520px){
-  .bar{gap:10px;min-height:60px}.brand{gap:8px}.brand .logo{width:32px;height:32px;font-size:18px;border-radius:9px}
+  .bar{gap:10px;min-height:60px}.brand{gap:8px}.brand span.logo{width:32px;height:32px;font-size:18px;border-radius:9px}
+  .brand svg.logo{width:36px;height:36px}.brand svg.word{height:15px}
   .brand .mk{font-size:16px;letter-spacing:.05em}.brand .kj .x{display:none}
   select.pick{padding:7px 22px 7px 10px;font-size:12.5px;background-position:calc(100% - 12px) 53%,calc(100% - 8px) 53%}
   .cartbtn{padding:8px 10px 8px 12px;font-size:13px}.tools{gap:6px}
@@ -1449,8 +1456,8 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
 <header class="site">
   <div class="wrap bar">
     <a class="brand" href="<?= h(url('home')) ?>" aria-label="<?= h($CONFIG['brand']) ?> home">
-      <span class="logo" aria-hidden="true"><?= h(brand_mark()) ?></span>
-      <span class="wm"><span class="mk"><?= h($CONFIG['brand']) ?></span><span class="kj"><?= h($CONFIG['kanji']) ?><span class="x"> · Japan wholesale</span></span></span>
+      <?= brand_svg('logo-mark', 'logo', 'lg-h') ?: '<span class="logo" aria-hidden="true">'.h(brand_mark()).'</span>' ?>
+      <span class="wm"><?= brand_svg('wordmark', 'word') ?: '<span class="mk">'.h($CONFIG['brand']).'</span>' ?><span class="kj"><?= h($CONFIG['kanji']) ?><span class="x"> · Japan wholesale</span></span></span>
     </a>
     <form class="search" action="<?= empty($CONFIG['pretty_urls']) ? 'index.php' : 'shop' ?>" method="get" role="search">
       <?php if(empty($CONFIG['pretty_urls'])): ?><input type="hidden" name="p" value="catalog"><?php endif; ?>
@@ -2330,8 +2337,8 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
 <footer class="site"><div class="wrap">
   <div class="fg">
     <div>
-      <div class="brand"><span class="logo" aria-hidden="true"><?= h(brand_mark()) ?></span>
-        <span class="wm"><span class="mk"><?= h($CONFIG['brand']) ?></span><span class="kj"><?= h($CONFIG['kanji']) ?> · Japan wholesale</span></span></div>
+      <div class="brand"><?= brand_svg('logo-mark', 'logo', 'lg-f') ?: '<span class="logo" aria-hidden="true">'.h(brand_mark()).'</span>' ?>
+        <span class="wm"><?= brand_svg('wordmark', 'word') ?: '<span class="mk">'.h($CONFIG['brand']).'</span>' ?><span class="kj"><?= h($CONFIG['kanji']) ?> · Japan wholesale</span></span></div>
       <p class="bl"><?= h($CONFIG['footer_blurb']) ?></p>
     </div>
     <div><h4>Shop</h4><ul>

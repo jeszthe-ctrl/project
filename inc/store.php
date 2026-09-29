@@ -75,7 +75,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 5;
+const CONTENT_VERSION = 6;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -127,6 +127,10 @@ function content_upgrade($s, $d, $version){
   if($version < 5){   /* Shipping & Returns: a stated 7-day window for returns */
     if(md5((string)($s['settings']['shipping_policy'] ?? '')) === '6fc5100a55b8ac83dbc3673897fc6bce') $s['settings']['shipping_policy'] = $d['settings']['shipping_policy'];
   }
+  if($version < 6){   /* pokekura.com has its own Tawk.to chat, separate from the FUDAKURA one it started with */
+    if(stripos((string)($s['settings']['domain'] ?? ''), 'pokekura.com') !== false)
+      $s['settings']['chat_code'] = str_replace('embed.tawk.to/6ab599650aebd43443ef66b2/', 'embed.tawk.to/6abb9f8e86a597344956abe4/', (string)($s['settings']['chat_code'] ?? ''));
+  }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;
 }
@@ -147,6 +151,18 @@ function store_save($s){
 
 /* ---------------- products ---------------- */
 function photo_slots(){ return ['', '-2', '-3', '-4']; }
+
+/* the POKEKURA logo files (assets/logo-mark.svg, assets/wordmark.svg) inlined into a page, with the
+   gradient id made unique per copy; '' when the shop runs under another name or the file is missing */
+function brand_svg($name, $class, $uid=''){
+  global $STORE;
+  if(strcasecmp((string)($STORE['settings']['brand'] ?? ''), 'POKEKURA') !== 0) return '';
+  $svg = @file_get_contents(FK_ROOT.'/assets/'.$name.'.svg');
+  if(!is_string($svg) || strpos($svg, '<svg') === false) return '';
+  $svg = preg_replace('#<title>.*?</title>#s', '', $svg);
+  if($uid !== '') $svg = str_replace(['id="mbg"', 'url(#mbg)'], ['id="'.$uid.'"', 'url(#'.$uid.')'], $svg);
+  return str_replace(['<svg xmlns="http://www.w3.org/2000/svg" ', "\n"], ['<svg class="'.$class.'" aria-hidden="true" focusable="false" ', ''], $svg);
+}
 
 /* photos a fresh install starts with (the site photos of products the shop sells); replace them in the admin */
 const STARTER_PHOTOS = ['30th-celebration-elite-trainer-box' => ['assets/site/pokemon-30th-celebration-elite-trainer-box.webp',
