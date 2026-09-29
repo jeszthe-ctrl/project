@@ -344,7 +344,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
       $fixed = unique_slug($slug, $taken); $taken[] = $fixed;
       if($fixed !== $slug) note("The web address “{$slug}” is already used, so {$name} is at “{$fixed}”.", 'err');
       $sets[$name] = ['slug'=>$fixed, 'series'=>isset($STORE['series'][$row['series'] ?? '']) ? $row['series'] : '',
-        'code'=>str($row['code'] ?? ''), 'intro'=>str($row['intro'] ?? ''),
+        'code'=>str($row['code'] ?? ''), 'h1'=>str($row['h1'] ?? ''), 'intro'=>str($row['intro'] ?? ''),
         'seo_title'=>str($row['seo_title'] ?? ''), 'seo_desc'=>str($row['seo_desc'] ?? '')];
     }
     $STORE['sets'] = $sets;
@@ -1030,7 +1030,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
     </details>
     <?php endforeach; ?>
     <h2 style="font-size:18px;margin:22px 0 10px">Sets</h2>
-    <?php foreach(set_names() as $i=>$name): $st = ($STORE['sets'][$name] ?? []) + ['slug'=>slugify($name), 'series'=>'', 'code'=>'', 'intro'=>'']; ?>
+    <?php foreach(set_names() as $i=>$name): $st = ($STORE['sets'][$name] ?? []) + ['slug'=>slugify($name), 'series'=>'', 'code'=>'', 'h1'=>'', 'intro'=>'']; ?>
     <details class="card">
       <summary><b><?= h($name) ?></b> <span class="muted small">· <?= (int)($counts[$name] ?? 0) ?> products<?= $st['code'] !== '' ? ' · '.h($st['code']) : '' ?></span></summary>
       <input type="hidden" name="sets[<?= $i ?>][name]" value="<?= h($name) ?>">
@@ -1040,6 +1040,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
           <?php foreach($STORE['series'] as $k=>$sr): ?><option value="<?= h($k) ?>" <?= $st['series']===$k?'selected':'' ?>><?= h($sr['name']) ?></option><?php endforeach; ?></select></div>
         <div class="fld"><label class="f">Set code</label><input type="text" name="sets[<?= $i ?>][code]" value="<?= h($st['code']) ?>" placeholder="e.g. SV2a"></div>
       </div>
+      <div class="fld"><label class="f">Main heading (H1)</label><input type="text" name="sets[<?= $i ?>][h1]" value="<?= h($st['h1']) ?>" placeholder="<?= h($name.($st['code'] !== '' ? ' ('.$st['code'].')' : '').' — Japanese Pokémon cards') ?>" maxlength="120"></div>
       <?php seo_inputs("sets[$i]", $st, $name.' Japanese Booster Boxes & Cards'); ?>
       <div class="fld"><label class="f">Intro text</label><textarea name="sets[<?= $i ?>][intro]" rows="4"><?= h($st['intro']) ?></textarea><div class="hint"><?= h(FORMAT_HELP) ?></div></div>
     </details>

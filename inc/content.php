@@ -304,13 +304,13 @@ MD,
   'series' => [
     'mega' => [
       'name' => 'Mega Evolution', 'slug' => 'mega-evolution',
-      'h1' => 'Pokémon Trading Card Game Mega Evolution sets & booster packs',
-      'seo_title' => 'Pokémon TCG Mega Evolution Sets & Booster Packs',
+      'h1' => 'Pokémon Mega Evolution sets: booster boxes, ETBs & booster packs',
+      'seo_title' => 'Pokémon Mega Evolution Booster Box, ETB & Sets (Japanese)',
       'seo_desc' => 'Japanese Pokémon TCG Mega Evolution sets — Mega Brave, Mega Symphonia, Inferno X, Mega Dream ex, Nihil Zero, Ninja Spinner, Abyss Eye, Storm Emeralda and more.',
       'intro' => <<<'MD'
 Mega Evolution returned to the Pokémon Trading Card Game in 2025, launching in Japan with the twin sets [Mega Brave](set:mega-brave) and [Mega Symphonia](set:mega-symphonia). Each set since has brought new Mega Pokémon ex — from Mega Gengar ex in [Mega Dream ex](set:mega-dream-ex) to Mega Rayquaza ex in [Storm Emeralda](set:storm-emeralda).
 
-Below is every Mega Evolution set we stock, with sealed booster boxes, Elite Trainer Boxes and the key single cards from each. Japanese sets release first, so Mega Evolution booster packs from Japan arrive well before their English versions.
+Below is every Mega Evolution set we stock, with sealed booster boxes, Elite Trainer Boxes and the key single cards from each. Japanese sets release first, so Mega Evolution booster packs from Japan arrive well before their English versions. In English, Mega Brave and Mega Symphonia became the **Mega Evolution** set and Inferno X became **Phantasmal Flames** — see [English Pokémon sets and their Japanese versions](guide:english-pokemon-sets) for each English booster box, ETB and card list.
 MD,
     ],
     'sv' => [
@@ -321,7 +321,7 @@ MD,
       'intro' => <<<'MD'
 The Pokémon Trading Card Game Scarlet & Violet era ran from 2023 until the Mega Evolution series began in 2025, and produced some of the most collected Japanese sets ever — including [151](set:151), which revisits the original 151 Pokémon, and [Terastal Festival ex](set:terastal-festival-ex).
 
-We still stock sealed Scarlet & Violet booster boxes from Japan, including [Heat Wave Arena](set:heat-wave-arena) and [Glory of Team Rocket](set:glory-of-team-rocket). As these sets go out of print, sealed boxes become harder to find.
+We still stock sealed Scarlet & Violet booster boxes from Japan, including [Heat Wave Arena](set:heat-wave-arena) and [Glory of Team Rocket](set:glory-of-team-rocket), the two Japanese sets behind **Destined Rivals**. Terastal Festival ex is the Japanese **Prismatic Evolutions**. As these sets go out of print, sealed boxes become harder to find: see [English Pokémon sets and their Japanese versions](guide:english-pokemon-sets).
 MD,
     ],
   ],
@@ -343,34 +343,72 @@ MD,
     'Mega Dream ex' => ['slug'=>'mega-dream-ex', 'series'=>'mega', 'code'=>'M2a',
       'intro'=>'Mega Dream ex (M2a) is the special set of the Mega Evolution series and home of the Mega Gengar ex Special Illustration Rare. Stock includes sealed Mega Dream ex booster boxes, the Ascended Heroes Elite Trainer Box and the Mega Gengar ex SIR itself.'],
     'Inferno X' => ['slug'=>'inferno-x', 'series'=>'mega', 'code'=>'M2',
-      'intro'=>'Inferno X (M2) is the second main Japanese set of the Mega Evolution series, available here as sealed booster boxes.'],
+      'h1'=>'Inferno X (Phantasmal Flames) — Japanese booster box & Mega Charizard X ex',
+      'seo_title'=>'Phantasmal Flames Booster Box — Japanese Inferno X (M2)',
+      'seo_desc'=>'Inferno X (M2), the Japanese version of Phantasmal Flames: sealed booster boxes with Mega Charizard X ex, shipped from Japan to Australia.',
+      'intro'=>"Inferno X (M2) is the second main Japanese set of the Mega Evolution series, released on 26 September 2025 and headlined by **Mega Charizard X ex** (Mega Lizardon X ex in Japanese). It came out in English as **Phantasmal Flames** on 14 November 2025.\n\nWe stock sealed Japanese Inferno X booster boxes of 30 packs — the same cards as a Phantasmal Flames booster box, weeks earlier. For the Phantasmal Flames card list, ETB and other English versions, see [English Pokémon sets and their Japanese versions](guide:english-pokemon-sets), and for more Charizard, our [Charizard Pokémon cards](cards:charizard-pokemon-cards)."],
     'Mega Symphonia' => ['slug'=>'mega-symphonia', 'series'=>'mega', 'code'=>'M1S',
-      'intro'=>'Mega Symphonia (M1S) is one of the twin sets that launched the Mega Evolution series in Japan in 2025, released alongside Mega Brave.'],
+      'seo_title'=>'Mega Symphonia (M1S) Booster Box — Japanese Mega Evolution',
+      'seo_desc'=>'Mega Symphonia (M1S), with Mega Gardevoir ex: one of the two Japanese sets behind the English Mega Evolution set. Sealed booster boxes from Japan.',
+      'intro'=>'Mega Symphonia (M1S) is one of the twin sets that launched the Mega Evolution series in Japan on 1 August 2025, released alongside [Mega Brave](set:mega-brave) and led by Mega Gardevoir ex. Together they became the first English Mega Evolution set, released on 26 September 2025 — see [English Pokémon sets and their Japanese versions](guide:english-pokemon-sets).'],
     'Mega Brave' => ['slug'=>'mega-brave', 'series'=>'mega', 'code'=>'M1L',
-      'intro'=>'Mega Brave (M1L) launched the Japanese Mega Evolution series in 2025 together with its twin set, Mega Symphonia.'],
+      'seo_title'=>'Mega Brave (M1L) Booster Box — Japanese Mega Evolution',
+      'seo_desc'=>'Mega Brave (M1L), with Mega Lucario ex: one of the two Japanese sets behind the English Mega Evolution set. Sealed booster boxes from Japan.',
+      'intro'=>'Mega Brave (M1L) launched the Japanese Mega Evolution series on 1 August 2025 together with its twin set, [Mega Symphonia](set:mega-symphonia), and is led by Mega Lucario ex. Together they became the first English Mega Evolution set, released on 26 September 2025 — see [English Pokémon sets and their Japanese versions](guide:english-pokemon-sets).'],
     'Glory of Team Rocket' => ['slug'=>'glory-of-team-rocket', 'series'=>'sv', 'code'=>'SV10',
-      'intro'=>'Glory of Team Rocket (SV10) brings Team Rocket\'s Pokémon back to the Pokémon TCG and is one of the most in-demand Japanese Scarlet & Violet sets. Stocked as sealed booster boxes.'],
+      'h1'=>'Glory of Team Rocket (Destined Rivals) — Japanese booster box',
+      'seo_title'=>'Destined Rivals Booster Box — Japanese Glory of Team Rocket',
+      'seo_desc'=>'Glory of Team Rocket (SV10), the Japanese set behind Destined Rivals: sealed booster boxes with Team Rocket\'s Mewtwo ex, shipped from Japan to Australia.',
+      'intro'=>"Glory of Team Rocket (SV10) brings Team Rocket's Pokémon back to the Pokémon TCG and is one of the most in-demand Japanese Scarlet & Violet sets, with Team Rocket's Mewtwo ex as its chase card. Released in Japan on 18 April 2025, it became the English set **Destined Rivals** (30 May 2025) together with [Heat Wave Arena](set:heat-wave-arena).\n\nStocked as sealed Japanese booster boxes of 30 packs. For the Destined Rivals card list and ETB, see [English Pokémon sets and their Japanese versions](guide:english-pokemon-sets)."],
     'Heat Wave Arena' => ['slug'=>'heat-wave-arena', 'series'=>'sv', 'code'=>'SV9a',
-      'intro'=>'Heat Wave Arena (SV9a) is a Japanese Scarlet & Violet expansion, stocked as sealed booster boxes.'],
+      'seo_title'=>'Heat Wave Arena (SV9a) Booster Box — Destined Rivals in Japanese',
+      'seo_desc'=>'Heat Wave Arena (SV9a), one of the two Japanese sets behind Destined Rivals: sealed booster boxes shipped from Japan to Australia.',
+      'intro'=>'Heat Wave Arena (SV9a) is a Japanese Scarlet & Violet expansion, released on 14 March 2025 and stocked as sealed booster boxes. Its cards went into the English set **Destined Rivals** together with [Glory of Team Rocket](set:glory-of-team-rocket) — see [English Pokémon sets and their Japanese versions](guide:english-pokemon-sets).'],
     'Terastal Festival ex' => ['slug'=>'terastal-festival-ex', 'series'=>'sv', 'code'=>'SV8a',
-      'intro'=>'Terastal Festival ex (SV8a) is the Scarlet & Violet special set built around Terastal Pokémon and the Eevee evolutions, released in English as Prismatic Evolutions. Japanese boxes hold 10 packs of 10 cards.'],
+      'h1'=>'Terastal Festival ex (Prismatic Evolutions) — Japanese booster box',
+      'seo_title'=>'Prismatic Evolutions Booster Box — Japanese Terastal Festival ex',
+      'seo_desc'=>'Terastal Festival ex (SV8a), the Japanese Prismatic Evolutions: sealed 10-pack booster boxes with Umbreon ex and every Eeveelution, shipped to Australia.',
+      'intro'=>"Terastal Festival ex (SV8a) is the Scarlet & Violet special set built around Terastal Pokémon and the Eevee evolutions, released in Japan on 6 December 2024 and in English as **Prismatic Evolutions** on 17 January 2025. Umbreon ex Special Illustration Rare is the chase card.\n\nEnglish Prismatic Evolutions never had a booster box — only ETBs, booster bundles and collections — but Japanese Terastal Festival ex does: each box holds 10 packs of 10 cards. More in [English Pokémon sets and their Japanese versions](guide:english-pokemon-sets)."],
     '151' => ['slug'=>'151', 'series'=>'sv', 'code'=>'SV2a',
       'seo_title'=>'151 Pokémon Cards — Japanese 151 Booster Box & Charizard',
       'seo_desc'=>'Japanese 151 Pokémon cards (SV2a): sealed 151 booster boxes and the Charizard ex Special Illustration Rare, shipped from Japan to Australia.',
-      'intro'=>"Pokémon Card 151 (SV2a) is the Japanese special set that revisits the original 151 Pokémon from Red and Green, from Bulbasaur to Mew. It is one of the most collected sets of the Scarlet & Violet era, released in English as Scarlet & Violet—151. Japanese 151 booster boxes hold 20 packs of 7 cards, and the chase cards include the Charizard ex Special Illustration Rare.\n\n## Pokémon 151 card list\n\nJapanese 151 (released on 16 June 2023) has 210 cards: a 165-card main set covering the original 151 Pokémon plus Trainer and Energy cards, and 45 secret rares: 18 Art Rares (AR), 16 Super Rares (SR), 8 Special Art Rares (SAR) and 3 gold Ultra Rares (UR). More in our [Pokémon card database](guide:pokemon-card-database).\n\nWe stock sealed 151 booster boxes and the 151 Charizard ex SAR. Looking for more 151 Pokémon cards? See all our [Charizard Pokémon cards](cards:charizard-pokemon-cards)."],
+      'intro'=>"Pokémon Card 151 (SV2a) is the Japanese special set that revisits the original 151 Pokémon from Red and Green, from Bulbasaur to Mew. It is one of the most collected sets of the Scarlet & Violet era, released in English as Scarlet & Violet—151. English 151 had no booster box (its packs came in the 151 booster bundle, Elite Trainer Box and collections), but Japanese 151 booster boxes hold 20 packs of 7 cards, and the chase cards include the Charizard ex Special Illustration Rare.\n\n## Pokémon 151 card list\n\nJapanese 151 (released on 16 June 2023) has 210 cards: a 165-card main set covering the original 151 Pokémon plus Trainer and Energy cards, and 45 secret rares: 18 Art Rares (AR), 16 Super Rares (SR), 8 Special Art Rares (SAR) and 3 gold Ultra Rares (UR). More in our [Pokémon card database](guide:pokemon-card-database).\n\nWe stock sealed 151 booster boxes and the 151 Charizard ex SAR. Looking for more 151 Pokémon cards? See all our [Charizard Pokémon cards](cards:charizard-pokemon-cards)."],
   ],
 
   /* products are included if their id is listed, or their name contains a match term
      (comma-separated); cond limits to one condition, or lists every product in it when there are no terms */
   'collections' => [
-    ['slug'=>'charizard-pokemon-cards', 'title'=>'Charizard Pokémon cards', 'h1'=>'Charizard Pokémon cards (Japanese)',
-     'match'=>'charizard', 'ids'=>[], 'cond'=>'',
-     'seo_title'=>'Charizard Pokémon Cards — Japanese SAR & Hyper Rare',
-     'seo_desc'=>'Japanese Charizard Pokémon cards: the 151 Charizard ex Special Illustration Rare and Mega Charizard Y ex Hyper Rare, Near Mint and shipped from Japan to Australia.',
+    ['slug'=>'charizard-pokemon-cards', 'title'=>'Charizard Pokémon cards', 'h1'=>'Charizard Pokémon cards: Charizard ex, Mega Charizard X & Y',
+     'match'=>'charizard', 'ids'=>['inferno-x-booster-box'], 'cond'=>'',
+     'seo_title'=>'Charizard Pokémon Cards — Charizard ex & Mega Charizard X ex',
+     'seo_desc'=>'Charizard Pokémon cards from Japan: the 151 Charizard ex SAR, Mega Charizard Y ex Hyper Rare and Inferno X boxes with Mega Charizard X ex. Shiny Charizard and the Charizard UPC explained.',
      'intro'=><<<'MD'
-Charizard is one of the most collected Pokémon in the Trading Card Game, and its cards are often the most valuable in a set. Our Japanese Charizard cards include the Charizard ex Special Illustration Rare from [151](set:151) and the gold Mega Charizard Y ex Hyper Rare from the Mega Evolution series.
+Charizard is the most collected Pokémon in the Trading Card Game, and a Charizard card is often the most valuable in its set. Our Japanese Charizard cards include the Charizard ex Special Illustration Rare from [151](set:151) and the gold Mega Charizard Y ex Hyper Rare from the Mega Evolution series, and our sealed [Inferno X booster boxes](product:inferno-x-booster-box) are where Mega Charizard X ex comes from.
 
 Every card is Near Mint and ships sleeved and toploaded. For why some Charizard cards are worth far more than others, see [how much Pokémon cards are worth](guide:pokemon-card-values).
+
+## Charizard ex
+
+**Charizard ex** is the Scarlet & Violet-era Charizard, printed in several sets. The best known are the Charizard ex Special Illustration Rare from 151 and the shiny Charizard ex from Paldean Fates. Like every Pokémon ex, it gives up two Prize cards when Knocked Out.
+
+## Mega Charizard X ex and Mega Charizard Y ex
+
+Mega Evolution returned in 2025, and Charizard has both of its Mega forms as **Mega Evolution Pokémon ex**:
+
+- **Mega Charizard X ex** (the black-and-blue Mega Charizard, called Mega Lizardon X ex in Japan) headlines the Japanese set [Inferno X](set:inferno-x), released in English as Phantasmal Flames. People also search for it as "M Charizard ex X": Mega cards from the older XY era were written "M Charizard-EX", while the new ones are named Mega Charizard X ex.
+- **Mega Charizard Y ex** has a gold Hyper Rare, which we stock Near Mint.
+
+A Mega Evolution Pokémon ex gives up three Prize cards when Knocked Out, so it's a big play in the game as well as a chase card.
+
+## Shiny Charizard cards
+
+A shiny Charizard is black instead of orange. The best-known shiny Charizard cards are Shining Charizard from Neo Destiny (2002), the Charizard-GX from Hidden Fates' Shiny Vault, and the shiny Charizard ex Special Illustration Rare from Paldean Fates (Japanese: Shiny Treasure ex).
+
+## What is the Charizard UPC?
+
+"UPC" is short for **Ultra-Premium Collection**, an English premium box with booster packs, promo cards and accessories. The Charizard Ultra-Premium Collection (2022) is one of the most collected of them, and sealed copies now sell well above their original price. It's an English product sold by Australian retailers when in stock; we stock Japanese Charizard cards and sealed Japanese boxes.
+
+More on English sets and their Japanese versions in our [Phantasmal Flames, Destined Rivals and Prismatic Evolutions guide](guide:english-pokemon-sets).
 MD],
     ['slug'=>'pikachu-pokemon-cards', 'title'=>'Pikachu Pokémon cards', 'h1'=>'Pikachu Pokémon cards',
      'match'=>'pikachu', 'ids'=>[], 'cond'=>'',
@@ -432,6 +470,95 @@ Japanese cards work exactly like English ones in casual play — the attacks, HP
 Australian stores such as Kmart, Big W and EB Games sell English cards ([where to buy Pokémon cards](guide:where-to-buy-pokemon-cards)), so Japanese cards mostly come from importers. Official Chinese-language cards are a different product again: see [Chinese Pokémon cards](guide:chinese-pokemon-cards).
 
 We source every [booster box](category:boxes) and [single card](category:singles) in Japan and ship it to Australia with tracking. Shipping is calculated at checkout and free on orders over {free_ship} and orders over A$1,000 are charged GST by Australian customs — see [Shipping & Returns](page:shipping) for details.
+MD],
+    ['slug'=>'english-pokemon-sets', 'updated'=>'2026-09-29',
+     'title'=>'Phantasmal Flames, Destined Rivals & Prismatic Evolutions: English sets and their Japanese versions',
+     'seo_title'=>'Phantasmal Flames, Destined Rivals & Prismatic Evolutions Guide',
+     'seo_desc'=>'Phantasmal Flames, Mega Evolution, Destined Rivals, Journey Together, Prismatic Evolutions, Black Bolt, Paldean Fates and Evolving Skies: booster boxes, ETBs, chase cards and Japanese versions.',
+     'body'=><<<'MD'
+Most Pokémon TCG sets come out in Japan first and reach English a few months later, often under a different name and sometimes as two Japanese sets rolled into one. Here are the English sets people search for most in Australia, what's in them, whether they have a booster box, and the Japanese set that holds the same cards.
+
+We ship sealed **Japanese** product from Japan. English boxes and Elite Trainer Boxes are sold by Australian retailers — see [where to buy Pokémon cards in Australia](guide:where-to-buy-pokemon-cards).
+
+## Mega Evolution (the first Mega Evolution set)
+
+**Mega Evolution** opened the Mega Evolution series in English on 26 September 2025, bringing back Mega Evolution as **Mega Evolution Pokémon ex**, with Mega Lucario ex and Mega Gardevoir ex on the boxes. It combines the Japanese twin sets [Mega Brave](set:mega-brave) (M1L) and [Mega Symphonia](set:mega-symphonia) (M1S), released on 1 August 2025.
+
+- **Mega Evolution booster box:** yes, a standard English booster box of 36 packs. Japanese Mega Brave and Mega Symphonia boxes hold 30 packs of 5 cards.
+- **Mega Evo ETB:** English Elite Trainer Boxes came in Mega Lucario and Mega Gardevoir versions.
+- **Mega Evolution card list:** the chase cards are the Mega Lucario ex and Mega Gardevoir ex secret rares. The whole series is listed in our [Pokémon card database](guide:pokemon-card-database), and every set is on our [Mega Evolution sets](set:mega-evolution) page.
+
+## Phantasmal Flames
+
+**Phantasmal Flames** is the second English Mega Evolution set, released on 14 November 2025. Its headline card is **Mega Charizard X ex** — in Japan, Mega Lizardon X ex. It's the English version of the Japanese set [Inferno X](set:inferno-x) (M2), released on 26 September 2025.
+
+- **Phantasmal Flames booster box:** yes, 36 English packs. The [Japanese Inferno X booster box](product:inferno-x-booster-box) holds 30 packs of 5 cards and came out seven weeks earlier.
+- **Phantasmal Flames ETB:** a standard English Elite Trainer Box, plus a Pokémon Center edition.
+- **Phantasmal Flames card list:** the chase cards are the Mega Charizard X ex secret rares. More Charizard on our [Charizard Pokémon cards](cards:charizard-pokemon-cards) page.
+
+## Destined Rivals
+
+**Destined Rivals** (Scarlet & Violet) was released in English on 30 May 2025 and brought back **Team Rocket's Pokémon**, such as Team Rocket's Mewtwo ex, alongside other Trainer's Pokémon. It combines two Japanese sets: [Glory of Team Rocket](set:glory-of-team-rocket) (SV10) and [Heat Wave Arena](set:heat-wave-arena) (SV9a).
+
+- **Destined Rivals booster box:** yes, 36 English packs. Japanese [Glory of Team Rocket](product:glory-of-team-rocket-sv10-booster-box) and [Heat Wave Arena](product:heat-wave-arena-sv9a-booster-box) boxes each hold 30 packs of 5 cards.
+- **Destined Rivals ETB:** standard and Pokémon Center Elite Trainer Boxes.
+- **Destined Rivals card list:** Team Rocket's Mewtwo ex Special Illustration Rare is the most sought-after card in the set.
+
+## Journey Together
+
+**Journey Together** (Scarlet & Violet) was released in English on 28 March 2025 and returned **Trainer's Pokémon** to the game, such as N's Zoroark ex and Lillie's Clefairy ex. Its Japanese version is Battle Partners (SV9), released in January 2025.
+
+- **Journey Together card list:** the chase cards are the Trainer's Pokémon Special Illustration Rares. It came in booster boxes, Elite Trainer Boxes and booster bundles.
+
+## Prismatic Evolutions
+
+**Prismatic Evolutions** (Scarlet & Violet special set) was released in English on 17 January 2025 and centres on **Eevee and its evolutions** as Terastal Pokémon ex. Its Japanese version is [Terastal Festival ex](set:terastal-festival-ex) (SV8a), released on 6 December 2024.
+
+- **Is there a Prismatic Evolutions booster box?** Not in English: it's a special set, so its packs come in Elite Trainer Boxes, booster bundles, collections and tins. The [Japanese Terastal Festival ex booster box](product:terastal-festival-booster-box) holds 10 packs of 10 cards.
+- **Prismatic Evolutions ETB:** the Prismatic ETB was one of the hardest products to find at Australian retailers when it launched.
+- **Prismatic Evolutions card list:** Umbreon ex Special Illustration Rare is the chase card, followed by the other Eeveelution ex SIRs.
+
+## Black Bolt and White Flare
+
+**Black Bolt** and **White Flare** are twin Scarlet & Violet special sets released in English on 18 July 2025, based on the Japanese sets of the same names. They feature Unova Pokémon, with Zekrom ex leading Black Bolt and Reshiram ex leading White Flare. As special sets, they came in Elite Trainer Boxes, booster bundles and collections rather than booster boxes.
+
+## Paldean Fates
+
+**Paldean Fates** (released in English on 26 January 2024) is a special set full of **shiny Pokémon**, including a shiny Charizard ex Special Illustration Rare. Its Japanese version is Shiny Treasure ex (SV4a). There's no English Paldean Fates booster box; it came in Elite Trainer Boxes, booster bundles and collections.
+
+## Evolving Skies
+
+**Evolving Skies** (Sword & Shield, released on 27 August 2021) is one of the most collected modern sets, known for its Eeveelution and Dragon alternate arts — above all the Umbreon VMAX alternate art, nicknamed "Moonbreon", and the Rayquaza VMAX alternate art. It's long out of print, so a sealed **Evolving Skies booster box** now sells for many times its original price. Its cards come from the Japanese sets Eevee Heroes (S6a), Skyscraping Perfection (S7D) and Blue Sky Stream (S7R).
+
+## Pokémon 151
+
+**Scarlet & Violet—151** (English, 22 September 2023) revisits the original 151 Pokémon. There's no English 151 booster box: the **151 booster bundle** (6 packs), Elite Trainer Box and Ultra-Premium Collection were the main sealed products. The Japanese [151](set:151) set does come in [booster boxes of 20 packs](product:151-booster-box), and its chase card is the [Charizard ex Special Illustration Rare](product:151-charizard-ex-special-illustration-rare).
+
+## Japanese or English: which should you buy?
+
+- **Japanese sets release first**, often months before the English version.
+- **Japanese booster boxes cost less per box** and are the usual way to open a set early or buy it in bulk for a shop.
+- **English cards** are what's played in Australian tournaments and sold at Kmart, Big W, Target and EB Games.
+
+See [Japanese Pokémon cards explained](guide:japanese-pokemon-cards) for the differences in packs, rarities and card quality.
+
+## Questions
+
+### What is Phantasmal Flames in Japanese?
+
+Phantasmal Flames is the English version of the Japanese set Inferno X (M2), headlined by Mega Charizard X ex (Mega Lizardon X ex in Japanese).
+
+### Is there a Prismatic Evolutions booster box?
+
+No. Prismatic Evolutions is an English special set sold in Elite Trainer Boxes, booster bundles, collections and tins. Its Japanese version, Terastal Festival ex, does come in 10-pack booster boxes.
+
+### Which Japanese sets make up Destined Rivals?
+
+Destined Rivals combines the Japanese sets Glory of Team Rocket (SV10) and Heat Wave Arena (SV9a).
+
+### Is there a 151 booster box?
+
+Not in English: English 151 came in booster bundles, Elite Trainer Boxes and collections. The Japanese 151 set comes in 20-pack booster boxes.
 MD],
     ['slug'=>'most-expensive-pokemon-cards', 'updated'=>'2026-09-26',
      'title'=>'The most expensive and most valuable Pokémon cards ever sold',
@@ -622,7 +749,7 @@ If you're looking up a Pokémon itself — its Pokédex entry, types, moves and 
 
 ## Pokémon Mega Evolution card list
 
-The **Mega Evolution** series began in 2025 and brings back Mega Evolution as **Mega Evolution Pokémon ex**: when one is Knocked Out, the opponent takes 3 Prize cards. The Japanese sets, in order: [Mega Brave](set:mega-brave) (M1L) and [Mega Symphonia](set:mega-symphonia) (M1S), [Inferno X](set:inferno-x) (M2), [Mega Dream ex](set:mega-dream-ex) (M2a), [Nihil Zero](set:nihil-zero) (M3), [Ninja Spinner](set:ninja-spinner) (M4), [Abyss Eye](set:abyss-eye) (M5), [Storm Emeralda](set:storm-emeralda) (M6), [30th Celebration](set:30th-celebration) (M6a) and [Aura Seeker](set:aura-seeker). See the whole [Mega Evolution series](set:mega-evolution).
+The **Mega Evolution** series began in 2025 and brings back Mega Evolution as **Mega Evolution Pokémon ex**: when one is Knocked Out, the opponent takes 3 Prize cards. The Japanese sets, in order: [Mega Brave](set:mega-brave) (M1L) and [Mega Symphonia](set:mega-symphonia) (M1S), [Inferno X](set:inferno-x) (M2), [Mega Dream ex](set:mega-dream-ex) (M2a), [Nihil Zero](set:nihil-zero) (M3), [Ninja Spinner](set:ninja-spinner) (M4), [Abyss Eye](set:abyss-eye) (M5), [Storm Emeralda](set:storm-emeralda) (M6), [30th Celebration](set:30th-celebration) (M6a) and [Aura Seeker](set:aura-seeker). See the whole [Mega Evolution series](set:mega-evolution). In English, Mega Brave and Mega Symphonia became the Mega Evolution set and Inferno X became Phantasmal Flames: key cards for each are in [Phantasmal Flames, Destined Rivals and Prismatic Evolutions card lists](guide:english-pokemon-sets).
 
 ## Pokémon Trading Card Game Mega Evolution: Perfect Order card list
 
@@ -864,7 +991,7 @@ Good Games is an Australian chain of game stores that sell Pokémon TCG products
 
 - **Victoria:** Good Games Box Hill (Whitehorse Road), Good Games Greensborough and Good Games Ballarat
 - **New South Wales:** Good Games Chatswood and Good Games Newcastle
-- **Queensland:** Good Games Strathpine
+- **Queensland:** Good Games Strathpine, on Brisbane's northside (search "Good Games Brisbane" for the stores nearest you)
 - **South Australia:** Good Games Adelaide and Good Games Modbury
 - **Western Australia:** Good Games Cannington and Good Games North (Joondalup)
 

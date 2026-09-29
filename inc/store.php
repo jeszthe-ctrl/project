@@ -68,7 +68,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 9;
+const CONTENT_VERSION = 10;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -209,6 +209,34 @@ function content_upgrade($s, $d, $version){
             'pokemon-card-sleeves-64-ct-assorted-designs'=>'f33c707034af7ed816a6c7c6251b8415', 'mega-rayquaza-ex-sar-245-191-near-mint'=>'f31364ed0bfe72afa02392268e95b1db'];
     foreach($s['products'] ?? [] as $i=>$p)
       if(isset($old[$p['id'] ?? ''], $prods[$p['id']]) && md5((string)($p['desc'] ?? '')) === $old[$p['id']]) $s['products'][$i]['desc'] = $prods[$p['id']]['desc'];
+  }
+  if($version < 10){   /* English set names: Phantasmal Flames, Destined Rivals, Prismatic Evolutions; Charizard; the English sets guide */
+    $refresh(['pokemon-card-database'=>'f7d26ee08ebe92d2450cd703b30831e6', 'pokemon-card-shops-near-me'=>'01b4cf589b70e664a6e8252677d0077f']);
+    $have = array_column($s['guides'] ?? [], 'slug');
+    $add = array_values(array_filter($d['guides'], fn($g)=>$g['slug'] === 'english-pokemon-sets' && !in_array($g['slug'], $have, true)));
+    $at = array_search('japanese-pokemon-cards', $have, true);
+    array_splice($s['guides'], $at === false ? count($have) : $at + 1, 0, $add);
+    /* each field is replaced only if it still holds the text it shipped with (blank for fields that are new) */
+    $fields = function($sec, $key, $untouched) use(&$s, $d){
+      foreach($untouched as $f=>$h)
+        if(isset($s[$sec][$key], $d[$sec][$key][$f]) && md5((string)($s[$sec][$key][$f] ?? '')) === $h) $s[$sec][$key][$f] = $d[$sec][$key][$f];
+    };
+    $fields('sets', 'Inferno X', ['h1'=>'d41d8cd98f00b204e9800998ecf8427e', 'seo_title'=>'d41d8cd98f00b204e9800998ecf8427e', 'seo_desc'=>'d41d8cd98f00b204e9800998ecf8427e', 'intro'=>'d8cfa9658cb1d6806e49f660334e682d']);
+    $fields('sets', 'Mega Symphonia', ['seo_title'=>'d41d8cd98f00b204e9800998ecf8427e', 'seo_desc'=>'d41d8cd98f00b204e9800998ecf8427e', 'intro'=>'d6595d06ebd09c3da76eb9eccdae9bba']);
+    $fields('sets', 'Mega Brave', ['seo_title'=>'d41d8cd98f00b204e9800998ecf8427e', 'seo_desc'=>'d41d8cd98f00b204e9800998ecf8427e', 'intro'=>'d629cc3f4257b524cf3eabc835b4e5b0']);
+    $fields('sets', 'Glory of Team Rocket', ['h1'=>'d41d8cd98f00b204e9800998ecf8427e', 'seo_title'=>'d41d8cd98f00b204e9800998ecf8427e', 'seo_desc'=>'d41d8cd98f00b204e9800998ecf8427e', 'intro'=>'ae0735682127ac7cba01198d2f9f8977']);
+    $fields('sets', 'Heat Wave Arena', ['seo_title'=>'d41d8cd98f00b204e9800998ecf8427e', 'seo_desc'=>'d41d8cd98f00b204e9800998ecf8427e', 'intro'=>'d0da31f15ad6c635cebbb9f3b6f7a540']);
+    $fields('sets', 'Terastal Festival ex', ['h1'=>'d41d8cd98f00b204e9800998ecf8427e', 'seo_title'=>'d41d8cd98f00b204e9800998ecf8427e', 'seo_desc'=>'d41d8cd98f00b204e9800998ecf8427e', 'intro'=>'eeba3e0978fb0c6e6a607a932fed62e2']);
+    $fields('sets', '151', ['intro'=>'35444e6c6d0106a8ed0061e3c1d8d7d8']);
+    $fields('series', 'mega', ['h1'=>'dcdafe86f2034eb6df8709c56ca3c9ea', 'seo_title'=>'40eead345ab3febbb41988ef90ed029a', 'intro'=>'ac44cfba74ae5ff2b88b1abdbc840b28']);
+    $fields('series', 'sv', ['intro'=>'29723651f7028de483b52ce39a183da8']);
+    $cols = array_column($d['collections'], null, 'slug');
+    foreach($s['collections'] ?? [] as $i=>$c){
+      if(($c['slug'] ?? '') !== 'charizard-pokemon-cards' || !isset($cols['charizard-pokemon-cards'])) continue;
+      foreach(['h1'=>'b3e2f64a88dd649fcebd7efbc81c27e5', 'seo_title'=>'9a7ba1d8a3a842689dd0c742e038e7e5', 'seo_desc'=>'427c847c6a2f4e837b0c687910db9f10', 'intro'=>'043ea8f75abdd284c6824eaba78f036a'] as $f=>$h)
+        if(md5((string)($c[$f] ?? '')) === $h) $s['collections'][$i][$f] = $cols['charizard-pokemon-cards'][$f];
+      if(($c['ids'] ?? []) === []) $s['collections'][$i]['ids'] = $cols['charizard-pokemon-cards']['ids'];
+    }
   }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;
