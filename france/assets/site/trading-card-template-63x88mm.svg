@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="69mm" height="94mm" viewBox="0 0 69 94" font-family="Arial, Helvetica, sans-serif">
+<title>Trading card template, 63 x 88 mm with 3 mm bleed (FUDAKURA)</title>
+<rect x="0" y="0" width="69" height="94" fill="#FFE1E6"/>
+<rect x="3" y="3" width="63" height="88" rx="3.2" fill="#fff" stroke="#111" stroke-width="0.3"/>
+<rect x="7" y="7" width="55" height="80" rx="1.5" fill="none" stroke="#4DA3FF" stroke-width="0.25" stroke-dasharray="1.2 0.8"/>
+<rect x="8" y="8" width="53" height="6" rx="0.8" fill="#F3F4F7" stroke="#C9CEDA" stroke-width="0.2"/>
+<text x="9.2" y="11.79" font-size="2.2" fill="#8A91A5">Card name</text>
+<text x="59.8" y="11.79" font-size="2.2" fill="#8A91A5" text-anchor="end">HP</text>
+<rect x="8" y="15" width="53" height="34" rx="0.8" fill="#F3F4F7" stroke="#C9CEDA" stroke-width="0.2"/>
+<text x="9.2" y="32.79" font-size="2.2" fill="#8A91A5">Artwork</text>
+<rect x="8" y="50" width="53" height="3.5" rx="0.8" fill="#F3F4F7" stroke="#C9CEDA" stroke-width="0.2"/>
+<text x="9.2" y="52.54" font-size="2.2" fill="#8A91A5">Type · stage · details</text>
+<rect x="8" y="54.5" width="53" height="24" rx="0.8" fill="#F3F4F7" stroke="#C9CEDA" stroke-width="0.2"/>
+<text x="9.2" y="67.29" font-size="2.2" fill="#8A91A5">Attacks, abilities &amp; card text</text>
+<rect x="8" y="79.5" width="53" height="3.8" rx="0.8" fill="#F3F4F7" stroke="#C9CEDA" stroke-width="0.2"/>
+<text x="9.2" y="82.19" font-size="2.2" fill="#8A91A5">Weakness · Resistance · Retreat</text>
+<rect x="8" y="84" width="53" height="2.6" rx="0.8" fill="#F3F4F7" stroke="#C9CEDA" stroke-width="0.2"/>
+<text x="9.2" y="85.91" font-size="1.7" fill="#8A91A5">Set symbol · number · illustrator</text>
+<text x="1" y="1.9" font-size="1.5" fill="#C2394F">BLEED 3 mm</text>
+<text x="68" y="92.9" font-size="1.5" fill="#111" text-anchor="end">TRIM 63 × 88 mm</text>
+<text x="7.2" y="92.9" font-size="1.5" fill="#2F7FD6">- - SAFE AREA (keep text inside)</text>
+</svg>
