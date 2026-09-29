@@ -11,10 +11,10 @@ $d = [
     'tagline'       => 'Japanese Pokémon cards, shipped from Japan to the UK',
     'legal_name'    => 'Fudakura',
     'address'       => 'Japan',
-    'email'         => 'support@fudakura.co.uk',
+    'email'         => 'support@fudakura.uk',
     'phone'         => '',
-    'order_email'   => 'support@fudakura.co.uk',
-    'domain'        => 'https://fudakura.co.uk',
+    'order_email'   => 'support@fudakura.uk',
+    'domain'        => 'https://fudakura.uk',
     'company_number' => '', 'company_registered' => '',   /* Companies House number and where registered (Admin → Settings) */
     'base_currency' => 'GBP',            /* the shop currency: every price and rate below is in it */
     'reply_hours'   => 12,

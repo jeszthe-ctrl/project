@@ -6,4 +6,4 @@ Disallow: /*?p=checkout
 Disallow: /*?p=received
 Disallow: /*?p=pay
 
-Sitemap: https://fudakura.co.uk/index.php?p=sitemap
+Sitemap: https://fudakura.uk/index.php?p=sitemap

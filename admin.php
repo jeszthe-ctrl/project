@@ -1294,7 +1294,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
         <div class="fld"><label class="f" for="order_email">Send new orders to</label><input type="email" id="order_email" name="order_email" value="<?= h($S['order_email']) ?>"></div>
         <div class="fld"><label class="f" for="phone">Phone (optional)</label><input type="text" id="phone" name="phone" value="<?= h($S['phone']) ?>"></div>
       </div>
-      <div class="fld"><label class="f" for="domain">Website address</label><input type="url" id="domain" name="domain" value="<?= h($S['domain']) ?>"><div class="hint">Used for Google and link previews, e.g. https://fudakura.co.uk</div></div>
+      <div class="fld"><label class="f" for="domain">Website address</label><input type="url" id="domain" name="domain" value="<?= h($S['domain']) ?>"><div class="hint">Used for Google and link previews, e.g. https://fudakura.uk</div></div>
     </div>
 
     <div class="card"><h2>Store rules</h2>

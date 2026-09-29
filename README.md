@@ -1,6 +1,6 @@
 # FUDAKURA storefront
 
-Wholesale Japanese Pokémon TCG shop for the UK (fudakura.co.uk), in plain PHP. Prices are in pounds, and orders ship from Japan. It needs no database and runs on any PHP 7.4+ host.
+Wholesale Japanese Pokémon TCG shop for the UK (fudakura.uk), in plain PHP. Prices are in pounds, and orders ship from Japan. It needs no database and runs on any PHP 7.4+ host.
 
 ## Files
 
