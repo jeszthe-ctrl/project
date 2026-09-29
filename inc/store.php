@@ -68,7 +68,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 8;
+const CONTENT_VERSION = 9;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -190,6 +190,25 @@ function content_upgrade($s, $d, $version){
     if((float)($s['settings']['min_order_usd'] ?? 0) == 100) $s['settings']['min_order_usd'] = $d['settings']['min_order_usd'];
     if((float)($s['settings']['free_ship_usd'] ?? 0) == 2000) $s['settings']['free_ship_usd'] = $d['settings']['free_ship_usd'];
     if(($s['payments']['payid']['note'] ?? '') === 'Australian customers. We email our PayID and account details with your invoice; quote your order reference.') $s['payments']['payid']['note'] = $d['payments']['payid']['note'];
+  }
+  if($version < 9){   /* fudakura-australia.com, and the minimum order value only shown at checkout */
+    $refresh(['japanese-pokemon-cards'=>'2a2ba12b9dff3f8330da137446e287d4']);
+    $pages = array_column($d['pages'], null, 'slug');
+    $old = ['about'=>'4e08e2e3aabd3b2f2d39f3928d0772e3', 'wholesale'=>'e26e5a4ff5c423352e107ae0c646facb', 'terms'=>'936df9d05ae14f598716c5261c9d423d'];
+    foreach($s['pages'] ?? [] as $i=>$pg){
+      $slug = $pg['slug'] ?? '';
+      if(isset($old[$slug], $pages[$slug]) && md5(json_encode([$pg['title'] ?? '', $pg['seo_title'] ?? '', $pg['seo_desc'] ?? '', $pg['body'] ?? ''])) === $old[$slug]) $s['pages'][$i] = $pages[$slug];
+    }
+    foreach(['strip_text'=>'d51a96bda392c6d1b6267ec9f0b3328a', 'hero_lede'=>'cab4e755e2c8d62504a701588fc2b900', 'home_seo_desc'=>'6f52f0c5f2dad260c3a6f15f07fef0d3',
+             'home_intro'=>'07958c905e39bfe5ca2df700ba402ab8', 'email'=>'f3ea30fbf06f9509473bbbea1d17e183', 'order_email'=>'f3ea30fbf06f9509473bbbea1d17e183',
+             'domain'=>'60d00edc1707eedbab0db37a15f466a3'] as $k=>$h)
+      if(isset($d['settings'][$k]) && md5((string)($s['settings'][$k] ?? '')) === $h) $s['settings'][$k] = $d['settings'][$k];
+    if(md5(json_encode($s['faqs'] ?? [])) === '1cbd5cac4a60976dff7fcdc55a427993') $s['faqs'] = $d['faqs'];
+    $prods = array_column($d['products'], null, 'id');
+    $old = ['pokemon-playmat-assorted-designs'=>'b055d2ea3efbe6bc396d72241e2fab5d', 'pokemon-deck-box-assorted'=>'06a7874736dab9b8b8b37699e704e131',
+            'pokemon-card-sleeves-64-ct-assorted-designs'=>'f33c707034af7ed816a6c7c6251b8415', 'mega-rayquaza-ex-sar-245-191-near-mint'=>'f31364ed0bfe72afa02392268e95b1db'];
+    foreach($s['products'] ?? [] as $i=>$p)
+      if(isset($old[$p['id'] ?? ''], $prods[$p['id']]) && md5((string)($p['desc'] ?? '')) === $old[$p['id']]) $s['products'][$i]['desc'] = $prods[$p['id']]['desc'];
   }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;

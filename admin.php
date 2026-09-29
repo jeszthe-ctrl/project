@@ -497,7 +497,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     $s['domain'] = rtrim($s['domain'], '/');
     $mv = rtrim(in_str('moved_to'), '/');
     if($mv === '' || preg_match('#^https?://[a-z0-9.-]+(:\d+)?$#i', $mv)) $s['moved_to'] = $mv;
-    else note('“This site has moved to” needs just the new address, like https://fudakura.com.au, so it was left unchanged.', 'err');
+    else note('“This site has moved to” needs just the new address, like https://fudakura-australia.com, so it was left unchanged.', 'err');
     foreach(['reply_hours','hold_hours'] as $k){ $n = num(in_str($k), 1); if($n !== null) $s[$k] = (int)$n; }
     $min = num(in_str('min_order_usd'), 0); if($min !== null) $s['min_order_usd'] = round($min, 2);
     $s['home_seo_title'] = str(in_arr('home')['seo_title'] ?? '');
@@ -1282,7 +1282,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
         <div class="fld"><label class="f" for="order_email">Send new orders to</label><input type="email" id="order_email" name="order_email" value="<?= h($S['order_email']) ?>"></div>
         <div class="fld"><label class="f" for="phone">Phone (optional)</label><input type="text" id="phone" name="phone" value="<?= h($S['phone']) ?>"></div>
       </div>
-      <div class="fld"><label class="f" for="domain">Website address</label><input type="url" id="domain" name="domain" value="<?= h($S['domain']) ?>"><div class="hint">Used for Google and link previews, e.g. https://fudakura.com.au</div></div>
+      <div class="fld"><label class="f" for="domain">Website address</label><input type="url" id="domain" name="domain" value="<?= h($S['domain']) ?>"><div class="hint">Used for Google and link previews, e.g. https://fudakura-australia.com</div></div>
       <div class="fld"><label class="f" for="moved_to">This site has moved to (only for an old domain)</label><input type="url" id="moved_to" name="moved_to" value="<?= h($S['moved_to'] ?? '') ?>" placeholder="leave empty">
         <div class="hint">Fill this in <b>only</b> on an old domain you’re retiring: every shop page then redirects permanently (301) to the same page on the new address, which moves your Google rankings across. The admin keeps working. Leave it empty on your main site.</div></div>
     </div>

@@ -11,12 +11,12 @@ if(!defined('FK_ROOT')){ http_response_code(404); exit; }
 
 return [
   'settings' => [
-    'strip_text'    => 'Authentic Japanese Pokémon TCG · Wholesale MOQs & case pricing · Shipped from Japan to Australia',
+    'strip_text'    => 'Authentic Japanese Pokémon TCG · Wholesale case pricing · Shipped from Japan to Australia',
     'hero_title'    => 'Wholesale Japanese Pokémon cards for Australia, shipped direct from Japan.',
-    'hero_lede'     => 'Authentic sealed booster boxes, Elite Trainer Boxes, premium sets, singles and TCG accessories for Australian card shops, online retailers, tournament organisers and distributors. No approval process: minimum order quantities, case multiples and quantity-break prices are built into every listing, shown in Australian dollars.',
+    'hero_lede'     => 'Authentic sealed booster boxes, Elite Trainer Boxes, premium sets, singles and TCG accessories for Australian card shops, online retailers, tournament organisers and distributors. No approval process: case quantities and quantity-break prices are built into every listing, shown in Australian dollars.',
     'footer_blurb'  => 'Independent distributor and reseller of authentic Japanese Pokémon TCG products, shipping wholesale orders from Japan to card shops, online retailers, tournament organisers and distributors across Australia.',
     'home_seo_title'=> 'Pokémon Cards Australia: Wholesale Japanese Booster Boxes',
-    'home_seo_desc' => 'Wholesale Japanese Pokémon cards for Australia: sealed booster boxes, ETBs, premium sets and singles shipped from Japan, with MOQ and case pricing in AUD.',
+    'home_seo_desc' => 'Wholesale Japanese Pokémon cards for Australia: sealed booster boxes, ETBs, premium sets and singles shipped from Japan, with case and quantity-break pricing in AUD.',
     'home_intro'    => <<<'MD'
 ## Poké cards across Aus: Pokémon cards straight from Japan
 
@@ -30,7 +30,7 @@ Everything we sell is sourced in Japan and shipped to Australia with tracking, s
 
 ## Wholesale Japanese Pokémon cards in Australia
 
-{brand} is an independent distributor and reseller of Japanese Pokémon TCG products, supplying businesses in every Australian state and territory. There's no approval-gated registration: every listing shows its minimum order quantity, case multiple and full quantity-break ladder, so card shops, online retailers, tournament organisers and distributors can price a complete order up front. Orders start at {min_order} including shipping. See our [wholesale terms](page:wholesale).
+{brand} is an independent distributor and reseller of Japanese Pokémon TCG products, supplying businesses in every Australian state and territory. There's no approval-gated registration: every listing shows its case quantity and full quantity-break ladder, so card shops, online retailers, tournament organisers and distributors can price a complete order up front. See our [wholesale terms](page:wholesale).
 MD,
     /* the Shipping & Returns page ({rates} = the delivery options and rate tables) */
     'shipping_policy' => <<<'MD'
@@ -431,7 +431,7 @@ Japanese cards work exactly like English ones in casual play — the attacks, HP
 
 Australian stores such as Kmart, Big W and EB Games sell English cards ([where to buy Pokémon cards](guide:where-to-buy-pokemon-cards)), so Japanese cards mostly come from importers. Official Chinese-language cards are a different product again: see [Chinese Pokémon cards](guide:chinese-pokemon-cards).
 
-We source every [booster box](category:boxes) and [single card](category:singles) in Japan and ship it to Australia with tracking. Shipping is calculated at checkout and free on orders over {free_ship}, orders start at {min_order} including shipping, and orders over A$1,000 are charged GST by Australian customs — see [Shipping & Returns](page:shipping) for details.
+We source every [booster box](category:boxes) and [single card](category:singles) in Japan and ship it to Australia with tracking. Shipping is calculated at checkout and free on orders over {free_ship} and orders over A$1,000 are charged GST by Australian customs — see [Shipping & Returns](page:shipping) for details.
 MD],
     ['slug'=>'most-expensive-pokemon-cards', 'updated'=>'2026-09-26',
      'title'=>'The most expensive and most valuable Pokémon cards ever sold',
@@ -1607,7 +1607,7 @@ We supply Australian card shops, online retailers, tournament organisers and ind
 
 ## How we work
 
-- **Wholesale without the paperwork.** There's no approval-gated registration. Minimum order quantities, case multiples and tiered quantity-break pricing are built into every listing, and applied automatically.
+- **Wholesale without the paperwork.** There's no approval-gated registration. Case quantities and tiered quantity-break pricing are built into every listing, and applied automatically.
 - **Sourced in Japan.** Everything is bought through Japanese distribution and ships sealed in its original factory packaging. We never sell resealed, reprinted or fake product.
 - **Shipped to Australia.** Every order ships from Japan with tracking, priced in Australian dollars; see [Shipping & Returns](page:shipping).
 - **Straight answers.** Questions go to a real person at [{email}](mailto:{email}).
@@ -1622,7 +1622,7 @@ We supply Australian card shops, online retailers, tournament organisers and ind
 MD],
     ['slug'=>'wholesale', 'title'=>'Wholesale Japanese Pokémon cards for Australian shops and distributors',
      'seo_title'=>'Pokémon Cards Wholesale Australia — Japanese TCG Distributor',
-     'seo_desc'=>'Wholesale Japanese Pokémon TCG for Australian card shops, online retailers, tournament organisers and distributors: MOQs, case pricing in AUD, no approval.',
+     'seo_desc'=>'Wholesale Japanese Pokémon TCG for Australian card shops, online retailers, tournament organisers and distributors: case pricing in AUD, no approval.',
      'body'=><<<'MD'
 {brand} is an independent distributor and reseller of authentic Japanese Pokémon Trading Card Game products. We supply sealed booster boxes, Elite Trainer Boxes, premium sets, singles and TCG accessories to businesses across Australia, shipped directly from Japan.
 
@@ -1630,10 +1630,9 @@ MD],
 
 Most distributors make you apply, wait for approval and then ask for a price list. We don't. Every listing shows its wholesale terms up front:
 
-- **Minimum order quantities (MOQs):** sealed product starts at a case-friendly quantity, usually 4 or 6 boxes; single cards start at one.
+- **Case quantities:** sealed product is sold by the case, usually 4 or 6 boxes; single cards start at one.
 - **Case multiples:** quantities go up in the product's selling step, so every order matches how the product is packed.
 - **Automatic quantity breaks:** the unit price drops at each tier, such as 6+, 24+ or 36+, and your order applies it for you.
-- **Minimum order:** {min_order} including shipping.
 
 Check any price with our [Pokémon card price checker](guide:pokemon-card-price-checker).
 
@@ -1686,9 +1685,9 @@ More detail in [how ordering works](page:how).
 
 No. Wholesale pricing is public on every listing, with no application or approval.
 
-### What is the minimum wholesale order?
+### How many units do I need to order?
 
-{min_order} including shipping. Each product also has its own minimum quantity and case multiple, shown on the listing.
+Each product shows its case quantity on the listing: sealed product usually comes in cases of 4 or 6, and single cards start at one.
 
 ### Do you ship wholesale orders anywhere in Australia?
 
@@ -1742,7 +1741,7 @@ You can ask for a copy of the information we hold about you, or ask us to correc
 MD],
     ['slug'=>'terms', 'title'=>'Terms of sale',
      'seo_title'=>'Terms of Sale',
-     'seo_desc'=>'Terms for ordering Japanese Pokémon cards from {brand}: prices, minimum order, payment, preorders, shipping, duties and authenticity.',
+     'seo_desc'=>'Terms for ordering Japanese Pokémon cards from {brand}: prices, payment, preorders, shipping, duties and authenticity.',
      'body'=><<<'MD'
 These terms apply to orders placed on {brand}.
 
@@ -1752,7 +1751,7 @@ Prices are in Australian dollars (AUD) and exclude GST. Your invoice is issued i
 
 ## Orders
 
-Placing an order reserves stock for {hold_hours} hours while we send payment details, and an order is confirmed once payment clears. Orders must total at least {min_order} including shipping.
+Placing an order reserves stock for {hold_hours} hours while we send payment details, and an order is confirmed once payment clears.
 
 ## Payment
 
@@ -1781,11 +1780,11 @@ MD],
   ],
 
   'faqs' => [
-    ['Do you ship Japanese Pokémon cards to Australia?', 'Yes. Everything ships from Japan to every Australian state and territory with tracking. Choose {standard} delivery ({standard_days}) or {express} ({express_days}) at checkout; shipping is priced by the weight of your order, and orders start at {min_order} including shipping.'],
-    ['Do I need a wholesale account to see pricing?', 'No. Every product shows its minimum order quantity, case multiple and full quantity-break ladder publicly, so you can price a complete order before contacting anyone. There is no application form and no approval wait.'],
+    ['Do you ship Japanese Pokémon cards to Australia?', 'Yes. Everything ships from Japan to every Australian state and territory with tracking. Choose {standard} delivery ({standard_days}) or {express} ({express_days}) at checkout; shipping is priced by the weight of your order.'],
+    ['Do I need a wholesale account to see pricing?', 'No. Every product shows its case quantity and full quantity-break ladder publicly, so you can price a complete order before contacting anyone. There is no application form and no approval wait.'],
     ['Who do you sell to?', 'Australian card shops, online retailers, tournament organisers and independent distributors, as well as collectors who buy by the box. Wholesale terms are on every listing, with no registration needed.'],
     ['Are prices in Australian dollars?', 'Yes. Every price is in Australian dollars (AUD), and so is your invoice. Prices do not include GST.'],
-    ['What is the minimum order?', 'Every order must total at least {min_order} including shipping. Sealed product is sold in cases (usually multiples of four or six); single cards start at one.'],
+    ['How many units do I need to order?', 'Sealed product is sold in cases (usually multiples of four or six), shown on each listing; single cards start at one.'],
     ['Are Japanese Pokémon cards the same size as English cards?', 'Yes. Both are 63 × 88 mm (about 2.5 × 3.5 inches), so they fit standard sleeves, toploaders and binders.'],
     ['How do I pay?', 'Choose a method at checkout: PayID or bank transfer in Australian dollars, Bitcoin or other crypto. Bitcoin is paid on your order page straight after you order: scan the QR code, or copy the amount and address into your wallet. For other methods, we send the details to your email and phone within {reply_hours} hours, together with your invoice.'],
     ['Do you offer free shipping?', 'Yes. Orders with a goods total over {free_ship} ship free with Standard delivery anywhere in Australia, applied automatically at checkout. Choose Express and you pay only the difference.'],

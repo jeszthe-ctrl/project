@@ -11,10 +11,10 @@ $d = [
     'tagline'       => 'Japanese Pokémon TCG wholesale for Australia, shipped from Japan',
     'legal_name'    => 'Fudakura',
     'address'       => 'Japan',
-    'email'         => 'support@fudakura.com.au',
+    'email'         => 'support@fudakura-australia.com',
     'phone'         => '',
-    'order_email'   => 'support@fudakura.com.au',
-    'domain'        => 'https://fudakura.com.au',
+    'order_email'   => 'support@fudakura-australia.com',
+    'domain'        => 'https://fudakura-australia.com',
     'reply_hours'   => 12,
     'hold_hours'    => 48,
     'min_order_usd' => 65.79,          /* A$100 at the A$1.52 rate; set in Admin → Settings */
@@ -27,7 +27,7 @@ $d = [
     'shipping_reviewed' => false,
     'pretty_urls'   => false,            /* clean addresses like /products/151-booster-box; turn on in Admin → Settings */
     'free_ship_usd' => 1974,             /* free Standard shipping from this goods total (USD); 0 = off */
-    'content_version' => 8,              /* set by the shop: which built-in content updates are applied */
+    'content_version' => 9,              /* set by the shop: which built-in content updates are applied */
     'moved_to'      => '',               /* an old domain running this code can send every visitor here (301) */
     'google_verify' => '', 'bing_verify' => '',   /* Search Console / Bing verification codes (Admin → Settings) */
     /* SMTP for order emails (Admin → Settings → Email); blank host = the web host's mail() */
@@ -350,7 +350,7 @@ Standard-size sleeves fit Pokémon cards for play and storage. See our [Pokémon
 A playmat protects cards during play and marks out the play area — a popular add-on for players and a steady seller for shops. The mix of designs varies by shipment.
 
 - Assorted Pokémon designs
-- Minimum 10, then in fives, with the lowest price from 50'],
+- From 10, then in fives, with the lowest price from 50'],
     ['id'=>'pokemon-deck-box-assorted', 'sku'=>'FK-ACC-DBX-AST',
      'name'=>'Pokémon Deck Box — Assorted', 'set'=>'', 'cat'=>'accessories', 'cond'=>'Sealed',
      'moq'=>20, 'step'=>10, 'status'=>'in', 'release'=>'', 'weight'=>0.1, 'hidden'=>false,
@@ -360,7 +360,7 @@ A playmat protects cards during play and marks out the play area — a popular a
 Deck boxes keep a sleeved deck safe in a bag or pocket, and sell steadily alongside sleeves and playmats. The mix of designs varies by shipment.
 
 - Assorted Pokémon designs
-- Minimum 20, then in tens, with the lowest price from 100'],
+- From 20, then in tens, with the lowest price from 100'],
     ['id'=>'pokemon-card-sleeves-64-ct-assorted-designs', 'sku'=>'FK-ACC-SLV64-AST',
      'name'=>'Pokémon Card Sleeves (64 ct) — Assorted Designs', 'set'=>'', 'cat'=>'accessories', 'cond'=>'Sealed',
      'moq'=>20, 'step'=>10, 'status'=>'in', 'release'=>'', 'weight'=>0.06, 'hidden'=>false,
@@ -371,7 +371,7 @@ Sized for standard 63 × 88 mm Pokémon cards (Japanese and English cards are th
 
 - 64 sleeves per pack
 - Fits Japanese and English Pokémon cards
-- Minimum 20, then in tens, with the lowest price from 100'],
+- From 20, then in tens, with the lowest price from 100'],
     ['id'=>'mega-rayquaza-ex-sar-245-191-near-mint', 'sku'=>'FK-SGL-MRAY-SAR245',
      'name'=>'Mega Rayquaza ex SAR #245/191 — Near Mint', 'set'=>'Storm Emeralda', 'cat'=>'singles', 'cond'=>'Near Mint',
      'moq'=>3, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.05, 'hidden'=>false,
@@ -383,7 +383,7 @@ A full art Special Illustration Rare of the set\'s headline Pokémon, and a more
 - Japanese — Storm Emeralda (M6), card 245/191
 - Special Illustration Rare (full art)
 - Near Mint, sleeved and toploaded
-- Minimum 3 copies, with the lowest price from 25'],
+- From 3 copies, with the lowest price from 25'],
     ['id'=>'pikachu-ex-sar-240-191-psa-10-gem-mint', 'sku'=>'FK-SGL-PIKA-PSA10',
      'name'=>'Pikachu ex SAR #240/191 — PSA 10 Gem Mint', 'set'=>'', 'cat'=>'singles', 'cond'=>'Graded',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>0.15, 'hidden'=>false,
