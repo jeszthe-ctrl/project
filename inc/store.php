@@ -68,7 +68,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 8;
+const CONTENT_VERSION = 9;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -190,6 +190,9 @@ function content_upgrade($s, $d, $version){
     if((float)($s['settings']['min_order_usd'] ?? 0) == 100) $s['settings']['min_order_usd'] = $d['settings']['min_order_usd'];
     if((float)($s['settings']['free_ship_usd'] ?? 0) == 2000) $s['settings']['free_ship_usd'] = $d['settings']['free_ship_usd'];
     if(($s['payments']['payid']['note'] ?? '') === 'Australian customers. We email our PayID and account details with your invoice; quote your order reference.') $s['payments']['payid']['note'] = $d['payments']['payid']['note'];
+  }
+  if($version < 9){   /* the shop's address is fudakura-australia.com */
+    if(rtrim((string)($s['settings']['domain'] ?? ''), '/') === 'https://fudakura.com.au') $s['settings']['domain'] = $d['settings']['domain'];
   }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;
