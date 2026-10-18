@@ -6,7 +6,7 @@
                             assets/, .htaccess, robots.txt and data/ next to itself, then becomes the
                             shop's real index.php. Existing data (products, orders, the admin login) is
                             never overwritten, so the same file also updates a running shop.
-   dist/pokekura-upload.zip the same files as a zip, to upload and "Extract" in the host's File Manager.
+   dist/pokekumo-upload.zip the same files as a zip, to upload and "Extract" in the host's File Manager.
 
    The site travels inside index.php as plain base64 text with a SHA-256 fingerprint, so a copy that
    was damaged on the way (text-mode FTP, an editor, a cut-off upload) is detected before anything
@@ -51,7 +51,7 @@ foreach($files as $rel=>$data) $pack .= pack('N', strlen($rel)).$rel.pack('N', s
 $stub = <<<'PHP'
 <?php
 /* =============================================================
-   POKEKURA — the whole shop in this one file.
+   POKEKUMO — the whole shop in this one file.
 
    1. Upload this index.php to your web space (e.g. public_html)
       with your host's File Manager "Upload" button.
@@ -89,7 +89,7 @@ function pk_damaged(){
     '<h2>To fix it</h2><ol><li>Download <code>index.php</code> again (don’t open it).</li>'.
     '<li>In your hosting control panel open <b>File Manager</b> → <code>public_html</code> and use the <b>Upload</b> button to upload it (if you use FTP, set the transfer mode to <b>Binary</b>).</li>'.
     '<li>Open this page again.</li></ol>'.
-    '<p class="n">Or use <code>pokekura-upload.zip</code>: upload it to <code>public_html</code>, right-click it and choose <b>Extract</b>.</p>');
+    '<p class="n">Or use <code>pokekumo-upload.zip</code>: upload it to <code>public_html</code>, right-click it and choose <b>Extract</b>.</p>');
 }
 
 /* 1. PHP version */
@@ -130,7 +130,7 @@ if(!function_exists('imagecreatetruecolor')) $pk_warn[] = 'The PHP <b>gd</b> ext
 /* 4. can PHP write here? */
 if(!is_writable($pk_dir))
   pk_page('Can’t install', '<h1>The shop can’t unpack itself in this folder</h1><div class="e">PHP isn’t allowed to create files here. Nothing was installed.</div>'.
-    '<p class="n">Use <code>pokekura-upload.zip</code> instead: upload it to <code>public_html</code> in File Manager, right-click it and choose <b>Extract</b>. Or ask your host to make the folder writable by PHP.</p>');
+    '<p class="n">Use <code>pokekumo-upload.zip</code> instead: upload it to <code>public_html</code> in File Manager, right-click it and choose <b>Extract</b>. Or ask your host to make the folder writable by PHP.</p>');
 
 /* 5. unpack */
 $pk_files = array(); $pos = 0; $len = strlen($pk_pack);
@@ -144,7 +144,7 @@ $done = array(); $kept = array();
 foreach($pk_files as $rel=>$data){
   if($rel === 'index.php' || !preg_match('#^[A-Za-z0-9._/-]+$#', $rel) || strpos($rel, '..') !== false) continue;
   $path = $pk_dir.'/'.$rel;
-  if(!is_dir(dirname($path)) && !@mkdir(dirname($path), 0755, true)) pk_page('Can’t install', '<h1>Couldn’t create the folder '.htmlspecialchars(dirname($rel)).'</h1><p class="n">Use <code>pokekura-upload.zip</code> instead, or ask your host to make this folder writable by PHP.</p>');
+  if(!is_dir(dirname($path)) && !@mkdir(dirname($path), 0755, true)) pk_page('Can’t install', '<h1>Couldn’t create the folder '.htmlspecialchars(dirname($rel)).'</h1><p class="n">Use <code>pokekumo-upload.zip</code> instead, or ask your host to make this folder writable by PHP.</p>');
   if(strpos($rel, 'data/') === 0 && !in_array($rel, array('data/.htaccess', 'data/index.html'), true) && file_exists($path)){ $kept[] = $rel; continue; }   /* your data stays */
   if($rel === '.htaccess' && is_file($path)){
     $old = (string)file_get_contents($path);
@@ -152,7 +152,7 @@ foreach($pk_files as $rel=>$data){
     $data = rtrim($old)."\n\n".$data;                                                  /* keep the host's own rules */
   }
   $tmp = $path.'.'.mt_rand(100000, 999999).'.tmp';
-  if(@file_put_contents($tmp, $data) === false || !@rename($tmp, $path)){ @unlink($tmp); pk_page('Can’t install', '<h1>Couldn’t write '.htmlspecialchars($rel).'</h1><p class="n">Use <code>pokekura-upload.zip</code> instead, or ask your host to make this folder writable by PHP.</p>'); }
+  if(@file_put_contents($tmp, $data) === false || !@rename($tmp, $path)){ @unlink($tmp); pk_page('Can’t install', '<h1>Couldn’t write '.htmlspecialchars($rel).'</h1><p class="n">Use <code>pokekumo-upload.zip</code> instead, or ask your host to make this folder writable by PHP.</p>'); }
   @chmod($path, 0644);
   $done[] = $rel;
 }
@@ -167,7 +167,7 @@ foreach(array('index.html', 'index.htm', 'default.php', 'default.html', 'default
 $target = $pk_dir.'/index.php';
 if($pk_self !== 'index.php' && is_file($target) && strpos((string)@file_get_contents($target, false, null, 0, 4000), 'FK_ROOT') === false) @rename($target, $target.'.old');
 $tmp = $target.'.'.mt_rand(100000, 999999).'.tmp';
-if(@file_put_contents($tmp, $pk_files['index.php']) === false || !@rename($tmp, $target)){ @unlink($tmp); pk_page('Couldn’t finish', '<h1>Couldn’t finish</h1><p class="n">The shop files are unpacked, but index.php couldn’t be replaced. Use <code>pokekura-upload.zip</code> instead.</p>'); }
+if(@file_put_contents($tmp, $pk_files['index.php']) === false || !@rename($tmp, $target)){ @unlink($tmp); pk_page('Couldn’t finish', '<h1>Couldn’t finish</h1><p class="n">The shop files are unpacked, but index.php couldn’t be replaced. Use <code>pokekumo-upload.zip</code> instead.</p>'); }
 @chmod($target, 0644);
 if($pk_self !== 'index.php') @unlink(__FILE__);
 if(function_exists('opcache_invalidate')){ @opcache_invalidate($target, true); @opcache_invalidate(__FILE__, true); }
@@ -193,11 +193,11 @@ printf("dist/index.php: %d files, %.0f KB%s\n", count($files), filesize("$root/d
 
 /* the same files as a zip, for hosts where uploading a zip and choosing "Extract" is easier */
 if(class_exists('ZipArchive')){
-  $zf = "$root/dist/pokekura-upload.zip"; @unlink($zf);
+  $zf = "$root/dist/pokekumo-upload.zip"; @unlink($zf);
   $z = new ZipArchive();
   if($z->open($zf, ZipArchive::CREATE) === true){
     foreach($files as $rel=>$data) $z->addFromString($rel, $data);
     $z->close();
-    printf("dist/pokekura-upload.zip: %d files, %.0f KB\n", count($files), filesize($zf) / 1024);
+    printf("dist/pokekumo-upload.zip: %d files, %.0f KB\n", count($files), filesize($zf) / 1024);
   }
 }

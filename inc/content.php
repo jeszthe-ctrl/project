@@ -1433,7 +1433,7 @@ MD],
 
 ## Our name
 
-{brand} ({kanji}) ends in **kura** (蔵), the Japanese word for a storehouse: a storehouse of Japanese trading cards.
+{brand} ({kanji}) ends in **kumo** (雲), the Japanese word for a cloud: Japanese trading cards, carried from Japan to anywhere in the world.
 
 ## Who we work with
 

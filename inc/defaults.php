@@ -6,15 +6,15 @@ if(!defined('FK_ROOT')){ http_response_code(404); exit; }
 
 $d = [
   'settings' => [
-    'brand'         => 'POKEKURA',
-    'kanji'         => 'ポケ蔵',
+    'brand'         => 'POKEKUMO',
+    'kanji'         => 'ポケ雲',
     'tagline'       => 'Japanese Pokémon TCG wholesale, shipped worldwide from Japan',
-    'legal_name'    => 'Pokekura',
+    'legal_name'    => 'Pokekumo',
     'address'       => 'Japan',
-    'email'         => 'support@pokekura.com',
+    'email'         => 'support@pokekumo.com',
     'phone'         => '',
-    'order_email'   => 'support@pokekura.com',
-    'domain'        => 'https://pokekura.com',
+    'order_email'   => 'support@pokekumo.com',
+    'domain'        => 'https://pokekumo.com',
     'reply_hours'   => 12,
     'hold_hours'    => 48,
     'min_order_usd' => 100,
@@ -28,7 +28,7 @@ $d = [
     'pretty_urls'   => false,            /* clean addresses like /products/151-booster-box: switched on by themselves when the host supports them */
     'pretty_auto'   => false,            /* set once that automatic switch has happened, so turning them off in the admin sticks */
     'free_ship_usd' => 2000,             /* free Standard shipping from this goods total (USD); 0 = off */
-    'content_version' => 6,              /* set by the shop: which built-in content updates are applied */
+    'content_version' => 7,              /* set by the shop: which built-in content updates are applied */
     'moved_to'      => '',               /* an old domain running this code can send every visitor here (301) */
     'google_verify' => '', 'bing_verify' => '',   /* Search Console / Bing verification codes (Admin → Settings) */
     /* SMTP for order emails (Admin → Settings → Email); blank host = the web host's mail() */
@@ -39,7 +39,7 @@ $d = [
     'btc_quote_minutes' => 60,           /* how long a BTC amount is held before it is renewed at the current price */
     'btc_confirmations' => 1,            /* blockchain confirmations before an order is marked Paid */
 
-    /* live chat (Tawk.to, POKEKURA's own property): loaded after the page has finished loading, so it never slows the shop down */
+    /* live chat (Tawk.to, the shop's own property): loaded after the page has finished loading, so it never slows the shop down */
     'chat_code' => <<<'HTML'
 <!--Start of Tawk.to Script-->
 <script type="text/javascript">

@@ -1,6 +1,6 @@
 <?php
 /* =============================================================
-   POKEKURA — wholesale Japanese Pokémon TCG storefront. PHP 7.4+.
+   POKEKUMO — wholesale Japanese Pokémon TCG storefront. PHP 7.4+.
 
    Day-to-day editing — products, prices, photos, shipping rates,
    payment methods, business details, FAQ, orders — is done in
@@ -103,7 +103,7 @@ function cart_weight(){ $kg=0; foreach(cart_lines() as $l) $kg += (float)($l['p'
    Otherwise index.php?p=…  Links are written relative to <base href>, so the shop also works in a subfolder. */
 /* site photos (assets/site): the home page image until you upload your own in Settings, and the link-preview image */
 const SITE_HERO  = 'assets/site/pokemon-30th-celebration-elite-trainer-box.webp';
-const SITE_SHARE = 'assets/site/share-pokekura.jpg';   /* 1200 x 630 */
+const SITE_SHARE = 'assets/site/share-pokekumo.jpg';   /* 1200 x 630 */
 $BASE = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/index.php')), '/').'/';
 const PAGE_PATHS = ['cart'=>'cart', 'checkout'=>'checkout', 'received'=>'order-received', 'how'=>'how-it-works',
                     'shipping'=>'shipping-returns', 'payment'=>'payment-methods', 'faq'=>'faq', 'contact'=>'contact',
@@ -111,7 +111,7 @@ const PAGE_PATHS = ['cart'=>'cart', 'checkout'=>'checkout', 'received'=>'order-r
 /* older addresses that now live on another page: path => [page, #section] */
 const MOVED_PATHS = ['shipping'=>['shipping', ''], 'returns'=>['shipping', 'returns']];
 
-/* the square logo mark: the last character of the Japanese name (蔵, "storehouse") */
+/* the square logo mark: the last character of the Japanese name (雲, "cloud") */
 function brand_mark(){
   global $CONFIG;
   if(preg_match('/(.)$/u', trim((string)($CONFIG['kanji'] ?? '')), $m)) return $m[1];

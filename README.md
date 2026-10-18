@@ -1,6 +1,6 @@
-# POKEKURA storefront
+# POKEKUMO storefront
 
-POKEKURA (ポケ蔵) is an independent distributor and reseller of authentic Japanese Pokémon TCG products, shipping wholesale orders worldwide from Japan. This is its shop, in plain PHP. It needs no database and runs on any PHP 7.4+ host.
+POKEKUMO (ポケ雲) is an independent distributor and reseller of authentic Japanese Pokémon TCG products, shipping wholesale orders worldwide from Japan. This is its shop, in plain PHP. It needs no database and runs on any PHP 7.4+ host.
 
 ## Files
 
@@ -18,13 +18,13 @@ You shouldn't need to edit any code. Day-to-day changes are made in `admin.php` 
 
 ## Logo
 
-`assets/logo.svg` is the full logo (the kura mark, POKEKURA and ポケ蔵 · JAPAN TCG WHOLESALE), `assets/logo-white.svg` the version for dark backgrounds, `assets/logo-mark.svg` the square mark, and `assets/wordmark.svg` the name alone. The lettering is converted to shapes, so it looks the same everywhere. The browser icons are `favicon.ico`, `assets/favicon.svg` and `assets/apple-touch-icon.png`; `assets/logo-512.png` is the logo Google shows for the business, and `assets/site/share-pokekura.jpg` is the picture shown when a page is shared on social media or in messages.
+`assets/logo.svg` is the full logo (the kumo mark, a trading card on a cloud, with POKEKUMO and ポケ雲 · JAPAN TCG WHOLESALE), `assets/logo-white.svg` the version for dark backgrounds, `assets/logo-mark.svg` the square mark, and `assets/wordmark.svg` the name alone. The lettering is converted to shapes, so it looks the same everywhere. The browser icons are `favicon.ico`, `assets/favicon.svg` and `assets/apple-touch-icon.png`; `assets/logo-512.png` is the logo Google shows for the business, and `assets/site/share-pokekumo.jpg` is the picture shown when a page is shared on social media or in messages.
 
 ## Install
 
 `php tools/build-installer.php [admin-password] [admin-username]` builds two things in `dist/` (with a password, both include that admin sign-in; the username is `admin` unless you give one). Needs PHP 7.4 or newer (8.2 or 8.3 recommended).
 
-**Easiest: the zip.** In your host's File Manager, open `public_html`, **Upload** `pokekura-upload.zip`, right-click it and choose **Extract**, then delete the zip. If the host put a placeholder page there (`index.html`, `default.php`), delete it too. Then open `https://your-domain/admin.php`.
+**Easiest: the zip.** In your host's File Manager, open `public_html`, **Upload** `pokekumo-upload.zip`, right-click it and choose **Extract**, then delete the zip. If the host put a placeholder page there (`index.html`, `default.php`), delete it too. Then open `https://your-domain/admin.php`.
 
 **Or one file:** upload `index.php` with File Manager's **Upload** button (FTP: *binary* mode) and open `https://your-domain/index.php` (with `/index.php`, in case the host's placeholder page would show first). It checks your hosting (PHP version and extensions, folder permissions), unpacks everything next to itself, keeps your host's own `.htaccess` rules, moves placeholder pages (`index.html`, `default.php`, …) aside, and becomes the shop's normal `index.php`. The site travels inside it as text with a fingerprint: if the file was damaged on the way (text-mode transfer, opened in an editor, cut off), it says so and changes nothing. Your data in `data/` is never overwritten, so uploading a newer one later updates the shop.
 
@@ -66,7 +66,7 @@ The Tawk.to chat code is in **Settings → Live chat**. It loads after each page
 
 ## Search engines (SEO)
 
-- **Moving from an old domain:** if an older copy of the shop has been live on another domain (e.g. fudakura.store), upload this version there too and set **Settings → This site has moved to** = `https://pokekura.com`. Every old page then 301-redirects to the same page here, and in Search Console you can use *Change of address*.
+- **Moving from an old domain:** if an older copy of the shop has been live on another domain (e.g. pokekura.com or fudakura.store), upload this version there too and set **Settings → This site has moved to** = `https://pokekumo.com`. Every old page then 301-redirects to the same page here, and in Search Console you can use *Change of address*.
 - **Clean addresses:** most hosts (Apache or LiteSpeed) support addresses like `/products/151-booster-box`. The shop checks this when it's installed (and again from the admin dashboard) and switches them on by itself when they work. To check by hand, open `https://your-domain/shop`: if the shop appears, **Clean page addresses** can be ticked in **Settings**. Old `index.php?p=…` links then redirect permanently to the clean ones. If you untick it, it stays off.
 - **What Google sees:** every product, category, set, collection, guide and page has its own title, description and main heading. You can edit all of them in the admin; blank fields fall back to sensible defaults.
 - **Google Search Console:** check clean addresses are on first (above), then add your site as a *URL prefix* property, choose *HTML tag*, paste the tag into **Settings → Google Search Console verification**, save and press Verify. Bing has a matching box, or can import from Search Console.

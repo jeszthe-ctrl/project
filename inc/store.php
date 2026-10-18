@@ -75,7 +75,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 6;
+const CONTENT_VERSION = 7;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -131,6 +131,13 @@ function content_upgrade($s, $d, $version){
     if(stripos((string)($s['settings']['domain'] ?? ''), 'pokekura.com') !== false)
       $s['settings']['chat_code'] = str_replace('embed.tawk.to/6ab599650aebd43443ef66b2/', 'embed.tawk.to/6abb9f8e86a597344956abe4/', (string)($s['settings']['chat_code'] ?? ''));
   }
+  if($version < 7){   /* POKEKURA is now POKEKUMO (ポケ雲): the name, kanji and company name where they're still the old defaults */
+    foreach(['brand'=>['POKEKURA', 'POKEKUMO'], 'kanji'=>['ポケ蔵', 'ポケ雲'], 'legal_name'=>['Pokekura', 'Pokekumo']] as $k=>[$old, $now])
+      if(($s['settings'][$k] ?? '') === $old) $s['settings'][$k] = $now;
+    foreach($s['pages'] ?? [] as $i=>$pg)
+      if(($pg['slug'] ?? '') === 'about' && md5(json_encode([$pg['title'] ?? '', $pg['seo_title'] ?? '', $pg['seo_desc'] ?? '', $pg['body'] ?? ''])) === '0418c3ac237c9c1706056b0b10d6bad6')
+        foreach($d['pages'] as $new) if(($new['slug'] ?? '') === 'about') $s['pages'][$i] = $new;
+  }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;
 }
@@ -152,11 +159,11 @@ function store_save($s){
 /* ---------------- products ---------------- */
 function photo_slots(){ return ['', '-2', '-3', '-4']; }
 
-/* the POKEKURA logo files (assets/logo-mark.svg, assets/wordmark.svg) inlined into a page, with the
+/* the POKEKUMO logo files (assets/logo-mark.svg, assets/wordmark.svg) inlined into a page, with the
    gradient id made unique per copy; '' when the shop runs under another name or the file is missing */
 function brand_svg($name, $class, $uid=''){
   global $STORE;
-  if(strcasecmp((string)($STORE['settings']['brand'] ?? ''), 'POKEKURA') !== 0) return '';
+  if(strcasecmp((string)($STORE['settings']['brand'] ?? ''), 'POKEKUMO') !== 0) return '';
   $svg = @file_get_contents(FK_ROOT.'/assets/'.$name.'.svg');
   if(!is_string($svg) || strpos($svg, '<svg') === false) return '';
   $svg = preg_replace('#<title>.*?</title>#s', '', $svg);
