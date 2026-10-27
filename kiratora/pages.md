@@ -16,8 +16,8 @@ Addresses are on https://kiratora.com.
 | Card and accessory topic pages | 23 |
 | Other games (and Pokémon) | 21 |
 | Game categories | 62 |
-| Product pages | 13,100 |
-| **Total** | **13,386** |
+| Product pages | 12,965 |
+| **Total** | **13,251** |
 
 ## Main shop pages (11)
 
@@ -100,7 +100,7 @@ Addresses are on https://kiratora.com.
 | Pokémon booster packs — 35 products | /booster-packs |
 | Pokémon Elite Trainer Boxes — 7 products | /elite-trainer-boxes |
 | Premium & special sets — 49 products | /premium-special-sets |
-| Pokémon single cards — 9,727 products | /single-cards |
+| Pokémon single cards — 9,648 products | /single-cards |
 | Pokémon TCG decks — 11 products | /pokemon-decks |
 | Card accessories — 89 products | /accessories |
 | Card binders — 5 products | /accessories/card-binders |
@@ -110,16 +110,16 @@ Addresses are on https://kiratora.com.
 | Page | Address |
 |---|---|
 | Chinese Pokémon products — 35 products | /chinese-pokemon-cards |
-| English Pokémon cards — 9,007 products | /english-pokemon-cards |
-| Japanese Pokémon cards — 969 products | /japanese-pokemon-cards |
+| English Pokémon cards — 9,004 products | /english-pokemon-cards |
+| Japanese Pokémon cards — 863 products | /japanese-pokemon-cards |
 
 ## Pokémon set series (3)
 
 | Page | Address |
 |---|---|
-| Mega Evolution sets — 1,043 products | /sets/mega-evolution |
-| Scarlet & Violet sets — 4,581 products | /sets/scarlet-violet |
-| Sword & Shield sets — 2,949 products | /sets/sword-shield |
+| Mega Evolution sets — 1,039 products | /sets/mega-evolution |
+| Scarlet & Violet sets — 4,564 products | /sets/scarlet-violet |
+| Sword & Shield sets — 2,948 products | /sets/sword-shield |
 
 ## Set pages (106)
 
@@ -129,7 +129,7 @@ Addresses are on https://kiratora.com.
 | Into The Inklands — 226 products | /lorcana/sets/into-the-inklands |
 | Rise of the Floodborn — 216 products | /lorcana/sets/rise-of-the-floodborn |
 | The First Chapter — 216 products | /lorcana/sets/the-first-chapter |
-| Starter Deck 29: Egghead (ST-29) — 9 products | /one-piece/sets/starter-deck-29-egghead |
+| Starter Deck 29: Egghead (ST-29) — 5 products | /one-piece/sets/starter-deck-29-egghead |
 | Origins — 352 products | /riftbound/sets/origins |
 | Spiritforged — 302 products | /riftbound/sets/spiritforged |
 | Unleashed — 308 products | /riftbound/sets/unleashed |
@@ -143,7 +143,7 @@ Addresses are on https://kiratora.com.
 | Astral Radiance — 220 products | /sets/astral-radiance |
 | Astral Radiance Trainer Gallery — 30 products | /sets/astral-radiance-trainer-gallery |
 | Aura Seeker — 1 products | /sets/aura-seeker |
-| Battle Partners (SV9) — 8 products | /sets/battle-partners |
+| Battle Partners (SV9) — 7 products | /sets/battle-partners |
 | Battle Styles — 183 products | /sets/battle-styles |
 | Black Bolt — 334 products | /sets/black-bolt |
 | Brilliant Stars — 188 products | /sets/brilliant-stars |
@@ -160,39 +160,39 @@ Addresses are on https://kiratora.com.
 | Cyber Judge (SV5M) — 1 products (hidden from Google) | /sets/cyber-judge |
 | Darkness Ablaze — 201 products | /sets/darkness-ablaze |
 | Destined Rivals — 249 products | /sets/destined-rivals |
-| Eevee Heroes (S6a) — 4 products | /sets/eevee-heroes |
+| Eevee Heroes (S6a) — 3 products | /sets/eevee-heroes |
 | Evolving Skies — 240 products | /sets/evolving-skies |
 | Fusion Strike — 284 products | /sets/fusion-strike |
 | Future Flash (SV4M) — 1 products (hidden from Google) | /sets/future-flash |
-| Glory of Team Rocket (SV10) — 14 products | /sets/glory-of-team-rocket |
+| Glory of Team Rocket (SV10) — 9 products | /sets/glory-of-team-rocket |
 | Heat Wave Arena (SV9a) — 1 products (hidden from Google) | /sets/heat-wave-arena |
 | Hidden Fates — 70 products | /sets/hidden-fates |
 | Hidden Fates Promo — 3 products | /sets/hidden-fates-promo |
 | Hidden Fates Shiny Vault — 94 products | /sets/hidden-fates-shiny-vault |
 | Incandescent Arcana (S11a) — 1 products (hidden from Google) | /sets/incandescent-arcana |
-| Inferno X (M2) — 11 products | /sets/inferno-x |
+| Inferno X (M2) — 9 products | /sets/inferno-x |
 | Journey Together — 209 products | /sets/journey-together |
 | Journey Together Promo — 1 products (hidden from Google) | /sets/journey-together-promo |
 | Lost Abyss (S11) — 1 products (hidden from Google) | /sets/lost-abyss |
 | Lost Origin — 217 products | /sets/lost-origin |
 | Lost Origin Trainer Gallery — 30 products | /sets/lost-origin-trainer-gallery |
-| Mask of Change (SV6) — 7 products | /sets/mask-of-change |
-| Mega Brave (M1L) — 5 products | /sets/mega-brave |
-| Mega Dream ex (M2a) — 107 products | /sets/mega-dream-ex |
+| Mask of Change (SV6) — 6 products | /sets/mask-of-change |
+| Mega Brave (M1L) — 3 products | /sets/mega-brave |
+| Mega Dream ex (M2a) — 82 products | /sets/mega-dream-ex |
 | Mega Evolution base set — 194 products | /sets/mega-evolution-base-set |
-| Mega Symphonia (M1S) — 5 products | /sets/mega-symphonia |
-| Night Wanderer (SV6a) — 6 products | /sets/night-wanderer |
-| Nihil Zero (M3) — 24 products | /sets/nihil-zero |
-| Ninja Spinner (M4) — 35 products | /sets/ninja-spinner |
+| Mega Symphonia (M1S) — 3 products | /sets/mega-symphonia |
+| Night Wanderer (SV6a) — 4 products | /sets/night-wanderer |
+| Nihil Zero (M3) — 12 products | /sets/nihil-zero |
+| Ninja Spinner (M4) — 8 products | /sets/ninja-spinner |
 | Obsidian Flames — 233 products | /sets/obsidian-flames |
 | Paldea Evolved — 298 products | /sets/paldea-evolved |
 | Paldean Fates — 251 products | /sets/paldean-fates |
 | Paldean Fates Promo — 8 products | /sets/paldean-fates-promo |
 | Paradigm Trigger (S12) — 1 products (hidden from Google) | /sets/paradigm-trigger |
-| Paradise Dragona (SV7a) — 9 products | /sets/paradise-dragona |
+| Paradise Dragona (SV7a) — 5 products | /sets/paradise-dragona |
 | Paradox Rift — 275 products | /sets/paradox-rift |
 | Perfect Order — 125 products | /sets/perfect-order |
-| Phantasmal Flames — 134 products | /sets/phantasmal-flames |
+| Phantasmal Flames — 133 products | /sets/phantasmal-flames |
 | Pitch Black — 123 products | /sets/pitch-black |
 | Pokémon GO — 93 products | /sets/pokemon-go |
 | Pokémon TCG Trainer Playset — 28 products | /sets/pokemon-tcg-trainer-playset |
@@ -206,7 +206,7 @@ Addresses are on https://kiratora.com.
 | Scarlet & Violet base set — 266 products | /sets/scarlet-and-violet-base-set |
 | Scarlet ex (SV1S) — 2 products (hidden from Google) | /sets/scarlet-ex |
 | Shining Fates — 196 products | /sets/shining-fates |
-| Shiny Treasure ex (SV4a) — 5 products | /sets/shiny-treasure-ex |
+| Shiny Treasure ex (SV4a) — 4 products | /sets/shiny-treasure-ex |
 | Shrouded Fable — 116 products | /sets/shrouded-fable |
 | Shrouded Fable Promo — 2 products (hidden from Google) | /sets/shrouded-fable-promo |
 | Silver Tempest — 215 products | /sets/silver-tempest |
@@ -214,14 +214,14 @@ Addresses are on https://kiratora.com.
 | Snow Hazard (SV2P) — 1 products (hidden from Google) | /sets/snow-hazard |
 | Space Juggler (S10P) — 1 products (hidden from Google) | /sets/space-juggler |
 | Star Birth (S9) — 1 products (hidden from Google) | /sets/star-birth |
-| Start Deck 100 Battle Collection — 7 products | /sets/start-deck-100-battle-collection |
+| Start Deck 100 Battle Collection — 4 products | /sets/start-deck-100-battle-collection |
 | Stellar Crown — 177 products | /sets/stellar-crown |
 | Stellar Miracle (SV7) — 3 products | /sets/stellar-miracle |
 | Storm Emeralda (M6) — 6 products | /sets/storm-emeralda |
 | Surging Sparks — 253 products | /sets/surging-sparks |
 | Sword & Shield base set — 222 products | /sets/sword-and-shield-base-set |
 | Temporal Forces — 219 products | /sets/temporal-forces |
-| Terastal Festival ex (SV8a) — 77 products | /sets/terastal-festival-ex |
+| Terastal Festival ex (SV8a) — 62 products | /sets/terastal-festival-ex |
 | Triplet Beat (SV1a) — 1 products (hidden from Google) | /sets/triplet-beat |
 | Twilight Masquerade — 229 products | /sets/twilight-masquerade |
 | Twilight Masquerade Promo — 1 products (hidden from Google) | /sets/twilight-masquerade-promo |
@@ -230,19 +230,19 @@ Addresses are on https://kiratora.com.
 | VMAX Climax (S8b) — 1 products (hidden from Google) | /sets/vmax-climax |
 | VSTAR Universe (S12a) — 6 products | /sets/vstar-universe |
 | White Flare — 329 products | /sets/white-flare |
-| Wild Force (SV5K) — 6 products | /sets/wild-force |
+| Wild Force (SV5K) — 5 products | /sets/wild-force |
 
 ## Card pages (featured) (7)
 
 | Page | Address |
 |---|---|
-| Charizard Pokémon cards — 64 products | /cards/charizard-pokemon-cards |
-| Full art Pokémon cards — 1,309 products | /cards/full-art-pokemon-cards |
-| Gengar Pokémon cards — 37 products | /cards/gengar-pokemon-cards |
+| Charizard Pokémon cards — 60 products | /cards/charizard-pokemon-cards |
+| Full art Pokémon cards — 1,235 products | /cards/full-art-pokemon-cards |
+| Gengar Pokémon cards — 32 products | /cards/gengar-pokemon-cards |
 | Gold Pokémon cards — 83 products | /cards/gold-pokemon-cards |
 | Mewtwo Pokémon cards — 39 products | /cards/mewtwo-pokemon-cards |
-| Pikachu Pokémon cards — 109 products | /cards/pikachu-pokemon-cards |
-| PSA graded Pokémon cards — 142 products | /cards/psa-graded-pokemon-cards |
+| Pikachu Pokémon cards — 107 products | /cards/pikachu-pokemon-cards |
+| PSA graded Pokémon cards — 112 products | /cards/psa-graded-pokemon-cards |
 
 ## Card and accessory topic pages (23)
 
@@ -250,35 +250,35 @@ Addresses are on https://kiratora.com.
 |---|---|
 | Card sleeves — 19 products | /accessories/card-sleeves |
 | Toploaders — 55 products | /accessories/toploaders |
-| Arceus Pokémon cards — 13 products | /cards/arceus-pokemon-cards |
+| Arceus Pokémon cards — 12 products | /cards/arceus-pokemon-cards |
 | Blastoise Pokémon cards — 12 products | /cards/blastoise-pokemon-cards |
 | Bulbasaur Pokémon cards — 13 products | /cards/bulbasaur-pokemon-cards |
 | Charmander Pokémon cards — 21 products | /cards/charmander-pokemon-cards |
 | Ditto Pokémon cards — 16 products | /cards/ditto-pokemon-cards |
-| Dragonite Pokémon cards — 29 products | /cards/dragonite-pokemon-cards |
-| Eevee Pokémon cards — 42 products | /cards/eevee-pokemon-cards |
+| Dragonite Pokémon cards — 26 products | /cards/dragonite-pokemon-cards |
+| Eevee Pokémon cards — 41 products | /cards/eevee-pokemon-cards |
 | Pokémon Energy cards for sale — 174 products | /cards/energy-pokemon-cards |
-| Pokémon ex cards for sale — 1,058 products | /cards/ex-pokemon-cards |
-| Greninja Pokémon cards — 25 products | /cards/greninja-pokemon-cards |
-| Holo Pokémon cards for sale — 1,783 products | /cards/holo-pokemon-cards |
+| Pokémon ex cards for sale — 981 products | /cards/ex-pokemon-cards |
+| Greninja Pokémon cards — 19 products | /cards/greninja-pokemon-cards |
+| Holo Pokémon cards for sale — 1,782 products | /cards/holo-pokemon-cards |
 | Jumbo cards — 37 products | /cards/jumbo-pokemon-cards |
-| Mega Pokémon cards for sale — 196 products | /cards/mega-pokemon-cards |
+| Mega Pokémon cards for sale — 159 products | /cards/mega-pokemon-cards |
 | Mew Pokémon cards — 34 products | /cards/mew-pokemon-cards |
-| PSA 10 Gem Mint Pokémon cards — 116 products | /cards/psa-10-pokemon-cards |
-| Shiny Pokémon cards for sale — 351 products | /cards/shiny-pokemon-cards |
+| PSA 10 Gem Mint Pokémon cards — 88 products | /cards/psa-10-pokemon-cards |
+| Shiny Pokémon cards for sale — 350 products | /cards/shiny-pokemon-cards |
 | Snorlax Pokémon cards — 32 products | /cards/snorlax-pokemon-cards |
 | TAG TEAM Pokémon cards for sale — 5 products | /cards/tag-team-pokemon-cards |
 | Pokémon Trainer cards for sale — 1,387 products | /cards/trainer-pokemon-cards |
 | Ultra Rare Pokémon cards for sale — 1,240 products | /cards/ultra-rare-pokemon-cards |
-| Umbreon Pokémon cards — 28 products | /cards/umbreon-pokemon-cards |
+| Umbreon Pokémon cards — 27 products | /cards/umbreon-pokemon-cards |
 
 ## Other games (and Pokémon) (21)
 
 | Page | Address |
 |---|---|
-| Pokémon cards — 10,011 products | /pokemon |
+| Pokémon cards — 9,902 products | /pokemon |
 | Anime promo cards — 19 products | /anime-promos |
-| Battle Spirits Saga cards — 3 products | /battle-spirits-saga |
+| Battle Spirits Saga cards — 2 products | /battle-spirits-saga |
 | Collectibles — 27 products | /collectibles |
 | Demon Slayer cards — 2 products | /demon-slayer |
 | Digimon cards — 8 products | /digimon |
@@ -287,13 +287,13 @@ Addresses are on https://kiratora.com.
 | Hololive cards — 2 products | /hololive |
 | K-Pop Demon Hunters cards — 37 products | /k-pop-demon-hunters |
 | Lorcana cards — 670 products | /lorcana |
-| Magic: The Gathering cards — 142 products | /magic-the-gathering |
-| Marvel Rivals cards — 74 products | /marvel-rivals |
+| Magic: The Gathering cards — 139 products | /magic-the-gathering |
+| Marvel Rivals cards — 73 products | /marvel-rivals |
 | Naruto cards — 145 products | /naruto |
-| One Piece cards — 195 products | /one-piece |
+| One Piece cards — 180 products | /one-piece |
 | Palworld cards — 2 products | /palworld |
-| Riftbound cards — 1,248 products | /riftbound |
-| Sports cards — 259 products | /sports-cards |
+| Riftbound cards — 1,247 products | /riftbound |
+| Sports cards — 254 products | /sports-cards |
 | Star Wars cards — 5 products | /star-wars-unlimited |
 | Weiss Schwarz cards — 1 products | /weiss-schwarz |
 | Yu-Gi-Oh! cards — 44 products | /yu-gi-oh |
@@ -303,7 +303,7 @@ Addresses are on https://kiratora.com.
 | Page | Address |
 |---|---|
 | Anime promos: Single Cards — 19 products | /anime-promos/single-cards |
-| Battle Spirits Saga: Graded Cards — 3 products | /battle-spirits-saga/graded-cards |
+| Battle Spirits Saga: Graded Cards — 2 products | /battle-spirits-saga/graded-cards |
 | Other collectibles: Booster & Hobby Boxes — 9 products | /collectibles/booster-and-hobby-boxes |
 | Other collectibles: Collectibles — 11 products | /collectibles/collectibles |
 | Other collectibles: Decks, Bundles & Sets — 2 products | /collectibles/decks-bundles-and-sets |
@@ -331,29 +331,29 @@ Addresses are on https://kiratora.com.
 | Lorcana: Single Cards — 658 products | /lorcana/single-cards |
 | Magic: The Gathering: Booster & Hobby Boxes — 10 products | /magic-the-gathering/booster-and-hobby-boxes |
 | Magic: The Gathering: Decks, Bundles & Sets — 27 products | /magic-the-gathering/decks-bundles-and-sets |
-| Magic: The Gathering: Graded Cards — 72 products | /magic-the-gathering/graded-cards |
+| Magic: The Gathering: Graded Cards — 69 products | /magic-the-gathering/graded-cards |
 | Magic: The Gathering: Packs — 1 products | /magic-the-gathering/packs |
 | Magic: The Gathering: Single Cards — 32 products | /magic-the-gathering/single-cards |
 | Marvel Rivals: Booster & Hobby Boxes — 1 products | /marvel-rivals/booster-and-hobby-boxes |
-| Marvel Rivals: Single Cards — 73 products | /marvel-rivals/single-cards |
+| Marvel Rivals: Single Cards — 72 products | /marvel-rivals/single-cards |
 | Naruto: Booster & Hobby Boxes — 4 products | /naruto/booster-and-hobby-boxes |
 | Naruto: Single Cards — 141 products | /naruto/single-cards |
 | One Piece: Accessories — 5 products | /one-piece/accessories |
 | One Piece: Booster & Hobby Boxes — 6 products | /one-piece/booster-and-hobby-boxes |
 | One Piece: Decks, Bundles & Sets — 1 products | /one-piece/decks-bundles-and-sets |
-| One Piece: Graded Cards — 147 products | /one-piece/graded-cards |
-| One Piece: Single Cards — 36 products | /one-piece/single-cards |
+| One Piece: Graded Cards — 140 products | /one-piece/graded-cards |
+| One Piece: Single Cards — 28 products | /one-piece/single-cards |
 | Palworld: Decks, Bundles & Sets — 2 products | /palworld/decks-bundles-and-sets |
 | Riftbound: Booster & Hobby Boxes — 9 products | /riftbound/booster-and-hobby-boxes |
 | Riftbound: Cases — 3 products | /riftbound/cases |
 | Riftbound: Decks, Bundles & Sets — 9 products | /riftbound/decks-bundles-and-sets |
-| Riftbound: Graded Cards — 20 products | /riftbound/graded-cards |
+| Riftbound: Graded Cards — 19 products | /riftbound/graded-cards |
 | Riftbound: Packs — 3 products | /riftbound/packs |
 | Riftbound: Single Cards — 1,204 products | /riftbound/single-cards |
 | Sports: Accessories — 8 products | /sports-cards/accessories |
 | Sports: Booster & Hobby Boxes — 62 products | /sports-cards/booster-and-hobby-boxes |
 | Sports: Decks, Bundles & Sets — 21 products | /sports-cards/decks-bundles-and-sets |
-| Sports: Graded Cards — 152 products | /sports-cards/graded-cards |
+| Sports: Graded Cards — 147 products | /sports-cards/graded-cards |
 | Sports: Packs — 16 products | /sports-cards/packs |
 | Star Wars: Booster & Hobby Boxes — 3 products | /star-wars-unlimited/booster-and-hobby-boxes |
 | Star Wars: Decks, Bundles & Sets — 1 products | /star-wars-unlimited/decks-bundles-and-sets |
@@ -365,7 +365,7 @@ Addresses are on https://kiratora.com.
 | Yu-Gi-Oh!: Packs — 3 products | /yu-gi-oh/packs |
 | Yu-Gi-Oh!: Single Cards — 1 products | /yu-gi-oh/single-cards |
 
-## Product pages (13100)
+## Product pages (12965)
 
 One page per product at `/products/<name>`. The full list is in `pages-products.csv`.
 
