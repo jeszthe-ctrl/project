@@ -6481,7 +6481,7 @@ function install(): void {
     if (file_put_contents(DATA . "/$name", $raw) === false) install_fail('Could not write the database into the data folder.');
     file_put_contents(DATA . '/config.php', "<?php return ['db' => " . var_export($name, true) . "];\n");
     // your own products' photos (not Card Bot's) are copied onto this server now, so the shop never loads them from another site
-    $until = time() + 60;   // anything not copied by then is copied the first time someone views it
+    $until = time() + 15;   // keeps the first visit well inside a host's 30-second limit; anything not copied by then is copied the first time someone views it
     foreach (all("SELECT id, handle, image_url, image_local FROM products WHERE source = 'manual' AND image_local = '' AND image_url LIKE 'http%'") as $p) {
         if (time() > $until || (int)val("SELECT value FROM settings WHERE key = 'img_down_until'") > time()) break;
         if ($f = copy_product_photo($p)) q('UPDATE products SET image_url = ? WHERE id = ?', [substr($f, strlen(ROOT)), $p['id']]);
