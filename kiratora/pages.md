@@ -5,7 +5,7 @@ Addresses are on https://kiratora.com.
 | Type | Pages |
 |---|---|
 | Main shop pages | 11 |
-| Information pages | 9 |
+| Information pages | 19 |
 | Collector guides | 31 |
 | Journal articles | 1 |
 | Pokémon product categories | 9 |
@@ -17,7 +17,7 @@ Addresses are on https://kiratora.com.
 | Other games (and Pokémon) | 21 |
 | Game categories | 62 |
 | Product pages | 12,965 |
-| **Total** | **13,251** |
+| **Total** | **13,261** |
 
 ## Main shop pages (11)
 
@@ -35,18 +35,28 @@ Addresses are on https://kiratora.com.
 | Checkout | /checkout |
 | Order and Bitcoin payment page (one per order) | /order/<order number> |
 
-## Information pages (9)
+## Information pages (19)
 
 | Page | Address |
 |---|---|
 | About Kiratora | /about |
+| Accessibility | /accessibility |
+| Authenticity guarantee | /authenticity |
+| Card condition guide | /card-condition-guide |
 | Contact | /contact |
+| Cookie policy | /cookie-policy |
 | FAQ | /faq |
 | Ordering steps | /how-it-works |
+| Import duties and taxes | /import-duties |
 | Payment options | /payment-methods |
+| Preorders | /preorders |
 | Privacy | /privacy-policy |
+| Returns and refunds | /returns-refunds |
+| Secure payments | /secure-payments |
 | Shipping & returns | /shipping-returns |
+| Shop with confidence | /shop-with-confidence |
 | Terms | /terms |
+| Track your order | /track-order |
 | Wholesale terms | /wholesale |
 
 ## Collector guides (31)
