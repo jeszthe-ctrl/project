@@ -11,6 +11,9 @@
 
 define('ROOT', __DIR__);
 define('DATA', ROOT . '/data');
+// web folder of index.php: '' at the top of a domain, '/shop' or '/~name' when installed in a folder or on a host's temporary address
+define('BASE', (function (): string { $s = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? ''));
+    return basename($s) === basename(__FILE__) ? rtrim(dirname($s), '/') : ''; })());
 date_default_timezone_set('UTC');
 mb_internal_encoding('UTF-8');
 
@@ -114,12 +117,13 @@ function slugify(string $s): string {
     $s = mb_strtolower(str_replace(['&', 'é', 'É'], ['and', 'e', 'e'], $s));
     return trim(preg_replace('/[^a-z0-9]+/', '-', $s), '-');
 }
-function redirect(string $to, int $code = 302): never { header('Location: ' . $to, true, $code); exit; }
+function redirect(string $to, int $code = 302): never { header('Location: ' . (str_starts_with($to, '/') && !str_starts_with($to, '//') ? BASE . $to : $to), true, $code); exit; }
 function is_post(): bool { return ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST'; }
 function json_out($data, int $code = 200): never {
     http_response_code($code);
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    echo BASE !== '' && !str_starts_with(REQ_PATH, '/admin') ? preg_replace('#(?<=")/(?!/)#', BASE . '/', $json) : $json;
     exit;
 }
 function start_session(): void {
@@ -1617,7 +1621,7 @@ function admin_shell(string $title, string $body, string $active, bool $nav = tr
 <nav><?php foreach ($items as $k => $label): ?><a href="/admin<?= $k ? '/' . $k : '' ?>" <?= $active === $k ? 'aria-current="page"' : '' ?>><?= h($label) ?><?= $k === 'orders' && $waiting ? ' <span class="pill">' . $waiting . '</span>' : '' ?></a><?php endforeach ?></nav>
 <div class="side-foot"><a href="/" target="_blank" rel="noopener">View site ↗</a><a href="/admin/logout">Sign out</a></div></aside><?php endif ?>
 <main class="<?= $nav ? 'main' : 'main solo' ?>"><?php if (!empty($_SESSION['flash'])): ?><div class="flash" role="status"><?= h($_SESSION['flash']) ?></div><?php unset($_SESSION['flash']); endif ?><?= $body ?></main>
-<script>window.CSRF = <?= json_encode(csrf_token()) ?>;</script><script src="/assets/js/admin.js?v=1" defer></script></body></html>
+<script>window.CSRF = <?= json_encode(csrf_token()) ?>; window.BASE = <?= json_encode(BASE) ?>;</script><script src="/assets/js/admin.js?v=1" defer></script></body></html>
 <?php return ob_get_clean();
 }
 function flash(string $m): void { $_SESSION['flash'] = $m; }
@@ -2979,7 +2983,7 @@ $site = setting('site_name');
 $title = $meta['title'] ?? $site;
 $canonical = isset($meta['canonical']) ? setting('site_url') . $meta['canonical'] : null;
 $cur = currency();
-$here = $_SERVER['REQUEST_URI'] ?? '/';
+$here = substr($_SERVER['REQUEST_URI'] ?? '/', strlen(BASE)) ?: '/';
 $count = array_sum(cart());
 ?><!doctype html>
 <html lang="en">
@@ -3098,7 +3102,7 @@ $count = array_sum(cart());
   </div>
 </aside>
 <div class="toast" role="status" aria-live="polite" hidden></div>
-<script>window.PK = <?= json_encode(['csrf' => csrf_token(), 'cur' => $cur, 'rate' => rates()[$cur] ?? 1, 'sym' => ['USD' => '$', 'AUD' => 'A$', 'CAD' => 'C$', 'EUR' => '€', 'GBP' => '£', 'JPY' => '¥'][$cur] ?? '']) ?>;</script>
+<script>window.PK = <?= json_encode(['base' => BASE, 'csrf' => csrf_token(), 'cur' => $cur, 'rate' => rates()[$cur] ?? 1, 'sym' => ['USD' => '$', 'AUD' => 'A$', 'CAD' => 'C$', 'EUR' => '€', 'GBP' => '£', 'JPY' => '¥'][$cur] ?? '']) ?>;</script>
 <script src="/assets/js/site.js?v=3" defer></script>
 <?= setting('chat_code') ?>
 </body>
@@ -4159,7 +4163,7 @@ __TMR_ASSET_1__],
 
   async function api(url, body) {
     const opt = body ? {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRF': PK.csrf}, body: JSON.stringify(body)} : {};
-    const r = await fetch(url, opt);
+    const r = await fetch((url.startsWith('/') ? PK.base || '' : '') + url, opt);
     if (!r.ok) throw new Error('Request failed');
     return r.json();
   }
@@ -4226,7 +4230,7 @@ __TMR_ASSET_1__],
       const c = await api('/api/cart', {action: 'add', id: +form.dataset.id, qty});
       setCount(c.count);
       const line = c.lines.find(l => l.id === +form.dataset.id);
-      toast(`Added ${qty} × ${esc(line ? line.title : 'item')}. <a href="/cart">View order (${c.count})</a>`);
+      toast(`Added ${qty} × ${esc(line ? line.title : 'item')}. <a href="${PK.base || ''}/cart">View order (${c.count})</a>`);
       renderDrawer(c);
     } catch { toast('Could not add that item. Refresh the page and try again.'); }
     btn.disabled = false;
@@ -4270,13 +4274,13 @@ __TMR_ASSET_1__],
   const drawer = $('#drawer');
   function renderDrawer(c) {
     if (!drawer) return;
-    $('[data-drawer-body]').innerHTML = c.lines.length ? c.lines.map(l => `<div class="dline">${l.image ? `<img src="${esc(l.image)}" alt="">` : '<span></span>'}<div><a href="/products/${esc(l.handle)}">${esc(l.title)}</a><div class="small muted">${l.qty} × ${esc(l.unit)}</div>${l.next ? `<div class="small ai">${esc(l.next)}</div>` : ''}</div><strong class="mono small">${esc(l.line)}</strong></div>`).join('') : '<p class="muted">Your order is empty.</p>';
+    $('[data-drawer-body]').innerHTML = c.lines.length ? c.lines.map(l => `<div class="dline">${l.image ? `<img src="${esc(l.image)}" alt="">` : '<span></span>'}<div><a href="${PK.base || ''}/products/${esc(l.handle)}">${esc(l.title)}</a><div class="small muted">${l.qty} × ${esc(l.unit)}</div>${l.next ? `<div class="small ai">${esc(l.next)}</div>` : ''}</div><strong class="mono small">${esc(l.line)}</strong></div>`).join('') : '<p class="muted">Your order is empty.</p>';
     $('[data-drawer-subtotal]').textContent = c.subtotal;
     $('[data-drawer-min]').textContent = c.min_ok ? '' : `Minimum order is ${c.min} including shipping.`;
   }
   function closeDrawer() { if (drawer) drawer.hidden = true; }
   $$('[data-cart-open]').forEach(a => a.addEventListener('click', async e => {
-    if (location.pathname === '/cart' || !drawer) return;
+    if (location.pathname === (PK.base || '') + '/cart' || !drawer) return;
     e.preventDefault();
     renderDrawer(await api('/api/cart'));
     drawer.hidden = false; $('[data-drawer-close]').focus();
@@ -4300,7 +4304,7 @@ __TMR_ASSET_1__],
     ft.addEventListener('click', () => { f.classList.add('open'); ft.setAttribute('aria-expanded', 'true'); });
     close.addEventListener('click', () => { f.classList.remove('open'); ft.setAttribute('aria-expanded', 'false'); });
   }
-  $$('select[data-nav]').forEach(s => s.addEventListener('change', () => (location.href = s.value)));
+  $$('select[data-nav]').forEach(s => s.addEventListener('change', () => (location.href = (s.value.startsWith('/') ? PK.base || '' : '') + s.value)));
 
   /* ---------- instant search */
   const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
@@ -4310,14 +4314,14 @@ __TMR_ASSET_1__],
       const q = inp.value.trim();
       if (q.length < 2) { box.hidden = true; return; }
       const rows = await api('/api/search?q=' + encodeURIComponent(q));
-      box.innerHTML = rows.map(p => `<a href="/products/${esc(p.handle)}">${p.image ? `<img src="${esc(p.image)}" alt="">` : ''}<span class="flex1"><span>${esc(p.title)}</span><br><span class="small muted">${esc([p.set, p.number].filter(Boolean).join(' · '))}</span></span><span class="mono small">${esc(p.price)}</span></a>`).join('') + `<a class="all" href="/search?q=${encodeURIComponent(q)}">See all results →</a>`;
+      box.innerHTML = rows.map(p => `<a href="${PK.base || ''}/products/${esc(p.handle)}">${p.image ? `<img src="${esc(p.image)}" alt="">` : ''}<span class="flex1"><span>${esc(p.title)}</span><br><span class="small muted">${esc([p.set, p.number].filter(Boolean).join(' · '))}</span></span><span class="mono small">${esc(p.price)}</span></a>`).join('') + `<a class="all" href="${PK.base || ''}/search?q=${encodeURIComponent(q)}">See all results →</a>`;
       box.hidden = false;
     }, 200));
     document.addEventListener('click', e => { if (!inp.parentElement.contains(e.target)) box.hidden = true; });
   });
 
   /* ---------- quick order */
-  const qrow = p => `<div class="qrow">${p.image ? `<img src="${esc(p.image)}" alt="">` : '<span></span>'}<div><a href="/products/${esc(p.handle)}">${esc(p.title)}</a><div class="small muted">${esc([p.set, p.number, p.lang !== 'English' ? p.lang : ''].filter(Boolean).join(' · '))} · ${esc(p.price)}${p.best ? ' · ' + esc(p.best) : ''} · MOQ ${p.moq}${p.step > 1 ? ' in ' + p.step + 's' : ''}</div></div>${p.in_stock ? `<form class="add add-row" data-add data-id="${p.id}" data-step="${p.step}" data-moq="${p.moq}"><div class="qty"><button type="button" data-dec aria-label="Fewer">−</button><input type="number" name="qty" value="${p.qty || p.moq}" aria-label="Quantity"><button type="button" data-inc aria-label="More">+</button></div><button class="btn btn-primary btn-sm" type="submit">Add</button></form>` : '<span class="tag">Sold out</span>'}</div>`;
+  const qrow = p => `<div class="qrow">${p.image ? `<img src="${esc(p.image)}" alt="">` : '<span></span>'}<div><a href="${PK.base || ''}/products/${esc(p.handle)}">${esc(p.title)}</a><div class="small muted">${esc([p.set, p.number, p.lang !== 'English' ? p.lang : ''].filter(Boolean).join(' · '))} · ${esc(p.price)}${p.best ? ' · ' + esc(p.best) : ''} · MOQ ${p.moq}${p.step > 1 ? ' in ' + p.step + 's' : ''}</div></div>${p.in_stock ? `<form class="add add-row" data-add data-id="${p.id}" data-step="${p.step}" data-moq="${p.moq}"><div class="qty"><button type="button" data-dec aria-label="Fewer">−</button><input type="number" name="qty" value="${p.qty || p.moq}" aria-label="Quantity"><button type="button" data-inc aria-label="More">+</button></div><button class="btn btn-primary btn-sm" type="submit">Add</button></form>` : '<span class="tag">Sold out</span>'}</div>`;
   const qs = $('[data-quick-search]');
   if (qs) qs.addEventListener('input', debounce(async () => {
     const q = qs.value.trim();
@@ -4327,7 +4331,7 @@ __TMR_ASSET_1__],
   if (qp) qp.addEventListener('submit', async e => {
     e.preventDefault();
     const fd = new FormData(qp); fd.append('csrf', PK.csrf);
-    const rows = await (await fetch('/api/quick', {method: 'POST', body: fd})).json();
+    const rows = await (await fetch((PK.base || '') + '/api/quick', {method: 'POST', body: fd})).json();
     const box = $('[data-quick-matches]');
     const ok = rows.filter(r => r.match && r.match.in_stock);
     box.innerHTML = rows.map(r => r.match ? qrow({...r.match, qty: r.qty}) : `<div class="qrow"><span></span><div class="small"><strong>No match:</strong> ${esc(r.line)}</div><span></span></div>`).join('')
@@ -4339,7 +4343,7 @@ __TMR_ASSET_1__],
     const lines = $$('[data-quick-matches] form[data-add]').map(f => ({id: +f.dataset.id, qty: clampQty(f, +$('input[name=qty]', f).value)}));
     const c = await api('/api/cart', {action: 'bulk', lines});
     setCount(c.count); renderDrawer(c);
-    toast(`Added ${lines.length} products. <a href="/cart">View order (${c.count})</a>`);
+    toast(`Added ${lines.length} products. <a href="${PK.base || ''}/cart">View order (${c.count})</a>`);
   });
 
   /* ---------- broken product images: fall back to the lattice */
@@ -4445,7 +4449,7 @@ __TMR_ASSET_2__],
   async function upload(file, kind) {
     if (!file) return null;
     const fd = new FormData(); fd.append('file', file); fd.append('kind', kind); fd.append('csrf', window.CSRF);
-    const res = await fetch('/admin/upload', {method: 'POST', body: fd});
+    const res = await fetch((window.BASE || '') + '/admin/upload', {method: 'POST', body: fd});
     const j = await res.json();
     if (j.error) { alert(j.error); return null; }
     return j;
@@ -4468,7 +4472,7 @@ __TMR_ASSET_2__],
       if (!running) return;
       const fd = new FormData(); fd.append('csrf', window.CSRF);
       let j;
-      try { j = await (await fetch('/admin/tools/images', {method: 'POST', body: fd})).json(); } catch { txt.textContent = 'Connection dropped. Press Start to resume.'; running = false; start.hidden = false; stop.hidden = true; return; }
+      try { j = await (await fetch((window.BASE || '') + '/admin/tools/images', {method: 'POST', body: fd})).json(); } catch { txt.textContent = 'Connection dropped. Press Start to resume.'; running = false; start.hidden = false; stop.hidden = true; return; }
       done += j.done; if (!total) total = j.remaining + j.done;
       bar.style.width = (total ? Math.round(100 * (total - j.remaining) / total) : 100) + '%';
       txt.textContent = `${(total - j.remaining).toLocaleString()} of ${total.toLocaleString()} photos handled · ${j.remaining.toLocaleString()} left`;
@@ -6506,18 +6510,31 @@ function install(): void {
     file_put_contents(DATA . '/index.html', '');
     file_put_contents(ROOT . '/uploads/.htaccess', "<FilesMatch \"\\.(php|phtml|phar)$\">\n  Require all denied\n</FilesMatch>\n");
     $name = 'toramori-' . bin2hex(random_bytes(8)) . '.sqlite';
-    $packed = file_get_contents(__FILE__, false, null, __COMPILER_HALT_OFFSET__);
-    $raw = $packed !== false && strlen(trim($packed)) > 0 ? gzdecode(ltrim($packed, "\r\n")) : false;
-    if ($raw === false || $raw === '') install_fail('The product data at the end of index.php is missing or damaged. Upload index.php again in binary mode.');
-    if (file_put_contents(DATA . "/$name", $raw) === false) install_fail('Could not write the database into the data folder.');
+    // the product data is unpacked a megabyte at a time, so setup also works on hosts with little PHP memory
+    $in = fopen(__FILE__, 'rb'); $out = @fopen(DATA . "/$name", 'wb');
+    if (!$out) install_fail('Could not write the database into the data folder.');
+    fseek($in, __COMPILER_HALT_OFFSET__);
+    $z = inflate_init(ZLIB_ENCODING_GZIP); $first = true; $ok = $z !== false;
+    while ($ok && !feof($in)) {
+        $chunk = (string)fread($in, 1 << 20);
+        if ($first) { $chunk = ltrim($chunk, "\r\n"); $first = false; }
+        $part = @inflate_add($z, $chunk, feof($in) ? ZLIB_FINISH : ZLIB_SYNC_FLUSH);
+        $ok = $part !== false && fwrite($out, $part) !== false;
+    }
+    fclose($in); fclose($out);
+    if (!$ok || filesize(DATA . "/$name") < 1024 || file_get_contents(DATA . "/$name", false, null, 0, 15) !== 'SQLite format 3') {
+        @unlink(DATA . "/$name");
+        install_fail('The product data at the end of index.php is missing or damaged. Upload index.php again in binary mode.');
+    }
     file_put_contents(DATA . '/config.php', "<?php return ['db' => " . var_export($name, true) . "];\n");
     $ht = ROOT . '/.htaccess';
-    if (!is_file($ht)) @file_put_contents($ht, htaccess_rules() . "\n");
+    $rules = str_replace("RewriteEngine On\n", "RewriteEngine On\n  RewriteBase " . BASE . "/\n", htaccess_rules());
+    if (!is_file($ht)) @file_put_contents($ht, $rules . "\n");
     elseif (!str_contains((string)file_get_contents($ht), 'Toramori')) {
         $old = (string)file_get_contents($ht);
         @copy($ht, $ht . '.old-backup');
         preg_match_all('/^.*(AddHandler|SetHandler|AddType application\/x-httpd|php_value|php_flag|suPHP).*$/mi', $old, $m);
-        @file_put_contents($ht, htaccess_rules() . "\n" . ($m[0] ? "\n# Kept from your previous .htaccess (PHP version settings)\n" . implode("\n", $m[0]) . "\n" : ''));
+        @file_put_contents($ht, $rules . "\n" . ($m[0] ? "\n# Kept from your previous .htaccess (PHP version settings)\n" . implode("\n", $m[0]) . "\n" : ''));
     }
 }
 function install_fail(string $msg): never {
@@ -6539,9 +6556,37 @@ function serve_asset(string $file): never {
     exit;
 }
 
+// Writes the built-in stylesheets, scripts and images to /assets as plain files, so the web server sends them
+// itself even where address rewriting is off. Done again whenever index.php changes; if the folder can't be written,
+// index.php keeps sending them.
+function assets_sync(): void {
+    $stamp = filemtime(__FILE__) . '-' . filesize(__FILE__);
+    if (@file_get_contents(ROOT . '/assets/.version') === $stamp) return;
+    foreach (asset_files() as $file => $a) {
+        $to = ROOT . '/assets/' . $file;
+        if (!is_dir(dirname($to)) && !@mkdir(dirname($to), 0775, true)) return;
+        if (@file_put_contents($to, !empty($a[2]) ? base64_decode(str_replace("\n", '', $a[1])) : $a[1]) === false) return;
+    }
+    @file_put_contents(ROOT . '/assets/.version', $stamp);
+}
+// In a folder, every address the pages link to (/products/…, /assets/…) gets the folder in front. The admin's
+// text editor is left as written, because its contents are saved back.
+function with_base(string $html): string {
+    foreach (headers_list() as $hd) if (stripos($hd, 'content-type:') === 0 && stripos($hd, 'text/html') === false) return $html;
+    $keep = [];
+    $html = preg_replace_callback('#(<div class="area" contenteditable="true"[^>]*>)(.*?)(</div><textarea )#s', function ($m) use (&$keep) {
+        $keep[] = $m[2]; return $m[1] . "\x00" . (count($keep) - 1) . "\x00" . $m[3]; }, $html);
+    $html = preg_replace('#\b(href|src|action|srcset)=(["\'])/(?!/)#', '$1=$2' . BASE . '/', $html);
+    return preg_replace_callback('#\x00(\d+)\x00#', fn($m) => $keep[(int)$m[1]], $html);
+}
+
 /* ================================================================ front door */
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 $path = '/' . trim(rawurldecode($path), '/');
+if (BASE !== '' && ($path === BASE || str_starts_with($path, BASE . '/'))) $path = substr($path, strlen(BASE)) ?: '/';
+define('REQ_PATH', $path);
+if (BASE !== '') ob_start('with_base');
+assets_sync();
 if (PHP_SAPI === 'cli-server' && str_starts_with($path, '/uploads/') && is_file(ROOT . $path) && !str_ends_with($path, '.php')) return false;
 if (preg_match('#^/assets/((?:css|js|img)/[a-z0-9.-]+)$#', $path, $m)) serve_asset($m[1]);
 install();
