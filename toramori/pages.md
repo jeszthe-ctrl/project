@@ -5,6 +5,7 @@ Checked on a fresh install of `index.php`: every address below loads.
 | Kind | Pages |
 |---|---:|
 | Main pages | 10 |
+| Trust pages | 8 |
 | Information pages | 9 |
 | Guides | 31 |
 | News | 1 |
@@ -13,12 +14,12 @@ Checked on a fresh install of `index.php`: every address below loads.
 | Pokémon product types | 9 |
 | Pokémon by language | 3 |
 | Pokémon series | 3 |
-| Pokémon sets | 106 |
+| Sets | 106 |
 | Featured card pages | 7 |
 | More card and accessory pages | 23 |
-| **Pages listed here** | **285** |
+| **Pages listed here** | **293** |
 | Product pages, one per product (listed in `product-pages.csv`) | 13,100 |
-| **Total** | **13,385** |
+| **Total** | **13,393** |
 
 **In Google** means the page is in the sitemap Google reads (`/sitemap.xml`). Pages marked "no" still work for visitors; Google just isn't pointed to them. Of the product pages, 4,771 are in Google.
 
@@ -33,13 +34,28 @@ The homepage, shop-wide listings and the buying pages.
 | Homepage | `/` | yes |
 | All products | `/shop` | yes |
 | All sets | `/sets` | yes |
-| Guides index | `/guides` | yes |
-| News index | `/blog` | yes |
+| Guides | `/guides` | yes |
+| News | `/blog` | yes |
 | Customer reviews (empty until you add reviews) | `/reviews` | no |
 | Search results | `/search` | no |
 | Cart | `/cart` | no |
 | Checkout | `/checkout` | no |
 | Quick order | `/quick-order` | no |
+
+## Trust pages (8)
+
+What we promise, and how ordering, paying, delivery and returns work.
+
+| Page | Address | In Google |
+|---|---|---|
+| Accessibility | `/accessibility` | yes |
+| Authenticity guarantee | `/authenticity` | yes |
+| Buy with confidence | `/buy-with-confidence` | yes |
+| Cookie policy | `/cookie-policy` | yes |
+| Pre-orders | `/pre-orders` | yes |
+| Returns and refunds | `/returns-refunds` | yes |
+| Paying safely | `/secure-payments` | yes |
+| Track your order | `/track-order` | yes |
 
 ## Information pages (9)
 
@@ -63,36 +79,36 @@ Articles under /guides.
 
 | Page | Address | In Google |
 |---|---|---|
-| Banned and recalled Pokémon cards | `/guides/banned-pokemon-cards` | yes |
-| Which Pokémon packs to buy in 2026 | `/guides/best-pokemon-packs-to-buy` | yes |
-| Official Chinese Pokémon cards | `/guides/chinese-pokemon-cards` | yes |
-| Best Pokémon cards to collect in 2026 | `/guides/coolest-pokemon-cards` | yes |
-| Identifying 1st Edition Pokémon cards | `/guides/first-edition-pokemon-cards` | yes |
+| Banned Pokémon cards | `/guides/banned-pokemon-cards` | yes |
+| Best Pokémon packs to buy in 2026 | `/guides/best-pokemon-packs-to-buy` | yes |
+| Chinese Pokémon cards | `/guides/chinese-pokemon-cards` | yes |
+| The best Pokémon cards to collect in 2026 | `/guides/coolest-pokemon-cards` | yes |
+| 1st Edition Pokémon cards | `/guides/first-edition-pokemon-cards` | yes |
 | Pokémon Halloween cards | `/guides/halloween-pokemon-cards` | yes |
-| What grading a Pokémon card costs | `/guides/how-much-does-it-cost-to-grade-a-pokemon-card` | yes |
-| Getting your Pokémon cards graded | `/guides/how-to-grade-pokemon-cards` | yes |
+| How much it costs to grade a Pokémon card | `/guides/how-much-does-it-cost-to-grade-a-pokemon-card` | yes |
+| How to grade Pokémon cards | `/guides/how-to-grade-pokemon-cards` | yes |
 | How to play Pokémon cards | `/guides/how-to-play-pokemon-cards` | yes |
-| Reading a Pokémon card | `/guides/how-to-read-a-pokemon-card` | yes |
-| Is my Pokémon card fake? | `/guides/how-to-tell-if-a-pokemon-card-is-fake` | yes |
-| Japanese or English Pokémon cards? | `/guides/japanese-pokemon-cards` | yes |
+| How to read a Pokémon card | `/guides/how-to-read-a-pokemon-card` | yes |
+| How to tell if a Pokémon card is fake | `/guides/how-to-tell-if-a-pokemon-card-is-fake` | yes |
+| Japanese vs English Pokémon cards | `/guides/japanese-pokemon-cards` | yes |
 | Korean Pokémon cards | `/guides/korean-pokemon-cards` | yes |
 | Mew, Mewtwo and Arceus cards | `/guides/mew-mewtwo-arceus-pokemon-cards` | yes |
-| The most expensive Pokémon card sales | `/guides/most-expensive-pokemon-cards` | yes |
-| The Pokémon card database | `/guides/pokemon-card-database` | yes |
-| How to check Pokémon card prices | `/guides/pokemon-card-price-checker` | yes |
-| Pokémon card rarities and symbols | `/guides/pokemon-card-rarities` | yes |
+| The most expensive Pokémon cards ever sold | `/guides/most-expensive-pokemon-cards` | yes |
+| Pokémon card database | `/guides/pokemon-card-database` | yes |
+| Pokémon card prices: how to check them | `/guides/pokemon-card-price-checker` | yes |
+| Pokémon card rarity symbols | `/guides/pokemon-card-rarities` | yes |
 | Pokémon card scanner apps | `/guides/pokemon-card-scanner` | yes |
-| Finding Pokémon cards near you | `/guides/pokemon-card-shops-near-me` | yes |
-| Pokémon card shows near you | `/guides/pokemon-card-shows-near-me` | yes |
-| How big is a Pokémon card? | `/guides/pokemon-card-size` | yes |
+| Finding Pokémon cards near me | `/guides/pokemon-card-shops-near-me` | yes |
+| Pokémon card shows near me | `/guides/pokemon-card-shows-near-me` | yes |
+| Pokémon card size | `/guides/pokemon-card-size` | yes |
 | Make your own Pokémon card | `/guides/pokemon-card-template` | yes |
-| What is my Pokémon card worth? | `/guides/pokemon-card-values` | yes |
-| Are Costco Pokémon bundles worth it? | `/guides/pokemon-cards-at-costco` | yes |
-| Buying Pokémon cards at Target | `/guides/pokemon-cards-at-target` | yes |
-| Buying Pokémon cards at Walmart | `/guides/pokemon-cards-at-walmart` | yes |
-| Rare Pokémon cards almost nobody owns | `/guides/rarest-pokemon-cards` | yes |
-| Collecting vintage Pokémon cards | `/guides/vintage-pokemon-cards` | yes |
-| Where can I buy Pokémon cards? | `/guides/where-to-buy-pokemon-cards` | yes |
+| Pokémon card value: what is my card worth? | `/guides/pokemon-card-values` | yes |
+| Costco Pokémon cards | `/guides/pokemon-cards-at-costco` | yes |
+| Target Pokémon cards | `/guides/pokemon-cards-at-target` | yes |
+| Walmart Pokémon cards | `/guides/pokemon-cards-at-walmart` | yes |
+| The rarest Pokémon cards | `/guides/rarest-pokemon-cards` | yes |
+| Vintage Pokémon cards | `/guides/vintage-pokemon-cards` | yes |
+| Where to buy Pokémon cards | `/guides/where-to-buy-pokemon-cards` | yes |
 | Where to sell Pokémon cards | `/guides/where-to-sell-pokemon-cards` | yes |
 
 ## News (1)
@@ -101,7 +117,7 @@ Posts under /blog.
 
 | Page | Address | In Google |
 |---|---|---|
-| Logan Paul and the Pikachu Illustrator | `/blog/logan-paul-pikachu-illustrator` | yes |
+| Logan Paul’s Pikachu Illustrator | `/blog/logan-paul-pikachu-illustrator` | yes |
 
 ## Games (21)
 
@@ -133,7 +149,7 @@ One page per game, listing all of that game's products.
 
 ## Game sections (62)
 
-A game's products split by type, e.g. Lorcana single cards.
+A game's products split by type.
 
 | Page | Address | Products | In Google |
 |---|---|---:|---|
@@ -202,8 +218,6 @@ A game's products split by type, e.g. Lorcana single cards.
 
 ## Pokémon product types (9)
 
-Pokémon products split by type.
-
 | Page | Address | Products | In Google |
 |---|---|---:|---|
 | Card accessories | `/accessories` | 89 | yes |
@@ -232,7 +246,7 @@ Pokémon products split by type.
 | Scarlet & Violet sets | `/sets/scarlet-violet` | 4,581 | yes |
 | Sword & Shield sets | `/sets/sword-shield` | 2,949 | yes |
 
-## Pokémon sets (106)
+## Sets (106)
 
 One page per set. Sets with only one or two products are kept out of Google.
 
@@ -347,8 +361,6 @@ One page per set. Sets with only one or two products are kept out of Google.
 
 ## Featured card pages (7)
 
-Pokémon cards grouped by character or kind.
-
 | Page | Address | Products | In Google |
 |---|---|---:|---|
 | Charizard Pokémon cards | `/cards/charizard-pokemon-cards` | 64 | yes |
@@ -360,8 +372,6 @@ Pokémon cards grouped by character or kind.
 | PSA graded Pokémon cards | `/cards/psa-graded-pokemon-cards` | 142 | yes |
 
 ## More card and accessory pages (23)
-
-More pages grouped by character, card type or accessory.
 
 | Page | Address | Products | In Google |
 |---|---|---:|---|
