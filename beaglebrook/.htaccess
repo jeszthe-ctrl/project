@@ -1,19 +1,13 @@
 # Clean page addresses (/beagle-puppies-for-sale/…, /guides/…) for Apache and LiteSpeed hosts.
 # The site switches them on by itself once it sees these rules working (Admin → Settings → Google & social).
+# https and "no www." are handled by the site itself, only once https is seen working, so a host
+# without an SSL certificate yet still shows the site.
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  # one address per page: https and no "www." (remove these 5 lines if your host already does this)
-  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
-  RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L,NE]
-  RewriteCond %{HTTPS} off
-  RewriteCond %{HTTP:X-Forwarded-Proto} !https
-  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L,NE]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^ index.php [QSA,L]
 </IfModule>
-
-Options -Indexes
 
 # Compress text and cache images (photo addresses change when a photo is replaced)
 <IfModule mod_deflate.c>
@@ -27,3 +21,4 @@ Options -Indexes
   ExpiresByType image/svg+xml "access plus 7 days"
   ExpiresByType text/css "access plus 30 days"
 </IfModule>
+# End of Beagle Brook rules

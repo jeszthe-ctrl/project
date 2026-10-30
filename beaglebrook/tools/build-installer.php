@@ -24,7 +24,7 @@ foreach($it as $file){
   $rel = str_replace('\\', '/', substr($file->getPathname(), strlen($root) + 1));
   if(preg_match('#^(dist|tools|docs)/|(^|/)\.git|\.DS_Store$|^\.gitignore$#', $rel)) continue;
   if(strpos($rel, 'data/') === 0 && !in_array($rel, ['data/.htaccess', 'data/index.html'], true)) continue;              // your data stays on the server
-  if(strpos($rel, 'assets/uploads/') === 0 && !in_array($rel, ['assets/uploads/.htaccess', 'assets/uploads/.gitkeep'], true)) continue;   // and your photos
+  if(strpos($rel, 'assets/uploads/') === 0 && !in_array($rel, ['assets/uploads/.htaccess', 'assets/uploads/.gitkeep', 'assets/uploads/index.html'], true)) continue;   // and your photos
   $list[] = $rel;
 }
 $list = array_values(array_unique($list));
@@ -147,8 +147,17 @@ foreach($bb_files as $rel=>$data){
   if(strpos($rel, 'data/') === 0 && !in_array($rel, array('data/.htaccess', 'data/index.html'), true) && file_exists($path)){ $kept[] = $rel; continue; }   /* your data stays */
   if($rel === '.htaccess' && is_file($path)){
     $old = (string)file_get_contents($path);
-    if(strpos($old, 'Clean page addresses') !== false){ $kept[] = $rel; continue; }   /* ours already */
-    $data = rtrim($old)."\n\n".$data;                                                  /* keep the host's own rules */
+    $start = strpos($old, '# Clean page addresses');
+    if($start === false) $data = rtrim($old)."\n\n".$data;                              /* keep the host's own rules, ours after them */
+    else {
+      /* ours already: replace just our block with this version's, keeping any host rules before or after it */
+      $end = strpos($old, '# End of Beagle Brook rules', $start);
+      if($end !== false) $end += strlen('# End of Beagle Brook rules');
+      elseif(($e = strpos($old, 'ExpiresByType text/css "access plus 30 days"', $start)) !== false && ($c = strpos($old, '</IfModule>', $e)) !== false) $end = $c + strlen('</IfModule>');
+      if($end === false){ $kept[] = $rel; continue; }                                    /* edited by hand: leave it */
+      $data = substr($old, 0, $start).rtrim($data).substr($old, $end);
+      if($data === $old){ $kept[] = $rel; continue; }
+    }
   }
   $tmp = $path.'.'.mt_rand(100000, 999999).'.tmp';
   if(@file_put_contents($tmp, $data) === false || !@rename($tmp, $path)){ @unlink($tmp); bb_page('Can’t install', '<h1>Couldn’t write '.htmlspecialchars($rel).'</h1><p class="n">Use <code>beaglebrook-upload.zip</code> instead, or ask your host to make this folder writable by PHP.</p>'); }

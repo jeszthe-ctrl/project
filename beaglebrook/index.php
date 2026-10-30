@@ -220,6 +220,16 @@ if($PATH === 'rewrite-check' && $via_path){
   echo json_encode(['clean_urls'=>!empty($CFG['pretty_urls'])]);
   exit;
 }
+/* One address per page: "www." goes to the bare domain, and http goes to https, but only once the
+   site has been seen working over https, so a host without an SSL certificate yet still works. */
+$is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https' || (string)($_SERVER['SERVER_PORT'] ?? '') === '443';
+$host = strtolower(preg_replace('/:\d+$/', '', (string)($_SERVER['HTTP_HOST'] ?? '')));
+$local = $host === '' || $host === 'localhost' || preg_match('/^(127\.|\d+\.\d+\.\d+\.\d+$)/', $host);
+if($is_https && !$local && empty($CFG['https_ok'])){ $SITE['settings']['https_ok'] = $CFG['https_ok'] = true; site_save($SITE); }
+if(!$local && $_SERVER['REQUEST_METHOD'] === 'GET' && $PATH !== 'rewrite-check' && (strpos($host, 'www.') === 0 || (!$is_https && !empty($CFG['https_ok'])))){
+  header('Location: '.(!empty($CFG['https_ok']) || $is_https ? 'https' : 'http').'://'.preg_replace('/^www\./', '', $host).($_SERVER['REQUEST_URI'] ?? '/'), true, 301); exit;
+}
+
 if(in_array($PATH, ['admin', 'login', 'wp-admin'], true)){ header('Location: '.$BASE.'admin.php', true, 302); exit; }
 
 if($PATH === '') $page = 'home';
