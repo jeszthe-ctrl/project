@@ -4,7 +4,7 @@
    units g oz kg lb dwt tola t. {gold_oz} {gold_g} {silver_oz} {k_gram} {k_oz} {k_dwt} {date} also work. */
 if(!defined('GB_ROOT')){ http_response_code(404); exit; }
 
-return [
+$tools = [
 [
   'slug'=>'gold-price', 'kind'=>'spot', 'nav'=>'Gold & Silver Price Today',
   'h1'=>'Gold & Silver Price Today',
@@ -386,3 +386,13 @@ HTML,
   ],
 ],
 ];
+
+/* extra sections and FAQs (content-tools-more.php) */
+$more = require GB_ROOT.'/inc/content-tools-more.php';
+foreach($tools as &$t){
+  if(!isset($more[$t['slug']])) continue;
+  $t['body'] = rtrim($t['body'])."\n".$more[$t['slug']]['body'];
+  $t['faqs'] = array_merge($t['faqs'] ?? [], $more[$t['slug']]['faqs'] ?? []);
+}
+unset($t);
+return $tools;

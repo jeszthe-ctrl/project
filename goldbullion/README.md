@@ -1,6 +1,6 @@
 # Gold Bullion Shop — goldbullion-shop.com
 
-A complete gold bullion store in plain PHP: storefront, live spot pricing, 15 live price pages, 26 guides, 14 trust and policy pages, cart, checkout and an admin panel. No database is needed. It runs on any PHP 7.4+ host with Apache or LiteSpeed (cPanel, Hostinger, Namecheap, SiteGround and similar).
+A complete gold bullion store in plain PHP: storefront, live spot pricing, a clean black-and-white design, 15 live price pages, 48 in-depth guides (about 43,000 words of content), 15 trust and policy pages, cart, checkout and an admin panel. No database is needed. It runs on any PHP 7.4+ host with Apache or LiteSpeed (cPanel, Hostinger, Namecheap, SiteGround and similar).
 
 **You never edit code.** Products, prices, pages, guides, shipping, payment methods, emails and settings are all edited in `admin.php` and saved to `data/`. Uploading a newer version of the site never overwrites your data.
 
@@ -43,7 +43,8 @@ Pages, guides, categories and price pages all have a rich-text editor, Google ti
 
 - `{gold_oz}` `{gold_g}` `{silver_oz}` `{date}` — live prices and today's date
 - `{value:1oz}` `{value:10g:14k}` `{value:1kg}` `{value:1tola:22k}` — the live value of any weight (g, oz, kg, lb, dwt, tola, t), with an optional karat
-- `{calculator}` on its own line — the gold value calculator
+- `{calculator}` on its own line — the gold value calculator (`{calculator:14}` opens it on 14K)
+- `{gs_ratio}` — the live gold/silver ratio
 - `{email}` `{phone}` `{brand}` `{standard_price}` `{express_price}` `{pay_window}` — from Settings
 
 Built-in pages and guides have a **Restore original text** button.

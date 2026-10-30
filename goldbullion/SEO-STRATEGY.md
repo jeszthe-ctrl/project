@@ -82,6 +82,24 @@ Every relevant keyword in your list has a page built for it. Bold = the page's m
 | `/guides/where-to-sell-gold-and-silver` | **sell gold and silver near me**, gold and silver shops near me, best place to sell silver online |
 | `/guides/gold-quarters` | **gold quarters** |
 | `/guides/donde-comprar-oro` | **donde comprar oro** |
+| `/guides/troy-ounce-vs-ounce` | how many grams in an ounce of gold, worth of 14k gold per ounce, how much is 14 karat gold per ounce (unit confusion) |
+| `/guides/gold-weight-units` | pennyweight, tola, tael, grain — supports gold one tola price and 14K/10K per-dwt searches |
+| `/guides/how-to-calculate-gold-value` | how much is 14k gold per gram today, what is 1 gram of gold worth, how much is white gold worth |
+| `/guides/how-much-is-a-14k-gold-ring-worth` | 14k gold price per gram (ring intent), 14k mens gold wedding band, gold ring value |
+| `/guides/14k-vs-18k-gold`, `/guides/10k-vs-14k-gold`, `/guides/22k-vs-24k-gold` | karat comparison searches feeding the 10K/14K/18K/22K/24K price pages |
+| `/guides/gold-hallmarks` | 585 / 750 / 916 / 999 meaning — supports every karat price page |
+| `/guides/what-is-21k-gold` | 21k gold price per gram (KD 1), 21k gold price today (KD 5) |
+| `/guides/gold-plated-vs-gold-filled-vs-solid-gold` | real gold |
+| `/guides/gold-bar-dimensions` | gold bar size, how big is a gold bar, kilo of gold, big gold bar |
+| `/guides/gold-price-history`, `/guides/what-drives-the-gold-price` | price of gold and silver today (informational support), gold futures prices |
+| `/guides/gold-vs-silver` | price of gold and silver today, gold/silver ratio |
+| `/guides/is-gold-a-good-investment` | gold bullion (investment intent), gold coin investment vs bullion bars |
+| `/guides/best-gold-coins-to-buy`, `/guides/american-gold-eagle-vs-buffalo` | 1 ounce gold coin price, 24 karat gold coin, gold coin prices today |
+| `/guides/how-much-gold-is-in-the-world` | how much is a ton of gold worth (KD 11) — also a linkable asset for PR |
+| `/guides/how-to-sell-gold-bars` | sell gold and silver near me, best place to sell silver online |
+| `/guides/gold-assay-cards-and-certificates` | minted bar, 1 gram gold bar (assay), pamp gold bullion bars |
+| `/guides/buying-gold-online-vs-local-coin-shop` | gold and silver shops near me (2.4K) |
+| `/guides/how-gold-bullion-is-made` | gold bullion, what is gold bullion definition (topical support) |
 | `/guides/how-to-buy-gold-bullion`, `/guides/how-to-store-gold-bullion` | Supporting guides for topical authority on “gold bullion” |
 
 ### Keywords deliberately not targeted
@@ -99,7 +117,9 @@ Every relevant keyword in your list has a page built for it. Bold = the page's m
 - Product markup with price, availability and shipping details for Google Shopping-style results.
 - Internal linking: every guide links to the matching category and price pages using keyword anchors. Price pages cross-link all karats. The footer links every price page, category and policy page.
 - A table of contents with jump links on long guides.
-- Trust pages: About, Contact, FAQ, How to Order, Payment Methods, Shipping & Returns, Authenticity Guarantee, Track Order, Privacy, Terms, AML/KYC, Cookies, Disclaimer and Accessibility.
+- An **Editorial Policy** page (who writes the guides, sources, how values are calculated, corrections) linked from every guide byline — an E-E-A-T signal Google’s quality raters look for.
+- **Curated internal links**: every price page links to the 4–5 guides that explain it; every guide links to its closest guides and the full list of price pages; the footer links the most important guides site-wide.
+- Trust pages: About, Editorial Policy, Contact, FAQ, How to Order, Payment Methods, Shipping & Returns, Authenticity Guarantee, Track Order, Privacy, Terms, AML/KYC, Cookies, Disclaimer and Accessibility.
 
 ## 5. What you need to do (this decides the ranking)
 

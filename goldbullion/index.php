@@ -53,6 +53,47 @@ function usd($v, $dec=2){ return '$'.number_format((float)$v, $v >= 100000 ? 0 :
 
 const UNIT_G = ['g'=>1, 'oz'=>G_PER_OZT, 'kg'=>1000, 'lb'=>G_PER_LB, 'dwt'=>G_PER_DWT, 'tola'=>G_PER_TOLA, 't'=>1000000];
 
+/* guide topics and curated internal links (which guides each guide, category and price page links to) */
+const GUIDE_TOPICS = ['basics'=>'Gold bullion basics', 'bars'=>'Gold bars', 'coins'=>'Gold coins', 'karats'=>'Karats & jewelry gold', 'prices'=>'Prices & investing', 'safety'=>'Authenticity & safety', 'selling'=>'Selling gold'];
+const GUIDE_LINKS = [
+  'what-is-gold-bullion'=>['how-to-buy-gold-bullion', 'gold-coins-vs-gold-bars', 'how-gold-bullion-is-made', 'gold-bar-weight-and-sizes', 'best-gold-bars-to-buy'],
+  'how-to-buy-gold-bullion'=>['buying-gold-online-vs-local-coin-shop', 'buy-gold-at-spot-price', 'how-to-tell-if-gold-is-real', 'how-to-store-gold-bullion', 'what-is-gold-bullion'],
+  'gold-bar-weight-and-sizes'=>['gold-bar-dimensions', 'how-much-is-a-gold-bar-worth', '400-oz-gold-bar', 'troy-ounce-vs-ounce', 'gold-biscuit'],
+  'how-much-is-a-gold-bar-worth'=>['gold-bar-weight-and-sizes', '400-oz-gold-bar', 'how-to-sell-gold-bars', 'gold-bar-dimensions', 'best-gold-bars-to-buy'],
+  'troy-ounce-vs-ounce'=>['gold-weight-units', 'how-to-calculate-gold-value', 'gold-bar-weight-and-sizes', 'best-scale-for-gold'],
+  'gold-weight-units'=>['troy-ounce-vs-ounce', 'how-to-calculate-gold-value', 'gold-biscuit', 'best-scale-for-gold'],
+  'how-to-calculate-gold-value'=>['how-much-is-a-14k-gold-ring-worth', 'gold-karats-explained', 'gold-hallmarks', 'troy-ounce-vs-ounce', 'where-to-sell-gold-and-silver'],
+  'how-much-is-a-14k-gold-ring-worth'=>['how-to-calculate-gold-value', '14k-vs-18k-gold', '10k-vs-14k-gold', 'gold-hallmarks', 'where-to-sell-gold-and-silver'],
+  'gold-karats-explained'=>['14k-vs-18k-gold', '10k-vs-14k-gold', '22k-vs-24k-gold', 'gold-hallmarks', '24-karat-gold'],
+  'gold-price-history'=>['what-drives-the-gold-price', 'is-gold-a-good-investment', 'gold-vs-silver', 'gold-futures-vs-spot-price'],
+  'what-drives-the-gold-price'=>['gold-price-history', 'is-gold-a-good-investment', 'physical-gold-vs-gold-etfs', 'gold-futures-vs-spot-price'],
+  'gold-coins-vs-gold-bars'=>['best-gold-coins-to-buy', 'best-gold-bars-to-buy', 'american-gold-eagle-vs-buffalo', 'mini-gold-coins'],
+  'best-gold-coins-to-buy'=>['american-gold-eagle-vs-buffalo', 'gold-coins-vs-gold-bars', 'mini-gold-coins', 'gold-quarters'],
+];
+const PAGE_GUIDES = [
+  'gold-price'=>['gold-price-history', 'what-drives-the-gold-price', 'gold-vs-silver', 'gold-futures-vs-spot-price', 'is-gold-a-good-investment'],
+  'karat'=>['how-to-calculate-gold-value', 'how-much-is-a-14k-gold-ring-worth', 'gold-karats-explained', 'gold-hallmarks', 'where-to-sell-gold-and-silver'],
+  '24k-gold-price'=>['24-karat-gold', '22k-vs-24k-gold', 'gold-karats-explained', 'what-is-gold-bullion'],
+  '22k-gold-price'=>['22k-vs-24k-gold', 'gold-karats-explained', 'gold-hallmarks', 'how-to-calculate-gold-value'],
+  '21k-gold-price'=>['what-is-21k-gold', 'gold-karats-explained', 'gold-hallmarks', 'how-to-calculate-gold-value'],
+  '18k-gold-price'=>['14k-vs-18k-gold', 'gold-karats-explained', 'white-gold-vs-yellow-gold', 'how-to-calculate-gold-value'],
+  '14k-gold-price'=>['how-much-is-a-14k-gold-ring-worth', '14k-vs-18k-gold', '10k-vs-14k-gold', 'how-to-calculate-gold-value', 'gold-hallmarks'],
+  '10k-gold-price'=>['10k-vs-14k-gold', 'how-to-calculate-gold-value', 'gold-hallmarks', 'gold-plated-vs-gold-filled-vs-solid-gold'],
+  'unit'=>['troy-ounce-vs-ounce', 'gold-weight-units', 'how-to-calculate-gold-value', 'gold-bar-weight-and-sizes'],
+  'gold-price-per-kilo'=>['how-much-gold-is-in-the-world', 'troy-ounce-vs-ounce', 'gold-bar-dimensions', '400-oz-gold-bar'],
+  'tola-gold-price'=>['gold-weight-units', 'gold-biscuit', '22k-vs-24k-gold', 'what-is-21k-gold'],
+  'white-gold-price'=>['white-gold-vs-yellow-gold', '14k-vs-18k-gold', 'gold-hallmarks', 'how-to-calculate-gold-value'],
+  'gold-coin-prices'=>['best-gold-coins-to-buy', 'american-gold-eagle-vs-buffalo', 'mini-gold-coins', 'gold-coins-vs-gold-bars'],
+  'gold-coins'=>['best-gold-coins-to-buy', 'american-gold-eagle-vs-buffalo', 'gold-coins-vs-gold-bars', 'mini-gold-coins', 'gold-quarters'],
+  '1-gram-gold-bars'=>['is-a-1-gram-gold-bar-worth-it', 'gold-assay-cards-and-certificates', 'gold-bar-dimensions', 'best-gold-bars-to-buy'],
+  '1-oz-gold-bars'=>['best-gold-bars-to-buy', 'pamp-suisse-gold-bars', 'troy-ounce-vs-ounce', 'gold-bar-dimensions', 'gold-coins-vs-gold-bars'],
+  '1-kilo-gold-bars'=>['gold-bar-weight-and-sizes', 'gold-bar-dimensions', 'how-to-sell-gold-bars', '400-oz-gold-bar'],
+  '10-oz-gold-bars'=>['minted-vs-cast-gold-bars', 'gold-bar-dimensions', 'how-much-is-a-gold-bar-worth', 'how-to-store-gold-bullion'],
+  '100-oz-gold-bars'=>['400-oz-gold-bar', 'gold-bar-weight-and-sizes', 'gold-futures-vs-spot-price'],
+  'silver-bullion'=>['gold-vs-silver', 'where-to-sell-gold-and-silver'],
+  'gold-bars'=>['best-gold-bars-to-buy', 'gold-bar-weight-and-sizes', 'minted-vs-cast-gold-bars', 'gold-assay-cards-and-certificates', 'how-to-buy-gold-bullion'],
+];
+
 /* live value of an amount of gold: value(10, 'g', 14) */
 function gold_value($amount, $unit, $k=24, $metal='gold'){
   $spot = spot()[$metal] ?? 0;
@@ -67,13 +108,15 @@ function fill($text, $extra=[]){
   if(strpos($text, '{') === false) return $text;
   $spot = spot(); $ship = $STORE['shipping']['methods'];
   $map = [
-    '{brand}'=>$CFG['brand'], '{email}'=>$CFG['email'], '{phone}'=>$CFG['phone'] ?: $CFG['email'], '{hours}'=>$CFG['hours'],
+    '{brand}'=>$CFG['brand'], '{author}'=>$CFG['author'], '{email}'=>$CFG['email'], '{phone}'=>$CFG['phone'] ?: $CFG['email'], '{hours}'=>$CFG['hours'],
     '{reply_time}'=>$CFG['reply_time'], '{pay_window}'=>$CFG['pay_window'], '{dispatch_time}'=>$CFG['dispatch_time'],
     '{legal_name}'=>$CFG['legal_name'] ?: $CFG['brand'], '{address}'=>$CFG['address'], '{domain}'=>preg_replace('#^https?://#', '', $GLOBALS['DOMAIN']),
     '{standard_price}'=>usd($ship['standard']['price'] ?? 0), '{express_price}'=>usd($ship['express']['price'] ?? 0),
     '{standard_days}'=>$ship['standard']['days'] ?? '', '{express_days}'=>$ship['express']['days'] ?? '',
     '{gold_oz}'=>$spot['gold'] > 0 ? usd($spot['gold']) : '—', '{gold_g}'=>$spot['gold'] > 0 ? usd($spot['gold'] / G_PER_OZT) : '—',
-    '{gold_kg}'=>gold_value_txt(1, 'kg'), '{silver_oz}'=>$spot['silver'] > 0 ? usd($spot['silver']) : '—',
+    '{gold_kg}'=>gold_value_txt(1, 'kg'), '{silver_oz}'=>$spot['silver'] > 0 ? usd($spot['silver']) : '—', '{silver_g}'=>$spot['silver'] > 0 ? usd($spot['silver'] / G_PER_OZT) : '—',
+    '{gold_to_10k}'=>$spot['gold'] > 0 ? number_format(10000 / $spot['gold'], 1) : '—', '{silver_to_10k}'=>$spot['silver'] > 0 ? number_format(10000 / $spot['silver']) : '—',
+    '{gs_ratio}'=>$spot['gold'] > 0 && $spot['silver'] > 0 ? number_format($spot['gold'] / $spot['silver'], 1) : '—',
     '{date}'=>date('F j, Y'), '{year}'=>date('Y'), '{updated}'=>date('F j, Y', (int)($CFG['policies_updated'] ?? 0) ?: strtotime('2026-10-30')),
   ] + $extra;
   $text = strtr($text, $map);
@@ -90,6 +133,7 @@ function content($html, $extra=[]){
     $out = $fn();
     $html = str_replace(['<p>{'.$k.'}</p>', '{'.$k.'}'], [$out, $out], $html);
   }
+  $html = preg_replace_callback('#(?:<p>)?\{calculator:(\d+)\}(?:</p>)?#', fn($m)=>calculator_html(min(24, (int)$m[1])), $html);
   if($BASE !== '/') $html = preg_replace('#(href|src)="/(?!/)#', '$1="'.$BASE, $html);
   return $html;
 }
@@ -325,6 +369,7 @@ render($BODY);
 /* =============================================================
    VIEWS
    ============================================================= */
+
 function crumbs($items){ global $META; $META['crumbs'] = $items; }
 
 function view_home(){
@@ -506,7 +551,7 @@ function view_tool($seg, $path){
 <section class="wrap sec tool<?= $ar ? ' rtl' : '' ?>"<?= $ar ? ' dir="rtl" lang="ar"' : '' ?>><?= tool_panel($t) ?></section>
 <section class="wrap sec content-grid<?= $ar ? ' rtl' : '' ?>"<?= $ar ? ' dir="rtl" lang="ar"' : '' ?>>
   <article class="prose"><?= content($t['body'], $extra) ?><?= faq_block($t['faqs'] ?? [], $ar ? 'أسئلة شائعة' : 'Frequently asked questions', $extra) ?></article>
-  <aside class="side" dir="ltr" lang="en"><?= price_nav($t['slug']) ?><?= side_box() ?></aside>
+  <aside class="side" dir="ltr" lang="en"><?= price_nav($t['slug']) ?><?= related_guides_box(tool_guides($t)) ?><?= side_box() ?></aside>
 </section>
 <?php
   $META['schema'][] = ['@context'=>'https://schema.org', '@type'=>'WebPage', 'name'=>$META['title'], 'url'=>$META['canonical'], 'dateModified'=>date('c', $spot['time'] ?: time()), 'inLanguage'=>$ar ? 'ar' : 'en-US'];
@@ -516,7 +561,7 @@ function view_guides(){
   global $CFG, $META;
   $META['title'] = fill($CFG['guides_seo_title']); $META['desc'] = fill($CFG['guides_seo_desc']); $META['canonical'] = abs_url('guides');
   crumbs([['Guides', 'guides']]);
-  $topics = ['basics'=>'Gold bullion basics', 'bars'=>'Gold bars', 'coins'=>'Gold coins', 'prices'=>'Prices & investing', 'safety'=>'Authenticity & safety', 'selling'=>'Selling gold']; ?>
+  $topics = GUIDE_TOPICS; ?>
 <div class="wrap page-head"><h1>Gold Bullion Guides</h1><p class="lead">Plain-English guides to buying, valuing and owning gold — written to help you make better decisions, whoever you buy from.</p></div>
 <?php foreach($topics as $k=>$label){ $gs = array_values(array_filter(guides_all(), fn($g)=>($g['topic'] ?? 'basics') === $k)); if(!$gs) continue; ?>
 <section class="wrap sec"><h2 class="h2"><?= h($label) ?></h2><?= guide_cards($gs) ?></section>
@@ -532,11 +577,12 @@ function view_guide($seg){
   if(!empty($g['lang'])) $META['lang'] = $g['lang'];
   crumbs([['Guides', 'guides'], [$g['title'], 'guides/'.$g['slug']]]);
   [$body, $toc] = with_toc(content($g['body']));
+  $META['modified'] = date('c', strtotime($g['updated'] ?? $g['date'] ?? 'today'));
   $words = str_word_count(strip_tags($body));
   $updated = $g['updated'] ?? $g['date'] ?? date('Y-m-d'); ?>
 <div class="wrap page-head article-head">
   <h1><?= h(fill($g['title'])) ?></h1>
-  <p class="byline">By <?= h($CFG['author']) ?> · Updated <time datetime="<?= h($updated) ?>"><?= date('F j, Y', strtotime($updated)) ?></time> · <?= max(2, (int)round($words / 220)) ?> min read</p>
+  <p class="byline">By <a href="<?= link_to('editorial-policy') ?>"><?= h($CFG['author']) ?></a> · Updated <time datetime="<?= h($updated) ?>"><?= date('F j, Y', strtotime($updated)) ?></time> · <?= max(2, (int)round($words / 220)) ?> min read</p>
 </div>
 <section class="wrap sec content-grid">
   <article class="prose">
@@ -545,12 +591,12 @@ function view_guide($seg){
     <?= faq_block($g['faqs'] ?? []) ?>
     <p class="disclaimer small muted">This guide is general information, not financial advice. Prices quoted are live spot values and change through the day. See our <a href="<?= link_to('disclaimer') ?>">disclaimer</a>.</p>
   </article>
-  <aside class="side"><?= side_box() ?><?= related_guides_box(related_guides($g)) ?></aside>
+  <aside class="side"><?= related_guides_box(related_guides($g)) ?><?= side_box() ?><?= price_nav('') ?></aside>
 </section>
 <?php
   $META['schema'][] = ['@context'=>'https://schema.org', '@type'=>'Article', 'headline'=>mb_substr(fill($g['title']), 0, 110), 'description'=>$META['desc'],
     'datePublished'=>$g['date'] ?? $updated, 'dateModified'=>$updated, 'inLanguage'=>$g['lang'] ?? 'en-US',
-    'author'=>['@type'=>'Organization', 'name'=>$CFG['author'], 'url'=>abs_url('about-us')],
+    'author'=>['@type'=>'Organization', 'name'=>$CFG['author'], 'url'=>abs_url('editorial-policy')],
     'publisher'=>['@type'=>'Organization', 'name'=>$CFG['brand'], 'logo'=>['@type'=>'ImageObject', 'url'=>abs_url('assets/img/logo-512.png')]],
     'mainEntityOfPage'=>$META['canonical'], 'image'=>abs_url('assets/img/share.jpg')];
 }
@@ -968,17 +1014,18 @@ function guide_cards($guides){
   return $out.'</ul>';
 }
 
+function guides_from($slugs){ return array_values(array_filter(array_map('guide_by_slug', $slugs))); }
 function related_guides($g){
-  $all = guides_all(); $same = []; $other = [];
-  foreach($all as $x){ if($x['slug'] === $g['slug'] || !empty($x['lang'])) continue; if(($x['topic'] ?? '') === ($g['topic'] ?? '')) $same[] = $x; else $other[] = $x; }
-  return array_slice(array_merge($same, $other), 0, 5);
+  $out = guides_from(GUIDE_LINKS[$g['slug']] ?? []);
+  $have = array_merge([$g['slug']], array_column($out, 'slug'));
+  foreach(guides_all() as $x){
+    if(count($out) >= 6) break;
+    if(!in_array($x['slug'], $have, true) && empty($x['lang']) && ($x['topic'] ?? '') === ($g['topic'] ?? '')){ $out[] = $x; $have[] = $x['slug']; }
+  }
+  return $out;
 }
-function cat_guides($slug){
-  $map = ['gold-coins'=>['gold-coins-vs-gold-bars', 'mini-gold-coins', 'gold-quarters'], '1-gram-gold-bars'=>['is-a-1-gram-gold-bar-worth-it', 'gold-bar-weight-and-sizes', 'best-gold-bars-to-buy'],
-          '1-kilo-gold-bars'=>['gold-bar-weight-and-sizes', '400-oz-gold-bar', 'how-much-is-a-gold-bar-worth'], '100-oz-gold-bars'=>['400-oz-gold-bar', 'gold-bar-weight-and-sizes']];
-  $slugs = $map[$slug] ?? ['best-gold-bars-to-buy', 'gold-bar-weight-and-sizes', 'minted-vs-cast-gold-bars', 'how-to-buy-gold-bullion'];
-  return array_values(array_filter(array_map('guide_by_slug', $slugs)));
-}
+function cat_guides($slug){ return guides_from(PAGE_GUIDES[$slug] ?? PAGE_GUIDES['gold-bars']); }
+function tool_guides($t){ return guides_from(PAGE_GUIDES[$t['slug']] ?? PAGE_GUIDES[$t['kind'] ?? ''] ?? PAGE_GUIDES['unit']); }
 function related_guides_box($guides){
   if(!$guides) return '';
   $out = '<nav class="box" aria-label="Related guides"><h2>Related guides</h2><ul class="links">';
@@ -1130,15 +1177,17 @@ function render($body){
 <?php endif; ?><meta property="og:image" content="<?= h($img) ?>">
 <meta property="og:locale" content="<?= $lang === 'ar' ? 'ar_AR' : ($lang === 'es' ? 'es_US' : 'en_US') ?>">
 <meta name="twitter:card" content="summary_large_image">
+<?php if(!empty($META['modified'])): ?><meta property="article:modified_time" content="<?= h($META['modified']) ?>">
+<?php endif; ?>
 <?php if($CFG['gsc_verification']): ?><meta name="google-site-verification" content="<?= h(preg_replace('/^.*content="([^"]+)".*$/s', '$1', $CFG['gsc_verification'])) ?>">
 <?php endif; if($CFG['bing_verification']): ?><meta name="msvalidate.01" content="<?= h(preg_replace('/^.*content="([^"]+)".*$/s', '$1', $CFG['bing_verification'])) ?>">
 <?php endif; ?>
-<meta name="theme-color" content="#0f1b2d">
+<meta name="theme-color" content="#0a0a0a">
 <link rel="icon" href="<?= $BASE ?>favicon.ico" sizes="32x32">
 <link rel="icon" href="<?= $BASE ?>assets/img/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="<?= $BASE ?>assets/img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="<?= $BASE.$css ?>">
 <?php foreach($schema as $s): ?><script type="application/ld+json"><?= json_encode($s, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_HEX_TAG) ?></script>
 <?php endforeach; if($CFG['ga4_id'] && preg_match('/^G-[A-Z0-9]+$/', $CFG['ga4_id'])): ?>
@@ -1184,7 +1233,8 @@ function render($body){
     <div><h2>Gold prices</h2><ul><?php foreach($STORE['tools'] as $t): ?><li><a href="<?= link_to($t['slug']) ?>"<?= ($t['lang'] ?? '') === 'ar' ? ' lang="ar" hreflang="ar"' : '' ?>><?= h($t['nav'] ?? $t['h1']) ?></a></li><?php endforeach; ?></ul></div>
     <div><h2>Help</h2><ul><?php foreach($help as $p): ?><li><a href="<?= link_to($p['slug']) ?>"><?= h($p['title']) ?></a></li><?php endforeach; ?><li><a href="<?= link_to('guides') ?>">Guides</a></li></ul>
       <h2>Company</h2><ul><?php foreach($company as $p): ?><li><a href="<?= link_to($p['slug']) ?>"><?= h($p['title']) ?></a></li><?php endforeach; ?></ul></div>
-    <div><h2>Legal</h2><ul><?php foreach($legal as $p): ?><li><a href="<?= link_to($p['slug']) ?>"><?= h($p['title']) ?></a></li><?php endforeach; ?></ul></div>
+    <div><h2>Popular guides</h2><ul><?php foreach(guides_from(['what-is-gold-bullion', 'gold-bar-weight-and-sizes', 'how-to-calculate-gold-value', 'gold-karats-explained', 'best-gold-bars-to-buy', 'best-gold-coins-to-buy', 'how-to-tell-if-gold-is-real', 'gold-price-history']) as $g): ?><li><a href="<?= link_to('guides/'.$g['slug']) ?>"><?= h(preg_replace('/[:?(].*$/', '', $g['title'])) ?></a></li><?php endforeach; ?><li><a href="<?= link_to('guides') ?>">All guides</a></li></ul>
+      <h2>Legal</h2><ul><?php foreach($legal as $p): ?><li><a href="<?= link_to($p['slug']) ?>"><?= h($p['title']) ?></a></li><?php endforeach; ?></ul></div>
   </div>
   <div class="wrap footer-base"><p>© <?= date('Y') ?> <?= h($CFG['legal_name'] ?: $brand) ?>. All rights reserved.</p>
     <p class="small">Prices of precious metals can go down as well as up. Spot prices are indicative and may be delayed. Nothing on this site is financial advice.</p></div>

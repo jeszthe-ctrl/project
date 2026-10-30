@@ -35,6 +35,37 @@ HTML,
   'faqs'=>[],
 ],
 [
+  'slug'=>'editorial-policy', 'title'=>'Editorial Policy', 'group'=>'company',
+  'h1'=>'Editorial Policy',
+  'seo_title'=>'Editorial Policy – How We Research and Write Our Guides',
+  'seo_desc'=>'How {brand} researches, writes, fact-checks and updates its gold guides and price pages, where our data comes from, and how to report a correction.',
+  'body'=><<<'HTML'
+<p class="lead">Our guides and price pages exist to help people understand gold and make better decisions — whoever they buy from. This page explains how we create them and how we keep them accurate.</p>
+<h2>Who writes our content</h2>
+<p>Guides are written and reviewed by the {author}, the team at {brand} responsible for our product information and customer education. We write in plain English, answer the question first, and show the numbers behind every claim.</p>
+<h2>Where our information comes from</h2>
+<ul>
+<li><strong>Live prices</strong> come from established precious-metals market data feeds and are refreshed through the trading day. Every price page shows when it was last updated.</li>
+<li><strong>Product specifications</strong> come from the refiners and mints that make them (for example published weights, purity and dimensions).</li>
+<li><strong>Market and industry facts</strong> come from primary sources such as the London Bullion Market Association (LBMA), the World Gold Council, the US Mint and other national mints.</li>
+<li><strong>Rules and regulations</strong> are checked against official sources such as the Federal Trade Commission’s Jewelry Guides and the IRS. Tax rules are summarised in general terms only.</li>
+</ul>
+<h2>How we calculate values</h2>
+<p>Values on our price pages and in our guides are melt values: weight × purity × the live spot price. One troy ounce is 31.1034768 grams. Karat purity is the karat divided by 24. Figures are rounded to the cent.</p>
+<h2>Accuracy and updates</h2>
+<ul>
+<li>Each guide shows the date it was last updated.</li>
+<li>We review guides regularly and when markets, products or rules change.</li>
+<li>Historical prices are rounded approximations and are labelled as such.</li>
+</ul>
+<h2>Independence</h2>
+<p>We sell gold bullion, and some guides link to products we sell. That never changes the facts we present. We don’t accept payment to mention other companies, and we don’t make predictions about where prices will go. Nothing we publish is financial advice — see our <a href="/disclaimer">disclaimer</a>.</p>
+<h2>Corrections</h2>
+<p>Spotted something wrong? Email <a href="mailto:{email}">{email}</a> with the page address and the correction. We review every report and update the page if needed.</p>
+HTML,
+  'faqs'=>[],
+],
+[
   'slug'=>'contact', 'title'=>'Contact Us', 'group'=>'company',
   'h1'=>'Contact Us',
   'seo_title'=>'Contact Us – Questions About Gold Bullion or Your Order',

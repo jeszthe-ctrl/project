@@ -631,7 +631,7 @@ function page_edit(){
   <?php if($sec !== 'tools'): ?><label>Address<input name="newslug" value="<?= $v('slug') ?>" placeholder="made from the title"></label><p class="hint">Changing the address of a page Google already knows loses its ranking — avoid it.</p><?php endif; ?>
   <?php if($sec === 'pages'): ?><label>Footer group<select name="group"><?php foreach(['help'=>'Help','company'=>'Company','legal'=>'Legal'] as $k=>$l): ?><option value="<?= $k ?>"<?= ($r['group'] ?? '') === $k ? ' selected' : '' ?>><?= $l ?></option><?php endforeach; ?></select></label><?php endif; ?>
   <?php if($sec === 'guides'): ?>
-    <div class="grid3"><label>Topic<select name="topic"><?php foreach(['basics'=>'Basics','bars'=>'Gold bars','coins'=>'Gold coins','prices'=>'Prices & investing','safety'=>'Authenticity & safety','selling'=>'Selling'] as $k=>$l): ?><option value="<?= $k ?>"<?= ($r['topic'] ?? '') === $k ? ' selected' : '' ?>><?= $l ?></option><?php endforeach; ?></select></label>
+    <div class="grid3"><label>Topic<select name="topic"><?php foreach(['basics'=>'Basics','bars'=>'Gold bars','coins'=>'Gold coins','karats'=>'Karats & jewelry gold','prices'=>'Prices & investing','safety'=>'Authenticity & safety','selling'=>'Selling'] as $k=>$l): ?><option value="<?= $k ?>"<?= ($r['topic'] ?? '') === $k ? ' selected' : '' ?>><?= $l ?></option><?php endforeach; ?></select></label>
     <label>Published<input type="date" name="date" value="<?= $v('date') ?: date('Y-m-d') ?>"></label><label>Updated<input type="date" name="updated" value="<?= date('Y-m-d') ?>"></label></div>
     <label>Summary (guide lists)<textarea name="summary" rows="2"><?= $v('summary') ?></textarea></label>
     <label class="check"><input type="checkbox" name="hidden" value="1"<?= !empty($r['hidden']) ? ' checked' : '' ?>> Hide this guide</label>
@@ -783,9 +783,9 @@ function shell_start($title, $nav=false){
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
 <title><?= h($title) ?> · Admin</title><link rel="icon" href="assets/img/favicon.svg">
 <style>
-:root{--ink:#14202f;--muted:#6b7684;--line:#e4e0d6;--gold:#b8872a;--navy:#0f1b2d;--bg:#f6f4ef}
+:root{--ink:#14202f;--muted:#6b7684;--line:#e4e0d6;--gold:#0a0a0a;--navy:#0a0a0a;--bg:#f5f5f5}
 *{box-sizing:border-box}body{margin:0;font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg)}
-a{color:#7a5810}h1{font-size:26px;margin:0 0 18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}h2{font-size:18px;margin:0 0 12px}
+a{color:#0a0a0a}h1{font-size:26px;margin:0 0 18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}h2{font-size:18px;margin:0 0 12px}
 .layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
 .side{background:var(--navy);padding:18px 12px;color:#cfd6e0}.side b{display:block;color:#fff;font-size:16px;padding:6px 10px 16px}
 .side a{display:block;color:#cfd6e0;text-decoration:none;padding:8px 10px;border-radius:8px}.side a:hover,.side a.on{background:rgba(255,255,255,.1);color:#fff}
