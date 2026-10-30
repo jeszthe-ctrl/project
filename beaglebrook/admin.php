@@ -10,6 +10,7 @@ define('BB_ROOT', __DIR__);
 @ini_set('display_errors', '0');
 error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
 require BB_ROOT.'/inc/core.php';
+require BB_ROOT.'/inc/deals.php';
 start_session();
 header('X-Frame-Options: DENY');
 header('X-Robots-Tag: noindex, nofollow');
@@ -31,7 +32,7 @@ function path_url($p){ return site_url($p); }
 
 /* ---------------- helpers ---------------- */
 const ARTICLE_GROUPS = ['buying'=>'Buying a beagle puppy', 'breed'=>'The beagle breed', 'care'=>'Care, food and training', 'mixes'=>'Beagle mixes', 'culture'=>'History and news'];
-const FORMAT_HELP = 'Formatting: blank line = new paragraph · "## " heading, "### " subheading · "- " bullet, "1. " numbered · **bold**, *italic* · [link text](/health-guarantee) or [text](https://…) · "> " highlighted note · tables as | a | b | lines. {deposit} {balance} {vet_check_hours} ({vet_check_hour}) {genetic_years} ({genetic_year}) {go_home_weeks} {email} {city} {state} {payment_methods} {registry} {reply_time} {delivery_options} fill in your settings. A line with only {guarantees}, {steps}, {included}, {payments}, {delivery_rates}, {puppies}, {licenses}, {payee}, {breeder} or {contact} shows that block. Questions under "## Questions" written as "### Question" become FAQs for Google.';
+const FORMAT_HELP = 'Formatting: blank line = new paragraph · "## " heading, "### " subheading · "- " bullet, "1. " numbered · **bold**, *italic* · [link text](/health-guarantee) or [text](https://…) · "> " highlighted note · tables as | a | b | lines · a photo on its own line: ![description](assets/uploads/…) (use “Insert” under Photos inside the text). {deposit} {balance} {vet_check_hours} ({vet_check_hour}) {genetic_years} ({genetic_year}) {go_home_weeks} {email} {city} {state} {payment_methods} {registry} {reply_time} {delivery_options} fill in your settings. A line with only {guarantees}, {steps}, {included}, {payments}, {delivery_rates}, {puppies}, {licenses}, {payee}, {breeder} or {contact} shows that block. Questions under "## Questions" written as "### Question" become FAQs for Google.';
 function self_url($v='dashboard', $extra=[]){ return 'admin.php?'.http_build_query(['v'=>$v] + $extra); }
 function go($v='dashboard', $extra=[]){ header('Location: '.self_url($v, $extra), true, 303); exit; }
 function note($msg, $type='ok'){ $_SESSION['admin_flash'][] = [$type, $msg]; }
@@ -73,6 +74,17 @@ function unique_slug($base, $list, $self_id, $key='id'){
   $slug = $base; $n = 2;
   while(array_filter($list, fn($x)=>($x['slug'] ?? '') === $slug && ($x[$key] ?? '') !== $self_id)) $slug = $base.'-'.$n++;
   return $slug;
+}
+
+/* old address → new address (both without the leading /), so links and rankings follow a moved page */
+function add_redirect($from, $to){
+  global $SITE;
+  $from = trim($from, '/'); $to = trim($to, '/');
+  if($from === '' || $from === $to) return;
+  foreach($SITE['redirects'] as $f=>$t) if($t === $from) $SITE['redirects'][$f] = $to;   /* no chains: a→b, b→c becomes a→c, b→c */
+  unset($SITE['redirects'][$to]);                                                        /* the new address is a real page now */
+  $SITE['redirects'][$from] = $to;
+  foreach($SITE['redirects'] as $f=>$t) if($f === $t) unset($SITE['redirects'][$f]);
 }
 
 /* photos: keep the ones not ticked for removal, put the chosen main photo first, add new uploads */
@@ -171,12 +183,14 @@ if($act === 'save_puppy'){
     'sex'=>in_line('sex') === 'female' ? 'female' : 'male', 'color'=>in_line('color', 60), 'dob'=>in_date('dob'), 'ready'=>in_date('ready'),
     'price'=>in_price('price'), 'size'=>in_array(in_line('size'), ['13', '15'], true) ? in_line('size') : '', 'weight'=>in_line('weight', 40),
     'registry'=>in_line('registry', 40), 'reg_no'=>in_line('reg_no', 80), 'sire'=>in_line('sire', 20), 'dam'=>in_line('dam', 20),
-    'microchip'=>in_bool('microchip'), 'vet_date'=>in_date('vet_date'), 'vaccines'=>in_str('vaccines', 1000), 'tagline'=>in_line('tagline', 200),
+    'microchip'=>in_bool('microchip'), 'chip_no'=>in_line('chip_no', 40), 'vet_date'=>in_date('vet_date'), 'vaccines'=>in_str('vaccines', 1000), 'tagline'=>in_line('tagline', 200),
     'description'=>in_str('description', 20000), 'video'=>in_line('video', 300), 'hidden'=>in_bool('hidden'),
     'seo_title'=>in_line('seo_title', 120), 'seo_desc'=>in_line('seo_desc', 300), 'updated'=>date('c'),
   ]);
   $want = in_line('slug', 80) !== '' ? in_line('slug', 80) : $name.' '.$p['color'].' '.$p['sex'];
-  if($i === null || in_line('slug', 80) !== ($p['slug'] ?? '')) $p['slug'] = unique_slug($want, $SITE['puppies'], $p['id']);
+  $old_slug = $p['slug'] ?? '';
+  if($i === null || in_line('slug', 80) !== $old_slug) $p['slug'] = unique_slug($want, $SITE['puppies'], $p['id']);
+  if($i !== null && $old_slug !== '' && $old_slug !== $p['slug']) add_redirect('beagle-puppies-for-sale/'.$old_slug, 'beagle-puppies-for-sale/'.$p['slug']);
   $p['photos'] = handle_photos($p['photos'] ?? [], 'puppy-'.$p['slug']);
   if($i === null) array_unshift($SITE['puppies'], $p); else $SITE['puppies'][$i] = $p;
   save($i === null ? "{$p['name']} is added." : "{$p['name']} is saved.");
@@ -264,14 +278,23 @@ if($act === 'save_article'){
     'seo_desc'=>in_line('seo_desc', 300), 'excerpt'=>in_line('excerpt', 300), 'body'=>in_str('body', 200000), 'draft'=>in_bool('draft'),
     'date'=>in_date('date') ?: ($a['date'] ?? date('Y-m-d'))]);
   if($changed && $idx !== null) $a['updated'] = date('Y-m-d');
-  if($idx !== null && $slug !== $orig) $SITE['removed']['articles'][] = $orig;   /* a renamed starter guide mustn't come back under its old address */
+  if($idx !== null && $slug !== $orig){
+    $SITE['removed']['articles'][] = $orig;   /* a renamed starter guide mustn't come back under its old address */
+    add_redirect(($a['type'] === 'blog' ? 'blog/' : 'guides/').$orig, ($type === 'blog' ? 'blog/' : 'guides/').$slug);
+  }
+  /* photos placed inside the text with ![description](assets/uploads/…) */
+  $inline = [];
+  foreach($a['photos'] ?? [] as $f){ if(in_array($f, (array)($_POST['remove_inline'] ?? []), true)) delete_upload($f); else $inline[] = $f; }
+  foreach(upload_list('inline') as $f){ $r = save_upload($f, 'guide-'.$slug); if($r !== '' && $r[0] === '!') note(substr($r, 1), 'err'); elseif($r !== '') $inline[] = $r; }
+  $a['photos'] = array_slice($inline, 0, 30);
   $a['image'] = handle_one_photo('image', $a['image'] ?? '', 'article-'.$slug);
   if($idx === null) $SITE['articles'][] = $a; else $SITE['articles'][$idx] = $a;
   save('“'.$title.'” is saved.'.($a['draft'] ? ' It’s a draft, so it isn’t on the site yet.' : ''));
   go('article', ['slug'=>$slug]);
 }
 if($act === 'delete_article'){
-  foreach($SITE['articles'] as $k=>$a){ if($a['slug'] === in_line('slug', 120)){ delete_upload($a['image'] ?? ''); array_splice($SITE['articles'], $k, 1); $SITE['removed']['articles'][] = $a['slug']; save('Deleted.'); break; } }
+  foreach($SITE['articles'] as $k=>$a){ if($a['slug'] === in_line('slug', 120)){ delete_upload($a['image'] ?? ''); foreach($a['photos'] ?? [] as $f) delete_upload($f); array_splice($SITE['articles'], $k, 1); $SITE['removed']['articles'][] = $a['slug'];
+      add_redirect(($a['type'] === 'blog' ? 'blog/' : 'guides/').$a['slug'], $a['type'] === 'blog' ? 'blog' : 'guides'); save('Deleted. Its old address now leads to the '.($a['type'] === 'blog' ? 'blog' : 'guides').' page.'); break; } }
   go('articles');
 }
 
@@ -304,6 +327,107 @@ if($act === 'save_promises'){
   go('promises');
 }
 
+/* ---- inquiry: one-click emails, agreement, payments ---- */
+const STATUS_ORDER = ['new'=>0, 'contacted'=>1, 'deposit'=>2, 'delivered'=>3, 'closed'=>4];
+/* moves an inquiry forward (never back) and reserves its puppy when asked */
+function advance(&$q, $status, $reserve=false){
+  global $SITE;
+  if($status !== '' && (STATUS_ORDER[$status] ?? 0) > (STATUS_ORDER[$q['status']] ?? 0)) $q['status'] = $status;
+  if($reserve && ($q['puppy_id'] ?? '') !== ''){
+    foreach($SITE['puppies'] as $i=>$p) if($p['id'] === $q['puppy_id'] && $p['status'] === 'available'){
+      $SITE['puppies'][$i]['status'] = 'reserved'; $SITE['puppies'][$i]['updated'] = date('c');
+      site_save($SITE); note($p['name'].' is now marked Reserved on the website.');
+    }
+  }
+}
+function mail_result($ok, $what){ note($ok ? $what : 'The email could not be sent. '.($GLOBALS['BB_MAIL_ERROR'] ?? '').' Check Settings → Email & alerts.', $ok ? 'ok' : 'err'); }
+
+if($act === 'send_template'){
+  $q = inquiry_load(in_line('ref', 20)); $key = in_line('key', 20); $tpl = $SITE['templates'][$key] ?? null;
+  if(!$q || !$tpl) go('inquiries');
+  $extra = ['date'=>in_date('date') !== '' ? date('l, F j', strtotime(in_date('date'))) : '', 'note'=>in_str('note', 3000)];
+  if(!empty($tpl['needs_date']) && $extra['date'] === '' && in_str('body', 20000) === ''){ note('Choose the departure date first.', 'err'); go('inquiry', ['ref'=>$q['ref']]); }
+  $custom = in_str('body', 20000) !== '';
+  $subject = $custom ? in_line('subject', 200) : template_render($tpl['subject'], $q, $extra);
+  $body = $custom ? in_str('body', 20000) : template_render($tpl['body'], $q, $extra);
+  if($key === 'payment' && !$custom && template_vars($q)['{payment_details}'] === ''){
+    note('Add your '.($q['payment_name'] ?: 'payment').' details under Admin → Payments first (they’re private: only sent by email), or edit the email before sending.', 'err');
+    go('inquiry', ['ref'=>$q['ref']]);
+  }
+  if($key === 'payment' && empty($q['deal'])){ $q['deal'] = deal_of($q); $q['agreement']['sent'] = date('c'); }   /* the payment email links the agreement */
+  $ok = email_buyer($q, $key, $subject, $body);
+  if($ok) advance($q, $tpl['status'] ?? '', !empty($tpl['reserve']));
+  inquiry_save($q);
+  mail_result($ok, '“'.$tpl['name'].'” sent to '.$q['email'].'.');
+  go('inquiry', ['ref'=>$q['ref']]);
+}
+if($act === 'send_agreement'){
+  $q = inquiry_load(in_line('ref', 20));
+  if(!$q) go('inquiries');
+  if(empty($q['agreement']['accepted'])){ unset($q['deal']); $q['deal'] = deal_of($q); }   /* not accepted yet: send today's details */
+  $q['agreement']['sent'] = date('c');
+  $d = deal_of($q); $t = deal_totals($q);
+  $body = "Hi ".(strtok($q['name'], ' ') ?: $q['name']).",\n\nHere is your sales agreement for {$d['puppy']}. Please read it and accept it online — it takes a minute:\n".agreement_link($q['ref'])
+    ."\n\nSummary\n- Puppy: {$d['puppy']}, ".money($d['price'])."\n".($d['delivery'] !== '' ? "- Delivery: {$d['delivery']}, ".($d['delivery_fee'] !== null ? money($d['delivery_fee']) : 'to be confirmed')."\n" : '')
+    ."- Total: ".money($t['total'])."\n- Deposit to reserve: ".money($d['deposit'])."\n- Due at delivery: ".money($t['at_delivery'])
+    ."\n\nThe agreement includes our health guarantee, deposit and refund terms and delivery details. You can print it from the same page.";
+  $ok = email_buyer($q, 'agreement', 'Your sales agreement for '.$d['puppy'].' — '.$CFG['brand'], $body);
+  if($ok) advance($q, 'contacted');
+  inquiry_save($q);
+  mail_result($ok, 'Sales agreement sent to '.$q['email'].'.');
+  go('inquiry', ['ref'=>$q['ref']]);
+}
+if($act === 'record_payment'){
+  $q = inquiry_load(in_line('ref', 20));
+  if(!$q) go('inquiries');
+  $amount = (float)in_price('amount');
+  if($amount <= 0){ note('Enter the amount received.', 'err'); go('inquiry', ['ref'=>$q['ref']]); }
+  if(empty($q['deal'])) $q['deal'] = deal_of($q);
+  $n = 1 + max(array_merge([0], array_map(fn($x)=>(int)$x['n'], $q['payments'] ?? [])));
+  $pay = ['n'=>$n, 'amount'=>$amount, 'method'=>in_line('method', 40) ?: ($q['payment_name'] ?? ''), 'date'=>in_date('date') ?: date('Y-m-d'), 'note'=>in_line('note', 200), 'time'=>date('c')];
+  $q['payments'][] = $pay;
+  advance($q, 'deposit', true);
+  note('Payment of '.money($amount).' recorded.');
+  if(in_bool('send')){
+    $d = deal_of($q); $t = deal_totals($q);
+    $body = "Hi ".(strtok($q['name'], ' ') ?: $q['name']).",\n\nThank you — we’ve received your payment of ".money($amount)." for {$d['puppy']}.\n\nReceipt {$q['ref']}-{$n}\n- Amount: ".money($amount)."\n- Method: {$pay['method']}\n- Date: ".nice_date($pay['date'])
+      ."\n\nTotal: ".money($t['total'])."\nPaid so far: ".money($t['paid'])."\nStill to pay: ".money($t['due'])."\n\nYour receipt online (you can print it): ".receipt_link($q['ref']);
+    mail_result(email_buyer($q, 'receipt', 'Receipt for your payment of '.money($amount).' — '.$d['puppy'], $body), 'Receipt emailed to '.$q['email'].'.');
+  }
+  inquiry_save($q);
+  go('inquiry', ['ref'=>$q['ref']]);
+}
+if($act === 'delete_payment'){
+  $q = inquiry_load(in_line('ref', 20));
+  if($q){ $n = (int)in_line('n', 5); $q['payments'] = array_values(array_filter($q['payments'] ?? [], fn($x)=>(int)$x['n'] !== $n)); inquiry_save($q); note('Payment removed.'); }
+  go('inquiry', ['ref'=>$q['ref'] ?? '']);
+}
+if($act === 'save_templates'){
+  foreach($SITE['templates'] as $k=>$t){
+    if(!isset($_POST['tpl'][$k])) continue;
+    $row = (array)$_POST['tpl'][$k];
+    $subject = trim(preg_replace('/\s+/', ' ', (string)($row['subject'] ?? ''))); $body = trim(str_replace("\r", '', (string)($row['body'] ?? '')));
+    if($subject !== '' && $body !== ''){ $SITE['templates'][$k]['subject'] = mb_substr($subject, 0, 200); $SITE['templates'][$k]['body'] = mb_substr($body, 0, 10000); }
+  }
+  save('Email templates saved.');
+  go('templates');
+}
+if($act === 'reset_template'){
+  $k = in_line('key', 20); $d = site_defaults()['templates'][$k] ?? null;
+  if($d){ $SITE['templates'][$k] = $d; save('“'.$d['name'].'” is back to its original wording.'); }
+  go('templates');
+}
+if($act === 'add_redirect'){
+  $from = trim(preg_replace('#^https?://[^/]+#i', '', in_line('from', 300)), '/'); $to = trim(preg_replace('#^https?://[^/]+#i', '', in_line('to', 300)), '/');
+  if($from === '' || !preg_match('#^[\w./%-]+$#', $from)) note('Enter the old address, e.g. /guides/old-guide-name', 'err');
+  else { add_redirect($from, $to); save("/$from now leads to /$to."); }
+  go('redirects');
+}
+if($act === 'delete_redirect'){
+  unset($SITE['redirects'][in_line('from', 300)]); save('Redirect removed.');
+  go('redirects');
+}
+
 if($act === 'save_delivery'){
   $methods = [];
   foreach(['standard', 'express'] as $k){
@@ -327,7 +451,8 @@ if($act === 'save_payments'){
   foreach((array)($_POST['pay'] ?? []) as $row){
     $name = trim(preg_replace('/\s+/', ' ', (string)($row['name'] ?? '')));
     if($name === '') continue;
-    $out[] = ['key'=>slugify($row['key'] ?? '' ?: $name) ?: new_id(), 'name'=>mb_substr($name, 0, 40), 'note'=>mb_substr(trim((string)($row['note'] ?? '')), 0, 200), 'on'=>!empty($row['on'])];
+    $out[] = ['key'=>slugify($row['key'] ?? '' ?: $name) ?: new_id(), 'name'=>mb_substr($name, 0, 40), 'note'=>mb_substr(trim((string)($row['note'] ?? '')), 0, 200),
+              'details'=>mb_substr(trim(str_replace("\r", '', (string)($row['details'] ?? ''))), 0, 1000), 'on'=>!empty($row['on'])];
   }
   if(!array_filter($out, fn($p)=>$p['on'])) note('Keep at least one payment method switched on, so customers can choose one.', 'err');
   else { $SITE['payments'] = $out; save('Payment methods saved.'); }
@@ -441,7 +566,7 @@ if($v === 'export'){
 
 /* ---------------- views ---------------- */
 $VIEWS = ['dashboard'=>'Dashboard', 'puppies'=>'Puppies', 'parents'=>'Parents', 'litters'=>'Litters', 'inquiries'=>'Inquiries', 'waitlist'=>'Waitlist',
-          'reviews'=>'Reviews', 'articles'=>'Guides & blog', 'pages'=>'Pages', 'promises'=>'Guarantees', 'delivery'=>'Delivery', 'payments'=>'Payments', 'settings'=>'Settings', 'account'=>'Sign-in'];
+          'reviews'=>'Reviews', 'articles'=>'Guides & blog', 'pages'=>'Pages', 'promises'=>'Guarantees', 'delivery'=>'Delivery', 'payments'=>'Payments', 'templates'=>'Email templates', 'redirects'=>'Redirects', 'settings'=>'Settings', 'account'=>'Sign-in'];
 $SUB = ['puppy'=>'puppies', 'parent'=>'parents', 'inquiry'=>'inquiries', 'review'=>'reviews', 'article'=>'articles', 'page'=>'pages'];
 if(!isset($VIEWS[$v]) && !isset($SUB[$v])) $v = 'dashboard';
 layout_start($VIEWS[$v] ?? $VIEWS[$SUB[$v]]);
@@ -479,6 +604,9 @@ table{width:100%;border-collapse:collapse;background:#fff}th,td{text-align:left;
 .chk{list-style:none;padding-left:0}.chk li{margin-bottom:6px}.chk .done{color:var(--ok)}.chk .todo{color:var(--err)}
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}.tabs a{padding:6px 12px;border-radius:999px;border:1px solid var(--line);text-decoration:none;color:var(--ink);background:#fff}.tabs a.on{background:var(--br);color:#fff;border-color:var(--br)}
 details summary{cursor:pointer;font-weight:600;margin-bottom:8px}
+.acts{display:grid;gap:12px}@media(min-width:900px){.acts{grid-template-columns:1fr 1fr}}.act{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fffdf9}.act p{margin:6px 0 10px}.act form{margin:0}.act details{margin-top:8px}.act table{margin:6px 0}
+.tot-row{display:flex;flex-wrap:wrap;gap:6px 18px;margin:-4px 0 14px;font-size:.92rem;color:var(--mut)}.tot-row b{color:var(--ink)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
 .help{font-size:.85rem;color:var(--mut);background:#fbf6ee;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:-4px 0 12px}
 </style></head><body>
 <?php if(is_admin()): ?>
@@ -611,6 +739,7 @@ function view_puppy(){
     <label>Dam (mom)<select name="dam"><?= parent_options('dam', $p['dam']) ?></select></label>
     <label>Sire (dad)<select name="sire"><?= parent_options('sire', $p['sire']) ?></select></label>
     <label class="cb" style="margin-top:28px"><input type="checkbox" name="microchip" value="1"<?= $p['microchip'] ? ' checked' : '' ?>> Microchipped</label>
+    <label>Microchip number<small>Private: only on the buyer’s sales agreement</small><input type="text" name="chip_no" value="<?= h($p['chip_no'] ?? '') ?>"></label>
   </div>
   <label>Shots and deworming given<small>One per line, e.g. “DHPP #1 — 6 weeks (Sept 3)”</small><textarea name="vaccines"><?= h($p['vaccines']) ?></textarea></label>
   <?php if(!$SITE['parents']): ?><p class="help">Add the parents under <a href="<?= h(self_url('parent')) ?>">Parents</a> first and they’ll appear here, with their own photos and health testing on the puppy’s page.</p><?php endif; ?></div>
@@ -712,6 +841,7 @@ function view_inquiry(){
   $tel = preg_replace('/[^\d+]/', '', $q['phone']);
   ?><div class="row"><h1><?= h($q['name']) ?></h1><span class="right"><?= badge($q['status'], INQUIRY_STATUSES) ?></span></div>
   <p class="mut"><?= h($q['kind'] === 'inquiry' ? 'Puppy inquiry' : 'Contact message') ?> · <?= h($q['ref']) ?> · <?= h(date('l, F j, Y \a\t g:ia', strtotime($q['time']))) ?></p>
+  <?php if($q['kind'] === 'inquiry') inquiry_actions($q); ?>
   <div class="grid g2"><div class="card">
     <h2 style="margin-top:0">Contact</h2>
     <p><a href="mailto:<?= h($q['email']) ?>?subject=<?= rawurlencode(($q['puppy_name'] ? 'Your inquiry for '.$q['puppy_name'] : 'Your message').' — '.$CFG['brand']) ?>"><?= h($q['email']) ?></a><br>
@@ -732,7 +862,57 @@ function view_inquiry(){
       <label>Status<select name="status"><?php foreach(INQUIRY_STATUSES as $k=>$l): ?><option value="<?= $k ?>"<?= $q['status'] === $k ? ' selected' : '' ?>><?= h($l) ?></option><?php endforeach; ?></select></label>
       <label>Your private notes<small>Deposit received, video call date, delivery plans…</small><textarea name="admin_notes" rows="6"><?= h($q['admin_notes'] ?? '') ?></textarea></label>
       <button class="btn">Save</button></form></div>
+    <?php if(!empty($q['emails'])): ?><div class="card"><h2 style="margin-top:0">Emails sent</h2><table><?php foreach(array_reverse($q['emails']) as $e): ?><tr><td class="mut" style="white-space:nowrap"><?= h(date('M j, g:ia', strtotime($e['time']))) ?></td><td><?= h($e['subject']) ?><?= empty($e['ok']) ? ' <span class="badge b-reserved">Failed</span>' : '' ?></td></tr><?php endforeach; ?></table></div><?php endif; ?>
     <p><?= del_button('delete_inquiry', ['ref'=>$q['ref']], 'Delete inquiry') ?></p>
+  </div></div><?php
+}
+
+/* a page of the public site from the admin (works on any host and with or without clean addresses) */
+function site_page($path, $query){ $u = site_url($path); return $u.(strpos($u, '?') !== false ? '&' : '?').http_build_query($query); }
+
+/* the one-click emails, the sales agreement and payments for one inquiry */
+function inquiry_actions($q){
+  global $SITE, $CFG;
+  $d = deal_of($q); $t = deal_totals($q);
+  $sent = function($key) use($q){ $last = null; foreach($q['emails'] ?? [] as $e) if($e['key'] === $key && !empty($e['ok'])) $last = $e; return $last ? 'Sent '.date('M j, g:ia', strtotime($last['time'])) : ''; };
+  $tpl_box = function($key, $hint) use($q, $SITE, $sent){
+    $t = $SITE['templates'][$key];
+    $preview_extra = ['date'=>!empty($t['needs_date']) ? '[departure date]' : '', 'note'=>''];
+    $missing = $key === 'payment' && template_vars($q)['{payment_details}'] === '';
+    ?><div class="act"><div class="row"><strong><?= h($t['name']) ?></strong><span class="mut right"><?= h($sent($key)) ?></span></div>
+      <p class="mut"><?= h($hint) ?></p>
+      <?php if($missing): ?><p class="help">Add your <?= h($q['payment_name'] ?: 'payment') ?> details under <a href="<?= h(self_url('payments')) ?>">Payments</a> to send this in one click.</p><?php endif; ?>
+      <?= form_start('send_template') ?><input type="hidden" name="ref" value="<?= h($q['ref']) ?>"><input type="hidden" name="key" value="<?= h($key) ?>">
+        <div class="row"><?php if(!empty($t['needs_date'])): ?><input type="date" name="date" required style="width:auto;margin:0"><?php endif; ?>
+        <button class="btn btn-s"<?= $missing ? ' disabled' : '' ?> onclick="return confirm('Send “<?= h($t['name']) ?>” to <?= h($q['email']) ?>?')">Send now</button></div></form>
+      <details><summary>Preview &amp; edit</summary><?= form_start('send_template') ?><input type="hidden" name="ref" value="<?= h($q['ref']) ?>"><input type="hidden" name="key" value="<?= h($key) ?>">
+        <label>Subject<input type="text" name="subject" value="<?= h(template_render($t['subject'], $q, $preview_extra)) ?>"></label>
+        <label>Message<textarea name="body" rows="12"><?= h(template_render($t['body'], $q, $preview_extra)) ?></textarea></label>
+        <button class="btn btn-s">Send this version</button></form></details></div><?php
+  };
+  $ag = $q['agreement'] ?? [];
+  ?><div class="card"><h2 style="margin-top:0">Next steps</h2>
+  <div class="tot-row"><span>Puppy <b><?= h(money($d['price'])) ?></b></span><span>Delivery <b><?= $d['delivery_fee'] !== null ? h(money($d['delivery_fee'])) : '—' ?></b></span><span>Total <b><?= h(money($t['total'])) ?></b></span>
+    <span>Deposit <b><?= h(money($d['deposit'])) ?></b></span><span>Paid <b><?= h(money($t['paid'])) ?></b></span><span>Still to pay <b><?= h(money($t['due'])) ?></b></span></div>
+  <div class="acts">
+    <?php $tpl_box('video', 'Thanks them and asks for a time for a live video call with '.$d['puppy'].'.'); ?>
+    <div class="act"><div class="row"><strong>Sales agreement</strong><span class="mut right"><?= !empty($ag['accepted']) ? '✓ Accepted' : (!empty($ag['sent']) ? 'Sent '.h(date('M j, g:ia', strtotime($ag['sent']))) : '') ?></span></div>
+      <p class="mut"><?= !empty($ag['accepted']) ? 'Accepted online by “'.h($ag['accepted_name']).'” on '.h(date('M j, Y \a\t g:ia', strtotime($ag['accepted']))).'.' : 'Emails a link to their agreement: puppy, price, deposit, delivery, guarantees. They read it, accept it by typing their name, and can print it.' ?></p>
+      <div class="row"><?= form_start('send_agreement') ?><input type="hidden" name="ref" value="<?= h($q['ref']) ?>"><button class="btn btn-s" onclick="return confirm('Email the sales agreement to <?= h($q['email']) ?>?')"><?= empty($ag['sent']) ? 'Send agreement' : (empty($ag['accepted']) ? 'Send updated agreement' : 'Resend link') ?></button></form>
+        <a class="btn btn-g btn-s" target="_blank" href="<?= h(site_page('agreement', ['ref'=>$q['ref'], 'k'=>sign('agreement|'.$q['ref'])])) ?>">Open / print ↗</a></div></div>
+    <?php $tpl_box('payment', 'Their '.$d['deposit_pct'].'% deposit ('.money($d['deposit']).'), your '.($q['payment_name'] ?: 'payment').' details and the agreement link.'); ?>
+    <div class="act"><div class="row"><strong>Record a payment</strong><span class="mut right"><?= count($q['payments'] ?? []) ?> recorded</span></div>
+      <?php if(!empty($q['payments'])): ?><table><?php foreach($q['payments'] as $pm): ?><tr><td><?= h(nice_date($pm['date'])) ?></td><td><?= h($pm['method']) ?></td><td><b><?= h(money($pm['amount'])) ?></b></td><td><?= del_button('delete_payment', ['ref'=>$q['ref'], 'n'=>$pm['n']], '×', 'Remove this payment?') ?></td></tr><?php endforeach; ?></table>
+        <p><a target="_blank" href="<?= h(site_page('receipt', ['ref'=>$q['ref'], 'k'=>sign('receipt|'.$q['ref'])])) ?>">Open / print receipt ↗</a></p><?php endif; ?>
+      <?= form_start('record_payment') ?><input type="hidden" name="ref" value="<?= h($q['ref']) ?>"><div class="grid g3">
+        <label>Amount ($)<input type="text" name="amount" inputmode="decimal" value="<?= h($t['deposit_left'] > 0 ? $t['deposit_left'] : ($t['due'] > 0 ? $t['due'] : '')) ?>"></label>
+        <label>Method<select name="method"><?php foreach($SITE['payments'] as $pm): ?><option<?= $pm['name'] === ($q['payment_name'] ?? '') ? ' selected' : '' ?>><?= h($pm['name']) ?></option><?php endforeach; ?></select></label>
+        <label>Date<input type="date" name="date" value="<?= date('Y-m-d') ?>"></label></div>
+        <label class="cb"><input type="checkbox" name="send" value="1" checked> Email them a receipt</label>
+        <button class="btn btn-s">Record payment</button></form></div>
+    <?php $tpl_box('reserved', 'Confirms the reservation with their receipt and agreement links, and marks '.$d['puppy'].' Reserved.'); ?>
+    <?php $tpl_box('delivery', 'Departure date, '.($d['delivery'] ?: 'delivery').', the balance due at delivery and what to have ready.'); ?>
+    <?php $tpl_box('followup', 'A friendly nudge if they’ve gone quiet, with the waitlist as a fallback.'); ?>
   </div></div><?php
 }
 
@@ -809,6 +989,11 @@ function view_article(){
     <label>Published<input type="date" name="date" value="<?= h($a['date']) ?>"></label></div>
   <label>Text *<small><?= h(FORMAT_HELP) ?></small><textarea class="big" name="body" required><?= h($a['body']) ?></textarea></label>
   <?= one_photo_editor('image', $a['image'] ?? '', 'Main photo', 'Shown at the top and when shared. Your own beagle photos are best.') ?>
+  <h2>Photos inside the text</h2>
+  <?php if(!empty($a['photos'])): ?><p class="mut">Click “Insert” to place a photo where your cursor is in the text, then change “Describe the photo” to what it shows (e.g. “Tricolor beagle puppy at 8 weeks”). Save to see it on the guide.</p>
+  <div class="photos"><?php foreach($a['photos'] as $f): ?><figure><img src="<?= h(thumb($f, 320)) ?>" alt=""><button type="button" class="btn btn-g btn-s" data-insert="<?= h('![Describe the photo]('.$f.')') ?>">Insert</button><label class="cb"><input type="checkbox" name="remove_inline[]" value="<?= h($f) ?>"> Remove</label></figure><?php endforeach; ?></div><?php endif; ?>
+  <label>Add photos for the text<small>Upload, save, then insert them where you want them</small><input type="file" name="inline[]" accept="image/jpeg,image/png,image/webp" multiple></label>
+  <script>document.querySelectorAll('[data-insert]').forEach(function(b){b.addEventListener('click',function(){var t=document.querySelector('textarea[name=body]'),v=b.getAttribute('data-insert'),s=t.selectionStart||t.value.length;t.value=t.value.slice(0,s)+'\n\n'+v+'\n\n'+t.value.slice(t.selectionEnd||s);t.focus();t.selectionStart=t.selectionEnd=s+v.length+4;})});</script>
   <details<?= $new ? ' open' : '' ?>><summary>Search engine &amp; listing</summary>
     <label>Address<small>/<?= $a['type'] === 'blog' ? 'blog' : 'guides' ?>/<b>…</b> — changing it breaks links people already have, so avoid it once published</small><input type="text" name="slug" value="<?= h($a['slug']) ?>"></label>
     <label>Title for Google<small>About 50–60 characters, with the main search phrase near the start</small><input type="text" name="seo_title" value="<?= h($a['seo_title']) ?>"></label>
@@ -872,14 +1057,37 @@ function view_delivery(){
   <button class="btn">Save delivery options</button></form><?php
 }
 
+function view_templates(){
+  global $SITE;
+  ?><h1>Email templates</h1>
+  <p class="mut">The one-click emails on each inquiry. Each starts with the buyer’s details filled in; you can also edit any email before sending it.</p>
+  <p class="help">You can use: {first_name} {puppy} {puppy_link} {price} {deposit} {deposit_amount} {delivery_option} {delivery_time} {delivery_fee} {total} {due_at_delivery} {paid} {balance_due} {last_payment} {payment_method} {payment_details} {agreement_link} {receipt_link} {delivery_date} {note} {ref} {email} {phone_or_email} {city} {vet_check_hours} {care_guide_link} {waitlist_link}. Every email ends with your name and contact details automatically.</p>
+  <?= form_start('save_templates') ?><?php foreach($SITE['templates'] as $k=>$t): ?><div class="card"><h2 style="margin-top:0"><?= h($t['name']) ?></h2>
+    <label>Subject<input type="text" name="tpl[<?= h($k) ?>][subject]" value="<?= h($t['subject']) ?>"></label>
+    <label>Message<textarea name="tpl[<?= h($k) ?>][body]" rows="12"><?= h($t['body']) ?></textarea></label></div><?php endforeach; ?>
+  <button class="btn">Save templates</button></form>
+  <h2>Back to the original wording</h2><div class="row"><?php foreach($SITE['templates'] as $k=>$t) echo del_button('reset_template', ['key'=>$k], 'Reset “'.$t['name'].'”', 'Replace your wording of “'.$t['name'].'” with the original?'); ?></div><?php
+}
+
+function view_redirects(){
+  global $SITE;
+  ?><h1>Redirects</h1>
+  <p class="mut">When an address changes, the old one sends visitors (and Google) to the new one, so links people saved and the ranking the page earned aren’t lost. They’re added automatically when you rename or delete a guide, or change a puppy’s address. You can also add your own, e.g. for pages of an old website.</p>
+  <div class="tw"><table><tr><th>Old address</th><th>Goes to</th><th></th></tr>
+  <?php foreach($SITE['redirects'] as $from=>$to): ?><tr><td>/<?= h($from) ?></td><td><a target="_blank" href="<?= h(site_url($to)) ?>">/<?= h($to) ?></a></td><td><?= del_button('delete_redirect', ['from'=>$from], 'Remove') ?></td></tr><?php endforeach; ?>
+  <?php if(!$SITE['redirects']): ?><tr><td colspan="3" class="mut">None yet.</td></tr><?php endif; ?></table></div>
+  <div class="card" style="margin-top:16px"><?= form_start('add_redirect') ?><div class="grid g2"><label>Old address<input type="text" name="from" placeholder="/old-page"></label><label>New address<input type="text" name="to" placeholder="/beagle-puppies-for-sale"></label></div><button class="btn">Add redirect</button></form></div><?php
+}
+
 function view_payments(){
   global $SITE;
   $rows = $SITE['payments']; $rows[] = ['key'=>'', 'name'=>'', 'note'=>'', 'on'=>true];
   ?><h1>Payment methods</h1>
   <p class="mut">Customers choose their preferred method in the inquiry form. Payment details are never shown on the website — you send them by email after you’ve talked, which protects your customers from copycat scammers. Add a short note if you like (e.g. “PayPal Goods &amp; Services”); notes show on the Deposit &amp; refunds page.</p>
-  <?= form_start('save_payments') ?><div class="tw"><table><tr><th>On</th><th>Name</th><th>Note (optional)</th></tr>
+  <p class="help"><strong>Payment details</strong> (your PayPal email, Zelle phone, bank account…) are private: they’re never on the website, only in the “Payment instructions” email you send from an inquiry.</p>
+  <?= form_start('save_payments') ?><div class="tw"><table><tr><th>On</th><th>Name</th><th>Note on the website (optional)</th><th>Payment details (private)</th></tr>
   <?php foreach($rows as $i=>$p): ?><tr><td><input type="hidden" name="pay[<?= $i ?>][key]" value="<?= h($p['key']) ?>"><input type="checkbox" name="pay[<?= $i ?>][on]" value="1"<?= $p['on'] ? ' checked' : '' ?>></td>
-    <td><input type="text" name="pay[<?= $i ?>][name]" value="<?= h($p['name']) ?>" placeholder="<?= $p['name'] === '' ? 'Add another method…' : '' ?>"></td><td><input type="text" name="pay[<?= $i ?>][note]" value="<?= h($p['note']) ?>"></td></tr><?php endforeach; ?>
+    <td><input type="text" name="pay[<?= $i ?>][name]" value="<?= h($p['name']) ?>" placeholder="<?= $p['name'] === '' ? 'Add another method…' : '' ?>"></td><td><input type="text" name="pay[<?= $i ?>][note]" value="<?= h($p['note']) ?>"></td><td><textarea name="pay[<?= $i ?>][details]" rows="2" placeholder="e.g. Send to payments@… (Goods &amp; Services)"><?= h($p['details'] ?? '') ?></textarea></td></tr><?php endforeach; ?>
   </table></div><p class="mut">To remove a method, clear its name and save.</p><button class="btn">Save payment methods</button></form><?php
 }
 

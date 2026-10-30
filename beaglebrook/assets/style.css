@@ -350,3 +350,27 @@ tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
 .dlist li{display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
 .dlist li span{flex:1}.dlist .ic{color:var(--brook)}
 .dlist b{color:var(--brand-d)}
+
+/* photos inside guides */
+.fig{margin:1.4em 0}
+.fig img{border-radius:var(--r);width:100%}
+.fig figcaption{font-size:.9rem;color:var(--muted);margin-top:6px}
+
+/* sales agreement and receipt */
+.doc{max-width:860px;padding-top:24px}
+.doc-h{display:flex;gap:16px;align-items:center;flex-wrap:wrap;border-bottom:2px solid var(--brand);padding-bottom:14px;margin-bottom:10px}
+.doc-h h1{margin:0;font-size:2rem}.doc-h .meta{margin:2px 0 0}.doc-h .btn{margin-left:auto}
+.doc-logo{width:56px;height:56px;flex:none}
+.doc h2{font-size:1.2rem;margin:1.4em 0 .4em}
+.doc section p,.doc section li{font-size:.97rem}
+.accept{border-top:1px solid var(--line);margin-top:24px;padding-top:6px}
+.doc-totals{max-width:420px;margin-left:auto}
+.print-only{display:none}
+@media print{
+  .topbar,.site-h,.crumbs,.pre-f,.site-f,.mbar,.no-print,.skip{display:none!important}
+  body{background:#fff;font-size:12pt;padding:0}
+  .doc{max-width:none;padding:0}
+  .print-only{display:block;margin-top:28px}
+  .sign-lines p{margin:22px 0}
+  a{color:inherit;text-decoration:none}
+}

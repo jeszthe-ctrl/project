@@ -29,11 +29,21 @@ The website for Beagle Brook, a beagle breeder in Cincinnati, Ohio. It's written
 - The customer gets a confirmation email: their reference, what happens next, and a reminder that payment details only ever come from your address.
 - You get a **text message** too, if you turn on text alerts (Settings → Email & alerts).
 
+**From an inquiry to delivery day, in one click each** (Admin → Inquiries → open an inquiry → Next steps)
+- **Video call invite.** Thanks the buyer and asks for a time for a live video call.
+- **Sales agreement.** Emails a link to their agreement: both parties, the puppy (with registration, parents and the private microchip number), price, delivery, deposit and balance, refunds, delivery terms and the full guarantees. The buyer accepts it online by typing their name and ticking a box. You're emailed and texted, and the date, name and IP address are recorded. It prints cleanly or saves as a PDF, with signature lines.
+- **Payment instructions.** Their exact deposit and your private details for the method they chose (add these under Admin → Payments; they never appear on the website).
+- **Record a payment.** The amount, method and date. It emails a numbered receipt, marks the puppy Reserved and moves the inquiry to "Deposit received". The buyer's receipt page lists every payment and what's still owed.
+- **Reservation confirmed**, **Delivery scheduled** (pick the departure date) and a **friendly follow-up**.
+- Every email can be previewed and edited before sending, and the wording lives in **Admin → Email templates**. Each inquiry keeps a history of the emails sent.
+
 **Admin (`/admin.php`)**
 - **Puppies:** add a puppy with all its details (name, sex, color, DOB, ready date, price, size, registry and number, parents, microchip, vet check date, shots, description, video and up to 12 photos). Change its status to Available, Reserved or Sold with one click. Tick "Email this puppy to the waitlist" to announce a new puppy.
 - **Parents, Litters, Reviews** (add reviews your customers send you).
 - **Waitlist:** email everyone, with an unsubscribe link added to each email automatically, and download a CSV.
 - **Guides & blog and Pages:** edit any text or write new posts.
+  Upload photos for a guide and click **Insert** to place them anywhere in the text, with an optional caption.
+- **Redirects:** when you rename or delete a guide, or change a puppy's address, the old address leads to the new page automatically, so saved links and rankings aren't lost. You can add your own too.
 - **Guarantees:** edit the guarantee cards, steps and "what's included".
 - **Delivery:** Standard delivery $55 (2–5 days) and Express delivery $100 (within 24 hours), counted from departure. You can set different prices for particular states.
 - **Payments:** PayPal, Zelle, Bank transfer, Chime and Apple Pay to start with. Add, rename, remove or switch any of them off.
@@ -60,6 +70,7 @@ The website for Beagle Brook, a beagle breeder in Cincinnati, Ohio. It's written
   - `robots.txt` that blocks the admin and thank-you pages.
   - Sold puppies and filtered lists are set to `noindex` so Google doesn't index thin or duplicate pages.
 - **Internal links:** guides link to related guides and to the puppies page. Puppy pages link to the parents, guarantees and buying guides.
+- **Local business data and tracking:** Google reads the business as a local business in Cincinnati serving the whole US. With a Google Analytics ID, inquiries and contact messages are tracked as `generate_lead` (with the puppy and price) and waitlist sign-ups as `sign_up`.
 - **Speed:**
   - no frameworks, no web fonts and one small CSS file
   - photos resized on upload, with smaller copies for phones (`srcset`)
@@ -95,6 +106,7 @@ Your data (puppies, inquiries, waitlist, sign-in, settings) lives in `data/`, an
 | `index.php` | The website: addresses, forms, emails, sitemap. |
 | `inc/views.php` | Page templates. |
 | `inc/core.php` | Data storage, email (SMTP), text alerts, photos, the text formatter. |
+| `inc/deals.php` | Sales agreements, receipts and the one-click emails. |
 | `inc/defaults.php` | Starting settings, guarantees, payment methods and trust pages. |
 | `inc/articles/` | Starting guides and blog posts. |
 | `admin.php` | The admin. |

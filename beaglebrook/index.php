@@ -8,6 +8,7 @@ define('BB_ROOT', __DIR__);
 @ini_set('display_errors', '0');
 error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
 require BB_ROOT.'/inc/core.php';
+require BB_ROOT.'/inc/deals.php';
 require BB_ROOT.'/inc/views.php';
 start_session();
 header('X-Content-Type-Options: nosniff');
@@ -113,6 +114,7 @@ if($action === 'inquiry' || $action === 'contact'){
     if(!empty($dopt)){
       $fee = delivery_fee($f['state'], $dopt['key']);
       $inq['delivery_name'] = $dopt['label'].' ('.$dopt['days'].')';
+      $inq['delivery_label'] = $dopt['label']; $inq['delivery_days'] = $dopt['days'];
       $inq['delivery_fee'] = $fee === null ? '' : (string)$fee;
     }
     data_write('inquiries/'.$ref, $inq);
@@ -223,11 +225,13 @@ if(in_array($PATH, ['admin', 'login', 'wp-admin'], true)){ header('Location: '.$
 if($PATH === '') $page = 'home';
 elseif($PATH === PUPPIES_PATH || $PATH === 'puppies') $page = 'puppies';
 elseif(count($seg) === 2 && $seg[0] === PUPPIES_PATH){ $puppy = find_by(public_puppies(), 'slug', $seg[1]); if($puppy) $page = 'puppy'; }
-elseif(in_array($PATH, ['our-beagles', 'upcoming-litters', 'reviews', 'contact', 'guides', 'blog', 'thank-you', 'unsubscribe', 'sitemap.xml', 'robots.txt'], true)) $page = $PATH;
+elseif(in_array($PATH, ['our-beagles', 'upcoming-litters', 'reviews', 'contact', 'guides', 'blog', 'thank-you', 'unsubscribe', 'sitemap.xml', 'robots.txt', 'agreement', 'receipt'], true)) $page = $PATH;
 elseif(count($seg) === 2 && $seg[0] === 'guides'){ $art = article($seg[1], 'guide'); if($art) $page = 'article'; }
 elseif(count($seg) === 2 && $seg[0] === 'blog'){ $art = article($seg[1], 'blog'); if($art) $page = 'article'; }
 elseif(count($seg) === 1 && ($info = info_page($PATH))) $page = 'info';
 /* a puppy whose page was removed: send visitors to the list rather than a dead end */
+/* addresses that moved (Admin → Redirects) */
+if($page === 'notfound' && isset($SITE['redirects'][$PATH])){ $u = url($SITE['redirects'][$PATH]); header('Location: '.$BASE.($u === './' ? '' : $u), true, 301); exit; }
 if($page === 'notfound' && count($seg) === 2 && $seg[0] === PUPPIES_PATH){ header('Location: '.$BASE.url(PUPPIES_PATH), true, 301); exit; }
 
 /* with clean addresses on, old index.php?path=… links move permanently to the clean address */
@@ -240,7 +244,7 @@ if($page === 'notfound') http_response_code(404);
 /* ---------------- robots.txt and sitemap.xml ---------------- */
 if($page === 'robots.txt'){
   header('Content-Type: text/plain; charset=utf-8');
-  echo "User-agent: *\nDisallow: /admin.php\nDisallow: /thank-you\nDisallow: /unsubscribe\n\nSitemap: ".abs_url('sitemap.xml')."\n";
+  echo "User-agent: *\nDisallow: /admin.php\nDisallow: /thank-you\nDisallow: /unsubscribe\nDisallow: /agreement\nDisallow: /receipt\n\nSitemap: ".abs_url('sitemap.xml')."\n";
   exit;
 }
 if($page === 'sitemap.xml'){
@@ -261,6 +265,30 @@ if($page === 'sitemap.xml'){
   }
   echo "</urlset>\n";
   exit;
+}
+
+/* ---------------- the buyer's sales agreement and receipt (opened with the key in their link) ---------------- */
+$doc = null;
+if($page === 'agreement' || $page === 'receipt'){
+  $ref = (string)($_GET['ref'] ?? $_POST['ref'] ?? '');
+  $doc = sign_ok($page.'|'.$ref, (string)($_GET['k'] ?? $_POST['k'] ?? '')) ? inquiry_load($ref) : null;
+  if(!$doc){ $page = 'notfound'; http_response_code(404); }
+}
+if($page === 'agreement' && $action === 'accept_agreement' && empty($doc['agreement']['accepted'])){
+  $signed = one_line(post('signed_name', 120));
+  if($signed === '' || empty($_POST['agree'])) $errors['accept'] = 'Type your full name and tick the box to accept.';
+  else {
+    if(empty($doc['deal'])) $doc['deal'] = deal_of($doc);
+    $doc['agreement'] = ($doc['agreement'] ?? []) + ['sent'=>date('c')];
+    $doc['agreement'] += ['accepted'=>date('c'), 'accepted_name'=>$signed, 'accepted_ip'=>$_SERVER['REMOTE_ADDR'] ?? '', 'accepted_agent'=>mb_substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 200)];
+    inquiry_save($doc);
+    $d = deal_of($doc);
+    site_mail($CFG['email'], "Agreement accepted: {$d['puppy']} — {$doc['name']}", "{$doc['name']} accepted the sales agreement for {$d['puppy']}, signing as “{$signed}”, on ".date('F j, Y \a\t g:ia').".\n\nOpen in the admin: ".admin_link($doc['ref']), $doc['email']);
+    send_alert_text("{$CFG['brand']}: {$doc['name']} accepted the agreement for {$d['puppy']}. Ref {$doc['ref']}");
+    site_mail($doc['email'], "Your accepted sales agreement for {$d['puppy']} — {$CFG['brand']}", "Hi ".(strtok($doc['name'], ' ') ?: $doc['name']).",\n\nThank you — you accepted the sales agreement for {$d['puppy']} on ".date('F j, Y').". Keep this email: your agreement is always here, and you can print it from the same page:\n".agreement_link($doc['ref'])."\n\n— {$CFG['brand']}\n{$CFG['email']}", $CFG['email']);
+    $_SESSION['flash'] = 'Thank you! You’ve accepted the agreement. We’ve emailed you a copy of the link.';
+    go_to('agreement', ['ref'=>$doc['ref'], 'k'=>sign('agreement|'.$doc['ref'])], '#accept');
+  }
 }
 
 /* ---------------- unsubscribe ---------------- */
@@ -337,6 +365,11 @@ switch($page){
   case 'info':
     $h1 = fill($info['title']); $title = fill($info['seo_title'] ?: $info['title'].' | '.$brand); $desc = fill($info['seo_desc'] ?: plain($info['body']));
     $crumbs[] = [$info['menu'] ?: $info['title'], $info['slug']];
+    break;
+  case 'agreement':
+  case 'receipt':
+    $h1 = $page === 'agreement' ? 'Sales agreement' : 'Payment receipt'; $title = $h1.' | '.$brand; $noindex = true;
+    header('X-Robots-Tag: noindex, nofollow'); header('Cache-Control: private, no-store'); header('Referrer-Policy: no-referrer');
     break;
   case 'thank-you':
     $h1 = 'Thank you — we’ve received it'; $title = 'Thank you | '.$brand; $noindex = true;

@@ -102,6 +102,25 @@ return [
     ['title'=>'Lifetime support', 'text'=>'Questions about feeding, training or health? Call, text or email us any time, for your beagle’s whole life.'],
   ],
 
+  /* one-click emails from an inquiry (Admin → Email templates). Besides the usual {brand} {email} {deposit}…
+     they can use {first_name} {name} {ref} {puppy} {puppy_link} {price} {deposit_amount} {delivery_option}
+     {delivery_time} {delivery_fee} {total} {due_at_delivery} {paid} {balance_due} {last_payment} {payment_method}
+     {payment_details} {agreement_link} {receipt_link} {delivery_date} {note} {phone_or_email}
+     {care_guide_link} {waitlist_link}. */
+  'templates' => [
+    'video' => ['name'=>'Video call invite', 'status'=>'contacted', 'subject'=>'{puppy} — let’s set up your video call',
+      'body'=>"Hi {first_name},\n\nThank you for your inquiry about {puppy}! We’d love to introduce you on a live video call, so you can see {puppy}, meet the parents and ask us anything.\n\n{note}\n\nJust reply with a day and time that suits you, and whether you prefer FaceTime, WhatsApp or Google Meet, and we’ll confirm.\n\nYour details so far:\n- Puppy: {puppy}, {price}\n- Delivery: {delivery_option} ({delivery_time}), {delivery_fee}\n- Total: {total}\n\nThere’s no payment at this stage. When you’re ready, a {deposit} deposit ({deposit_amount}) reserves {puppy}."],
+    'payment' => ['name'=>'Payment instructions', 'status'=>'contacted', 'subject'=>'How to reserve {puppy}: {deposit} deposit of {deposit_amount}',
+      'body'=>"Hi {first_name},\n\nWe’re so happy {puppy} is the one! Here’s how to reserve {puppy}:\n\n1. Read and accept your sales agreement:\n{agreement_link}\n\n2. Pay the {deposit} deposit of {deposit_amount} by {payment_method}:\n\n{payment_details}\n\nPlease write “{ref} {puppy}” as the payment note.\n\n3. We’ll email your receipt and mark {puppy} as Reserved on our website.\n\nThe remaining {due_at_delivery} (the rest of the price plus {delivery_option}) is due at delivery.\n\n{note}\n\nStaying safe: payment details only ever come from {email}. If anything looks different, call or text us at {phone_or_email} before paying. We never ask for gift cards or cryptocurrency."],
+    'reserved' => ['name'=>'Reservation confirmed', 'status'=>'deposit', 'reserve'=>true, 'subject'=>'{puppy} is reserved for you!',
+      'body'=>"Hi {first_name},\n\nWe’ve received {last_payment} — thank you! {puppy} is now reserved for you and marked Reserved on our website.\n\nYour receipt: {receipt_link}\nYour sales agreement: {agreement_link}\n\nPaid so far: {paid}\nStill to pay at delivery: {balance_due}\n\nNext, we’ll agree {puppy}’s departure date with you. {note}\n\nWhile you wait, our puppy care guide will help you get ready: {care_guide_link}"],
+    'delivery' => ['name'=>'Delivery scheduled', 'status'=>'', 'needs_date'=>true, 'subject'=>'{puppy}’s delivery is scheduled: {delivery_date}',
+      'body'=>"Hi {first_name},\n\nIt’s nearly time! {puppy} leaves us in {city} on {delivery_date} by {delivery_option}, arriving {delivery_time}. We’ll keep you updated on the way.\n\nOn delivery day:\n- Please pay the remaining {balance_due} by {payment_method} before the handover.\n- You’ll receive {puppy}’s health record, microchip number, starter food and registration papers.\n\nPlease have ready: a crate, food and water bowls, a collar or harness and leash, and a vet appointment booked within {vet_check_hours} of delivery.\n\n{note}\n\nOur puppy care guide covers the first weeks at home: {care_guide_link}"],
+    'followup' => ['name'=>'Friendly follow-up', 'status'=>'contacted', 'subject'=>'Still thinking about {puppy}?',
+      'body'=>"Hi {first_name},\n\nJust checking in about {puppy}. We’re happy to answer any questions or set up a live video call whenever suits you.\n\n{note}\n\nIf the timing isn’t right, you can join our waitlist and we’ll email you when new puppies are born: {waitlist_link}"],
+  ],
+  'redirects' => [],
+
   'puppies' => [],
   'parents' => [],
   'litters' => [],

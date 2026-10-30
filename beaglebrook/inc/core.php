@@ -72,6 +72,7 @@ function site_load(){
   if(!$s){ $s = $d; data_write('site', $s); }      // first run: start from the defaults
   $s += $d;                                         // sections added by later versions
   $s['settings'] += $d['settings'];
+  $s['templates'] += $d['templates'];     /* email templates added by a later version */
   /* guides, blog posts and pages added by a later version appear without touching edited ones */
   foreach(['articles', 'pages'] as $k){
     $have = array_column($s[$k], 'slug');
@@ -415,6 +416,12 @@ function rich($text, $blocks=[]){
     $line = trim($line);
     if($line === ''){ $close(); continue; }
     if(isset($blocks[$line])){ $close(); $html .= $blocks[$line]; continue; }
+    if(preg_match('#^!\[([^\]]*)\]\((assets/(?:uploads|site)/[\w./-]+\.(?:jpe?g|png|webp))(?:\s+"([^"]*)")?\)$#i', $line, $m) && strpos($m[2], '..') === false){
+      $close();
+      $img = img_tag($m[2], $m[1], '(max-width:800px) 100vw, 760px');
+      if($img !== '') $html .= '<figure class="fig">'.$img.(($m[3] ?? '') !== '' ? '<figcaption>'.h($m[3]).'</figcaption>' : '').'</figure>';
+      continue;
+    }
     if(preg_match('/^\|(.+)\|$/', $line, $m)){
       if($para || $list){ $t = $table; $table = []; $close(); $table = $t; }
       if(preg_match('/^[\s|:-]+$/', $m[1])) continue;   /* the |---|---| line under the header */

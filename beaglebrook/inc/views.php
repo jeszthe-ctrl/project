@@ -322,7 +322,7 @@ function contact_form(){
 function org_ld(){
   global $CFG;
   $same = array_values(array_filter([$CFG['facebook'], $CFG['instagram'], $CFG['tiktok'], $CFG['youtube']]));
-  return array_filter(['@type'=>'Organization', '@id'=>rtrim($CFG['domain'], '/').'/#org', 'name'=>$CFG['brand'], 'url'=>rtrim($CFG['domain'], '/').'/',
+  return array_filter(['@type'=>'LocalBusiness', 'image'=>rtrim($CFG['domain'], '/').'/'.share_image(), '@id'=>rtrim($CFG['domain'], '/').'/#org', 'name'=>$CFG['brand'], 'url'=>rtrim($CFG['domain'], '/').'/',
     'logo'=>rtrim($CFG['domain'], '/').'/assets/logo-512.png', 'email'=>$CFG['email'], 'telephone'=>$CFG['phone'] ?: null,
     'description'=>fill($CFG['footer_blurb']),
     'address'=>['@type'=>'PostalAddress', 'addressLocality'=>$CFG['city'], 'addressRegion'=>$CFG['state'], 'addressCountry'=>'US'],
@@ -734,7 +734,7 @@ function view_upcoming_litters(){
   <section class="sec band" id="waitlist"><div class="wrap inq">
     <div class="inq-side"><h2>Join the waitlist</h2><p>Be the first to know when puppies are born — before they’re posted on our site.</p>
       <ul class="ticks ticks-col"><li><?= icon('check') ?>Free, with no commitment</li><li><?= icon('check') ?>Tell us your preferences</li><li><?= icon('check') ?>Unsubscribe any time</li></ul></div>
-    <div class="inq-form"><?php if($flash): ?><div class="alert alert-ok" role="status"><?= h($flash) ?></div><?php endif; ?><?= waitlist_form() ?></div>
+    <div class="inq-form"><?php if($flash): ?><div class="alert alert-ok" role="status"><?= h($flash) ?></div><?= ga_event('sign_up', ['method'=>'waitlist']) ?><?php endif; ?><?= waitlist_form() ?></div>
   </div></section>
   <?php $now = puppies_with('available'); if($now): ?><section class="sec wrap"><div class="sec-h"><h2>Available right now</h2><a href="<?= h(url(PUPPIES_PATH)) ?>">See all <?= icon('arrow') ?></a></div><?= puppies_block($now, 4) ?></section><?php endif; ?>
   <?php
@@ -836,12 +836,80 @@ function view_thank_you(){
   page_head('');
   ?>
   <section class="wrap prose">
+    <?php if($mine){ $lead = inquiry_load($ref); echo ga_event('generate_lead', array_filter(['lead_type'=>($lead['kind'] ?? '') === 'contact' ? 'contact' : 'puppy_inquiry', 'item_name'=>$lead['puppy_name'] ?? '', 'value'=>($lead['puppy_price'] ?? '') !== '' ? (float)$lead['puppy_price'] : null, 'currency'=>($lead['puppy_price'] ?? '') !== '' ? 'USD' : null])); } ?>
     <div class="alert alert-ok" role="status"><p><strong>Thank you!</strong> <?= $mine ? 'Your reference is <strong>'.h($ref).'</strong>. ' : '' ?>We’ve emailed you a copy and will reply <?= h(fill('{reply_time}')) ?>.</p></div>
     <h2>What happens next</h2>
     <?= steps_block() ?>
     <div class="callout"><p><strong>Staying safe:</strong> we only send payment details from <strong><?= h($CFG['email']) ?></strong>, after we’ve spoken with you. We never ask for gift cards or cryptocurrency. Can’t see our email? Check your spam folder and add <?= h($CFG['email']) ?> to your contacts.</p></div>
     <p><a class="btn" href="<?= h(url('guides/beagle-puppy-care')) ?>">Read our puppy care guide</a> <a class="btn btn-ghost" href="<?= h(url(PUPPIES_PATH)) ?>">Back to puppies</a></p>
   </section>
+  <?php
+}
+
+/* a Google Analytics event, when Analytics is set up (Settings → Google & social) */
+function ga_event($name, $params=[]){
+  global $CFG;
+  if(!preg_match('/^G-[A-Z0-9]{4,}$/', $CFG['ga4_id'])) return '';
+  return '<script>if(window.gtag)gtag("event",'.json_encode($name).','.json_encode((object)$params, JSON_HEX_TAG).');</script>';
+}
+
+/* the buyer's sales agreement: read, accept online, print */
+function view_agreement(){
+  global $doc, $CFG, $errors;
+  $q = $doc; $d = deal_of($q); $ag = $q['agreement'] ?? [];
+  $flash = $_SESSION['flash'] ?? ''; unset($_SESSION['flash']);
+  ?>
+  <article class="wrap doc">
+    <div class="doc-h"><?= logo_svg('doc-logo') ?><div><h1>Sales agreement</h1><p class="meta"><?= h($d['seller']) ?> · <?= h($d['puppy']) ?> · Reference <?= h($q['ref']) ?></p></div>
+      <button class="btn btn-ghost btn-sm no-print" type="button" onclick="window.print()">Print / save as PDF</button></div>
+    <?php foreach(agreement_sections($q) as [$hd, $paras, $items]): ?>
+      <section><h2><?= h($hd) ?></h2><?php foreach($paras as $p): ?><p><?= h($p) ?></p><?php endforeach; ?>
+      <?php if($items): ?><ul><?php foreach($items as $i): ?><li><?= h($i) ?></li><?php endforeach; ?></ul><?php endif; ?></section>
+    <?php endforeach; ?>
+    <p class="muted">Full health guarantee: <?= h(site_link('health-guarantee')) ?> · Deposit and refund policy: <?= h(site_link('deposit-refund-policy')) ?></p>
+    <section id="accept" class="accept">
+      <?php if($flash): ?><div class="alert alert-ok" role="status"><?= h($flash) ?></div><?php endif; ?>
+      <?php if(!empty($ag['accepted'])): ?>
+        <h2>Accepted</h2><p>Accepted online by <strong><?= h($ag['accepted_name']) ?></strong> on <?= h(date('F j, Y \a\t g:ia', strtotime($ag['accepted']))) ?>.</p>
+      <?php else: ?>
+        <h2>Accept this agreement</h2>
+        <form class="form no-print" method="post" action="<?= h(url('agreement', ['ref'=>$q['ref'], 'k'=>sign('agreement|'.$q['ref'])])) ?>#accept">
+          <input type="hidden" name="action" value="accept_agreement"><input type="hidden" name="ref" value="<?= h($q['ref']) ?>"><input type="hidden" name="k" value="<?= h(sign('agreement|'.$q['ref'])) ?>">
+          <?php if(isset($errors['accept'])): ?><div class="alert alert-err" role="alert"><?= h($errors['accept']) ?></div><?php endif; ?>
+          <label class="f"><span>Type your full name to sign</span><input type="text" name="signed_name" value="<?= val('signed_name') ?>" autocomplete="name" required></label>
+          <label class="check"><input type="checkbox" name="agree" value="1" required><span>I have read this agreement, including the health guarantee and the deposit and refund terms, and I accept it.</span></label>
+          <button class="btn btn-lg" type="submit">Accept agreement</button>
+          <p class="fnote">Questions first? Email <?= h($CFG['email']) ?><?= $CFG['phone'] !== '' ? ' or call '.h($CFG['phone']) : '' ?>.</p>
+        </form>
+      <?php endif; ?>
+      <div class="sign-lines print-only"><p>Buyer’s signature ____________________________ Date __________</p><p>Seller’s signature ____________________________ Date __________</p></div>
+    </section>
+  </article>
+  <?php
+}
+
+/* the buyer's payment receipt: every payment recorded, with what is still to pay */
+function view_receipt(){
+  global $doc;
+  $q = $doc; $d = deal_of($q); $t = deal_totals($q);
+  ?>
+  <article class="wrap doc">
+    <div class="doc-h"><?= logo_svg('doc-logo') ?><div><h1>Payment receipt</h1><p class="meta"><?= h($d['seller']) ?> · <?= h($d['seller_place']) ?> · <?= h($d['seller_email']) ?></p></div>
+      <button class="btn btn-ghost btn-sm no-print" type="button" onclick="window.print()">Print / save as PDF</button></div>
+    <p><strong>Received from:</strong> <?= h($q['name']) ?>, <?= h($q['email']) ?><br><strong>For:</strong> <?= h(trim($d['puppy'].', '.trim($d['color'].' '.strtolower($d['sex'])).' beagle puppy', ', ')) ?><br><strong>Reference:</strong> <?= h($q['ref']) ?></p>
+    <?php if(empty($q['payments'])): ?><p>No payments have been recorded yet.</p><?php else: ?>
+    <div class="table-wrap"><table><thead><tr><th scope="col">Receipt</th><th scope="col">Date</th><th scope="col">Method</th><th scope="col">Amount</th></tr></thead><tbody>
+      <?php foreach($q['payments'] as $p): ?><tr><th scope="row"><?= h($q['ref'].'-'.$p['n']) ?></th><td><?= h(nice_date($p['date'])) ?></td><td><?= h($p['method']) ?></td><td><?= h(money($p['amount'])) ?></td></tr><?php endforeach; ?>
+    </tbody></table></div><?php endif; ?>
+    <dl class="totals doc-totals">
+      <div><dt>Puppy price</dt><dd><?= h(money($d['price'])) ?></dd></div>
+      <?php if($d['delivery'] !== ''): ?><div><dt><?= h($d['delivery']) ?></dt><dd><?= $d['delivery_fee'] !== null ? h(money($d['delivery_fee'])) : 'to be confirmed' ?></dd></div><?php endif; ?>
+      <div class="tot"><dt>Total</dt><dd><?= h(money($t['total'])) ?></dd></div>
+      <div><dt>Paid</dt><dd><?= h(money($t['paid'])) ?></dd></div>
+      <div class="tot"><dt>Still to pay</dt><dd><?= h(money($t['due'])) ?></dd></div>
+    </dl>
+    <p class="muted">Thank you. Keep this receipt with your sales agreement. Questions: <?= h($d['seller_email']) ?></p>
+  </article>
   <?php
 }
 
