@@ -21,7 +21,7 @@ The website for Beagle Brook, a beagle breeder in Cincinnati, Ohio. It's written
   - Beagle puppies for sale in Ohio
   - Terms of sale
   - Privacy policy
-- **18 guides, 4 blog posts and a Chinese-language guide**, covering the keyword research. See [docs/keyword-map.md](docs/keyword-map.md) for which page targets which searches.
+- **27 guides, 4 blog posts and a Chinese-language guide**, covering the keyword research and the questions buyers ask before choosing a beagle. See [docs/keyword-map.md](docs/keyword-map.md) for which page targets which searches.
 - On phones, a bar stays at the bottom of the screen with **Text us**, **Call** and **Puppies** buttons.
 
 **When someone sends an inquiry**
@@ -79,14 +79,19 @@ The website for Beagle Brook, a beagle breeder in Cincinnati, Ohio. It's written
 
 ## Put it online
 
-1. Build the upload zip (on any computer with PHP):
+1. Build the site (on any computer with PHP):
 
    ```bash
-   php tools/build-zip.php
+   php tools/build-installer.php
    ```
 
-   This creates `dist/beaglebrook-upload.zip`. Optionally add `'a-strong-password' yourname` to pre-set the admin sign-in. Only do that for the **first** install: a zip that includes a sign-in replaces the existing sign-in when you upload it.
-2. In your host's File Manager, open `public_html`, **Upload** the zip, then right-click it and choose **Extract**. Delete the zip, and any placeholder `index.html` the host put there.
+   This creates two files in `dist/`, and either one installs the whole site:
+   - `index.php`: the whole website in one file.
+   - `beaglebrook-upload.zip`: the same files as a zip.
+
+   Optionally add `'a-strong-password' yourname` to pre-set the admin sign-in. Only do that for the **first** install, because a build that includes a sign-in replaces the existing one.
+2. **Easiest:** in your host's File Manager, open `public_html` and **Upload** `index.php` (with FTP, use **binary** mode). Then open `https://beaglebrook.com/index.php`. It checks your hosting (PHP version, extensions, folder permissions), unpacks the site, moves the host's placeholder page aside, and becomes the site's own `index.php`. If the file was damaged on the way, it says so and changes nothing.
+   **Or:** upload `beaglebrook-upload.zip`, right-click it, choose **Extract**, then delete the zip and any placeholder `index.html`.
 3. Open `https://beaglebrook.com/admin.php` **straight away** and create your admin sign-in. The first person to open that page sets it.
 4. Work through the **launch checklist** on the dashboard:
    - **Settings → Business:** phone number, registry (e.g. AKC), the name on your payment accounts, any license numbers.
@@ -97,7 +102,7 @@ The website for Beagle Brook, a beagle breeder in Cincinnati, Ohio. It's written
 5. **Google Search Console:** add the site, paste the HTML-tag code into Settings → Google & social, then submit `https://beaglebrook.com/sitemap.xml`.
 6. Create a **Google Business Profile** as a service-area business, and paste its review link into Settings → Google & social.
 
-Your data (puppies, inquiries, waitlist, sign-in, settings) lives in `data/`, and photos in `assets/uploads/`. The zip contains neither, so uploading a newer version of the site never overwrites them. `data/backups/` keeps the last 30 versions of your settings and content.
+Your data (puppies, inquiries, waitlist, sign-in, settings) lives in `data/`, and photos in `assets/uploads/`. Neither is in the installer or the zip. **To update the site later, upload a newer `index.php` the same way.** Your data and photos are kept. `data/backups/` keeps the last 30 versions of your settings and content.
 
 ## Files
 
@@ -113,7 +118,7 @@ Your data (puppies, inquiries, waitlist, sign-in, settings) lives in `data/`, an
 | `assets/` | Styles, logo, icons, link-preview image; `site/` holds the starter beagle photos (home page until you upload your own, and the puppy care, beagle breed and lemon beagle guides); `uploads/` holds your photos. |
 | `data/` | Your content, inquiries, waitlist and sign-in (blocked from the web). |
 | `docs/keyword-map.md` | Which page targets which keywords. Not uploaded. |
-| `tools/build-zip.php` | Builds the upload zip. |
+| `tools/build-installer.php` | Builds the one-file installer `index.php` and the upload zip in `dist/`. |
 
 ## Run it on your computer
 

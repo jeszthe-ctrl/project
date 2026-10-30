@@ -9,6 +9,7 @@ return array_merge(
   require BB_ROOT.'/inc/articles/buying.php',
   require BB_ROOT.'/inc/articles/mixes.php',
   require BB_ROOT.'/inc/articles/care.php',
+  require BB_ROOT.'/inc/articles/questions.php',
   require BB_ROOT.'/inc/articles/culture.php',
   require BB_ROOT.'/inc/articles/blog.php'
 );

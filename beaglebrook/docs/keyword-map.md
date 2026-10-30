@@ -43,6 +43,19 @@ Every keyword from the research file (`table_beagle_100rows_2026-10-29.csv`, 100
 
 **Puppy pages** (`/beagle-puppies-for-sale/{name}-{color}-{sex}`) are the product pages. They target long-tail searches like “lemon female beagle puppy” and carry the photos, price, availability, parents and delivery details buyers compare. Sold puppies stay visible for trust but are kept out of Google’s index automatically.
 
+## Supporting guides
+
+These answer questions buyers ask before choosing a beagle. They target no group above, so they don't compete with those pages; they link to them, build topical depth, and catch long-tail searches.
+
+| Page | Answers |
+|---|---|
+| `/guides/13-inch-vs-15-inch-beagle` | The two beagle sizes, and which to choose |
+| `/guides/beagle-growth-chart` | Weight by age, and when a beagle is full grown |
+| `/guides/are-beagles-good-apartment-dogs` | Beagles in apartments |
+| `/guides/are-beagles-good-with-cats` | Beagles with cats, dogs and small pets |
+| `/guides/do-beagles-bark-a-lot` | Barking, howling and baying |
+| `/guides/how-much-exercise-does-a-beagle-need` | Exercise by age |
+
 ## Keywords deliberately not targeted
 
 | Keyword | Volume | Why not |
