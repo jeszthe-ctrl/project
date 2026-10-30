@@ -118,6 +118,38 @@ function age_text($dob){
 
 function money($v){ $v = (float)$v; return '$'.number_format($v, fmod($v, 1) == 0 ? 0 : 2); }
 
+/* ---------------- delivery ----------------
+   Each option (Standard, Express) has a label and a delivery time. Prices are set per zone of states;
+   a zone whose states are "*" covers every state not listed in an earlier zone. */
+function delivery_options(){ return array_values(array_filter($GLOBALS['SITE']['delivery']['methods'], fn($m)=>!empty($m['on']))); }
+function delivery_zone($state){
+  foreach($GLOBALS['SITE']['delivery']['zones'] as $z){
+    $states = array_map('trim', explode(',', strtoupper((string)$z['states'])));
+    if(in_array('*', $states, true) || in_array(strtoupper((string)$state), $states, true)) return $z;
+  }
+  return null;
+}
+/* the price of an option to a state, or null when no price is set for it */
+function delivery_fee($state, $key){
+  $z = delivery_zone($state);
+  return $z !== null && is_numeric($z[$key] ?? '') ? (float)$z[$key] : null;
+}
+/* the price most buyers pay (the "*" zone, else the first zone), for sentences like "Standard delivery, $55" */
+function delivery_base_fee($key){
+  $zones = $GLOBALS['SITE']['delivery']['zones'];
+  foreach($zones as $z) if(trim((string)$z['states']) === '*') return is_numeric($z[$key] ?? '') ? (float)$z[$key] : null;
+  return isset($zones[0]) && is_numeric($zones[0][$key] ?? '') ? (float)$zones[0][$key] : null;
+}
+/* "Standard delivery (2–5 days from departure, $55) or Express delivery (within 24 hours of departure, $100)" */
+function delivery_summary(){
+  $varies = count($GLOBALS['SITE']['delivery']['zones']) > 1;
+  $parts = array_map(function($m) use($varies){
+    $fee = delivery_base_fee($m['key']);
+    return $m['label'].' ('.$m['days'].($fee !== null ? ', '.($varies ? 'from ' : '').money($fee) : '').')';
+  }, delivery_options());
+  return $parts ? implode(' or ', $parts) : 'delivery to your door';
+}
+
 /* ---------------- secrets (links only the right person can open) ---------------- */
 function site_secret(){
   $s = data_read('secret');
@@ -327,6 +359,7 @@ function fill($text){
     '{vet_check_hour}'=>(int)$c['vet_check_hours'].'-hour', '{genetic_year}'=>(int)$c['genetic_years'].'-year',
     '{go_home_weeks}'=>(int)$c['go_home_weeks'].' weeks', '{reply_time}'=>$c['reply_time'],
     '{payment_methods}'=>$pay ? implode(', ', array_slice($pay, 0, -1)).(count($pay) > 1 ? ' or ' : '').end($pay) : 'the methods listed on our site',
+    '{delivery_options}'=>delivery_summary(),
     '{registry}'=>$c['registry'] !== '' ? $c['registry'] : 'the breed registry',
     '{year}'=>date('Y'),
   ];

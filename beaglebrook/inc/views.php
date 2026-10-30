@@ -104,6 +104,27 @@ function puppies_block($list=null, $limit=0){
   foreach($list as $p) $o .= puppy_card($p);
   return $o.'</div>';
 }
+function delivery_rates_block(){
+  global $SITE;
+  $opts = delivery_options();
+  if(!$opts) return '';
+  $o = '<div class="table-wrap"><table><thead><tr><th scope="col">Delivery to</th>';
+  foreach($opts as $m) $o .= '<th scope="col">'.h($m['label']).'<br><span class="muted">'.h($m['days']).'</span></th>';
+  $o .= '</tr></thead><tbody>';
+  foreach($SITE['delivery']['zones'] as $z){
+    $states = trim((string)$z['states']);
+    $o .= '<tr><th scope="row">'.h($z['name']).($states !== '*' && $states !== '' ? '<br><span class="muted">'.h(str_replace(',', ', ', preg_replace('/\s+/', '', $states))).'</span>' : '').'</th>';
+    foreach($opts as $m) $o .= '<td><strong>'.(is_numeric($z[$m['key']] ?? '') ? h(money($z[$m['key']])) : 'Quoted on request').'</strong></td>';
+    $o .= '</tr>';
+  }
+  return $o.'</tbody></table></div>';
+}
+/* prices for the browser, so the inquiry form can show the total as soon as a state is chosen */
+function delivery_js_data(){
+  global $SITE;
+  return json_encode(['zones'=>array_map(fn($z)=>['states'=>array_map('trim', explode(',', strtoupper((string)$z['states']))), 'fees'=>array_map(fn($m)=>is_numeric($z[$m['key']] ?? '') ? (float)$z[$m['key']] : null, array_column(delivery_options(), null, 'key'))], $SITE['delivery']['zones'])], JSON_HEX_TAG|JSON_HEX_AMP);
+}
+
 function licenses_block(){
   global $CFG;
   $lines = array_filter(array_map('trim', explode("\n", (string)$CFG['license_text'])));
@@ -137,7 +158,7 @@ function contact_block(){
 function tel($p){ $d = preg_replace('/[^\d+]/', '', (string)$p); return strlen($d) === 10 ? '+1'.$d : $d; }
 
 function page_blocks(){
-  return ['{guarantees}'=>guarantees_block(), '{steps}'=>steps_block(), '{included}'=>included_block(), '{payments}'=>payments_block(),
+  return ['{guarantees}'=>guarantees_block(), '{steps}'=>steps_block(), '{included}'=>included_block(), '{payments}'=>payments_block(), '{delivery_rates}'=>delivery_rates_block(),
           '{puppies}'=>puppies_block(), '{licenses}'=>licenses_block(), '{payee}'=>payee_block(), '{breeder}'=>breeder_block(), '{contact}'=>contact_block()];
 }
 
@@ -221,6 +242,26 @@ function inquiry_form($p){
       <div class="frow"><?= field('address2', 'Apartment, suite, etc.', 'text', false, 'autocomplete="address-line2"') ?></div>
       <div class="frow frow-3"><?= field('city', 'City', 'text', true, 'autocomplete="address-level2"') ?><?= state_select() ?><?= field('zip', 'ZIP code', 'text', true, 'autocomplete="postal-code" inputmode="numeric" maxlength="10"') ?></div>
     </fieldset>
+    <?php $dopts = delivery_options(); if($dopts): ?>
+    <fieldset class="<?= isset($errors['delivery']) ? 'f-bad' : '' ?>" data-delivery="<?= h(delivery_js_data()) ?>"><legend>Delivery option <b aria-hidden="true">*</b></legend>
+      <p class="fhelp">Delivery times count from when <?= h($p['name']) ?> leaves us in <?= h($CFG['city'].', '.$CFG['state']) ?>.</p>
+      <div class="dopts">
+        <?php foreach($dopts as $i=>$m): $fee = delivery_fee($old['state'] ?? '', $m['key']) ?? delivery_base_fee($m['key']); ?>
+        <label class="dopt"><input type="radio" name="delivery" value="<?= h($m['key']) ?>"<?= ($old['delivery'] ?? ($i === 0 ? $m['key'] : '')) === $m['key'] ? ' checked' : '' ?> required>
+          <span><strong><?= h($m['label']) ?></strong><small><?= h($m['days']) ?></small><em data-fee="<?= h($m['key']) ?>"><?= $fee !== null ? h(money($fee)) : 'Quoted on request' ?></em></span></label>
+        <?php endforeach; ?>
+      </div><?= err('delivery') ?>
+      <?php if(($p['price'] ?? '') !== ''): ?>
+      <dl class="totals" data-price="<?= h((float)$p['price']) ?>" data-deposit="<?= h(deposit_amount($p['price'])) ?>">
+        <div><dt><?= h($p['name']) ?></dt><dd><?= h(money($p['price'])) ?></dd></div>
+        <div><dt>Delivery</dt><dd data-t="fee">—</dd></div>
+        <div class="tot"><dt>Total</dt><dd data-t="total">—</dd></div>
+        <div class="sub"><dt><?= h(fill('{deposit}')) ?> deposit, after we’ve talked</dt><dd><?= h(money(deposit_amount($p['price']))) ?></dd></div>
+        <div class="sub"><dt>Due at delivery</dt><dd data-t="due">—</dd></div>
+      </dl>
+      <?php endif; ?>
+    </fieldset>
+    <?php endif; ?>
     <fieldset class="<?= isset($errors['payment']) ? 'f-bad' : '' ?>"><legend>How would you like to pay? <b aria-hidden="true">*</b></legend>
       <p class="fhelp">Nothing is paid now. We send payment details from <?= h($CFG['email']) ?> only after we’ve talked and you’ve seen <?= h($p['name']) ?> on video.</p>
       <div class="chips">
@@ -235,7 +276,7 @@ function inquiry_form($p){
       <label class="f"><span>Personal notes</span><textarea name="notes" rows="5" maxlength="3000" placeholder="Tell us about your family and home: children or other pets, a fenced yard, your experience with dogs, any questions for us…"><?= val('notes') ?></textarea></label>
     </fieldset>
     <label class="check<?= isset($errors['agree']) ? ' f-bad' : '' ?>"><input type="checkbox" name="agree" value="1"<?= !empty($old['agree']) ? ' checked' : '' ?> required>
-      <span>I understand that once we’ve talked, a <?= h(fill('{deposit}')) ?> deposit (<?= h(money(deposit_amount($p['price']))) ?>) reserves <?= h($p['name']) ?>, and the remaining balance and delivery fee are due at delivery. <a href="<?= h(url('deposit-refund-policy')) ?>">Deposit policy</a></span></label><?= err('agree') ?>
+      <span>I understand that once we’ve talked, a <?= h(fill('{deposit}')) ?> deposit<?= ($p['price'] ?? '') !== '' ? ' ('.h(money(deposit_amount($p['price']))).')' : '' ?> reserves <?= h($p['name']) ?>, and the remaining balance and the delivery fee are due at delivery. <a href="<?= h(url('deposit-refund-policy')) ?>">Deposit policy</a></span></label><?= err('agree') ?>
     <button class="btn btn-lg btn-block" type="submit">Send my inquiry for <?= h($p['name']) ?></button>
     <p class="fnote"><?= icon('lock') ?> No payment now. We reply <?= h(fill('{reply_time}')) ?>. Your details are only used to arrange your puppy — <a href="<?= h(url('privacy-policy')) ?>">privacy policy</a>.</p>
   </form>
@@ -383,7 +424,15 @@ function render_page(){
 (function(){var b=document.querySelector('.navbtn'),n=document.getElementById('nav');if(b)b.addEventListener('click',function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o)});
 document.querySelectorAll('[data-gal]').forEach(function(t){t.addEventListener('click',function(){var m=document.getElementById('gal-main');if(!m)return;m.innerHTML=t.querySelector('template').innerHTML;document.querySelectorAll('[data-gal]').forEach(function(x){x.removeAttribute('aria-current')});t.setAttribute('aria-current','true')})});
 document.querySelectorAll('form.form').forEach(function(f){f.addEventListener('submit',function(){var s=f.querySelector('[type=submit]');setTimeout(function(){s.disabled=true;s.textContent='Sending…'},10)})});
-var bad=document.querySelector('.f-bad input,.f-bad select,.f-bad textarea');if(bad)bad.focus();})();
+var bad=document.querySelector('.f-bad input,.f-bad select,.f-bad textarea');if(bad)bad.focus();
+var fs=document.querySelector('[data-delivery]');if(fs){var D=JSON.parse(fs.getAttribute('data-delivery')),f=fs.closest('form'),st=f.querySelector('[name=state]'),tl=fs.querySelector('.totals'),
+money=function(v){return '$'+v.toLocaleString('en-US',{minimumFractionDigits:v%1?2:0,maximumFractionDigits:2})},
+zone=function(s){for(var i=0;i<D.zones.length;i++){var z=D.zones[i];if(z.states.indexOf('*')>-1||z.states.indexOf(s)>-1)return z}return null},
+upd=function(){var z=zone(st?st.value:''),k=(f.querySelector('[name=delivery]:checked')||{}).value;
+fs.querySelectorAll('[data-fee]').forEach(function(e){var v=z?z.fees[e.getAttribute('data-fee')]:null;if(v!=null)e.textContent=money(v);else if(z)e.textContent='Quoted on request'});
+if(!tl)return;var fee=z&&k?z.fees[k]:null,p=+tl.getAttribute('data-price'),d=+tl.getAttribute('data-deposit'),q=function(n){return tl.querySelector('[data-t='+n+']')};
+q('fee').textContent=fee==null?(z?'Quoted on request':'Choose your state'):money(fee);q('total').textContent=fee==null?money(p)+' + delivery':money(p+fee);q('due').textContent=fee==null?money(p-d)+' + delivery':money(p-d+fee)};
+f.addEventListener('change',upd);upd()}})();
 </script>
 </body>
 </html>
@@ -532,7 +581,7 @@ function view_puppies(){
     <div><?= icon('shield', 'ic ic-lg') ?><strong><?= h(fill('{vet_check_hour}')) ?> vet check &amp; <?= h(fill('{genetic_year}')) ?> genetic guarantee</strong><a href="<?= h(url('health-guarantee')) ?>">Health guarantee</a></div>
     <div><?= icon('video', 'ic ic-lg') ?><strong>Live video call before you pay</strong><a href="<?= h(url('how-it-works')) ?>">How it works</a></div>
     <div><?= icon('lock', 'ic ic-lg') ?><strong><?= h(fill('{deposit}')) ?> deposit, balance at delivery</strong><a href="<?= h(url('deposit-refund-policy')) ?>">Deposit policy</a></div>
-    <div><?= icon('truck', 'ic ic-lg') ?><strong>Delivered from <?= h($CFG['city']) ?>, <?= h($CFG['state']) ?></strong><a href="<?= h(url('puppy-delivery')) ?>">Delivery</a></div>
+    <div><?= icon('truck', 'ic ic-lg') ?><strong>Express 24-hour or Standard 2–5 day delivery</strong><a href="<?= h(url('puppy-delivery')) ?>">Delivery options</a></div>
   </div></section>
   <?php if($sold): ?>
   <section class="sec wrap"><h2>Recently gone to loving homes</h2><div class="pgrid pgrid-sm"><?php foreach($sold as $p) echo puppy_card($p); ?></div></section>
@@ -547,7 +596,7 @@ function view_puppies(){
 }
 
 function view_puppy(){
-  global $puppy, $CFG, $errors;
+  global $puppy, $CFG, $errors, $SITE;
   $p = $puppy;
   $photos = array_values(array_filter($p['photos'] ?? [], fn($f)=>is_file(BB_ROOT.'/'.$f)));
   $sire = parent_by_id($p['sire'] ?? ''); $dam = parent_by_id($p['dam'] ?? '');
@@ -570,7 +619,8 @@ function view_puppy(){
       <?php if(($p['tagline'] ?? '') !== ''): ?><p class="lede"><?= h($p['tagline']) ?></p><?php endif; ?>
       <div class="pricebox">
         <?php if(($p['price'] ?? '') !== ''): ?><p class="price-lg"><?= h(money($p['price'])) ?></p>
-        <p class="muted">Includes vet check, shots, microchip, starter food and full papers. <?= h(fill('{deposit}')) ?> deposit (<?= h(money(deposit_amount($p['price']))) ?>) reserves <?= $p['sex'] === 'female' ? 'her' : 'him' ?>; balance at delivery. Delivery quoted separately.</p><?php endif; ?>
+        <p class="muted">Includes vet check, shots, microchip, starter food and full papers. <?= h(fill('{deposit}')) ?> deposit (<?= h(money(deposit_amount($p['price']))) ?>) reserves <?= $p['sex'] === 'female' ? 'her' : 'him' ?>; balance at delivery.</p><?php endif; ?>
+        <?php if(delivery_options()): ?><ul class="dlist"><?php foreach(delivery_options() as $m): $fee = delivery_base_fee($m['key']); ?><li><?= icon('truck') ?><span><strong><?= h($m['label']) ?></strong> <?= h($m['days']) ?></span><b><?= $fee !== null ? (count($SITE['delivery']['zones']) > 1 ? 'from ' : '').h(money($fee)) : 'Quoted' ?></b></li><?php endforeach; ?></ul><?php endif; ?>
         <?php if($open): ?><a class="btn btn-lg btn-block" href="#inquire">Send an inquiry for <?= h($p['name']) ?></a>
         <?php elseif($p['status'] === 'reserved'): ?><p class="alert"><strong><?= h($p['name']) ?> is reserved.</strong> You can still send an inquiry to be first in line if the reservation falls through, or <a href="<?= h(url('upcoming-litters')) ?>#waitlist">join the waitlist</a>.</p><a class="btn btn-block btn-ghost" href="#inquire">Inquire as a backup</a>
         <?php else: ?><p class="alert"><strong><?= h($p['name']) ?> has found a loving home.</strong> See <a href="<?= h(url(PUPPIES_PATH)) ?>">available puppies</a> or <a href="<?= h(url('upcoming-litters')) ?>#waitlist">join the waitlist</a>.</p><?php endif; ?>
@@ -587,7 +637,7 @@ function view_puppy(){
         <div><dt>Microchip</dt><dd><?= !isset($p['microchip']) || $p['microchip'] ? 'Yes' : 'Before delivery' ?></dd></div>
         <div><dt>Vet check</dt><dd><?= ($p['vet_date'] ?? '') !== '' ? 'Examined '.h(nice_date($p['vet_date'])) : 'Before delivery' ?></dd></div>
         <?php if(($p['vaccines'] ?? '') !== ''): ?><div><dt>Shots</dt><dd><?= nl2br(h($p['vaccines'])) ?></dd></div><?php endif; ?>
-        <div><dt>Delivery</dt><dd>From <?= h($CFG['city'].', '.$CFG['state']) ?> to your door</dd></div>
+        <div><dt>Delivery</dt><dd>To your door from <?= h($CFG['city'].', '.$CFG['state']) ?> — <a href="<?= h(url('puppy-delivery')) ?>">options and prices</a></dd></div>
       </dl>
     </div>
   </article>

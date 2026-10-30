@@ -88,12 +88,14 @@ if($action === 'inquiry' || $action === 'contact'){
   if($action === 'inquiry'){
     $f += ['address1'=>one_line(post('address1', 160)), 'address2'=>one_line(post('address2', 120)), 'city'=>one_line(post('city', 80)),
            'state'=>post('state', 2), 'zip'=>one_line(post('zip', 10)), 'payment'=>post('payment', 40), 'timing'=>one_line(post('timing', 60)),
-           'contact_pref'=>one_line(post('contact_pref', 20))];
+           'contact_pref'=>one_line(post('contact_pref', 20)), 'delivery'=>post('delivery', 20)];
     if(strlen(preg_replace('/\D/', '', $f['phone'])) < 10) $errors['phone'] = 'Please enter a phone number we can call or text, with area code.';
     if($f['address1'] === '') $errors['address1'] = 'Please enter the delivery street address.';
     if($f['city'] === '') $errors['city'] = 'Please enter the city.';
     if(!isset(US_STATES[$f['state']])) $errors['state'] = 'Please choose the state.';
     if(!preg_match('/^\d{5}(-\d{4})?$/', $f['zip'])) $errors['zip'] = 'Please enter a 5-digit ZIP code.';
+    $dopt = delivery_options() ? find_by(delivery_options(), 'key', $f['delivery']) : null;
+    if(delivery_options() && !$dopt) $errors['delivery'] = 'Please choose Standard or Express delivery.';
     $pay = find_by(payments_on(), 'key', $f['payment']);
     if(!$pay) $errors['payment'] = 'Please choose how you would like to pay.';
     if(empty($_POST['agree'])) $errors['agree'] = 'Please confirm you’ve read how the deposit works.';
@@ -108,6 +110,11 @@ if($action === 'inquiry' || $action === 'contact'){
     $inq = ['ref'=>$ref, 'kind'=>$action, 'time'=>date('c'), 'status'=>'new'] + $f + [
       'puppy_id'=>$puppy['id'] ?? '', 'puppy_name'=>$puppy['name'] ?? '', 'puppy_price'=>$puppy['price'] ?? '',
       'payment_name'=>isset($pay) && $pay ? $pay['name'] : '', 'page'=>one_line(post('page', 300)), 'admin_notes'=>''];
+    if(!empty($dopt)){
+      $fee = delivery_fee($f['state'], $dopt['key']);
+      $inq['delivery_name'] = $dopt['label'].' ('.$dopt['days'].')';
+      $inq['delivery_fee'] = $fee === null ? '' : (string)$fee;
+    }
     data_write('inquiries/'.$ref, $inq);
     send_inquiry_mail($inq, $puppy);
     $_SESSION['last_inquiry'] = $ref;
@@ -143,6 +150,8 @@ function send_inquiry_mail($q, $puppy){
   $lines = ["Name: {$q['name']}", "Email: {$q['email']}", 'Phone: '.($q['phone'] ?: '—')];
   if($q['kind'] === 'inquiry'){
     $lines[] = 'Delivery address: '.$q['address1'].($q['address2'] ? ', '.$q['address2'] : '').", {$q['city']}, {$q['state']} {$q['zip']}";
+    if(($q['delivery_name'] ?? '') !== '') $lines[] = 'Delivery: '.$q['delivery_name'].', '.($q['delivery_fee'] !== '' ? money($q['delivery_fee']) : 'price to be quoted');
+    if($puppy && ($puppy['price'] ?? '') !== '' && ($q['delivery_fee'] ?? '') !== '') $lines[] = 'Total: '.money((float)$puppy['price'] + (float)$q['delivery_fee']).' ('.fill('{deposit}').' deposit '.money(deposit_amount($puppy['price'])).', then '.money((float)$puppy['price'] - deposit_amount($puppy['price']) + (float)$q['delivery_fee']).' at delivery)';
     $lines[] = "Preferred payment: {$q['payment_name']}";
     if($q['timing'] !== '') $lines[] = "Delivery timing: {$q['timing']}";
     if($q['contact_pref'] !== '') $lines[] = "Best way to reach them: {$q['contact_pref']}";
@@ -167,7 +176,7 @@ function send_inquiry_mail($q, $puppy){
     $body .= "\nWhat happens next\n"
       ."1. We get in touch to answer your questions and arrange a live video call with {$puppy['name']}.\n"
       ."2. If you’d like to go ahead, a ".fill('{deposit}')." deposit reserves {$puppy['name']}. You receive a written sales agreement and receipt.\n"
-      ."3. We agree your delivery date. The remaining ".fill('{balance}')." is due at delivery.\n"
+      ."3. We agree the departure date. The remaining ".fill('{balance}')." and the delivery fee are due at delivery.\n"
       ."\nWhat you sent us\n".implode("\n", $lines)."\n".$notes;
   }
   $body .= "\nStaying safe: we only send payment details from {$CFG['email']}, after we’ve spoken with you. We never ask for gift cards or cryptocurrency. If anyone else contacts you claiming to be {$brand}, please let us know.\n"

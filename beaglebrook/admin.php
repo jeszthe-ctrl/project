@@ -31,7 +31,7 @@ function path_url($p){ return site_url($p); }
 
 /* ---------------- helpers ---------------- */
 const ARTICLE_GROUPS = ['buying'=>'Buying a beagle puppy', 'breed'=>'The beagle breed', 'care'=>'Care, food and training', 'mixes'=>'Beagle mixes', 'culture'=>'History and news'];
-const FORMAT_HELP = 'Formatting: blank line = new paragraph · "## " heading, "### " subheading · "- " bullet, "1. " numbered · **bold**, *italic* · [link text](/health-guarantee) or [text](https://…) · "> " highlighted note · tables as | a | b | lines. {deposit} {balance} {vet_check_hours} ({vet_check_hour}) {genetic_years} ({genetic_year}) {go_home_weeks} {email} {city} {state} {payment_methods} {registry} {reply_time} fill in your settings. A line with only {guarantees}, {steps}, {included}, {payments}, {puppies}, {licenses}, {payee}, {breeder} or {contact} shows that block. Questions under "## Questions" written as "### Question" become FAQs for Google.';
+const FORMAT_HELP = 'Formatting: blank line = new paragraph · "## " heading, "### " subheading · "- " bullet, "1. " numbered · **bold**, *italic* · [link text](/health-guarantee) or [text](https://…) · "> " highlighted note · tables as | a | b | lines. {deposit} {balance} {vet_check_hours} ({vet_check_hour}) {genetic_years} ({genetic_year}) {go_home_weeks} {email} {city} {state} {payment_methods} {registry} {reply_time} {delivery_options} fill in your settings. A line with only {guarantees}, {steps}, {included}, {payments}, {delivery_rates}, {puppies}, {licenses}, {payee}, {breeder} or {contact} shows that block. Questions under "## Questions" written as "### Question" become FAQs for Google.';
 function self_url($v='dashboard', $extra=[]){ return 'admin.php?'.http_build_query(['v'=>$v] + $extra); }
 function go($v='dashboard', $extra=[]){ header('Location: '.self_url($v, $extra), true, 303); exit; }
 function note($msg, $type='ok'){ $_SESSION['admin_flash'][] = [$type, $msg]; }
@@ -264,6 +264,7 @@ if($act === 'save_article'){
     'seo_desc'=>in_line('seo_desc', 300), 'excerpt'=>in_line('excerpt', 300), 'body'=>in_str('body', 200000), 'draft'=>in_bool('draft'),
     'date'=>in_date('date') ?: ($a['date'] ?? date('Y-m-d'))]);
   if($changed && $idx !== null) $a['updated'] = date('Y-m-d');
+  if($idx !== null && $slug !== $orig) $SITE['removed']['articles'][] = $orig;   /* a renamed starter guide mustn't come back under its old address */
   $a['image'] = handle_one_photo('image', $a['image'] ?? '', 'article-'.$slug);
   if($idx === null) $SITE['articles'][] = $a; else $SITE['articles'][$idx] = $a;
   save('“'.$title.'” is saved.'.($a['draft'] ? ' It’s a draft, so it isn’t on the site yet.' : ''));
@@ -303,6 +304,24 @@ if($act === 'save_promises'){
   go('promises');
 }
 
+if($act === 'save_delivery'){
+  $methods = [];
+  foreach(['standard', 'express'] as $k){
+    $row = (array)($_POST['m'][$k] ?? []);
+    $methods[] = ['key'=>$k, 'label'=>mb_substr(trim((string)($row['label'] ?? '')), 0, 60) ?: ucfirst($k).' delivery', 'days'=>mb_substr(trim((string)($row['days'] ?? '')), 0, 80), 'on'=>!empty($row['on'])];
+  }
+  $zones = [];
+  foreach((array)($_POST['z'] ?? []) as $row){
+    $name = trim((string)($row['name'] ?? '')); $states = strtoupper(preg_replace('/[^A-Za-z*,]+/', '', str_replace(' ', ',', (string)($row['states'] ?? ''))));
+    if($name === '' && $states === '') continue;
+    $price = fn($v)=>is_numeric(str_replace(['$', ','], '', (string)$v)) ? (string)round((float)str_replace(['$', ','], '', (string)$v), 2) : '';
+    $zones[] = ['name'=>mb_substr($name ?: 'Zone', 0, 60), 'states'=>trim(preg_replace('/,+/', ',', $states), ','), 'standard'=>$price($row['standard'] ?? ''), 'express'=>$price($row['express'] ?? '')];
+  }
+  usort($zones, fn($a, $b)=>($a['states'] === '*') <=> ($b['states'] === '*'));   /* specific states first, "*" last */
+  if(!$zones) note('Add at least one zone (use * for all states).', 'err');
+  else { $SITE['delivery'] = ['methods'=>$methods, 'zones'=>$zones]; save('Delivery options saved.'); }
+  go('delivery');
+}
 if($act === 'save_payments'){
   $out = [];
   foreach((array)($_POST['pay'] ?? []) as $row){
@@ -413,16 +432,16 @@ if($v === 'export'){
     fputcsv($out, ['Joined', 'Name', 'Email', 'Phone', 'State', 'Sex', 'Color', 'Timing', 'Notes']);
     foreach(waitlist() as $w) fputcsv($out, $safe([$w['time'], $w['name'], $w['email'], $w['phone'], $w['state'], $w['sex'], $w['color'], $w['timing'], $w['notes']]));
   } else {
-    fputcsv($out, ['Reference', 'Date', 'Type', 'Status', 'Puppy', 'Name', 'Email', 'Phone', 'Address', 'City', 'State', 'ZIP', 'Payment', 'Timing', 'Notes']);
+    fputcsv($out, ['Reference', 'Date', 'Type', 'Status', 'Puppy', 'Name', 'Email', 'Phone', 'Address', 'City', 'State', 'ZIP', 'Delivery', 'Delivery fee', 'Payment', 'Timing', 'Notes']);
     foreach(inquiries_all() as $q) fputcsv($out, $safe([$q['ref'], $q['time'], $q['kind'], INQUIRY_STATUSES[$q['status']] ?? $q['status'], $q['puppy_name'], $q['name'], $q['email'], $q['phone'],
-      trim(($q['address1'] ?? '').' '.($q['address2'] ?? '')), $q['city'] ?? '', $q['state'] ?? '', $q['zip'] ?? '', $q['payment_name'] ?? '', $q['timing'] ?? '', $q['notes']]));
+      trim(($q['address1'] ?? '').' '.($q['address2'] ?? '')), $q['city'] ?? '', $q['state'] ?? '', $q['zip'] ?? '', $q['delivery_name'] ?? '', $q['delivery_fee'] ?? '', $q['payment_name'] ?? '', $q['timing'] ?? '', $q['notes']]));
   }
   exit;
 }
 
 /* ---------------- views ---------------- */
 $VIEWS = ['dashboard'=>'Dashboard', 'puppies'=>'Puppies', 'parents'=>'Parents', 'litters'=>'Litters', 'inquiries'=>'Inquiries', 'waitlist'=>'Waitlist',
-          'reviews'=>'Reviews', 'articles'=>'Guides & blog', 'pages'=>'Pages', 'promises'=>'Guarantees', 'payments'=>'Payments', 'settings'=>'Settings', 'account'=>'Sign-in'];
+          'reviews'=>'Reviews', 'articles'=>'Guides & blog', 'pages'=>'Pages', 'promises'=>'Guarantees', 'delivery'=>'Delivery', 'payments'=>'Payments', 'settings'=>'Settings', 'account'=>'Sign-in'];
 $SUB = ['puppy'=>'puppies', 'parent'=>'parents', 'inquiry'=>'inquiries', 'review'=>'reviews', 'article'=>'articles', 'page'=>'pages'];
 if(!isset($VIEWS[$v]) && !isset($SUB[$v])) $v = 'dashboard';
 layout_start($VIEWS[$v] ?? $VIEWS[$SUB[$v]]);
@@ -699,6 +718,7 @@ function view_inquiry(){
       <?php if($q['phone'] !== ''): ?><a href="tel:<?= h($tel) ?>"><?= h($q['phone']) ?></a> · <a href="sms:<?= h($tel) ?>">Text</a><?php endif; ?></p>
     <?php if($q['kind'] === 'inquiry'): ?>
       <p><strong>Delivery address</strong><br><?= h($q['address1']) ?><?= $q['address2'] !== '' ? '<br>'.h($q['address2']) : '' ?><br><?= h($q['city'].', '.$q['state'].' '.$q['zip']) ?></p>
+      <?php if(($q['delivery_name'] ?? '') !== ''): ?><p><strong>Delivery:</strong> <?= h($q['delivery_name']) ?> — <?= $q['delivery_fee'] !== '' ? h(money($q['delivery_fee'])) : 'to be quoted' ?></p><?php endif; ?>
       <p><strong>Preferred payment:</strong> <?= h($q['payment_name']) ?><br><strong>Delivery timing:</strong> <?= h($q['timing'] ?: '—') ?><br><strong>Best way to reach them:</strong> <?= h($q['contact_pref'] ?: 'Any') ?></p>
     <?php endif; ?>
     <?php if($q['notes'] !== ''): ?><h2><?= $q['kind'] === 'inquiry' ? 'Their notes' : 'Message' ?></h2><p style="white-space:pre-wrap"><?= h($q['notes']) ?></p><?php endif; ?>
@@ -832,6 +852,24 @@ function view_promises(){
     <div class="card"><label>How it works (steps)<textarea class="big" name="steps"><?= h($txt('steps')) ?></textarea></label></div>
     <div class="card"><label>What comes with every puppy<textarea class="big" name="included"><?= h($txt('included')) ?></textarea></label></div>
   </div><button class="btn">Save</button></form><?php
+}
+
+function view_delivery(){
+  global $SITE, $CFG;
+  $m = array_column($SITE['delivery']['methods'], null, 'key');
+  $zones = $SITE['delivery']['zones']; $zones[] = ['name'=>'', 'states'=>'', 'standard'=>'', 'express'=>''];
+  ?><h1>Delivery options and prices</h1>
+  <p class="mut">Buyers choose an option in the inquiry form and see the price and their total as soon as they pick their state. Delivery times count from when the puppy leaves <?= h($CFG['city']) ?>. Prices show on every puppy page, the Delivery page and in inquiry emails.</p>
+  <?= form_start('save_delivery') ?><div class="card"><h2 style="margin-top:0">Options</h2><div class="tw"><table><tr><th>On</th><th>Name</th><th>Delivery time</th></tr>
+  <?php foreach(['standard', 'express'] as $k): $r = $m[$k] ?? ['label'=>'', 'days'=>'', 'on'=>false]; ?><tr><td><input type="checkbox" name="m[<?= $k ?>][on]" value="1"<?= !empty($r['on']) ? ' checked' : '' ?>></td>
+    <td><input type="text" name="m[<?= $k ?>][label]" value="<?= h($r['label']) ?>"></td><td><input type="text" name="m[<?= $k ?>][days]" value="<?= h($r['days']) ?>"></td></tr><?php endforeach; ?></table></div></div>
+  <div class="card"><h2 style="margin-top:0">Prices by state</h2>
+  <p class="help">One price for everywhere: keep a single zone with <b>*</b> as its states. To charge differently somewhere (e.g. Alaska and Hawaii), add a zone with those state codes, e.g. <b>AK, HI</b>. Specific zones are checked first, and the <b>*</b> zone covers every other state. Leave a price empty to show “Quoted on request”.</p>
+  <div class="tw"><table><tr><th>Zone name</th><th>States</th><th>Standard ($)</th><th>Express ($)</th></tr>
+  <?php foreach($zones as $i=>$z): ?><tr><td><input type="text" name="z[<?= $i ?>][name]" value="<?= h($z['name']) ?>" placeholder="<?= $z['name'] === '' ? 'Add a zone…' : '' ?>"></td><td><input type="text" name="z[<?= $i ?>][states]" value="<?= h($z['states']) ?>" placeholder="e.g. AK, HI or *"></td>
+    <td><input type="text" name="z[<?= $i ?>][standard]" value="<?= h($z['standard']) ?>" inputmode="decimal"></td><td><input type="text" name="z[<?= $i ?>][express]" value="<?= h($z['express']) ?>" inputmode="decimal"></td></tr><?php endforeach; ?>
+  </table></div><p class="mut">To remove a zone, clear its name and states and save.</p></div>
+  <button class="btn">Save delivery options</button></form><?php
 }
 
 function view_payments(){

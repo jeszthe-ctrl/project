@@ -2,8 +2,8 @@
 /* What a fresh install starts with. Everything here is edited in admin.php afterwards and
    saved to data/site.php, so changing this file never overwrites the owner's edits.
    In page text: {deposit} {balance} {vet_check_hours} ({vet_check_hour}) {genetic_years} ({genetic_year}) {go_home_weeks} {email}
-   {city} {state} {payment_methods} {registry} {reply_time} fill in the current settings, and a line
-   with just {guarantees}, {steps}, {included}, {payments}, {puppies}, {licenses}, {breeder},
+   {city} {state} {payment_methods} {registry} {reply_time} {delivery_options} fill in the current settings, and a line
+   with just {guarantees}, {steps}, {included}, {payments}, {delivery_rates}, {puppies}, {licenses}, {breeder},
    {payee} or {contact} shows that block. */
 if(!defined('BB_ROOT')){ http_response_code(404); exit; }
 
@@ -43,13 +43,24 @@ return [
     'reviews_intro'   => "What families say after their Beagle Brook puppy comes home. Every review here is from a real buyer and is published with their permission.",
     'contact_intro'   => "Questions about a puppy, delivery or the breed? Send us a message and we'll reply {reply_time}. To ask about a specific puppy, use the inquiry form on that puppy's page.",
     'footer_blurb'    => 'Purebred beagle puppies raised in Cincinnati, Ohio. Vet checked, microchipped, full papers and a written health guarantee — delivered to your door.',
-    'delivery_note'   => 'We deliver from Cincinnati, Ohio. Your delivery fee depends on distance and is confirmed in writing before you pay anything.',
+    'delivery_note'   => 'Choose {delivery_options}. The price is shown in the inquiry form as soon as you pick your state, so you know your total before you pay anything.',
     'facebook'        => '', 'instagram' => '', 'tiktok' => '', 'youtube' => '',
     'google_reviews_url' => '',
     'gsc_verification'=> '', 'bing_verification' => '', 'ga4_id' => '',
     'smtp_host'       => '', 'smtp_port' => '', 'smtp_secure' => 'tls', 'smtp_user' => '', 'smtp_pass' => '',
     'alert_phone'     => '', 'alert_sms_email' => '', 'twilio_sid' => '', 'twilio_token' => '', 'twilio_from' => '',
     'pretty_urls'     => false, 'pretty_auto' => false,
+  ],
+
+  /* delivery options and prices (Admin → Delivery). Times count from when the puppy leaves us. */
+  'delivery' => [
+    'methods' => [
+      ['key'=>'standard', 'label'=>'Standard delivery', 'days'=>'2–5 days from departure', 'on'=>true],
+      ['key'=>'express',  'label'=>'Express delivery',  'days'=>'within 24 hours of departure', 'on'=>true],
+    ],
+    'zones' => [
+      ['name'=>'All US states', 'states'=>'*', 'standard'=>'55', 'express'=>'100'],
+    ],
   ],
 
   /* shown on the site and offered in the inquiry form; payment details are sent by email, never shown publicly */
@@ -68,7 +79,7 @@ return [
     ['title'=>'Safe delivery guarantee', 'text'=>'If your puppy can’t travel safely on the agreed day, we reschedule at no extra cost, or refund every dollar you’ve paid.'],
     ['title'=>'Full papers guarantee', 'text'=>'Every puppy comes with full registration papers — never limited registration, and never an extra charge.'],
     ['title'=>'Deposit protection', 'text'=>'If we cancel, or can’t deliver your puppy healthy, your {deposit} deposit is refunded in full.'],
-    ['title'=>'No hidden fees', 'text'=>'The price on each puppy’s page includes the vet check, shots, microchip, starter food and papers. Delivery is quoted in writing up front.'],
+    ['title'=>'No hidden fees', 'text'=>'The price on each puppy’s page includes the vet check, shots, microchip, starter food and papers. Delivery is shown up front: {delivery_options}.'],
     ['title'=>'Lifetime take-back promise', 'text'=>'If you ever can’t keep your beagle, at any age, we will take them back or help rehome them. They will never go to a shelter.'],
   ],
 
@@ -86,8 +97,8 @@ return [
     ['title'=>'Choose your puppy and send an inquiry', 'text'=>'Every puppy’s page has a short inquiry form. Tell us where you live and a little about your home. No payment at this stage.'],
     ['title'=>'Talk to us and meet your puppy on video', 'text'=>'We reply {reply_time} by phone, text or email, answer your questions and set up a live video call so you can see your puppy and ask anything.'],
     ['title'=>'Reserve with a {deposit} deposit', 'text'=>'Pay the deposit by {payment_methods}. You get a written receipt and sales agreement, and your puppy is marked Reserved on our site.'],
-    ['title'=>'We plan your delivery', 'text'=>'We agree the date, time and delivery method with you, and confirm the delivery fee in writing.'],
-    ['title'=>'Delivery day', 'text'=>'Your puppy arrives with their health record, microchip details, starter food and papers. The remaining {balance} is due at delivery.'],
+    ['title'=>'We plan your delivery', 'text'=>'You choose Standard (2–5 days) or Express (within 24 hours) delivery, and we agree the departure date with you. The delivery fee is in your written agreement.'],
+    ['title'=>'Delivery day', 'text'=>'Your puppy arrives with their health record, microchip details, starter food and papers. The remaining {balance} and the delivery fee are due at delivery.'],
     ['title'=>'Lifetime support', 'text'=>'Questions about feeding, training or health? Call, text or email us any time, for your beagle’s whole life.'],
   ],
 
@@ -121,7 +132,7 @@ We accept {payment_methods}. Payment details are only ever sent from **{email}**
 
 ## Delivery only
 
-We deliver every puppy to your door from {city}, {state}. Your delivery date, method and fee are agreed with you and confirmed in writing. See [puppy delivery](/puppy-delivery) for how it works.
+We deliver every puppy to your door from {city}, {state}: {delivery_options}. You choose the option in the inquiry form and see the price straight away. See [puppy delivery](/puppy-delivery) for how it works.
 
 ## Our guarantees
 
@@ -245,7 +256,7 @@ We hold your puppy for you and turn other families away, so a deposit is not ref
 Yes, if you prefer. The same refund rules apply to everything you've paid.
 
 ### Is there anything else to pay?
-Only the delivery fee, which depends on distance and is confirmed in writing before you pay. The puppy's price already includes the vet check, shots, microchip, starter food and full registration papers.
+Only the delivery fee: {delivery_options}. You see it in the inquiry form before you pay anything. The puppy's price already includes the vet check, shots, microchip, starter food and full registration papers.
 
 ### Do you accept gift cards or cryptocurrency?
 No, never. Anyone asking you to pay for a Beagle Brook puppy that way is not us.
@@ -254,26 +265,26 @@ TXT
     [
       'slug'=>'puppy-delivery', 'menu'=>'Puppy delivery', 'title'=>'Beagle puppy delivery from Cincinnati, Ohio',
       'seo_title'=>'Beagle Puppy Delivery From Cincinnati, OH | Beagle Brook',
-      'seo_desc'=>'How Beagle Brook delivers beagle puppies from Cincinnati, Ohio to your door: delivery methods, cost, health certificate, what to expect and how to prepare.',
+      'seo_desc'=>'Beagle puppy delivery from Cincinnati, Ohio to your door: Express within 24 hours or Standard in 2–5 days, prices, health certificate and how to prepare.',
       'body'=><<<'TXT'
 Every Beagle Brook puppy is delivered to your door from our home in {city}, {state}. Delivery is the only way our puppies go home, so we've made it as safe, calm and simple as we can.
 
 ## How delivery works
 
-1. **Agree the details.** Once your puppy is reserved, we agree the delivery date, the time window and the delivery method with you. Puppies travel once they are at least {go_home_weeks} old.
+1. **Choose your delivery option.** Pick Standard or Express in the inquiry form. Once your puppy is reserved, we agree the departure date with you. Puppies travel once they are at least {go_home_weeks} old.
 2. **Vet check before travel.** Our veterinarian examines your puppy shortly before delivery. Puppies traveling to another state travel with a health certificate from our vet.
 3. **Delivery day.** We keep you updated on the journey. When your puppy arrives, you check them over, pay the remaining {balance}, and receive their health record, microchip details, starter food and registration papers.
 
-## Delivery methods
+## Delivery options and prices
 
-- **Ground delivery** — your puppy travels by car in a secure, comfortable crate, with regular breaks for water, food and potty.
-- **Flight nanny** — for longer distances, a person flies with your puppy in the cabin and hands them to you at the airport.
+{delivery_rates}
 
-We'll recommend the best option for your location and your puppy's age.
+Delivery times count from the moment your puppy leaves us in {city}, {state}. The delivery fee is paid with the balance at delivery, and it's in your written sales agreement — the price you see is the price you pay.
 
-## How much does delivery cost?
+## Which option should I choose?
 
-Delivery depends on distance from {city}, {state}. We quote it in writing before you pay a deposit — the price we quote is the price you pay.
+- **Express** gets your puppy home fastest — within 24 hours of departure — so they spend the least time traveling.
+- **Standard** costs less and suits most families who aren't in a hurry.
 
 ## Getting ready for your puppy
 
@@ -286,6 +297,9 @@ Delivery depends on distance from {city}, {state}. We quote it in writing before
 Our [beagle puppy care guide](/guides/beagle-puppy-care) covers the first weeks at home in detail.
 
 ## Questions
+
+### When do the delivery times start?
+From the moment your puppy leaves us in {city}, {state}: within 24 hours for Express, 2 to 5 days for Standard.
 
 ### Can I pick up my puppy instead?
 We are a delivery-only breeder: every puppy is delivered to your door.
@@ -425,7 +439,7 @@ Yes, in full, if we cancel or can't deliver your puppy healthy. If you change yo
 We are delivery-only: every puppy is delivered to your door from {city}, {state}.
 
 ### How much does delivery cost?
-It depends on distance. We quote it in writing before you pay a deposit. See [puppy delivery](/puppy-delivery).
+{delivery_options}. You see the price in the inquiry form as soon as you choose your state. See [puppy delivery](/puppy-delivery).
 
 ### What comes with my puppy?
 A veterinarian health check, age-appropriate shots, a microchip, starter food, full registration papers and our written health guarantee. See [what's included](/whats-included).
@@ -466,7 +480,7 @@ TXT
       'seo_title'=>'Beagle Puppies for Sale in Ohio | Beagle Brook, Cincinnati',
       'seo_desc'=>'Looking for beagle puppies for sale near you in Ohio? Beagle Brook raises purebred beagles in Cincinnati and delivers across Ohio and beyond. See available puppies.',
       'body'=><<<'TXT'
-Beagle Brook is a beagle breeder based in **{city}, {state}**. Our puppies are raised in our home and delivered to families across Ohio — Cincinnati, Dayton, Columbus, Cleveland, Toledo, Akron and everywhere in between — as well as to neighboring states and beyond.
+Beagle Brook is a beagle breeder based in **{city}, {state}**. Our puppies are raised in our home and delivered to families across Ohio — Cincinnati, Dayton, Columbus, Cleveland, Toledo, Akron and everywhere in between — as well as to every other state.
 
 ## Available beagle puppies
 
@@ -499,7 +513,7 @@ Beagle Brook is a beagle breeder based in **{city}, {state}**. Our puppies are r
 Yes. Every Beagle Brook puppy is born and raised in our home in {city}, {state}.
 
 ### Do you deliver outside Ohio?
-Yes. We deliver to Kentucky, Indiana and other states. Delivery is quoted in writing before you pay anything.
+Yes, to every state: {delivery_options}.
 
 ### Can I find beagle puppies for sale near me in Ohio?
 Our available puppies are listed above and on our [beagle puppies for sale](/beagle-puppies-for-sale) page. If none suit you right now, [join our waitlist](/upcoming-litters).
@@ -518,7 +532,7 @@ Sending an inquiry is free and doesn't commit you to anything. A puppy is only r
 
 ## Prices
 
-The price shown on each puppy's page is in US dollars and includes the veterinarian health check, age-appropriate shots, microchip, starter food and full registration papers. Delivery is charged separately and quoted in writing before you pay.
+The price shown on each puppy's page is in US dollars and includes the veterinarian health check, age-appropriate shots, microchip, starter food and full registration papers. Delivery is charged separately: {delivery_options}. Delivery times count from when your puppy leaves us.
 
 ## Deposit and payment
 

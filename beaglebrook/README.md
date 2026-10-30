@@ -35,6 +35,7 @@ The website for Beagle Brook, a beagle breeder in Cincinnati, Ohio. It's written
 - **Waitlist:** email everyone, with an unsubscribe link added to each email automatically, and download a CSV.
 - **Guides & blog and Pages:** edit any text or write new posts.
 - **Guarantees:** edit the guarantee cards, steps and "what's included".
+- **Delivery:** Standard delivery $55 (2–5 days) and Express delivery $100 (within 24 hours), counted from departure. You can set different prices for particular states.
 - **Payments:** PayPal, Zelle, Bank transfer, Chime and Apple Pay to start with. Add, rename, remove or switch any of them off.
 - **Settings:**
   - phone number and the deposit percentage (50% minimum)
