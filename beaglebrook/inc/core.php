@@ -178,7 +178,7 @@ function save_upload($f, $prefix){
   $rel = 'assets/uploads/'.slugify($prefix).'-'.bin2hex(random_bytes(3)).'.'.$ext;
   upload_dir();
   if(!@move_uploaded_file($f['tmp_name'], BB_ROOT.'/'.$rel)) return '!Couldn’t save the photo: the assets/uploads folder isn’t writable.';
-  shrink_image(BB_ROOT.'/'.$rel);
+  shrink_image(BB_ROOT.'/'.$rel, 1600, true);
   return $rel;
 }
 
@@ -198,14 +198,16 @@ function delete_upload($rel){
 }
 
 /* Shrinks photos over $max px (phone photos are often 4000px and several MB) and turns
-   sideways phone JPEGs upright. Needs GD; skipped quietly without it. */
-function shrink_image($file, $max=1600){
+   sideways phone JPEGs upright. With $clean, every photo is saved afresh, which drops its
+   metadata: phone photos carry the GPS position they were taken at, i.e. the breeder's home.
+   Needs GD; skipped quietly without it. */
+function shrink_image($file, $max=1600, $clean=false){
   $i = @getimagesize($file);
   if(!$i || !function_exists('imagecreatetruecolor')) return;
   $type = $i[2];
   $exif = ($type === IMAGETYPE_JPEG && function_exists('exif_read_data')) ? @exif_read_data($file) : [];
   $orient = (int)(is_array($exif) ? ($exif['Orientation'] ?? 1) : 1);
-  if(max($i[0], $i[1]) <= $max && !in_array($orient, [3,6,8], true)) return;
+  if(!$clean && max($i[0], $i[1]) <= $max && !in_array($orient, [3,6,8], true)) return;
   $load = [IMAGETYPE_JPEG=>'imagecreatefromjpeg', IMAGETYPE_PNG=>'imagecreatefrompng', IMAGETYPE_WEBP=>'imagecreatefromwebp'][$type] ?? '';
   if(!$load || !function_exists($load)) return;
   $limit = ini_get('memory_limit');
