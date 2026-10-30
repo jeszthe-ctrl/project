@@ -5,6 +5,7 @@ if(!defined('BB_ROOT')){ http_response_code(404); exit; }
 return [
 [
   'slug'=>'beagle-dog-breed', 'type'=>'guide', 'group'=>'breed', 'date'=>'2026-10-29',
+  'image'=>'assets/site/red-and-white-beagle-adult.jpg', 'image_alt'=>'An adult red and white beagle standing on a leash in tall summer grass',
   'title'=>'The Beagle Dog Breed: Temperament, Size, Care and History',
   'seo_title'=>'Beagle Dog Breed Guide: Temperament, Size, Care & History',
   'seo_desc'=>'Everything about the beagle breed: temperament, 13-inch vs 15-inch size, lifespan, health, exercise, grooming and history. Is a beagle the right dog for you?',
@@ -269,6 +270,7 @@ TXT
 ],
 [
   'slug'=>'lemon-beagle', 'type'=>'guide', 'group'=>'breed', 'date'=>'2026-10-29',
+  'image'=>'assets/site/lemon-beagle-puppy-newborn.jpg', 'image_alt'=>'A newborn lemon and white beagle puppy asleep, with pale lemon patches on the ear and back',
   'title'=>'Lemon Beagle: Color, Puppies, Price and Care',
   'seo_title'=>'Lemon Beagle: Color, Puppies, Price & Care Guide',
   'seo_desc'=>'What is a lemon beagle? How the pale yellow color develops, how lemon beagle puppies change, whether they’re rare, their price and how to care for one.',

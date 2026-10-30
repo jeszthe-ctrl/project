@@ -98,7 +98,7 @@ Your data (puppies, inquiries, waitlist, sign-in, settings) lives in `data/`, an
 | `inc/defaults.php` | Starting settings, guarantees, payment methods and trust pages. |
 | `inc/articles/` | Starting guides and blog posts. |
 | `admin.php` | The admin. |
-| `assets/` | Styles, logo, icons, link-preview image; `site/` holds the starter beagle photo (home page until you upload your own, and the puppy care guide); `uploads/` holds your photos. |
+| `assets/` | Styles, logo, icons, link-preview image; `site/` holds the starter beagle photos (home page until you upload your own, and the puppy care, beagle breed and lemon beagle guides); `uploads/` holds your photos. |
 | `data/` | Your content, inquiries, waitlist and sign-in (blocked from the web). |
 | `docs/keyword-map.md` | Which page targets which keywords. Not uploaded. |
 | `tools/build-zip.php` | Builds the upload zip. |
