@@ -46,6 +46,10 @@ function page_by_slug($slug){ global $STORE; foreach($STORE['pages'] as $p) if($
 function guide_by_slug($slug){ global $STORE; foreach($STORE['guides'] as $g) if($g['slug'] === $slug && empty($g['hidden'])) return $g; return null; }
 function tool_by_slug($slug){ global $STORE; foreach($STORE['tools'] as $t) if($t['slug'] === $slug) return $t; return null; }
 function guides_all(){ global $STORE; return array_values(array_filter($STORE['guides'], fn($g)=>empty($g['hidden']))); }
+function site_img($key){ global $STORE; $i = $STORE['images'][$key] ?? null; return !empty($i['src']) ? $i : null; }
+function site_img_tag($i, $class='', $lcp=false, $w=1200, $h=800){
+  return '<img src="'.h(img_src($i['src'])).'" alt="'.h($i['alt'] ?? '').'" width="'.$w.'" height="'.$h.'"'.($class ? ' class="'.$class.'"' : '').($lcp ? ' fetchpriority="high"' : ' loading="lazy" decoding="async"').'>';
+}
 function in_stock($p){ return ($p['stock'] ?? 'in') !== 'out' && product_price($p) > 0; }
 
 /* ---------------- money, units, tokens ---------------- */
@@ -379,6 +383,7 @@ function view_home(){
   $META['desc'] = fill($CFG['home_seo_desc']);
   $META['canonical'] = abs_url('');
   $META['full_title'] = true;
+  if($hi = site_img('hero')) $META['image'] = preg_match('#^https?://#', $hi['src']) ? $hi['src'] : abs_url($hi['src']);
   $products = visible_products();
   $featured = array_slice(array_values(array_filter($products, fn($p)=>!empty($p['featured']))) ?: $products, 0, 8);
   $spot = spot(); ?>
@@ -391,7 +396,7 @@ function view_home(){
       <div class="hero-cta"><a class="btn btn-gold" href="<?= link_to('gold-bars') ?>">Shop gold bars</a><a class="btn btn-ghost" href="<?= link_to('gold-coins') ?>">Shop gold coins</a></div>
       <ul class="hero-points"><li>Price locked when you order</li><li>Fully insured delivery</li><li>Discreet packaging</li></ul>
     </div>
-    <div class="hero-art"><?= spot_card() ?></div>
+    <div class="hero-art<?= site_img('hero') ? ' has-photo' : '' ?>"><?php if($hi = site_img('hero')): ?><figure class="hero-photo"><?= site_img_tag($hi, '', true) ?></figure><?php endif; ?><?= spot_card() ?></div>
   </div>
 </section>
 <section class="trust"><div class="wrap trust-in">
@@ -444,11 +449,12 @@ function view_category($seg, $path){
   $products = cat_products($c['slug']);
   $META['title'] = fill($c['seo_title'] ?: $c['name']); $META['desc'] = fill($c['seo_desc']); $META['canonical'] = abs_url($c['slug']);
   if(!$products) $META['robots'] = 'noindex,follow';
+  if($ci = site_img('cat:'.$c['slug'])) $META['image'] = preg_match('#^https?://#', $ci['src']) ? $ci['src'] : abs_url($ci['src']);
   $trail = [['Shop', 'shop']];
   if(!empty($c['parent']) && ($par = category($c['parent']))) $trail[] = [$par['name'], $par['slug']];
   $trail[] = [$c['name'], $c['slug']];
   crumbs($trail); ?>
-<div class="wrap page-head"><h1><?= h(fill($c['h1'] ?: $c['name'])) ?></h1><p class="lead"><?= fill(h($c['intro'])) ?></p><?= cat_chips($c['slug']) ?></div>
+<div class="wrap page-head<?= ($ci = site_img('cat:'.$c['slug'])) ? ' head-media' : '' ?>"><div><h1><?= h(fill($c['h1'] ?: $c['name'])) ?></h1><p class="lead"><?= fill(h($c['intro'])) ?></p><?= cat_chips($c['slug']) ?></div><?php if($ci): ?><figure class="head-photo"><?= site_img_tag($ci, '', true) ?></figure><?php endif; ?></div>
 <section class="wrap sec"><?= $products ? product_grid($products) : empty_shop() ?></section>
 <section class="wrap sec content-grid">
   <article class="prose"><?= content($c['body']) ?><?= faq_block($c['faqs'] ?? []) ?></article>
@@ -578,10 +584,13 @@ function view_guide($seg){
   crumbs([['Guides', 'guides'], [$g['title'], 'guides/'.$g['slug']]]);
   [$body, $toc] = with_toc(content($g['body']));
   $META['modified'] = date('c', strtotime($g['updated'] ?? $g['date'] ?? 'today'));
+  $gimg = site_img('guide:'.$g['slug']); $gimg_url = $gimg ? (preg_match('#^https?://#', $gimg['src']) ? $gimg['src'] : abs_url($gimg['src'])) : '';
+  if($gimg_url) $META['image'] = $gimg_url;
   $words = str_word_count(strip_tags($body));
   $updated = $g['updated'] ?? $g['date'] ?? date('Y-m-d'); ?>
 <div class="wrap page-head article-head">
   <h1><?= h(fill($g['title'])) ?></h1>
+  <?php if($gi = site_img('guide:'.$g['slug'])): ?><figure class="guide-photo"><?= site_img_tag($gi, '', true) ?></figure><?php endif; ?>
   <p class="byline">By <a href="<?= link_to('editorial-policy') ?>"><?= h($CFG['author']) ?></a> · Updated <time datetime="<?= h($updated) ?>"><?= date('F j, Y', strtotime($updated)) ?></time> · <?= max(2, (int)round($words / 220)) ?> min read</p>
 </div>
 <section class="wrap sec content-grid">
@@ -598,7 +607,7 @@ function view_guide($seg){
     'datePublished'=>$g['date'] ?? $updated, 'dateModified'=>$updated, 'inLanguage'=>$g['lang'] ?? 'en-US',
     'author'=>['@type'=>'Organization', 'name'=>$CFG['author'], 'url'=>abs_url('editorial-policy')],
     'publisher'=>['@type'=>'Organization', 'name'=>$CFG['brand'], 'logo'=>['@type'=>'ImageObject', 'url'=>abs_url('assets/img/logo-512.png')]],
-    'mainEntityOfPage'=>$META['canonical'], 'image'=>abs_url('assets/img/share.jpg')];
+    'mainEntityOfPage'=>$META['canonical'], 'image'=>$gimg_url ?: abs_url('assets/img/share.jpg')];
 }
 
 function view_page($seg, $path){
@@ -805,7 +814,8 @@ function size_tiles(){
   foreach($sizes as [$slug, $label, $w, $u]){
     $c = category($slug);
     if(!$c) continue;
-    $out .= '<li><a href="'.link_to($slug).'"><span class="tile-art tile-'.($slug === 'gold-coins' ? 'coin' : 'bar').'" aria-hidden="true"></span><b>'.h($c['name']).'</b><small>'
+    $art = ($ci = site_img('cat:'.$slug)) ? '<span class="tile-photo">'.site_img_tag($ci, '', false, 400, 300).'</span>' : '<span class="tile-art tile-'.($slug === 'gold-coins' ? 'coin' : 'bar').'" aria-hidden="true"></span>';
+    $out .= '<li><a href="'.link_to($slug).'">'.$art.'<b>'.h($c['name']).'</b><small>'
           .($slug === 'gold-coins' ? '1 oz coin gold value '.gold_value_txt(1, 'oz') : 'Gold value '.gold_value_txt($w, $u)).'</small></a></li>';
   }
   return $out.'</ul>';
@@ -1126,6 +1136,17 @@ function sitemap(){
 /* =============================================================
    LAYOUT
    ============================================================= */
+/* the logo: the stacked-bars mark + the shop name, last word set small underneath ("GOLD BULLION / SHOP") */
+function logo_lockup($brand, $light=false){
+  global $BASE;
+  $words = preg_split('/\s+/', trim($brand));
+  $last = count($words) > 1 ? array_pop($words) : '';
+  return '<img src="'.$BASE.'assets/img/logo-mark'.($light ? '-light' : '').'.svg" alt="" width="40" height="40"><span class="wordmark"><span class="wm-1">'.h(implode(' ', $words)).'</span>'
+       .($last !== '' ? '<span class="wm-2">'.h($last).'</span>' : '').'</span>';
+}
+/* short menu labels: "Gold Karats Explained: 10K vs 14K…" → "Gold Karats Explained" */
+function nav_title($t){ $t = preg_replace('/\?\s.*$/u', '?', $t); $t = preg_replace('/\s*[:(—].*$/u', '', $t); return mb_strlen($t) > 60 ? rtrim(mb_substr($t, 0, 58)).'…' : $t; }
+
 function render($body){
   global $META, $CFG, $STORE, $BASE;
   $brand = $CFG['brand'];
@@ -1201,18 +1222,34 @@ function render($body){
   <span class="announce"><?= h(fill($CFG['announcement'])) ?></span>
 </div></div>
 <header class="header" lang="en" dir="ltr"><div class="wrap header-in">
-  <a class="logo" href="<?= $BASE ?>" aria-label="<?= h($brand) ?> home"><img src="<?= $BASE ?>assets/img/logo-mark.svg" alt="" width="36" height="36"><span><?= h($brand) ?></span></a>
+  <a class="logo" href="<?= $BASE ?>" aria-label="<?= h($brand) ?> home"><?= logo_lockup($brand) ?></a>
   <nav class="nav" aria-label="Main">
-    <details class="menu"><summary>Menu</summary>
-      <ul class="nav-list">
-        <li class="has-sub"><a href="<?= link_to('gold-bars') ?>">Gold Bars</a><ul class="sub"><?php foreach($nav_cats as $c): ?><li><a href="<?= link_to($c['slug']) ?>"><?= h($c['name']) ?></a></li><?php endforeach; ?><li><a href="<?= link_to('gold-bars') ?>">All gold bars</a></li></ul></li>
-        <li><a href="<?= link_to('gold-coins') ?>">Gold Coins</a></li>
-        <li class="has-sub"><a href="<?= link_to('gold-price') ?>">Gold Price</a><ul class="sub"><?php foreach($STORE['tools'] as $t) if(($t['kind'] ?? '') !== 'ar'): ?><li><a href="<?= link_to($t['slug']) ?>"><?= h($t['nav'] ?? $t['h1']) ?></a></li><?php endif; ?></ul></li>
-        <li><a href="<?= link_to('guides') ?>">Guides</a></li>
-        <li><a href="<?= link_to('about-us') ?>">About</a></li>
-        <li><a href="<?= link_to('contact') ?>">Contact</a></li>
+    <button type="button" class="menu-btn" aria-expanded="false" aria-controls="nav-list">Menu</button>
+      <ul class="nav-list" id="nav-list">
+        <li class="has-sub has-mega"><a href="<?= link_to('shop') ?>">Shop</a><button type="button" class="caret" aria-expanded="false" aria-label="Shop menu"></button>
+          <div class="sub mega"><div class="mega-cols">
+            <div><p class="mega-h"><a href="<?= link_to('gold-bars') ?>">Gold bars</a></p><ul><?php foreach($nav_cats as $c): ?><li><a href="<?= link_to($c['slug']) ?>"><?= h($c['name']) ?></a></li><?php endforeach; ?><li><a href="<?= link_to('gold-bars') ?>">All gold bars</a></li></ul></div>
+            <div><p class="mega-h"><a href="<?= link_to('gold-coins') ?>">Gold coins</a></p><ul><li><a href="<?= link_to('gold-coins') ?>">All gold coins</a></li><li><a href="<?= link_to('gold-coin-prices') ?>">Gold coin prices today</a></li><li><a href="<?= link_to('guides/best-gold-coins-to-buy') ?>">Best gold coins to buy</a></li><li><a href="<?= link_to('guides/mini-gold-coins') ?>">Mini gold coins</a></li></ul>
+              <?php if(cat_products('silver-bullion')): ?><p class="mega-h"><a href="<?= link_to('silver-bullion') ?>">Silver bullion</a></p><?php endif; ?></div>
+            <div><p class="mega-h">Buying help</p><ul><li><a href="<?= link_to('shop') ?>">All gold bullion</a></li><li><a href="<?= link_to('how-to-order') ?>">How to order</a></li><li><a href="<?= link_to('payment-methods') ?>">Payment methods</a></li><li><a href="<?= link_to('shipping-returns') ?>">Shipping &amp; returns</a></li><li><a href="<?= link_to('guides/best-gold-bars-to-buy') ?>">Best gold bars to buy</a></li></ul></div>
+          </div></div></li>
+        <li class="has-sub has-mega"><a href="<?= link_to('gold-price') ?>">Gold Price</a><button type="button" class="caret" aria-expanded="false" aria-label="Gold price menu"></button>
+          <div class="sub mega"><div class="mega-cols">
+            <div><p class="mega-h">Live prices</p><ul><?php foreach($STORE['tools'] as $t) if(($t['kind'] ?? '') === 'spot' || ($t['kind'] ?? '') === 'coins' || ($t['kind'] ?? '') === 'white'): ?><li><a href="<?= link_to($t['slug']) ?>"><?= h($t['nav'] ?? $t['h1']) ?></a></li><?php endif; ?><?php if(tool_by_slug('ar/gold-price')): ?><li><a href="<?= link_to('ar/gold-price') ?>" lang="ar" hreflang="ar">سعر الذهب اليوم</a></li><?php endif; ?></ul></div>
+            <div><p class="mega-h">By karat</p><ul><?php foreach($STORE['tools'] as $t) if(($t['kind'] ?? '') === 'karat'): ?><li><a href="<?= link_to($t['slug']) ?>"><?= h($t['nav'] ?? $t['h1']) ?></a></li><?php endif; ?></ul></div>
+            <div><p class="mega-h">By weight</p><ul><?php foreach($STORE['tools'] as $t) if(($t['kind'] ?? '') === 'unit'): ?><li><a href="<?= link_to($t['slug']) ?>"><?= h($t['nav'] ?? $t['h1']) ?></a></li><?php endif; ?></ul></div>
+          </div></div></li>
+        <li class="has-sub has-mega"><a href="<?= link_to('guides') ?>">Guides</a><button type="button" class="caret" aria-expanded="false" aria-label="Guides menu"></button>
+          <div class="sub mega mega-wide"><div class="mega-cols">
+            <?php foreach(GUIDE_TOPICS as $tk=>$tl): $tg = array_values(array_filter(guides_all(), fn($g)=>($g['topic'] ?? '') === $tk && empty($g['lang']))); if(!$tg) continue; ?>
+            <div><p class="mega-h"><?= h($tl) ?></p><ul><?php foreach($tg as $g): ?><li><a href="<?= link_to('guides/'.$g['slug']) ?>"><?= h(nav_title($g['title'])) ?></a></li><?php endforeach; ?></ul></div>
+            <?php endforeach; ?>
+          </div><p class="mega-all"><a href="<?= link_to('guides') ?>">All gold bullion guides →</a></p></div></li>
+        <li class="has-sub"><a href="<?= link_to('faq') ?>">Help</a><button type="button" class="caret" aria-expanded="false" aria-label="Help menu"></button>
+          <ul class="sub"><?php foreach($help as $p): ?><li><a href="<?= link_to($p['slug']) ?>"><?= h($p['title']) ?></a></li><?php endforeach; ?><li><a href="<?= link_to('contact') ?>">Contact us</a></li></ul></li>
+        <li class="has-sub"><a href="<?= link_to('about-us') ?>">About</a><button type="button" class="caret" aria-expanded="false" aria-label="About menu"></button>
+          <ul class="sub"><?php foreach($company as $p): ?><li><a href="<?= link_to($p['slug']) ?>"><?= h($p['title']) ?></a></li><?php endforeach; ?><li class="sub-sep"></li><?php foreach($legal as $p): ?><li><a href="<?= link_to($p['slug']) ?>"><?= h($p['title']) ?></a></li><?php endforeach; ?></ul></li>
       </ul>
-    </details>
   </nav>
   <form class="search" action="<?= link_to('search') ?>" role="search"><input name="q" placeholder="Search" aria-label="Search products and guides"></form>
   <a class="cart-link" href="<?= link_to('cart') ?>" aria-label="Cart, <?= $count ?> items"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg><?php if($count): ?><span class="badge"><?= $count ?></span><?php endif; ?></a>
@@ -1224,7 +1261,7 @@ function render($body){
 <main id="main"><?= $body ?></main>
 <footer class="footer" lang="en" dir="ltr">
   <div class="wrap footer-in">
-    <div class="f-brand"><a class="logo logo-light" href="<?= $BASE ?>"><img src="<?= $BASE ?>assets/img/logo-mark.svg" alt="" width="32" height="32"><span><?= h($brand) ?></span></a>
+    <div class="f-brand"><a class="logo logo-light" href="<?= $BASE ?>" aria-label="<?= h($brand) ?> home"><?= logo_lockup($brand, true) ?></a>
       <p>Investment-grade gold bullion with live spot pricing, locked prices and fully insured US delivery.</p>
       <p><a href="mailto:<?= h($CFG['email']) ?>"><?= h($CFG['email']) ?></a><?php if($CFG['phone']): ?><br><a href="tel:<?= h(preg_replace('/[^\d+]/', '', $CFG['phone'])) ?>"><?= h($CFG['phone']) ?></a><?php endif; ?><?php if($CFG['address']): ?><br><?= nl2br(h($CFG['address'])) ?><?php endif; ?></p>
       <p class="small">We accept: <?= h(implode(' · ', array_column(array_filter($STORE['payments'], fn($m)=>!empty($m['enabled'])), 'label'))) ?></p>

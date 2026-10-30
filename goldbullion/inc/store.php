@@ -359,16 +359,17 @@ function shrink_image($file, $max=1400){
 }
 
 /* save an uploaded or downloaded image as assets/products/{name}.{ext}; returns the path or '' */
-function store_image($bytes, $name){
+function store_image($bytes, $name, $folder='products'){
   if(!is_string($bytes) || strlen($bytes) < 100 || strlen($bytes) > 15 * 1048576) return '';
   $info = @getimagesizefromstring($bytes);
   $ext = [IMAGETYPE_JPEG=>'jpg', IMAGETYPE_PNG=>'png', IMAGETYPE_WEBP=>'webp', IMAGETYPE_GIF=>'gif'][$info[2] ?? 0] ?? '';
   if(!$ext) return '';
-  $dir = GB_ROOT.'/assets/products';
+  $folder = $folder === 'site' ? 'site' : 'products';
+  $dir = GB_ROOT.'/assets/'.$folder;
   if(!is_dir($dir)) @mkdir($dir, 0755, true);
   $base = slugify($name) ?: 'photo';
-  $rel = "assets/products/$base.$ext"; $n = 2;
-  while(is_file(GB_ROOT.'/'.$rel)) $rel = "assets/products/$base-".$n++.".$ext";
+  $rel = "assets/$folder/$base.$ext"; $n = 2;
+  while(is_file(GB_ROOT.'/'.$rel)) $rel = "assets/$folder/$base-".$n++.".$ext";
   if(@file_put_contents(GB_ROOT.'/'.$rel, $bytes) === false) return '';
   if($ext !== 'gif') shrink_image(GB_ROOT.'/'.$rel);
   return $rel;

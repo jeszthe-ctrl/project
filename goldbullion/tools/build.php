@@ -24,7 +24,7 @@ foreach(['inc', 'assets'] as $dir){
   $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator("$root/$dir", FilesystemIterator::SKIP_DOTS));
   foreach($it as $file){
     $rel = substr($file->getPathname(), strlen($root) + 1);
-    if(strpos($rel, 'assets/products/') === 0) continue;          // uploaded photos and thumbnails stay on the server
+    if(strpos($rel, 'assets/products/') === 0 || strpos($rel, 'assets/site/') === 0) continue;   // uploaded photos stay on the server
     $list[] = $rel;
   }
 }

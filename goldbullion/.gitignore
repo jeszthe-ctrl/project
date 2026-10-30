@@ -3,3 +3,4 @@ data/*
 !data/index.html
 assets/products/*
 !assets/products/.gitkeep
+assets/site/

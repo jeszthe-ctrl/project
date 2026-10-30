@@ -179,6 +179,21 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
       csv_import(); break;
     case 'order':
       order_action(); break;
+    case 'photos':
+      $done = 0;
+      foreach(photo_keys() as $key=>$label){
+        $cur = $STORE['images'][$key] ?? [];
+        if(!empty($_POST['rm'][$key])){ unset($STORE['images'][$key]); $done++; continue; }
+        $new = '';
+        $tmp = $_FILES['img']['tmp_name'][$key] ?? '';
+        if($tmp && is_uploaded_file($tmp)){ $new = store_image(file_get_contents($tmp), photo_name($key), 'site'); if(!$new) note('“'.$label.'”: please upload a JPG, PNG or WebP photo under 15 MB.', 'err'); }
+        $url = trim((string)($_POST['url'][$key] ?? ''));
+        if(!$new && preg_match('#^https?://\S+$#', $url)){ $new = store_image(http_get($url, 10), photo_name($key), 'site'); if(!$new) note('“'.$label.'”: that photo address couldn’t be downloaded.', 'err'); }
+        $alt = trim((string)($_POST['alt'][$key] ?? ''));
+        if($new){ $cur['src'] = $new; $done++; }
+        if(!empty($cur['src'])){ $cur['alt'] = $alt !== '' ? $alt : ($cur['alt'] ?? $label); $STORE['images'][$key] = $cur; }
+      }
+      save('Site photos saved.'); go('photos');
     case 'delete_messages':
       data_write('messages', []); note('Messages cleared.'); go('messages');
   }
@@ -356,6 +371,16 @@ function clean_html($html){
   return trim(preg_replace('#javascript:#i', '', $html));
 }
 
+/* ---------------- site photos ---------------- */
+function photo_keys(){
+  global $STORE;
+  $out = ['hero'=>'Home page banner'];
+  foreach($STORE['categories'] as $c) $out['cat:'.$c['slug']] = $c['name'];
+  foreach($STORE['guides'] as $g) $out['guide:'.$g['slug']] = $g['title'];
+  return $out;
+}
+function photo_name($key){ return $key === 'hero' ? 'gold-bullion' : preg_replace('/^(cat|guide):/', '', $key); }
+
 /* ---------------- orders ---------------- */
 function order_action(){
   global $STORE;
@@ -383,7 +408,7 @@ function order_action(){
 }
 
 /* ---------------- pages ---------------- */
-$NAV = ['dashboard'=>'Dashboard', 'orders'=>'Orders', 'messages'=>'Messages', 'products'=>'Products', 'import'=>'Import CSV', 'categories'=>'Categories',
+$NAV = ['dashboard'=>'Dashboard', 'orders'=>'Orders', 'messages'=>'Messages', 'products'=>'Products', 'import'=>'Import CSV', 'photos'=>'Site photos', 'categories'=>'Categories',
         'home'=>'Home page', 'pages'=>'Pages', 'guides'=>'Guides', 'tools'=>'Price pages', 'shipping'=>'Shipping', 'payments'=>'Payments',
         'spot'=>'Spot price', 'settings'=>'Settings', 'account'=>'Login'];
 if($V === 'export' || $V === 'template'){ ('page_'.$V)(); exit; }
@@ -519,6 +544,27 @@ function page_export(){
     $p['stock'] ?? 'in', !empty($p['featured']) ? 'yes' : '', implode('|', $p['images'] ?? []), $p['short'] ?? '', $p['description'] ?? '', $p['seo_title'] ?? '', $p['seo_desc'] ?? '', $p['gtin'] ?? ''], ',', '"', '\\');
   exit;
 }
+
+function page_photos(){
+  global $STORE;
+  $groups = ['Home page'=>[], 'Categories'=>[], 'Guides'=>[]];
+  foreach(photo_keys() as $k=>$l) $groups[$k === 'hero' ? 'Home page' : (strpos($k, 'cat:') === 0 ? 'Categories' : 'Guides')][$k] = $l; ?>
+<h1>Site photos</h1>
+<p class="muted">Real photos of gold bars and coins make the site more trustworthy and can bring visitors from Google Images. Use your own photos, your supplier’s product photos (with permission), or public-domain images. Each photo needs a short description (“alt text”) of what it shows, e.g. “Stack of 1 oz gold bars”.</p>
+<form method="post" enctype="multipart/form-data"><?= csrf_field() ?><input type="hidden" name="act" value="photos">
+<?php foreach($groups as $gname=>$keys): ?>
+<div class="card"><h2><?= h($gname) ?></h2>
+<table class="tbl"><tbody>
+<?php foreach($keys as $k=>$label): $cur = $STORE['images'][$k] ?? null; ?>
+<tr><td style="width:120px"><?= !empty($cur['src']) ? '<img src="'.h($cur['src']).'" width="110" height="80" alt="" style="object-fit:cover">' : '<span class="muted small">No photo</span>' ?></td>
+<td><b><?= h($label) ?></b>
+  <div class="grid3" style="margin-top:6px"><label>Upload<input type="file" name="img[<?= h($k) ?>]" accept="image/*"></label><label>Or photo address<input name="url[<?= h($k) ?>]" placeholder="https://…"></label><label>Description (alt text)<input name="alt[<?= h($k) ?>]" value="<?= h($cur['alt'] ?? '') ?>"></label></div>
+  <?php if(!empty($cur['src'])): ?><label class="check"><input type="checkbox" name="rm[<?= h($k) ?>]" value="1"> remove</label><?php endif; ?></td></tr>
+<?php endforeach; ?>
+</tbody></table></div>
+<?php endforeach; ?>
+<button class="btn btn-lg">Save photos</button></form>
+<?php }
 
 function page_import(){ ?>
 <h1>Import products from CSV</h1>

@@ -2,6 +2,22 @@
 (function(){
   var fmt = function(v){ return '$' + v.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); };
 
+  /* phone menu button */
+  var mb = document.querySelector('.menu-btn');
+  if(mb) mb.addEventListener('click', function(){ var n = mb.parentNode, o = !n.classList.contains('open'); n.classList.toggle('open', o); mb.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+
+  /* menu: carets open their dropdown (needed on touch screens and phones) */
+  document.querySelectorAll('.caret').forEach(function(b){
+    b.addEventListener('click', function(e){
+      e.preventDefault();
+      var li = b.parentNode, open = !li.classList.contains('open');
+      document.querySelectorAll('.has-sub.open').forEach(function(x){ if(x !== li){ x.classList.remove('open'); x.querySelector('.caret').setAttribute('aria-expanded', 'false'); } });
+      li.classList.toggle('open', open); b.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  });
+  document.addEventListener('click', function(e){ if(!e.target.closest('.has-sub')) document.querySelectorAll('.has-sub.open').forEach(function(x){ x.classList.remove('open'); }); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') document.querySelectorAll('.has-sub.open').forEach(function(x){ x.classList.remove('open'); }); });
+
   /* product photos */
   document.querySelectorAll('.thumb').forEach(function(b){
     b.addEventListener('click', function(){

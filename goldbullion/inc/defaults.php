@@ -83,6 +83,7 @@ return [
   ],
 
   'products'   => [],
+  'images'     => [],   /* site photos: 'hero', 'cat:SLUG', 'guide:SLUG' => ['src'=>…, 'alt'=>…] */
   'categories' => require GB_ROOT.'/inc/content-categories.php',
   'pages'      => require GB_ROOT.'/inc/content-pages.php',
   'tools'      => require GB_ROOT.'/inc/content-tools.php',
