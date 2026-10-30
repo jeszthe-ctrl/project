@@ -269,6 +269,7 @@ TXT
 ],
 [
   'slug'=>'beagle-puppy-care', 'type'=>'guide', 'group'=>'buying', 'date'=>'2026-10-29',
+  'image'=>'assets/site/tricolor-beagle-puppy-4x3.jpg', 'image_alt'=>'A young tricolor baby beagle puppy resting on a soft white blanket',
   'title'=>'Beagle Puppy Care: Your First 30 Days With a Baby Beagle',
   'seo_title'=>'Beagle Puppy Care Guide: The First 30 Days at Home',
   'seo_desc'=>'Bringing home a beagle puppy? A week-by-week guide to the first 30 days: supplies, feeding schedule, potty and crate training, vet visits, socialization and sleep.',

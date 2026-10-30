@@ -57,6 +57,9 @@ function icon_for($title){
   return 'check';
 }
 
+/* the home page photo until one is uploaded in Settings (and no puppy has photos yet) */
+const SITE_HERO = 'assets/site/tricolor-beagle-puppy-4x3.jpg';
+
 /* the logo: a paw over a brook, and the name */
 function logo_svg($class='logo-mark'){
   return '<svg class="'.h($class).'" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="23" fill="var(--brand)"/>'
@@ -174,7 +177,7 @@ function puppy_card($p){
 }
 function article_card($a){
   $o = '<article class="acard"><a href="'.h(url(article_path($a))).'">';
-  if(($a['image'] ?? '') !== '') $o .= img_tag($a['image'], $a['title'], '(max-width:600px) 100vw, 360px');
+  if(($a['image'] ?? '') !== '') $o .= img_tag($a['image'], $a['image_alt'] ?? $a['title'], '(max-width:600px) 100vw, 360px');
   return $o.'<h3>'.h($a['title']).'</h3><p>'.h(fill($a['excerpt'] ?? plain($a['body'], 140))).'</p><span class="more">Read '.($a['type'] === 'blog' ? 'post' : 'guide').' '.icon('arrow').'</span></a></article>';
 }
 function parent_mini($p){
@@ -495,6 +498,7 @@ function view_home(){
   $parents = array_values(array_filter($SITE['parents'], fn($p)=>empty($p['hidden']) && empty($p['retired'])));
   $hero = $CFG['hero_photo'] !== '' ? img_tag($CFG['hero_photo'], 'Beagle puppies at '.$CFG['brand'], '(max-width:900px) 100vw, 560px', true) : '';
   if($hero === '' && $avail && !empty($avail[0]['photos'][0])) $hero = img_tag($avail[0]['photos'][0], $avail[0]['name'].', '.strtolower(puppy_kind($avail[0])), '(max-width:900px) 100vw, 560px', true);
+  if($hero === '') $hero = img_tag(SITE_HERO, 'Tricolor beagle puppy at '.$CFG['brand'], '(max-width:900px) 100vw, 560px', true);
   ?>
   <section class="hero"><div class="wrap hero-in">
     <div class="hero-t">
@@ -804,7 +808,7 @@ function view_article(){
       <h1><?= h($h1) ?></h1>
       <p class="meta">By <?= h($CFG['brand']) ?>, beagle breeder in <?= h($CFG['city'].', '.$CFG['state']) ?> · <?= ($art['updated'] ?? '') !== '' && $art['updated'] !== $art['date'] ? 'Updated <time datetime="'.h($art['updated']).'">'.h(nice_date($art['updated'])).'</time>' : '<time datetime="'.h($art['date']).'">'.h(nice_date($art['date'])).'</time>' ?><?= !$zh && $words > 300 ? ' · '.max(1, (int)round($words / 230)).' min read' : '' ?></p>
     </header>
-    <?php if(($art['image'] ?? '') !== ''): ?><div class="art-img"><?= img_tag($art['image'], $art['title'], '(max-width:900px) 100vw, 860px', true) ?></div><?php endif; ?>
+    <?php if(($art['image'] ?? '') !== ''): ?><div class="art-img"><?= img_tag($art['image'], $art['image_alt'] ?? $art['title'], '(max-width:900px) 100vw, 860px', true) ?></div><?php endif; ?>
     <div class="art-grid">
       <div class="prose"><?= rich($art['body'], page_blocks()) ?></div>
       <aside class="art-side">
