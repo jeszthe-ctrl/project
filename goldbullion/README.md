@@ -26,6 +26,19 @@ A complete gold bullion store in plain PHP: storefront, live spot pricing, a cle
    - **Send shipping email**: tracking number email.
 4. Customers can check their order at `/track-order`.
 
+## Your catalog (5,026 products)
+
+The site comes with your catalog built in (`inc/catalog.json.gz`, made from `gold_bullion_catalog_clean.csv` with `php tools/make-catalog.php file.csv`). Every product is sorted automatically into 47 categories by metal, type, series, weight, grading and finish — gold bars by size, Gold Eagles, Buffalos, Maple Leafs, Krugerrands, British, Austrian, Australian, Pandas, pre-1933 US gold, certified, proof and fractional gold coins, Goldbacks, silver coins, bars and rounds, junk silver, platinum, palladium, copper, rare coins and accessories.
+
+As in your file, products start as **drafts** with no price, so customers don't see them yet. To go live:
+
+1. **Admin → Spot price**: check gold, silver, platinum and palladium prices show.
+2. **Admin → Pricing**: enter your premium over spot for each category (e.g. 4% for gold bars, 6% for gold coins), tick **Publish priced**, and press **Apply prices**. Prices then follow the live market and lock when a customer orders.
+3. **Admin → Products → filter “No price yet”**: about 540 products (accessories, paper money, many certified and rare coins) have no known metal weight and need a fixed price: select them, choose **Set a fixed price** or edit them one by one, then **Publish**. Anything left unpriced but published shows **Request a quote**.
+4. Add photos: on each product (upload or photo address), or include an `image_urls` column when you re-import the CSV. Until then each product shows a clean illustration of its metal and shape, labelled as an illustration.
+
+Re-importing an updated catalog CSV (Admin → Import CSV) adds new products and re-categorises existing ones while keeping your prices, photos and publish status.
+
 ## Products
 
 - **Import CSV** accepts WooCommerce, Shopify and spreadsheet exports. Column names are recognised automatically (name, price, sku, category, weight, images, description, brand, stock…). Download the sample CSV from the Import page.
@@ -71,5 +84,7 @@ See **SEO-STRATEGY.md** for the keyword map, the competitor analysis and the off
 | `data/` | Your settings, products, orders and messages, plus the last 30 backups. Blocked from the web. Download it now and then as a backup. |
 | `assets/` | CSS, JS, logo, icons and uploaded product photos |
 | `tools/build.php` | Builds the upload zip and one-file installer |
+| `tools/make-catalog.php` | Rebuilds the bundled catalog from a catalog CSV |
+| `inc/catalog.php` | Sorts products into categories and works out their metal content |
 
 **Nginx hosts** need the equivalent of the `.htaccess` rules: `location / { try_files $uri $uri/ /index.php?$query_string; }` and deny `/data`, `/inc` and `/tools`.

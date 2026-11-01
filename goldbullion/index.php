@@ -11,6 +11,7 @@ define('GB_ROOT', __DIR__);
 @ini_set('display_errors', '0');
 error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
 require GB_ROOT.'/inc/store.php';
+require GB_ROOT.'/inc/catalog.php';
 
 $STORE = store_load();
 $CFG   = $STORE['settings'];
@@ -25,22 +26,86 @@ header('X-Frame-Options: SAMEORIGIN');
 if(!empty($_COOKIE[session_name()]) || $_SERVER['REQUEST_METHOD'] === 'POST') start_session();
 
 /* ---------------- lookups ---------------- */
-function visible_products(){
+/* Products are looked up through an index built once per request, so a catalog of thousands stays fast. */
+function pindex(){
+  static $ix = null;
+  if($ix !== null) return $ix;
   global $STORE;
-  $out = array_values(array_filter($STORE['products'], fn($p)=>empty($p['hidden'])));
-  usort($out, fn($a, $b)=>[(int)!empty($b['featured']), -(float)($a['sort'] ?? 0)] <=> [(int)!empty($a['featured']), -(float)($b['sort'] ?? 0)]);
-  return $out;
+  $ix = ['id'=>[], 'slug'=>[], 'cat'=>[], 'vis'=>[]];
+  foreach($STORE['products'] as $i=>$p){
+    $ix['id'][$p['id']] = $i;
+    if(!empty($p['hidden'])) continue;
+    $ix['slug'][$p['slug'] ?? ''] = $i; $ix['vis'][] = $i;
+    foreach((array)($p['categories'] ?? []) as $c) $ix['cat'][$c][] = $i;
+  }
+  return $ix;
 }
-function product_by_slug($slug){ global $STORE; foreach($STORE['products'] as $p) if(($p['slug'] ?? '') === $slug && empty($p['hidden'])) return $p; return null; }
-function product_by_id($id){ global $STORE; foreach($STORE['products'] as $p) if(($p['id'] ?? '') === $id) return $p; return null; }
+function visible_products(){ global $STORE; return sort_products(array_map(fn($i)=>$STORE['products'][$i], pindex()['vis'])); }
+function product_by_slug($slug){ global $STORE; $i = pindex()['slug'][$slug] ?? null; return $i === null ? null : $STORE['products'][$i]; }
+function product_by_id($id){ global $STORE; $i = pindex()['id'][$id] ?? null; return $i === null ? null : $STORE['products'][$i]; }
 function category($slug){ global $STORE; foreach($STORE['categories'] as $c) if($c['slug'] === $slug) return $c; return null; }
 function child_cats($slug){ global $STORE; return array_values(array_filter($STORE['categories'], fn($c)=>($c['parent'] ?? '') === $slug)); }
-function cat_products($slug){
-  $slugs = array_merge([$slug], array_column(child_cats($slug), 'slug'));
-  return array_values(array_filter(visible_products(), function($p) use($slugs){
-    foreach((array)($p['categories'] ?? []) as $c) if(in_array($c, $slugs, true)) return true;
-    return false;
-  }));
+function cat_descendants($slug, $depth=0){
+  $out = [$slug];
+  if($depth < 4) foreach(child_cats($slug) as $c) $out = array_merge($out, cat_descendants($c['slug'], $depth + 1));
+  return array_values(array_unique($out));
+}
+function cat_ids($slug){
+  static $memo = [];
+  if(isset($memo[$slug])) return $memo[$slug];
+  $ix = pindex(); $ids = [];
+  foreach(cat_descendants($slug) as $c) foreach($ix['cat'][$c] ?? [] as $i) $ids[$i] = true;
+  return $memo[$slug] = array_keys($ids);
+}
+function cat_count($slug){ return count(cat_ids($slug)); }
+function cat_products($slug){ global $STORE; return sort_products(array_map(fn($i)=>$STORE['products'][$i], cat_ids($slug))); }
+/* show a category in menus once it has products (or always, while nothing is published yet) */
+function cat_live($slug){ return cat_count($slug) > 0 || !pindex()['vis']; }
+
+/* default order: featured first, then priced bullion people buy most — 1 oz coins and bars, recent years */
+function popularity($p){
+  $oz = product_fine_oz($p);
+  return [!empty($p['featured']), product_price($p) > 0, (float)($p['sort'] ?? 0),
+          in_array($p['type'] ?? '', ['bar', 'coin'], true) && empty($p['graded']) && empty($p['proof']) && ($p['qty'] ?? 1) == 1,
+          $oz >= 0.99 && $oz <= 1.01 ? 3 : ($oz >= 0.24 && $oz < 0.99 ? 2 : ($oz > 1.01 ? 1 : 0)),
+          (int)($p['year'] ?? 0)];
+}
+const SORTS = ['featured'=>'Featured', 'price-asc'=>'Price: low to high', 'price-desc'=>'Price: high to low', 'weight-asc'=>'Weight: light to heavy', 'weight-desc'=>'Weight: heavy to light', 'newest'=>'Year: newest first', 'name'=>'Name A–Z'];
+function sort_products($list, $sort='featured'){
+  /* work out each product's sort key once (prices follow the live spot price, so they are computed, not stored) */
+  $key = [
+    'featured'=>fn($p)=>popularity($p), 'price-asc'=>fn($p)=>[product_price($p) ?: INF], 'price-desc'=>fn($p)=>[-(product_price($p) ?: -1)],
+    'weight-asc'=>fn($p)=>[product_fine_oz($p) ?: INF], 'weight-desc'=>fn($p)=>[-product_fine_oz($p)], 'newest'=>fn($p)=>[-(int)($p['year'] ?? 0)], 'name'=>fn($p)=>[0],
+  ][$sort] ?? null;
+  if(!$key) return $list;
+  $k = array_map($key, $list);
+  $desc = $sort === 'featured';
+  $idx = array_keys($list);
+  usort($idx, function($a, $b) use($k, $list, $desc){ $c = $desc ? $k[$b] <=> $k[$a] : $k[$a] <=> $k[$b]; return $c ?: strnatcasecmp($list[$a]['name'], $list[$b]['name']); });
+  return array_map(fn($i)=>$list[$i], $idx);
+}
+
+const TYPE_LABELS = ['coin'=>'Coins', 'bar'=>'Bars', 'round'=>'Rounds', 'note'=>'Notes', 'jewelry'=>'Jewelry', 'set'=>'Sets', 'collectible'=>'Collectibles', 'accessory'=>'Accessories'];
+const FILTERS = ['metal'=>'Metal', 'type'=>'Product type', 'w'=>'Weight', 'kind'=>'Condition', 'brand'=>'Mint / brand', 'year'=>'Year'];
+function facet_value($p, $f){
+  switch($f){
+    case 'metal': return METALS[$p['metal'] ?? ''] ?? (($p['metal'] ?? '') === 'copper' ? 'Copper' : '');
+    case 'type':  return TYPE_LABELS[$p['type'] ?? ''] ?? '';
+    case 'w':     return ($p['weight'] ?? 0) > 0 ? weight_label($p['weight'], $p['unit'] ?? 'oz') : '';
+    case 'kind':  return !empty($p['graded']) ? 'Certified (PCGS/NGC)' : (!empty($p['proof']) ? 'Proof' : (in_array($p['type'] ?? '', ['bar', 'coin', 'round'], true) ? 'Bullion' : ''));
+    case 'brand': return (string)($p['brand'] ?? '');
+    case 'year':  return (string)($p['year'] ?? '');
+  }
+  return '';
+}
+function current_filters(){
+  $f = [];
+  foreach(array_keys(FILTERS) as $k) if(isset($_GET[$k]) && is_string($_GET[$k]) && $_GET[$k] !== '') $f[$k] = mb_substr($_GET[$k], 0, 60);
+  return $f;
+}
+function apply_filters($list, $f){
+  foreach($f as $k=>$v) $list = array_values(array_filter($list, fn($p)=>facet_value($p, $k) === $v));
+  return $list;
 }
 function page_by_slug($slug){ global $STORE; foreach($STORE['pages'] as $p) if($p['slug'] === $slug) return $p; return null; }
 function guide_by_slug($slug){ global $STORE; foreach($STORE['guides'] as $g) if($g['slug'] === $slug && empty($g['hidden'])) return $g; return null; }
@@ -55,6 +120,7 @@ function in_stock($p){ return ($p['stock'] ?? 'in') !== 'out' && product_price($
 /* ---------------- money, units, tokens ---------------- */
 function usd($v, $dec=2){ return '$'.number_format((float)$v, $v >= 100000 ? 0 : $dec); }
 
+const SHOP_GROUPS = ['gold'=>'Gold', 'silver'=>'Silver', 'other'=>'Platinum, palladium & more'];
 const UNIT_G = ['g'=>1, 'oz'=>G_PER_OZT, 'kg'=>1000, 'lb'=>G_PER_LB, 'dwt'=>G_PER_DWT, 'tola'=>G_PER_TOLA, 't'=>1000000];
 
 /* guide topics and curated internal links (which guides each guide, category and price page links to) */
@@ -124,6 +190,7 @@ function fill($text, $extra=[]){
     '{date}'=>date('F j, Y'), '{year}'=>date('Y'), '{updated}'=>date('F j, Y', (int)($CFG['policies_updated'] ?? 0) ?: strtotime('2026-10-30')),
   ] + $extra;
   $text = strtr($text, $map);
+  $text = preg_replace_callback('/\{silver:([\d.]+)(g|oz|kg|lb)\}/', function($m){ $v = gold_value($m[1], $m[2], 24, 'silver'); return $v === null ? '—' : usd($v); }, $text);
   return preg_replace_callback('/\{value:([\d.]+)(g|oz|kg|lb|dwt|tola|t)(?::(\d+)k)?\}/', fn($m)=>gold_value_txt($m[1], $m[2], isset($m[3]) && $m[3] !== '' ? (int)$m[3] : 24), $text);
 }
 
@@ -406,6 +473,10 @@ function view_home(){
   <div><b>Easy payment</b><span>Cash App, Apple Pay, Zelle, Chime, crypto</span></div>
 </div></section>
 <section class="wrap sec">
+  <div class="sec-head"><h2>Shop by category</h2><a href="<?= link_to('shop') ?>">All categories →</a></div>
+  <?= cat_tiles(array_values(array_filter(array_map('category', ['gold-bars', 'gold-coins', 'american-gold-eagles', 'pre-1933-gold-coins', 'canadian-gold-maple-leafs', 'gold-krugerrands', 'silver-coins', 'american-silver-eagles', 'silver-bars', 'platinum', 'goldbacks', 'accessories']), fn($c)=>$c && cat_live($c['slug'])))) ?>
+</section>
+<section class="wrap sec">
   <div class="sec-head"><h2>Shop gold bullion by size</h2><a href="<?= link_to('shop') ?>">View all gold bullion →</a></div>
   <?= size_tiles() ?>
 </section>
@@ -430,18 +501,110 @@ function view_home(){
 <section class="wrap sec narrow"><?= faq_block($home['faqs'], 'Gold bullion FAQ') ?></section>
 <?php }
 
+
 function view_shop(){
   global $CFG, $META;
   $META['title'] = fill($CFG['shop_seo_title']); $META['desc'] = fill($CFG['shop_seo_desc']); $META['canonical'] = abs_url('shop');
-  crumbs([['Shop', 'shop']]);
-  $products = visible_products(); ?>
-<div class="wrap page-head"><h1>Shop Gold Bullion</h1><p class="lead"><?= h(fill($CFG['shop_intro'])) ?></p><?= cat_chips('') ?></div>
-<section class="wrap sec"><?= $products ? product_grid($products) : empty_shop() ?></section>
-<section class="wrap sec"><h2 class="h2">Shop by size</h2><?= size_tiles() ?></section>
-<?php $META['schema'][] = item_list_schema($products);
+  crumbs([['Shop', 'shop']]); ?>
+<div class="wrap page-head"><h1>Shop Gold Bullion &amp; Precious Metals</h1><p class="lead"><?= h(fill($CFG['shop_intro'])) ?></p></div>
+<section class="wrap sec-tight"><?= category_hub() ?></section>
+<?= listing(visible_products(), 'shop', 'All products') ?>
+<?php }
+
+/* tiles for every top-level and second-level category, grouped by metal */
+function category_hub(){
+  global $STORE;
+  $out = '';
+  foreach(SHOP_GROUPS as $g=>$label){
+    $cats = array_values(array_filter($STORE['categories'], fn($c)=>($c['group'] ?? 'other') === $g && (($c['parent'] ?? '') === '' || ($c['parent'] ?? '') === 'silver-bullion' || $c['parent'] === 'gold-coins' && cat_count($c['slug']) >= 40) && cat_live($c['slug'])));
+    if(!$cats) continue;
+    $out .= '<h2 class="hub-h">'.h($label).'</h2>'.cat_tiles($cats);
+  }
+  return $out;
 }
 
-function empty_shop(){ global $CFG; return '<div class="empty"><p>New stock is being added. For current availability and prices, email <a href="mailto:'.h($CFG['email']).'">'.h($CFG['email']).'</a>.</p></div>'; }
+function cat_tiles($cats){
+  $out = '<ul class="cat-tiles">';
+  foreach($cats as $c){
+    $n = cat_count($c['slug']);
+    $img = ($ci = site_img('cat:'.$c['slug'])) ? site_img_tag($ci, '', false, 400, 300) : '<img src="'.h(link_to('assets/img/ph/'.cat_art($c).'.svg')).'" alt="" width="160" height="160" loading="lazy">';
+    $out .= '<li><a href="'.link_to($c['slug']).'"><span class="ct-img">'.$img.'</span><span class="ct-txt"><b>'.h($c['name']).'</b>'.($n ? '<small>'.number_format($n).($n === 1 ? ' product' : ' products').'</small>' : '').'</span></a></li>';
+  }
+  return $out.'</ul>';
+}
+/* placeholder art for a category: metal + shape */
+function cat_art($c){
+  $s = $c['slug'];
+  $metal = strpos($s, 'silver') !== false || ($c['group'] ?? '') === 'silver' ? 'silver' : (in_array($s, ['platinum', 'palladium'], true) ? 'platinum' : ($s === 'copper' ? 'copper' : 'gold'));
+  $shape = preg_match('/bars|^platinum$|^palladium$/', $s) ? 'bar' : (preg_match('/goldbacks/', $s) ? 'note' : (preg_match('/jewelry/', $s) ? 'jewelry' : (preg_match('/accessor/', $s) ? 'accessory' : 'coin')));
+  return $shape.'-'.$metal;
+}
+
+function empty_shop(){ global $CFG; return '<div class="empty"><p>New stock for this range is being added. For availability and prices, <a href="'.link_to('contact').'">contact us</a> or email <a href="mailto:'.h($CFG['email']).'">'.h($CFG['email']).'</a>.</p></div>'; }
+
+/* a product list with filters, sorting and pages — used by the shop, categories and search */
+function listing($all, $path, $heading='', $per=24){
+  global $META;
+  $f = current_filters();
+  $sort = isset(SORTS[$_GET['sort'] ?? '']) ? $_GET['sort'] : 'featured';
+  $list = sort_products(apply_filters($all, $f), $sort);
+  $total = count($list);
+  $pages = max(1, (int)ceil($total / $per));
+  $page = min($pages, max(1, (int)($_GET['page'] ?? 1)));
+  if($f || $sort !== 'featured') $META['robots'] = 'noindex,follow';
+  elseif($page > 1){ $META['canonical'] = abs_url($path).'?page='.$page; $META['title'] .= ' – Page '.$page; }
+  $q = fn($extra)=>link_to($path).(($qs = http_build_query(array_filter(array_merge($f, ['sort'=>$sort === 'featured' ? '' : $sort], ['q'=>$_GET['q'] ?? ''], $extra), fn($v)=>$v !== '' && $v !== null))) ? '?'.$qs : '');
+  /* facet counts among the products that match the other filters */
+  $facets = [];
+  foreach(FILTERS as $k=>$label){
+    $base = apply_filters($all, array_diff_key($f, [$k=>1]));
+    $counts = [];
+    foreach($base as $p){ $v = facet_value($p, $k); if($v !== '') $counts[$v] = ($counts[$v] ?? 0) + 1; }
+    if(count($counts) < 2 && !isset($f[$k])) continue;
+    if($k === 'year') krsort($counts, SORT_NATURAL); elseif($k === 'w') uksort($counts, fn($a, $b)=>(weight_parse($a) ? oz_from(...weight_parse($a)) : 0) <=> (weight_parse($b) ? oz_from(...weight_parse($b)) : 0)); else arsort($counts);
+    $facets[$k] = $counts;
+  }
+  $META['schema'][] = item_list_schema(array_slice($list, ($page - 1) * $per, $per));
+  ob_start(); ?>
+<section class="wrap sec listing" id="products">
+  <?php if($facets): ?>
+  <aside class="filters" aria-label="Filter products">
+    <details class="filters-box" open><summary>Filter<?= $f ? ' ('.count($f).')' : '' ?></summary>
+    <?php if($f): ?><p class="clear"><a href="<?= h($q(array_fill_keys(array_keys($f), ''))) ?>#products" rel="nofollow">Clear all filters</a></p><?php endif; ?>
+    <?php foreach($facets as $k=>$counts): $i = 0; ?>
+      <div class="facet"><p class="facet-h"><?= h(FILTERS[$k]) ?></p><ul>
+      <?php foreach($counts as $v=>$n): $on = ($f[$k] ?? null) === (string)$v; $i++; ?>
+        <li<?= $i > 8 && !$on ? ' class="more"' : '' ?>><a href="<?= h($q([$k=>$on ? '' : (string)$v, 'page'=>''])) ?>#products" rel="nofollow"<?= $on ? ' aria-current="true"' : '' ?>><span class="box" aria-hidden="true"></span><?= h($v) ?> <small><?= number_format($n) ?></small></a></li>
+      <?php endforeach; ?></ul><?php if($i > 8): ?><button type="button" class="facet-more">Show all <?= $i ?></button><?php endif; ?></div>
+    <?php endforeach; ?>
+    </details>
+  </aside>
+  <?php endif; ?>
+  <div class="results">
+    <div class="results-bar">
+      <p><b><?= number_format($total) ?></b> <?= $total === 1 ? 'product' : 'products' ?><?= $heading && !$f ? '' : '' ?></p>
+      <form method="get" action="<?= h(link_to($path)) ?>#products" class="sort"><?php foreach($f as $k=>$v): ?><input type="hidden" name="<?= h($k) ?>" value="<?= h($v) ?>"><?php endforeach; ?><?php if(!empty($_GET['q'])): ?><input type="hidden" name="q" value="<?= h($_GET['q']) ?>"><?php endif; ?>
+        <label>Sort by <select name="sort" onchange="this.form.submit()"><?php foreach(SORTS as $k=>$l): ?><option value="<?= $k ?>"<?= $k === $sort ? ' selected' : '' ?>><?= h($l) ?></option><?php endforeach; ?></select></label><noscript><button class="btn btn-sm btn-ghost">Sort</button></noscript></form>
+    </div>
+    <?php if($f): ?><p class="chips-on"><?php foreach($f as $k=>$v): ?><a href="<?= h($q([$k=>'', 'page'=>''])) ?>#products" rel="nofollow"><?= h($v) ?> ✕</a><?php endforeach; ?></p><?php endif; ?>
+    <?= $total ? product_grid(array_slice($list, ($page - 1) * $per, $per)) : ($all ? '<div class="empty"><p>No products match these filters. <a href="'.h($q(array_fill_keys(array_keys($f), ''))).'">Clear filters</a></p></div>' : empty_shop()) ?>
+    <?php if($pages > 1): ?><nav class="pager" aria-label="Pages">
+      <?php if($page > 1): ?><a href="<?= h($q(['page'=>$page - 1 > 1 ? $page - 1 : ''])) ?>#products" rel="prev">← Previous</a><?php endif; ?>
+      <?php foreach(array_unique([1, max(1, $page - 2), max(1, $page - 1), $page, min($pages, $page + 1), min($pages, $page + 2), $pages]) as $n): ?>
+        <?= $n === $page ? '<span aria-current="page">'.$n.'</span>' : '<a href="'.h($q(['page'=>$n > 1 ? $n : ''])).'#products">'.$n.'</a>' ?>
+      <?php endforeach; ?>
+      <?php if($page < $pages): ?><a href="<?= h($q(['page'=>$page + 1])) ?>#products" rel="next">Next →</a><?php endif; ?>
+    </nav><?php endif; ?>
+  </div>
+</section>
+<?php return ob_get_clean();
+}
+
+function cat_trail($c){
+  $trail = []; $x = $c; $guard = 0;
+  while($x && $guard++ < 5){ array_unshift($trail, [$x['name'], $x['slug']]); $x = !empty($x['parent']) ? category($x['parent']) : null; }
+  return array_merge([['Shop', 'shop']], $trail);
+}
 
 function view_category($seg, $path){
   global $META;
@@ -450,50 +613,72 @@ function view_category($seg, $path){
   $META['title'] = fill($c['seo_title'] ?: $c['name']); $META['desc'] = fill($c['seo_desc']); $META['canonical'] = abs_url($c['slug']);
   if(!$products) $META['robots'] = 'noindex,follow';
   if($ci = site_img('cat:'.$c['slug'])) $META['image'] = preg_match('#^https?://#', $ci['src']) ? $ci['src'] : abs_url($ci['src']);
-  $trail = [['Shop', 'shop']];
-  if(!empty($c['parent']) && ($par = category($c['parent']))) $trail[] = [$par['name'], $par['slug']];
-  $trail[] = [$c['name'], $c['slug']];
-  crumbs($trail); ?>
-<div class="wrap page-head<?= ($ci = site_img('cat:'.$c['slug'])) ? ' head-media' : '' ?>"><div><h1><?= h(fill($c['h1'] ?: $c['name'])) ?></h1><p class="lead"><?= fill(h($c['intro'])) ?></p><?= cat_chips($c['slug']) ?></div><?php if($ci): ?><figure class="head-photo"><?= site_img_tag($ci, '', true) ?></figure><?php endif; ?></div>
-<section class="wrap sec"><?= $products ? product_grid($products) : empty_shop() ?></section>
+  crumbs(cat_trail($c));
+  $kids = array_values(array_filter(child_cats($c['slug']), fn($k)=>cat_count($k['slug']) > 0));
+  $list = listing($products, $c['slug'], $c['name']); ?>
+<div class="wrap page-head<?= $ci ? ' head-media' : '' ?>"><div><h1><?= h(fill($c['h1'] ?: $c['name'])) ?></h1><p class="lead"><?= fill(h($c['intro'])) ?></p></div><?php if($ci): ?><figure class="head-photo"><?= site_img_tag($ci, '', true) ?></figure><?php endif; ?></div>
+<?php if($kids): ?><section class="wrap sec-tight"><?= cat_tiles($kids) ?></section><?php endif; ?>
+<?= $list ?>
 <section class="wrap sec content-grid">
   <article class="prose"><?= content($c['body']) ?><?= faq_block($c['faqs'] ?? []) ?></article>
   <aside class="side"><?= side_box() ?><?= related_guides_box(cat_guides($c['slug'])) ?></aside>
 </section>
-<?php $META['schema'][] = item_list_schema($products);
-}
+<?php }
 
 function view_product($seg){
   global $META, $CFG, $STORE;
   $p = product_by_slug($seg[1]);
   $price = product_price($p);
-  $META['title'] = fill($p['seo_title'] ?: (mb_strlen($p['name']) <= 38 ? $p['name'].' for Sale' : $p['name']));
+  $metal = $p['metal'] ?? '';
+  $oz = product_fine_oz($p);
+  $melt = $oz > 0 && isset(METALS[$metal]) ? gold_value($oz, 'oz', 24, $metal) : null;
+  $short = $p['name'];
+  if(mb_strlen($short) > 60) $short = trim(preg_replace('/\s*\([^)]*\)\s*/', ' ', $short));
+  if(mb_strlen($short) > 80) $short = rtrim(mb_substr($short, 0, mb_strrpos(mb_substr($short, 0, 78), ' ')), ' -,');
+  $META['title'] = fill($p['seo_title'] ?: (mb_strlen($short) <= 44 ? $short.' for Sale' : $short));
   $META['desc'] = fill($p['seo_desc'] ?: plain(($p['short'] ?? '') ?: ($p['description'] ?? ''), 155));
-  if(mb_strlen($META['desc']) < 60) $META['desc'] = 'Buy '.$p['name'].' — '.trim(product_spec_line($p).'. Live spot pricing, insured US shipping and discreet packaging.', ' .').'.';
+  if(mb_strlen($META['desc']) < 90) $META['desc'] = 'Buy the '.$p['name'].'. '.trim(product_spec_line($p).'. Insured US shipping, discreet packaging and secure checkout.', ' .').'.';
   $META['canonical'] = abs_url('products/'.$p['slug']); $META['type'] = 'product';
   $imgs = array_values(array_filter((array)($p['images'] ?? [])));
   if($imgs) $META['image'] = preg_match('#^https?://#', $imgs[0]) ? $imgs[0] : abs_url($imgs[0]);
   $cat = category(($p['categories'] ?? [''])[0] ?? '');
-  $trail = [['Shop', 'shop']];
-  if($cat){ if(!empty($cat['parent']) && ($par = category($cat['parent']))) $trail[] = [$par['name'], $par['slug']]; $trail[] = [$cat['name'], $cat['slug']]; }
-  $trail[] = [$p['name'], 'products/'.$p['slug']];
-  crumbs($trail);
-  $oz = oz_from($p['weight'] ?? 0, $p['unit'] ?? 'oz');
-  $melt = gold_value($oz, 'oz', 24, $p['metal'] ?? 'gold');
-  $stock = $p['stock'] ?? 'in'; ?>
+  crumbs(array_merge($cat ? cat_trail($cat) : [['Shop', 'shop']], [[$p['name'], 'products/'.$p['slug']]]));
+  $stock = $p['stock'] ?? 'in';
+  $quote = link_to('contact').'?'.http_build_query(['product'=>$p['name'].(($p['sku'] ?? '') !== '' ? ' (SKU '.$p['sku'].')' : '')]);
+  $specs = array_filter([
+    'Metal'=>METALS[$metal] ?? ucfirst($metal),
+    'Product type'=>rtrim(TYPE_LABELS[$p['type'] ?? ''] ?? '', 's'),
+    'Weight'=>weight_label($p['weight'] ?? 0, $p['unit'] ?? 'oz').(($p['qty'] ?? 1) > 1 ? ' × '.(int)$p['qty'] : ''),
+    'Fine metal content'=>$oz > 0 ? rtrim(rtrim(number_format($oz, 4), '0'), '.').' troy oz ('.rtrim(rtrim(number_format($oz * G_PER_OZT, 3), '0'), '.').' g)' : '',
+    'Purity'=>$p['purity'] ?? '',
+    'Year'=>$p['year'] ?? '',
+    'Mint / brand'=>$p['brand'] ?? '',
+    'Grade'=>trim(($p['grader'] ?? '').' '.($p['grade'] ?? '')),
+    'Finish'=>!empty($p['proof']) ? 'Proof' : '',
+    'Packaging'=>$p['packaging'] ?? '',
+    'SKU'=>$p['sku'] ?? '',
+  ], fn($v)=>$v !== '' && $v !== null);
+  foreach((array)($p['specs'] ?? []) as $k=>$v){
+    if(in_array($k, ['Metal Weight', 'Purity', 'Manufacturer', 'Packaging Type', 'Condition', 'Year', 'Grade', 'Grade Service'], true) || $v === '' || is_array($v)) continue;
+    $specs[$k === 'CoA' ? 'Certificate of authenticity' : $k] = (string)$v;
+  } ?>
 <div class="wrap product">
   <div class="gallery">
     <div class="gal-main"><?= product_img($p, 0, true) ?></div>
     <?php if(count($imgs) > 1): ?><div class="gal-thumbs"><?php foreach($imgs as $i=>$src): ?><button type="button" class="thumb" data-src="<?= h(img_src($src)) ?>" aria-label="Show photo <?= $i + 1 ?>"><img src="<?= h(img_src($src)) ?>" alt="" width="72" height="72" loading="lazy"></button><?php endforeach; ?></div><?php endif; ?>
+    <?php if(!$imgs): ?><p class="small muted center">Illustration — product photo coming soon.</p><?php endif; ?>
   </div>
   <div class="buy">
-    <?php if(!empty($p['brand'])): ?><p class="kicker"><?= h($p['brand']) ?></p><?php endif; ?>
+    <p class="badges"><?php if(isset(METALS[$metal]) || $metal === 'copper'): ?><span class="badge-m m-<?= h($metal) ?>"><?= h(METALS[$metal] ?? ucfirst($metal)) ?></span><?php endif; ?><?php if(!empty($p['graded'])): ?><span class="badge-m">Certified <?= h($p['grader'] ?? '') ?></span><?php endif; ?><?php if(!empty($p['proof'])): ?><span class="badge-m">Proof</span><?php endif; ?><?php if(!empty($p['brand'])): ?><span class="badge-m badge-plain"><?= h($p['brand']) ?></span><?php endif; ?></p>
     <h1><?= h($p['name']) ?></h1>
     <p class="spec"><?= h(product_spec_line($p)) ?></p>
-    <div class="price-row"><span class="price"><?= $price > 0 ? usd($price) : 'Call for price' ?></span>
+    <?php if($price > 0): ?>
+    <div class="price-row"><span class="price"><?= usd($price) ?></span>
       <?php if(!empty($p['compare_at']) && $p['compare_at'] > $price): ?><s class="was"><?= usd($p['compare_at']) ?></s><?php endif; ?>
       <span class="stock stock-<?= h($stock) ?>"><?= h(STOCK_STATUSES[$stock] ?? '') ?></span></div>
-    <?php if(($p['pricing'] ?? 'fixed') === 'spot'): ?><p class="small muted">Price moves with the live gold price and is locked when you place your order.</p><?php endif; ?>
+    <?php if(($p['pricing'] ?? 'fixed') === 'spot'): ?><p class="small muted">Price follows the live <?= h(strtolower(METALS[$metal] ?? 'metal')) ?> spot price and is locked when you place your order.</p><?php endif; ?>
+    <?php endif; ?>
+    <?php if($melt): ?><p class="melt">Metal value today: <b><?= usd($melt) ?></b> <span class="muted small">(<?= rtrim(rtrim(number_format($oz, 4), '0'), '.') ?> oz × <?= h(METALS[$metal]) ?> spot)</span></p><?php endif; ?>
     <?php if(!empty($p['short'])): ?><p class="short"><?= h(fill($p['short'])) ?></p><?php endif; ?>
     <?php if(in_stock($p)): ?>
     <form method="post" action="<?= link_to('cart') ?>" class="add">
@@ -501,7 +686,9 @@ function view_product($seg){
       <label class="qty"><span>Qty</span><input type="number" name="qty" value="1" min="1" max="100" inputmode="numeric"></label>
       <button class="btn btn-gold btn-lg" type="submit">Add to cart</button>
     </form>
-    <?php else: ?><p class="note">This item is currently sold out. <a href="<?= link_to('contact') ?>">Contact us</a> to be told when it’s back.</p><?php endif; ?>
+    <?php elseif($price <= 0): ?>
+    <div class="quote"><p><b>Request a price</b> — this item is priced on request. We’ll reply <?= h($CFG['reply_time']) ?> with a quote.</p><a class="btn btn-gold btn-lg" href="<?= h($quote) ?>">Request a quote</a></div>
+    <?php else: ?><p class="note">This item is currently sold out. <a href="<?= h($quote) ?>">Contact us</a> to be told when it’s back.</p><?php endif; ?>
     <ul class="assure">
       <li><b>Price locked</b> when you order — pay within <?= h($CFG['pay_window']) ?> hours</li>
       <li><b>Insured shipping</b> — <?= h(implode(' · ', array_map(fn($m)=>$m['label'].' '.usd($m['price'], 0), ship_methods($STORE)))) ?></li>
@@ -512,28 +699,19 @@ function view_product($seg){
 </div>
 <section class="wrap sec content-grid">
   <article class="prose">
+    <h2>About this product</h2>
+    <?= preg_match('/^\s*</', (string)$p['description']) ? content($p['description']) : '<p>'.h($p['description'] ?? '').'</p>' ?>
     <h2>Specifications</h2>
-    <table class="specs"><tbody>
-      <?php foreach(array_filter([
-        'Metal'=>METALS[$p['metal'] ?? 'gold'] ?? '',
-        'Weight'=>weight_label($p['weight'] ?? 0, $p['unit'] ?? 'oz'),
-        'Fine content'=>$oz > 0 ? rtrim(rtrim(number_format($oz, 4), '0'), '.').' troy oz ('.number_format($oz * G_PER_OZT, 2).' g)' : '',
-        'Purity'=>$p['purity'] ?? '',
-        'Type'=>['bar'=>'Bar', 'coin'=>'Coin', 'round'=>'Round'][$p['type'] ?? ''] ?? '',
-        'Brand / mint'=>$p['brand'] ?? '',
-        'Packaging'=>$p['packaging'] ?? '',
-        'SKU'=>$p['sku'] ?? '',
-        'Metal value today'=>$melt ? usd($melt).' (at spot)' : '',
-      ]) as $k=>$v): ?><tr><th><?= h($k) ?></th><td><?= h($v) ?></td></tr><?php endforeach; ?>
-    </tbody></table>
-    <?php if(!empty($p['description'])): ?><h2>Product description</h2><?= content($p['description']) ?><?php endif; ?>
-    <?php if($cat && !empty($cat['body'])): ?><p>Learn more: <a href="<?= link_to($cat['slug']) ?>"><?= h($cat['name']) ?></a> · <a href="<?= link_to('gold-price') ?>">gold price today</a> · <a href="<?= link_to('guides/gold-bar-weight-and-sizes') ?>">gold bar weights &amp; sizes</a></p><?php endif; ?>
+    <table class="specs"><tbody><?php foreach($specs as $k=>$v): ?><tr><th><?= h($k) ?></th><td><?= h($v) ?></td></tr><?php endforeach; ?>
+      <?php if($melt): ?><tr><th>Metal value today</th><td><?= usd($melt) ?> at spot</td></tr><?php endif; ?></tbody></table>
+    <?php if($cat): ?><p>More in <a href="<?= link_to($cat['slug']) ?>"><?= h($cat['name']) ?></a><?= $metal === 'gold' ? ' · <a href="'.link_to('gold-price').'">Gold price today</a>' : ($metal === 'silver' ? ' · <a href="'.link_to('gold-price').'">Silver price today</a>' : '') ?> · <a href="<?= link_to('how-to-order') ?>">How to order</a></p><?php endif; ?>
   </article>
-  <aside class="side"><?= side_box() ?></aside>
+  <aside class="side"><?= side_box() ?><?= $cat ? related_guides_box(cat_guides($cat['slug'])) : '' ?></aside>
 </section>
 <?php
-  $related = array_slice(array_values(array_filter($cat ? cat_products($cat['parent'] ?: $cat['slug']) : visible_products(), fn($x)=>$x['id'] !== $p['id'])), 0, 4);
-  if($related) echo '<section class="wrap sec"><h2 class="h2">You may also like</h2>'.product_grid($related).'</section>';
+  $pool = $cat ? cat_products($cat['slug']) : visible_products();
+  $related = array_slice(array_values(array_filter($pool, fn($x)=>$x['id'] !== $p['id'] && product_price($x) > 0)), 0, 4) ?: array_slice(array_values(array_filter($pool, fn($x)=>$x['id'] !== $p['id'])), 0, 4);
+  if($related) echo '<section class="wrap sec"><h2 class="h2">More '.h($cat['name'] ?? 'products').'</h2>'.product_grid($related).'</section>';
   $META['schema'][] = product_schema($p, $price);
 }
 
@@ -754,14 +932,15 @@ function view_search(){
   global $META;
   $q = trim((string)($_GET['q'] ?? ''));
   $META['title'] = 'Search'.($q !== '' ? ': '.$q : ''); $META['robots'] = 'noindex,follow';
-  $ql = mb_strtolower($q);
-  $products = $q === '' ? [] : array_values(array_filter(visible_products(), fn($p)=>mb_strpos(mb_strtolower($p['name'].' '.($p['brand'] ?? '').' '.($p['sku'] ?? '')), $ql) !== false));
-  $guides = $q === '' ? [] : array_values(array_filter(guides_all(), fn($g)=>mb_strpos(mb_strtolower($g['title'].' '.($g['summary'] ?? '')), $ql) !== false)); ?>
-<div class="wrap page-head"><h1>Search</h1><form class="search-big" action="<?= link_to('search') ?>"><input name="q" value="<?= h($q) ?>" placeholder="Search gold bars, coins, guides…" aria-label="Search"><button class="btn btn-gold">Search</button></form></div>
-<section class="wrap sec"><?php if($q !== ''): ?>
-  <?= $products ? product_grid($products) : '<p>No products match “'.h($q).'”.</p>' ?>
-  <?php if($guides): ?><h2 class="h2">Guides</h2><?= guide_cards($guides) ?><?php endif; ?>
-<?php endif; ?></section>
+  $words = array_filter(preg_split('/\s+/', mb_strtolower($q)));
+  $match = function($text) use($words){ $t = mb_strtolower($text); foreach($words as $w) if(mb_strpos($t, $w) === false) return false; return true; };
+  $products = $words ? array_values(array_filter(visible_products(), fn($p)=>$match($p['name'].' '.($p['brand'] ?? '').' '.($p['sku'] ?? '').' '.($p['year'] ?? '')))) : [];
+  $guides = $words ? array_values(array_filter(guides_all(), fn($g)=>$match($g['title'].' '.($g['summary'] ?? '')))) : [];
+  $cats = $words ? array_values(array_filter($GLOBALS['STORE']['categories'], fn($c)=>$match($c['name']) && cat_count($c['slug']) > 0)) : []; ?>
+<div class="wrap page-head"><h1><?= $q !== '' ? 'Results for “'.h($q).'”' : 'Search' ?></h1><form class="search-big" action="<?= link_to('search') ?>"><input name="q" value="<?= h($q) ?>" placeholder="Search coins, bars, mints, years…" aria-label="Search"><button class="btn btn-gold">Search</button></form></div>
+<?php if($cats): ?><section class="wrap sec-tight"><?= cat_tiles($cats) ?></section><?php endif; ?>
+<?php if($q !== ''): ?><?= $products ? listing($products, 'search') : '<section class="wrap sec"><p>No products match “'.h($q).'”. Try fewer words, or browse the <a href="'.link_to('shop').'">shop</a>.</p></section>' ?><?php endif; ?>
+<?php if($guides): ?><section class="wrap sec"><h2 class="h2">Guides</h2><?= guide_cards(array_slice($guides, 0, 6)) ?></section><?php endif; ?>
 <?php }
 
 function view_notfound(){
@@ -782,25 +961,32 @@ function product_spec_line($p){
   return $main.($main !== '' && $pur !== '' ? ' · ' : '').$pur;
 }
 
+/* placeholder art matching the product's metal and shape, until a real photo is added */
+function product_art($p){
+  $shape = ['bar'=>'bar', 'note'=>'note', 'jewelry'=>'jewelry', 'accessory'=>'accessory'][$p['type'] ?? ''] ?? 'coin';
+  $metal = ['gold'=>'gold', 'silver'=>'silver', 'platinum'=>'platinum', 'palladium'=>'platinum', 'copper'=>'copper'][$p['metal'] ?? ''] ?? 'silver';
+  return link_to('assets/img/ph/'.$shape.'-'.$metal.'.svg');
+}
 function product_img($p, $i=0, $lcp=false){
   $imgs = array_values(array_filter((array)($p['images'] ?? [])));
   $alt = $p['name'].(!empty($p['brand']) ? ' by '.$p['brand'] : '');
-  $art = ($p['type'] ?? '') === 'coin' ? 'coin' : 'bar';
+  $art = product_art($p);
   if(isset($imgs[$i])) return '<img src="'.h(img_src($imgs[$i])).'" alt="'.h($alt).'" width="600" height="600"'.($lcp ? ' fetchpriority="high"' : ' loading="lazy" decoding="async"')
-    .' onerror="this.onerror=null;this.src=\''.h(link_to('assets/img/'.$art.'.svg')).'\'">';
-  return '<img src="'.h(link_to('assets/img/'.$art.'.svg')).'" alt="'.h($alt).'" width="600" height="600" class="ph"'.($lcp ? '' : ' loading="lazy"').'>';
+    .' onerror="this.onerror=null;this.src=\''.h($art).'\'">';
+  return '<img src="'.h($art).'" alt="'.h($alt).' (illustration)" width="600" height="600" class="ph"'.($lcp ? '' : ' loading="lazy"').'>';
 }
 
 function product_grid($products){
   ob_start(); ?>
-<ul class="grid"><?php foreach($products as $p): $price = product_price($p); ?>
+<ul class="grid"><?php foreach($products as $p): $price = product_price($p); $metal = $p['metal'] ?? ''; ?>
   <li class="card">
-    <a class="card-img" href="<?= product_url($p) ?>"><?= product_img($p) ?></a>
+    <a class="card-img" href="<?= product_url($p) ?>"><?= product_img($p) ?><?php if(!empty($p['graded'])): ?><span class="card-flag"><?= h($p['grader'] ?: 'Certified') ?></span><?php elseif(!empty($p['proof'])): ?><span class="card-flag">Proof</span><?php endif; ?></a>
     <div class="card-body">
+      <p class="card-meta"><?php if($metal !== ''): ?><span class="dot-m m-<?= h($metal) ?>"></span><?= h(METALS[$metal] ?? ucfirst($metal)) ?><?php endif; ?><?= ($p['weight'] ?? 0) > 0 ? ' · '.h(weight_label($p['weight'], $p['unit'] ?? 'oz')) : '' ?><?= ($p['year'] ?? '') !== '' ? ' · '.h($p['year']) : '' ?></p>
       <h3><a href="<?= product_url($p) ?>"><?= h($p['name']) ?></a></h3>
-      <p class="small muted"><?= h(product_spec_line($p)) ?></p>
-      <p class="card-price"><?= $price > 0 ? usd($price) : 'Call for price' ?><?php if(($p['stock'] ?? 'in') !== 'in'): ?> <span class="stock stock-<?= h($p['stock']) ?>"><?= h(STOCK_STATUSES[$p['stock']] ?? '') ?></span><?php endif; ?></p>
-      <?php if(in_stock($p)): ?><form method="post" action="<?= link_to('cart') ?>"><input type="hidden" name="action" value="add"><input type="hidden" name="id" value="<?= h($p['id']) ?>"><button class="btn btn-gold btn-sm btn-block" type="submit">Add to cart</button></form><?php endif; ?>
+      <p class="card-price"><?= $price > 0 ? usd($price) : '<span class="quote-l">Price on request</span>' ?><?php if(($p['stock'] ?? 'in') !== 'in'): ?> <span class="stock stock-<?= h($p['stock']) ?>"><?= h(STOCK_STATUSES[$p['stock']] ?? '') ?></span><?php endif; ?></p>
+      <?php if(in_stock($p)): ?><form method="post" action="<?= link_to('cart') ?>"><input type="hidden" name="action" value="add"><input type="hidden" name="id" value="<?= h($p['id']) ?>"><button class="btn btn-gold btn-sm btn-block" type="submit">Add to cart</button></form>
+      <?php else: ?><a class="btn btn-ghost btn-sm btn-block" href="<?= product_url($p) ?>"><?= $price > 0 ? 'View details' : 'Request a quote' ?></a><?php endif; ?>
     </div>
   </li>
 <?php endforeach; ?></ul>
@@ -1044,7 +1230,9 @@ function related_guides_box($guides){
 }
 
 function contact_form(){
-  $m = $_SESSION['contact'] ?? []; $v = fn($k)=>h($m[$k] ?? ''); ?>
+  $m = $_SESSION['contact'] ?? [];
+  if(!$m && !empty($_GET['product']) && is_string($_GET['product'])) $m['message'] = 'Please send me a price for: '.mb_substr($_GET['product'], 0, 200)."\nQuantity: 1";
+  $v = fn($k)=>h($m[$k] ?? ''); ?>
 <form method="post" action="<?= link_to('contact') ?>" class="form">
   <input type="hidden" name="action" value="contact"><input type="hidden" name="csrf" value="<?= h(csrf()) ?>">
   <div class="hp" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
@@ -1136,6 +1324,13 @@ function sitemap(){
 /* =============================================================
    LAYOUT
    ============================================================= */
+/* a menu column: the categories that have products, then an "all" link */
+function menu_links($cats, $all_label, $all_slug){
+  $out = '<ul>';
+  foreach($cats as $c) if(cat_live($c['slug']) && ($c['nav'] ?? true) !== false || cat_count($c['slug']) >= 20) $out .= '<li><a href="'.link_to($c['slug']).'">'.h($c['name']).'</a></li>';
+  return $out.'<li><a class="all" href="'.link_to($all_slug).'">'.h($all_label).' →</a></li></ul>';
+}
+
 /* the logo: the stacked-bars mark + the shop name, last word set small underneath ("GOLD BULLION / SHOP") */
 function logo_lockup($brand, $light=false){
   global $BASE;
@@ -1169,7 +1364,7 @@ function render($body){
   $css = 'assets/style.css?v='.@filemtime(GB_ROOT.'/assets/style.css');
   $js = 'assets/app.js?v='.@filemtime(GB_ROOT.'/assets/app.js');
   $spot = spot();
-  $nav_cats = array_values(array_filter($STORE['categories'], fn($c)=>!empty($c['nav']) && ($c['parent'] ?? '') === 'gold-bars' && (cat_products($c['slug']) || !$STORE['products'])));
+  $nav_cats = array_values(array_filter($STORE['categories'], fn($c)=>!empty($c['nav']) && ($c['parent'] ?? '') === 'gold-bars' && cat_live($c['slug'])));
   $help = array_values(array_filter($STORE['pages'], fn($p)=>($p['group'] ?? '') === 'help'));
   $legal = array_values(array_filter($STORE['pages'], fn($p)=>($p['group'] ?? '') === 'legal'));
   $company = array_values(array_filter($STORE['pages'], fn($p)=>($p['group'] ?? '') === 'company'));
@@ -1227,11 +1422,12 @@ function render($body){
     <button type="button" class="menu-btn" aria-expanded="false" aria-controls="nav-list">Menu</button>
       <ul class="nav-list" id="nav-list">
         <li class="has-sub has-mega"><a href="<?= link_to('shop') ?>">Shop</a><button type="button" class="caret" aria-expanded="false" aria-label="Shop menu"></button>
-          <div class="sub mega"><div class="mega-cols">
-            <div><p class="mega-h"><a href="<?= link_to('gold-bars') ?>">Gold bars</a></p><ul><?php foreach($nav_cats as $c): ?><li><a href="<?= link_to($c['slug']) ?>"><?= h($c['name']) ?></a></li><?php endforeach; ?><li><a href="<?= link_to('gold-bars') ?>">All gold bars</a></li></ul></div>
-            <div><p class="mega-h"><a href="<?= link_to('gold-coins') ?>">Gold coins</a></p><ul><li><a href="<?= link_to('gold-coins') ?>">All gold coins</a></li><li><a href="<?= link_to('gold-coin-prices') ?>">Gold coin prices today</a></li><li><a href="<?= link_to('guides/best-gold-coins-to-buy') ?>">Best gold coins to buy</a></li><li><a href="<?= link_to('guides/mini-gold-coins') ?>">Mini gold coins</a></li></ul>
-              <?php if(cat_products('silver-bullion')): ?><p class="mega-h"><a href="<?= link_to('silver-bullion') ?>">Silver bullion</a></p><?php endif; ?></div>
-            <div><p class="mega-h">Buying help</p><ul><li><a href="<?= link_to('shop') ?>">All gold bullion</a></li><li><a href="<?= link_to('how-to-order') ?>">How to order</a></li><li><a href="<?= link_to('payment-methods') ?>">Payment methods</a></li><li><a href="<?= link_to('shipping-returns') ?>">Shipping &amp; returns</a></li><li><a href="<?= link_to('guides/best-gold-bars-to-buy') ?>">Best gold bars to buy</a></li></ul></div>
+          <div class="sub mega mega-wide"><div class="mega-cols">
+            <div><p class="mega-h"><a href="<?= link_to('gold-bars') ?>">Gold bars</a></p><?= menu_links(child_cats('gold-bars'), 'All gold bars', 'gold-bars') ?></div>
+            <div><p class="mega-h"><a href="<?= link_to('gold-coins') ?>">Gold coins</a></p><?= menu_links(child_cats('gold-coins'), 'All gold coins', 'gold-coins') ?></div>
+            <div><p class="mega-h"><a href="<?= link_to('silver-bullion') ?>">Silver</a></p><?= menu_links(array_merge(child_cats('silver-coins'), child_cats('silver-bullion')), 'All silver', 'silver-bullion') ?></div>
+            <div><p class="mega-h">More metals &amp; collectibles</p><?= menu_links(array_values(array_filter($STORE['categories'], fn($c)=>($c['parent'] ?? '') === '' && !in_array($c['slug'], ['gold-bars', 'gold-coins', 'silver-bullion'], true))), 'Shop everything', 'shop') ?>
+              <p class="mega-h" style="margin-top:14px">Buying help</p><ul><li><a href="<?= link_to('how-to-order') ?>">How to order</a></li><li><a href="<?= link_to('payment-methods') ?>">Payment methods</a></li><li><a href="<?= link_to('shipping-returns') ?>">Shipping &amp; returns</a></li></ul></div>
           </div></div></li>
         <li class="has-sub has-mega"><a href="<?= link_to('gold-price') ?>">Gold Price</a><button type="button" class="caret" aria-expanded="false" aria-label="Gold price menu"></button>
           <div class="sub mega"><div class="mega-cols">

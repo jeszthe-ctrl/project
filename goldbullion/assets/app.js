@@ -18,6 +18,10 @@
   document.addEventListener('click', function(e){ if(!e.target.closest('.has-sub')) document.querySelectorAll('.has-sub.open').forEach(function(x){ x.classList.remove('open'); }); });
   document.addEventListener('keydown', function(e){ if(e.key === 'Escape') document.querySelectorAll('.has-sub.open').forEach(function(x){ x.classList.remove('open'); }); });
 
+  /* filters: "show all" options; on phones the filter panel starts closed */
+  document.querySelectorAll('.facet-more').forEach(function(b){ b.addEventListener('click', function(){ b.parentNode.classList.add('all'); b.remove(); }); });
+  if(window.matchMedia('(max-width:1000px)').matches) document.querySelectorAll('.filters-box').forEach(function(d){ if(!/[?&](metal|type|w|kind|brand|year)=/.test(location.search)) d.removeAttribute('open'); });
+
   /* product photos */
   document.querySelectorAll('.thumb').forEach(function(b){
     b.addEventListener('click', function(){

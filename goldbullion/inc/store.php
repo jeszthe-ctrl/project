@@ -52,10 +52,10 @@ function data_read($name){
 }
 
 /* write to a temp file then rename, so a crash never leaves half a file */
-function data_write($name, $value){
+function data_write($name, $value, $pretty=true){
   $file = data_file($name);
   if(!is_dir(dirname($file))) @mkdir(dirname($file), 0755, true);
-  $json = json_encode($value, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+  $json = json_encode($value, ($pretty ? JSON_PRETTY_PRINT : 0)|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
   if($json === false) return false;
   $tmp = $file.'.'.bin2hex(random_bytes(4)).'.tmp';
   if(@file_put_contents($tmp, GB_GUARD.$json, LOCK_EX) === false) return false;
@@ -77,29 +77,55 @@ function default_item($section, $slug){
 function store_load(){
   $d = store_defaults();
   $s = data_read('store');
-  if(!$s){ $s = $d; data_write('store', $s); return $s; }   /* first run: start from the built-in content */
+  if(!$s){ $s = $d; unset($s['products']); data_write('store', $s); }   /* first run: start from the built-in content */
   foreach($d as $k=>$v) if(!isset($s[$k])) $s[$k] = $v;     /* sections added by later versions */
   $s['settings'] += $d['settings'];
-  /* built-in pages, guides and price pages added by a later version (never replaces your edits) */
+  /* built-in pages, guides, price pages and categories added by a later version (never replaces your edits) */
   foreach(['pages', 'guides', 'tools', 'categories'] as $sec){
     $have = array_column($s[$sec], 'slug');
     foreach($d[$sec] as $row) if(!in_array($row['slug'], $have, true) && !in_array($row['slug'], $s['settings']['deleted_'.$sec] ?? [], true)) $s[$sec][] = $row;
   }
+  $s['products'] = products_load($s['products'] ?? []);
   return $s;
 }
 
-/* keeps the last 30 versions in data/backups/ */
-function store_save($s){
-  $cur = data_file('store');
-  if(is_file($cur)){
-    $dir = data_dir().'/backups';
-    if(!is_dir($dir)) @mkdir($dir, 0755, true);
-    @copy($cur, $dir.'/store-'.date('Ymd-His').'-'.bin2hex(random_bytes(2)).'.php');
-    $old = glob($dir.'/store-*.php') ?: [];
-    sort($old);
-    foreach(array_slice($old, 0, max(0, count($old) - 30)) as $f) @unlink($f);
+/* Products live in their own file (data/products.php), so a large catalog doesn't slow down
+   saving settings. A fresh install starts with the bundled catalog (inc/catalog.json.gz). */
+function products_load($legacy){
+  $f = data_read('products');
+  if(is_array($f) && isset($f['items'])){ $GLOBALS['GB_PRODUCTS_HASH'] = md5(json_encode($f['items'])); return $f['items']; }
+  $items = $legacy;
+  if(!$items && is_file(GB_ROOT.'/inc/catalog.json.gz')){
+    $items = json_decode((string)@gzdecode((string)file_get_contents(GB_ROOT.'/inc/catalog.json.gz')), true) ?: [];
   }
+  data_write('products', ['items'=>$items], false);
+  $GLOBALS['GB_PRODUCTS_HASH'] = md5(json_encode($items));
+  return $items;
+}
+
+/* keeps the last 30 versions of the settings and content in data/backups/, and the last 5 of the products */
+function store_save($s){
+  $items = $s['products'] ?? [];
+  unset($s['products']);
+  $hash = md5(json_encode($items));
+  if($hash !== ($GLOBALS['GB_PRODUCTS_HASH'] ?? '')){
+    backup_file('products', 5);
+    if(!data_write('products', ['items'=>array_values($items)], false)) return false;
+    $GLOBALS['GB_PRODUCTS_HASH'] = $hash;
+  }
+  backup_file('store', 30);
   return data_write('store', $s);
+}
+
+function backup_file($name, $keep){
+  $cur = data_file($name);
+  if(!is_file($cur)) return;
+  $dir = data_dir().'/backups';
+  if(!is_dir($dir)) @mkdir($dir, 0755, true);
+  @copy($cur, $dir.'/'.$name.'-'.date('Ymd-His').'-'.bin2hex(random_bytes(2)).'.php');
+  $old = glob($dir.'/'.$name.'-*.php') ?: [];
+  sort($old);
+  foreach(array_slice($old, 0, max(0, count($old) - $keep)) as $f) @unlink($f);
 }
 
 function slugify($s){
@@ -129,18 +155,20 @@ function http_get($url, $timeout=5){
    10 minutes and kept in data/spot.php. If every feed fails, the last good price is used; with no
    price at all, the manual prices from Admin → Spot price. You can also switch to manual there. */
 function spot_fetch(){
-  $out = ['gold'=>0, 'silver'=>0, 'gold_change'=>null, 'gold_change_pct'=>null, 'silver_change'=>null, 'silver_change_pct'=>null];
+  $out = ['gold'=>0, 'silver'=>0, 'platinum'=>0, 'palladium'=>0, 'gold_change'=>null, 'gold_change_pct'=>null, 'silver_change'=>null, 'silver_change_pct'=>null];
   /* 1. goldprice.org (also has today's change) */
   $j = json_decode((string)http_get('https://data-asg.goldprice.org/dbXRates/USD'), true);
   $i = $j['items'][0] ?? null;
   if($i && (float)($i['xauPrice'] ?? 0) > 100){
-    return ['gold'=>(float)$i['xauPrice'], 'silver'=>(float)($i['xagPrice'] ?? 0),
+    $pgm = [];
+    foreach(['platinum'=>'XPT', 'palladium'=>'XPD'] as $m=>$sym){ $j2 = json_decode((string)http_get('https://api.gold-api.com/price/'.$sym, 4), true); $pgm[$m] = (float)($j2['price'] ?? 0); }
+    return $pgm + ['gold'=>(float)$i['xauPrice'], 'silver'=>(float)($i['xagPrice'] ?? 0),
             'gold_change'=>isset($i['chgXau']) ? (float)$i['chgXau'] : null, 'gold_change_pct'=>isset($i['pcXau']) ? (float)$i['pcXau'] : null,
             'silver_change'=>isset($i['chgXag']) ? (float)$i['chgXag'] : null, 'silver_change_pct'=>isset($i['pcXag']) ? (float)$i['pcXag'] : null,
             'source'=>'goldprice.org'];
   }
   /* 2. gold-api.com */
-  foreach(['gold'=>'XAU', 'silver'=>'XAG'] as $m=>$sym){
+  foreach(['gold'=>'XAU', 'silver'=>'XAG', 'platinum'=>'XPT', 'palladium'=>'XPD'] as $m=>$sym){
     $j = json_decode((string)http_get('https://api.gold-api.com/price/'.$sym), true);
     if((float)($j['price'] ?? 0) > 0) $out[$m] = (float)$j['price'];
   }
@@ -153,7 +181,7 @@ function spot(){
   static $cache = null;
   if($cache !== null) return $cache;
   $cfg = $GLOBALS['STORE']['settings'] ?? [];
-  $manual = ['gold'=>(float)($cfg['manual_gold'] ?? 0), 'silver'=>(float)($cfg['manual_silver'] ?? 0), 'time'=>(int)($cfg['manual_time'] ?? time()),
+  $manual = ['gold'=>(float)($cfg['manual_gold'] ?? 0), 'silver'=>(float)($cfg['manual_silver'] ?? 0), 'platinum'=>(float)($cfg['manual_platinum'] ?? 0), 'palladium'=>(float)($cfg['manual_palladium'] ?? 0), 'time'=>(int)($cfg['manual_time'] ?? time()),
              'source'=>'manual', 'live'=>false, 'gold_change'=>null, 'gold_change_pct'=>null, 'silver_change'=>null, 'silver_change_pct'=>null];
   if(($cfg['spot_mode'] ?? 'auto') === 'manual') return $cache = $manual;
   $saved = data_read('spot') ?: [];
@@ -166,7 +194,7 @@ function spot(){
   }
   if((float)($saved['gold'] ?? 0) > 0){
     $silver = (float)($saved['silver'] ?? 0) ?: $manual['silver'];
-    return $cache = ['gold'=>(float)$saved['gold'], 'silver'=>$silver, 'time'=>(int)($saved['time'] ?? time()), 'source'=>$saved['source'] ?? '',
+    return $cache = ['gold'=>(float)$saved['gold'], 'silver'=>$silver, 'platinum'=>(float)($saved['platinum'] ?? 0) ?: $manual['platinum'], 'palladium'=>(float)($saved['palladium'] ?? 0) ?: $manual['palladium'], 'time'=>(int)($saved['time'] ?? time()), 'source'=>$saved['source'] ?? '',
                      'live'=>time() - (int)($saved['time'] ?? 0) < 3600] + $saved;
   }
   return $cache = $manual;
@@ -186,13 +214,23 @@ function weight_label($weight, $unit){
   return $n.' '.(['g'=>'g', 'oz'=>'oz', 'kg'=>'kg'][(string)$unit] ?? $unit);
 }
 
+/* troy ounces of fine metal in one item (a tube of 20 coins counts all 20) */
+function product_fine_oz($p){ return (float)($p['fine_oz'] ?? 0) ?: oz_from($p['weight'] ?? 0, $p['unit'] ?? 'oz') * max(1, (int)($p['qty'] ?? 1)); }
+
 /* a product's price in USD: a fixed price, or the live spot value of its metal + your premium */
 function product_price($p){
+  static $memo = [];
+  $mk = ($p['id'] ?? '').'|'.($p['pricing'] ?? '').'|'.($p['price'] ?? '').'|'.($p['premium_pct'] ?? '').'|'.($p['premium_usd'] ?? '');
+  if(isset($memo[$mk])) return $memo[$mk];
+  return $memo[$mk] = product_price_calc($p);
+}
+function product_price_calc($p){
   if(($p['pricing'] ?? 'fixed') === 'spot'){
     $spot = spot();
     $per_oz = (float)($spot[$p['metal'] ?? 'gold'] ?? 0);
-    if($per_oz <= 0) return 0;
-    $metal = $per_oz * oz_from($p['weight'] ?? 0, $p['unit'] ?? 'oz');
+    $oz = product_fine_oz($p);
+    if($per_oz <= 0 || $oz <= 0) return 0;
+    $metal = $per_oz * $oz;
     return round($metal * (1 + (float)($p['premium_pct'] ?? 0) / 100) + (float)($p['premium_usd'] ?? 0), 2);
   }
   return round((float)($p['price'] ?? 0), 2);

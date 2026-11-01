@@ -3,9 +3,9 @@
    type and weight. Tokens like {value:1oz} show the live spot value when the page is viewed. */
 if(!defined('GB_ROOT')){ http_response_code(404); exit; }
 
-return [
+$cats = [
 [
-  'slug'=>'gold-bars', 'name'=>'Gold Bars', 'parent'=>'', 'nav'=>true, 'match'=>['metal'=>'gold', 'type'=>'bar'],
+  'slug'=>'gold-bars', 'group'=>'gold', 'name'=>'Gold Bars', 'parent'=>'', 'nav'=>true, 'match'=>['metal'=>'gold', 'type'=>'bar'],
   'h1'=>'24K Gold Bars for Sale',
   'seo_title'=>'Gold Bars for Sale – 24K Gold Bullion Bars, 1 Gram to 1 Kilo',
   'seo_desc'=>'Buy 24K gold bars online: .9999 fine gold bullion bars from 1 gram to 1 kilo, priced from the live spot price. Sealed assay cards, insured shipping.',
@@ -45,7 +45,7 @@ HTML,
   ],
 ],
 [
-  'slug'=>'1-gram-gold-bars', 'name'=>'1 Gram Gold Bars', 'parent'=>'gold-bars', 'nav'=>true, 'match'=>['metal'=>'gold', 'type'=>'bar', 'weight'=>1, 'unit'=>'g'],
+  'slug'=>'1-gram-gold-bars', 'name'=>'1 Gram Gold Bars', 'group'=>'gold', 'parent'=>'gold-bars', 'nav'=>true, 'match'=>['metal'=>'gold', 'type'=>'bar', 'weight'=>1, 'unit'=>'g'],
   'h1'=>'1 Gram Gold Bars',
   'seo_title'=>'1 Gram Gold Bars for Sale – 24K 1g Gold Bullion Bars',
   'seo_desc'=>'Buy 1 gram gold bars: 24K .9999 fine gold bullion sealed in assay cards. The most affordable way to own real gold. Live pricing, insured US shipping.',
@@ -76,7 +76,7 @@ HTML,
   ],
 ],
 [
-  'slug'=>'10-gram-gold-bars', 'name'=>'10 Gram Gold Bars', 'parent'=>'gold-bars', 'nav'=>true, 'match'=>['metal'=>'gold', 'type'=>'bar', 'weight'=>10, 'unit'=>'g'],
+  'slug'=>'10-gram-gold-bars', 'name'=>'10 Gram Gold Bars', 'group'=>'gold', 'parent'=>'gold-bars', 'nav'=>true, 'match'=>['metal'=>'gold', 'type'=>'bar', 'weight'=>10, 'unit'=>'g'],
   'h1'=>'10 Gram Gold Bars',
   'seo_title'=>'10 Gram Gold Bars for Sale – 24K 10g Gold Bullion',
   'seo_desc'=>'Buy 10 gram gold bars in sealed assay cards. 24K .9999 fine gold from top refiners, lower premiums than 1g bars. Live spot pricing and insured shipping.',
@@ -101,7 +101,7 @@ HTML,
   ],
 ],
 [
-  'slug'=>'100-gram-gold-bars', 'name'=>'100 Gram Gold Bars', 'parent'=>'gold-bars', 'nav'=>true, 'match'=>['metal'=>'gold', 'type'=>'bar', 'weight'=>100, 'unit'=>'g'],
+  'slug'=>'100-gram-gold-bars', 'name'=>'100 Gram Gold Bars', 'group'=>'gold', 'parent'=>'gold-bars', 'nav'=>true, 'match'=>['metal'=>'gold', 'type'=>'bar', 'weight'=>100, 'unit'=>'g'],
   'h1'=>'100 Gram Gold Bars',
   'seo_title'=>'100 Gram Gold Bars for Sale – 100g 24K Gold Bullion Bars',
   'seo_desc'=>'Buy 100 gram gold bullion bars: 3.215 oz of 24K .9999 gold at a lower premium per ounce. Minted and cast 100g bars, live pricing, insured shipping.',
@@ -124,7 +124,7 @@ HTML,
   ],
 ],
 [
-  'slug'=>'1-oz-gold-bars', 'name'=>'1 oz Gold Bars', 'parent'=>'gold-bars', 'nav'=>true, 'match'=>['metal'=>'gold', 'type'=>'bar', 'weight'=>1, 'unit'=>'oz'],
+  'slug'=>'1-oz-gold-bars', 'name'=>'1 oz Gold Bars', 'group'=>'gold', 'parent'=>'gold-bars', 'nav'=>true, 'match'=>['metal'=>'gold', 'type'=>'bar', 'weight'=>1, 'unit'=>'oz'],
   'h1'=>'1 oz Gold Bars',
   'seo_title'=>'1 oz Gold Bars for Sale – 1 Ounce 24K Gold Bullion Bars',
   'seo_desc'=>'Buy 1 oz gold bars: one troy ounce of 24K .9999 fine gold from PAMP, Valcambi and other top refiners. Live spot pricing, sealed assay cards, insured shipping.',
@@ -153,7 +153,7 @@ HTML,
   ],
 ],
 [
-  'slug'=>'5-oz-gold-bars', 'name'=>'5 oz Gold Bars', 'parent'=>'gold-bars', 'nav'=>false, 'match'=>['metal'=>'gold', 'type'=>'bar', 'weight'=>5, 'unit'=>'oz'],
+  'slug'=>'5-oz-gold-bars', 'name'=>'5 oz Gold Bars', 'group'=>'gold', 'parent'=>'gold-bars', 'nav'=>false, 'match'=>['metal'=>'gold', 'type'=>'bar', 'weight'=>5, 'unit'=>'oz'],
   'h1'=>'5 oz Gold Bars',
   'seo_title'=>'5 oz Gold Bullion Bars for Sale – 24K .9999 Gold',
   'seo_desc'=>'Buy 5 oz gold bullion bars: 155.5 grams of 24K .9999 fine gold at a lower premium than 1 oz bars. Live pricing and fully insured US shipping.',
@@ -168,7 +168,7 @@ HTML,
   'faqs'=>[['How many grams is a 5 oz gold bar?', '155.52 grams of fine gold (5 × 31.1035 g).']],
 ],
 [
-  'slug'=>'10-oz-gold-bars', 'name'=>'10 oz Gold Bars', 'parent'=>'gold-bars', 'nav'=>true, 'match'=>['metal'=>'gold', 'type'=>'bar', 'weight'=>10, 'unit'=>'oz'],
+  'slug'=>'10-oz-gold-bars', 'name'=>'10 oz Gold Bars', 'group'=>'gold', 'parent'=>'gold-bars', 'nav'=>true, 'match'=>['metal'=>'gold', 'type'=>'bar', 'weight'=>10, 'unit'=>'oz'],
   'h1'=>'10 oz Gold Bars',
   'seo_title'=>'10 oz Gold Bars for Sale – 10 Ounce Gold Ingots, 24K',
   'seo_desc'=>'Buy 10 oz gold bars and ingots: 311 grams of 24K .9999 gold at one of the lowest premiums per ounce. Cast and minted bars, live pricing, insured shipping.',
@@ -193,7 +193,7 @@ HTML,
   ],
 ],
 [
-  'slug'=>'100-oz-gold-bars', 'name'=>'100 oz Gold Bars', 'parent'=>'gold-bars', 'nav'=>false, 'match'=>['metal'=>'gold', 'type'=>'bar', 'weight'=>100, 'unit'=>'oz'],
+  'slug'=>'100-oz-gold-bars', 'name'=>'100 oz Gold Bars', 'group'=>'gold', 'parent'=>'gold-bars', 'nav'=>false, 'match'=>['metal'=>'gold', 'type'=>'bar', 'weight'=>100, 'unit'=>'oz'],
   'h1'=>'100 oz Gold Bars',
   'seo_title'=>'100 oz Gold Bars – 100 Ounce Gold Bullion Bar Price',
   'seo_desc'=>'100 oz gold bars hold 3.11 kg of gold. See what a 100 ounce gold bar is worth today, how big it is and how to buy one.',
@@ -208,7 +208,7 @@ HTML,
   'faqs'=>[['How much is 100 oz of gold worth?', '{value:100oz} at today’s spot price of {gold_oz} per troy ounce.']],
 ],
 [
-  'slug'=>'1-kilo-gold-bars', 'name'=>'1 Kilo Gold Bars', 'parent'=>'gold-bars', 'nav'=>true, 'match'=>['metal'=>'gold', 'type'=>'bar', 'weight'=>1, 'unit'=>'kg'],
+  'slug'=>'1-kilo-gold-bars', 'name'=>'1 Kilo Gold Bars', 'group'=>'gold', 'parent'=>'gold-bars', 'nav'=>true, 'match'=>['metal'=>'gold', 'type'=>'bar', 'weight'=>1, 'unit'=>'kg'],
   'h1'=>'1 Kilo Gold Bars',
   'seo_title'=>'1 Kilo Gold Bar Price – Buy 1kg 24K Gold Bullion Bars',
   'seo_desc'=>'1kg gold bars: 32.15 troy ounces of 24K .9999 gold at the lowest premium of any retail bar. See today’s 1 kilo gold bar price and buy with insured shipping.',
@@ -234,7 +234,7 @@ HTML,
   ],
 ],
 [
-  'slug'=>'gold-coins', 'name'=>'Gold Coins', 'parent'=>'', 'nav'=>true, 'match'=>['metal'=>'gold', 'type'=>'coin'],
+  'slug'=>'gold-coins', 'group'=>'gold', 'name'=>'Gold Coins', 'parent'=>'', 'nav'=>true, 'match'=>['metal'=>'gold', 'type'=>'coin'],
   'h1'=>'Gold Coins for Sale',
   'seo_title'=>'Gold Coins for Sale – Buy Gold Bullion Coins Online',
   'seo_desc'=>'Buy gold bullion coins: American Gold Eagles, Buffalos, Maple Leafs, Krugerrands and mini gold coins. Live gold coin prices today and insured US shipping.',
@@ -264,11 +264,11 @@ HTML,
   ],
 ],
 [
-  'slug'=>'silver-bullion', 'name'=>'Silver Bullion', 'parent'=>'', 'nav'=>true, 'match'=>['metal'=>'silver'],
-  'h1'=>'Silver Bullion Bars & Coins',
-  'seo_title'=>'Silver Bullion for Sale – Silver Bars & Coins at Live Prices',
-  'seo_desc'=>'Buy silver bullion bars and coins, priced from the live silver spot price. .999 fine silver from trusted mints with insured US shipping.',
-  'intro'=>'Investment-grade .999 fine silver bars and coins, priced from the live silver spot price.',
+  'slug'=>'silver-bullion', 'group'=>'silver', 'name'=>'Silver', 'parent'=>'', 'nav'=>true, 'match'=>['metal'=>'silver'],
+  'h1'=>'Silver Bullion: Coins, Bars & Rounds',
+  'seo_title'=>'Silver Bullion for Sale – Silver Coins, Bars & Rounds',
+  'seo_desc'=>'Buy silver bullion: American Silver Eagles, Maple Leafs, silver bars from 1 oz to 100 oz, silver rounds and 90% junk silver, priced from live spot.',
+  'intro'=>'Silver coins, bars and rounds from government mints and trusted private refiners, priced from the live silver spot price.',
   'body'=><<<'HTML'
 <h2>Silver price today</h2>
 <p>Silver is trading at <strong>{silver_oz}</strong> per troy ounce. See live <a href="/gold-price">gold and silver prices</a>.</p>
@@ -276,3 +276,5 @@ HTML,
   'faqs'=>[],
 ],
 ];
+
+return array_merge($cats, require GB_ROOT.'/inc/content-categories-2.php');

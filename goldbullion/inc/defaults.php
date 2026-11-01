@@ -47,6 +47,8 @@ return [
     'spot_mode'     => 'auto',
     'manual_gold'   => 0,
     'manual_silver' => 0,
+    'manual_platinum' => 0,
+    'manual_palladium' => 0,
     'manual_time'   => 0,
 
     /* email: leave smtp_host empty to use the host's PHP mail() */

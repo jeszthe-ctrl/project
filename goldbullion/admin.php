@@ -12,6 +12,7 @@ define('GB_ROOT', __DIR__);
 @ini_set('display_errors', '0');
 error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
 require GB_ROOT.'/inc/store.php';
+require GB_ROOT.'/inc/catalog.php';
 start_session();
 header('X-Frame-Options: DENY');
 header('X-Robots-Tag: noindex, nofollow');
@@ -103,7 +104,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
       save('Settings saved.'); go('settings');
     case 'spot':
       $S['spot_mode'] = in_str('spot_mode') === 'manual' ? 'manual' : 'auto';
-      $S['manual_gold'] = in_num('manual_gold'); $S['manual_silver'] = in_num('manual_silver'); $S['manual_time'] = time();
+      $S['manual_gold'] = in_num('manual_gold'); $S['manual_silver'] = in_num('manual_silver'); $S['manual_platinum'] = in_num('manual_platinum'); $S['manual_palladium'] = in_num('manual_palladium'); $S['manual_time'] = time();
       if(!empty($_POST['refresh'])){ $d = data_read('spot') ?: []; $d['checked'] = 0; data_write('spot', $d); }
       save('Spot price settings saved.'); go('spot');
     case 'testmail':
@@ -170,11 +171,40 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
       go($sec);
     case 'product':
       product_save(); break;
-    case 'delete_products':
-      $ids = (array)($_POST['ids'] ?? []);
-      if(!empty($_POST['all'])) $ids = array_column($STORE['products'], 'id');
-      $STORE['products'] = array_values(array_filter($STORE['products'], fn($p)=>!in_array($p['id'], $ids, true)));
-      save(count($ids).' product(s) deleted.'); go('products');
+    case 'bulk':
+      $f = json_decode((string)($_POST['filters'] ?? '{}'), true) ?: [];
+      $ids = !empty($_POST['everything']) ? array_flip(array_column(admin_filter($f), 'id')) : array_flip(array_map('strval', (array)($_POST['ids'] ?? [])));
+      $do = in_str('do'); $n = 0;
+      if(!$ids){ note('Tick some products first, or choose “all matching products”.', 'err'); go('products', $f); }
+      if($do === 'delete'){ $before = count($STORE['products']); $STORE['products'] = array_values(array_filter($STORE['products'], fn($p)=>!isset($ids[$p['id']]))); $n = $before - count($STORE['products']); }
+      else foreach($STORE['products'] as &$p){
+        if(!isset($ids[$p['id']])) continue;
+        if($do === 'publish'){ $p['hidden'] = false; $n++; }
+        elseif($do === 'hide'){ $p['hidden'] = true; $n++; }
+        elseif($do === 'feature'){ $p['featured'] = true; $n++; }
+        elseif($do === 'unfeature'){ $p['featured'] = false; $n++; }
+        elseif($do === 'spot' && product_fine_oz($p) > 0 && isset(METALS[$p['metal'] ?? ''])){ $p['pricing'] = 'spot'; $p['premium_pct'] = in_num('pct'); $p['premium_usd'] = in_num('usd'); $n++; }
+        elseif($do === 'fixed' && in_num('fixed') > 0){ $p['pricing'] = 'fixed'; $p['price'] = in_num('fixed'); $n++; }
+      } unset($p);
+      save($n.' product(s) updated.'.($do === 'spot' && $n < count($ids) ? ' '.(count($ids) - $n).' had no known metal weight and need a fixed price.' : ''));
+      go('products', $f);
+    case 'pricing':
+      $done = 0; $published = 0; $skipped = 0;
+      foreach((array)($_POST['g'] ?? []) as $slug=>$row){
+        if(($row['pct'] ?? '') === '' && ($row['usd'] ?? '') === '' && empty($row['publish'])) continue;
+        foreach($STORE['products'] as &$p){
+          if((($p['categories'] ?? [''])[0] ?? '') !== $slug) continue;
+          if(!empty($row['bullion_only']) && (!empty($p['graded']) || !empty($p['proof']))) continue;
+          if(($row['pct'] ?? '') !== '' || ($row['usd'] ?? '') !== ''){
+            if(!empty($row['unpriced_only']) && product_price($p) > 0){ continue; }
+            if(product_fine_oz($p) > 0 && isset(METALS[$p['metal'] ?? ''])){ $p['pricing'] = 'spot'; $p['premium_pct'] = (float)($row['pct'] ?? 0); $p['premium_usd'] = (float)($row['usd'] ?? 0); $done++; }
+            else $skipped++;
+          }
+          if(!empty($row['publish']) && product_price($p) > 0 && !empty($p['hidden'])){ $p['hidden'] = false; $published++; }
+        } unset($p);
+      }
+      save("$done product(s) priced from spot, $published published.".($skipped ? " $skipped have no known metal weight — give them a fixed price on the Products page." : ''));
+      go('pricing');
     case 'import':
       csv_import(); break;
     case 'order':
@@ -207,7 +237,9 @@ function product_save(){
   foreach(['name','sku','brand','purity','packaging','short','description','seo_title','seo_desc','gtin','metal','type','unit','pricing','stock'] as $k) $p[$k] = in_str($k);
   foreach(['weight','price','premium_pct','premium_usd','compare_at','sort'] as $k) $p[$k] = in_num($k);
   $p['categories'] = array_values(array_intersect((array)($_POST['categories'] ?? []), array_column($STORE['categories'], 'slug')));
-  if(!$p['categories']) $p['categories'] = [auto_category($p)];
+  $p['qty'] = max(1, (int)($p['qty'] ?? 1));
+  if($p['weight'] > 0) $p['fine_oz'] = round(oz_from($p['weight'], $p['unit']) * $p['qty'], 6);
+  if(!$p['categories']) $p['categories'] = categorize($p + ['graded'=>false, 'proof'=>false]);
   $p['featured'] = !empty($_POST['featured']); $p['hidden'] = !empty($_POST['hidden']);
   $slug = slugify(in_str('slug') ?: $p['name']);
   $others = array_column(array_filter($STORE['products'], fn($x)=>$x['id'] !== $p['id']), 'slug');
@@ -276,6 +308,7 @@ function csv_import(){
   @set_time_limit(600);
   if(empty($_FILES['csv']['tmp_name']) || !is_uploaded_file($_FILES['csv']['tmp_name'])){ note('Choose a CSV file to import.', 'err'); go('import'); }
   $rows = csv_rows($_FILES['csv']['tmp_name']);
+  if($rows && (isset($rows[0]['catalogspecificationsjson']) || isset($rows[0]['listedweight']))){ catalog_import($rows); }
   $pick = function($r, $names){ foreach($names as $n){ if(isset($r[$n]) && trim((string)$r[$n]) !== '') return trim((string)$r[$n]); } return ''; };
   $A = [
     'name'=>['name','title','productname','product','posttitle','itemname'], 'slug'=>['slug','handle','urlkey','permalink'],
@@ -361,6 +394,39 @@ function csv_import(){
   go('products');
 }
 
+/* catalog CSVs (sku, name, product_type, listed_weight, catalog_specifications_json …): products are
+   sorted into categories automatically. Re-importing keeps your prices, photos and publish status. */
+function catalog_import($rows){
+  global $STORE;
+  $keys = ['sku'=>'sku', 'name'=>'name', 'description'=>'description', 'manufacturer'=>'manufacturer', 'producttype'=>'product_type', 'categories'=>'categories',
+           'price'=>'price', 'availability'=>'availability', 'published'=>'published', 'imageurls'=>'image_urls', 'metal'=>'metal', 'listedweight'=>'listed_weight',
+           'listedyear'=>'listed_year', 'listedgrade'=>'listed_grade', 'listedgradingservice'=>'listed_grading_service', 'catalogspecificationsjson'=>'catalog_specifications_json'];
+  $replace = in_str('mode') === 'replace';
+  $old = []; foreach($STORE['products'] as $p) $old[$p['sku'] !== '' ? 'sku:'.$p['sku'] : 'id:'.$p['id']] = $p;
+  $out = $replace ? [] : $old; $slugs = []; foreach($out as $p) $slugs[$p['slug']] = 1;
+  $added = 0; $updated = 0;
+  foreach($rows as $r){
+    $row = []; foreach($keys as $k=>$orig) $row[$orig] = $r[$k] ?? '';
+    $p = catalog_product($row);
+    if($p['name'] === '') continue;
+    $key = 'sku:'.$p['sku'];
+    if(isset($old[$key])){
+      $o = $old[$key];
+      foreach(['id', 'slug', 'pricing', 'price', 'premium_pct', 'premium_usd', 'compare_at', 'hidden', 'featured', 'seo_title', 'seo_desc', 'short', 'sort'] as $k) if(isset($o[$k])) $p[$k] = $o[$k];
+      if(!$p['images']) $p['images'] = $o['images'] ?? [];
+      $out[$key] = $p; $updated++;
+    } else {
+      $base = slugify($p['name']) ?: strtolower($p['id']); $slug = $base; $n = 2;
+      while(isset($slugs[$slug])) $slug = $base.'-'.$n++;
+      $slugs[$slug] = 1; $p['slug'] = $slug;
+      $out[$key] = $p; $added++;
+    }
+  }
+  $STORE['products'] = array_values($out);
+  save("Catalog imported: $added added, $updated updated and re-categorised. New products start as drafts — set prices and publish them under Pricing.");
+  go('pricing');
+}
+
 function fetch_image($url, $name){ return store_image(http_get($url, 8), $name); }
 
 /* product descriptions from a CSV: keep formatting, drop scripts, frames, styles and event handlers */
@@ -369,6 +435,23 @@ function clean_html($html){
   $html = preg_replace('#<(script|style|iframe|object|embed|form|input|button)\b[^>]*>#i', '', $html);
   $html = preg_replace('#\s(on\w+|style)\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)#i', '', $html);
   return trim(preg_replace('#javascript:#i', '', $html));
+}
+
+/* ---------------- product list filters ---------------- */
+function admin_filter($f){
+  global $STORE;
+  $q = mb_strtolower(trim((string)($f['q'] ?? '')));
+  $words = array_filter(preg_split('/\s+/', $q));
+  return array_values(array_filter($STORE['products'], function($p) use($f, $words){
+    foreach($words as $w) if(mb_strpos(mb_strtolower($p['name'].' '.($p['sku'] ?? '').' '.($p['brand'] ?? '')), $w) === false) return false;
+    if(($f['cat'] ?? '') !== '' && !in_array($f['cat'], (array)($p['categories'] ?? []), true)) return false;
+    if(($f['status'] ?? '') === 'live' && !empty($p['hidden'])) return false;
+    if(($f['status'] ?? '') === 'draft' && empty($p['hidden'])) return false;
+    if(($f['priced'] ?? '') === 'yes' && product_price($p) <= 0) return false;
+    if(($f['priced'] ?? '') === 'no' && product_price($p) > 0) return false;
+    if(($f['metal'] ?? '') !== '' && ($p['metal'] ?? '') !== $f['metal']) return false;
+    return true;
+  }));
 }
 
 /* ---------------- site photos ---------------- */
@@ -408,7 +491,7 @@ function order_action(){
 }
 
 /* ---------------- pages ---------------- */
-$NAV = ['dashboard'=>'Dashboard', 'orders'=>'Orders', 'messages'=>'Messages', 'products'=>'Products', 'import'=>'Import CSV', 'photos'=>'Site photos', 'categories'=>'Categories',
+$NAV = ['dashboard'=>'Dashboard', 'orders'=>'Orders', 'messages'=>'Messages', 'products'=>'Products', 'pricing'=>'Pricing', 'import'=>'Import CSV', 'photos'=>'Site photos', 'categories'=>'Categories',
         'home'=>'Home page', 'pages'=>'Pages', 'guides'=>'Guides', 'tools'=>'Price pages', 'shipping'=>'Shipping', 'payments'=>'Payments',
         'spot'=>'Spot price', 'settings'=>'Settings', 'account'=>'Login'];
 if($V === 'export' || $V === 'template'){ ('page_'.$V)(); exit; }
@@ -423,6 +506,8 @@ function page_dashboard(){
   $new = count(array_filter($orders, fn($o)=>$o['status'] === 'new'));
   $todo = [];
   if(!$STORE['products']) $todo[] = ['Add your products', 'Import your product CSV.', 'import'];
+  $drafts = count(array_filter($STORE['products'], fn($p)=>!empty($p['hidden'])));
+  if($drafts) $todo[] = ['Price and publish your products', number_format($drafts).' products are drafts, not yet shown to customers. Set a premium over spot per category and publish them in one step.', 'pricing'];
   if(!$S['phone']) $todo[] = ['Add your phone number', 'A visible phone number builds trust with customers and with Google.', 'settings'];
   if(!$S['address']) $todo[] = ['Add your business address', 'Real business details are one of the strongest trust signals for a site that sells gold.', 'settings'];
   if(!$S['legal_name']) $todo[] = ['Add your registered business name', 'Shown in your terms, privacy policy and footer.', 'settings'];
@@ -519,18 +604,65 @@ function page_messages(){
 
 function page_products(){
   global $STORE;
-  $q = mb_strtolower(trim($_GET['q'] ?? ''));
-  $list = array_values(array_filter($STORE['products'], fn($p)=>$q === '' || mb_strpos(mb_strtolower($p['name'].' '.($p['sku'] ?? '')), $q) !== false)); ?>
-<h1>Products <a class="btn" href="<?= aurl('product') ?>">+ Add product</a> <a class="btn btn-ghost" href="<?= aurl('import') ?>">Import CSV</a> <a class="btn btn-ghost" href="<?= aurl('export') ?>">Export CSV</a></h1>
-<form class="inline"><input type="hidden" name="v" value="products"><input name="q" value="<?= h($q) ?>" placeholder="Search products"><button class="btn btn-ghost">Search</button></form>
-<form method="post" onsubmit="return confirm('Delete the selected products?')"><?= csrf_field() ?><input type="hidden" name="act" value="delete_products">
-<div class="card"><table class="tbl"><thead><tr><th><input type="checkbox" onclick="document.querySelectorAll('.pick').forEach(c=>c.checked=this.checked)"></th><th></th><th>Product</th><th>Category</th><th>Price</th><th>Stock</th></tr></thead><tbody>
-<?php foreach($list as $p): $img = $p['images'][0] ?? ''; ?>
-<tr><td><input type="checkbox" class="pick" name="ids[]" value="<?= h($p['id']) ?>"></td><td><?= $img ? '<img src="'.h($img).'" width="44" height="44" alt="" loading="lazy">' : '' ?></td>
-<td><a href="<?= aurl('product', ['id'=>$p['id']]) ?>"><b><?= h($p['name']) ?></b></a><br><span class="muted small"><?= h($p['sku'] ?? '') ?> <?= !empty($p['hidden']) ? '· hidden' : '' ?> <?= !empty($p['featured']) ? '· ★ featured' : '' ?></span></td>
-<td class="small"><?= h(implode(', ', $p['categories'] ?? [])) ?></td><td><?= usd(product_price($p)) ?><?= ($p['pricing'] ?? '') === 'spot' ? '<br><span class="muted small">spot + premium</span>' : '' ?></td><td><?= h(STOCK_STATUSES[$p['stock'] ?? 'in'] ?? '') ?></td></tr>
-<?php endforeach; ?></tbody></table><?php if(!$list) echo '<p class="muted">No products yet — <a href="'.aurl('import').'">import your CSV</a> or add one.</p>'; ?></div>
-<?php if($list): ?><button class="btn btn-danger">Delete selected</button> <label class="check"><input type="checkbox" name="all" value="1"> delete ALL products</label><?php endif; ?></form>
+  $f = array_filter(['q'=>trim((string)($_GET['q'] ?? '')), 'cat'=>(string)($_GET['cat'] ?? ''), 'status'=>(string)($_GET['status'] ?? ''), 'priced'=>(string)($_GET['priced'] ?? ''), 'metal'=>(string)($_GET['metal'] ?? '')], fn($v)=>$v !== '');
+  $list = admin_filter($f);
+  $per = 50; $pages = max(1, (int)ceil(count($list) / $per)); $page = min($pages, max(1, (int)($_GET['page'] ?? 1)));
+  $all = count($STORE['products']); $live = count(array_filter($STORE['products'], fn($p)=>empty($p['hidden']))); $priced = count(array_filter($STORE['products'], fn($p)=>product_price($p) > 0)); ?>
+<h1>Products <a class="btn" href="<?= aurl('product') ?>">+ Add product</a> <a class="btn btn-ghost" href="<?= aurl('pricing') ?>">Pricing &amp; publishing</a> <a class="btn btn-ghost" href="<?= aurl('import') ?>">Import CSV</a> <a class="btn btn-ghost" href="<?= aurl('export') ?>">Export CSV</a></h1>
+<p class="muted"><?= number_format($all) ?> products · <b><?= number_format($live) ?></b> live on the site · <?= number_format($priced) ?> priced · <?= number_format($all - $live) ?> drafts (not shown to customers)</p>
+<form class="card filterbar"><input type="hidden" name="v" value="products">
+  <input name="q" value="<?= h($f['q'] ?? '') ?>" placeholder="Search name, SKU or brand">
+  <select name="cat"><option value="">All categories</option><?php foreach($STORE['categories'] as $c): ?><option value="<?= h($c['slug']) ?>"<?= ($f['cat'] ?? '') === $c['slug'] ? ' selected' : '' ?>><?= ($c['parent'] ?? '') !== '' ? '— ' : '' ?><?= h($c['name']) ?></option><?php endforeach; ?></select>
+  <select name="metal"><option value="">Any metal</option><?php foreach(METALS + ['copper'=>'Copper'] as $k=>$l): ?><option value="<?= $k ?>"<?= ($f['metal'] ?? '') === $k ? ' selected' : '' ?>><?= $l ?></option><?php endforeach; ?></select>
+  <select name="status"><option value="">Live and drafts</option><option value="live"<?= ($f['status'] ?? '') === 'live' ? ' selected' : '' ?>>Live only</option><option value="draft"<?= ($f['status'] ?? '') === 'draft' ? ' selected' : '' ?>>Drafts only</option></select>
+  <select name="priced"><option value="">Priced or not</option><option value="yes"<?= ($f['priced'] ?? '') === 'yes' ? ' selected' : '' ?>>Has a price</option><option value="no"<?= ($f['priced'] ?? '') === 'no' ? ' selected' : '' ?>>No price yet</option></select>
+  <button class="btn">Filter</button><?php if($f): ?> <a href="<?= aurl('products') ?>">Clear</a><?php endif; ?>
+</form>
+<form method="post" id="bulk"><?= csrf_field() ?><input type="hidden" name="act" value="bulk"><input type="hidden" name="filters" value="<?= h(json_encode($f)) ?>">
+<div class="card bulkbar">
+  <b><?= number_format(count($list)) ?> matching</b>
+  <label class="check"><input type="checkbox" name="everything" value="1"> apply to all <?= number_format(count($list)) ?> matching products (not just the ticked ones)</label>
+  <select name="do" onchange="document.querySelectorAll('.bulk-x').forEach(e=>e.hidden=!e.classList.contains('x-'+this.value))">
+    <option value="publish">Publish (show on the site)</option><option value="hide">Hide (make draft)</option><option value="spot">Live price: spot + premium</option><option value="fixed">Set a fixed price</option><option value="feature">Feature on home page</option><option value="unfeature">Remove from featured</option><option value="delete">Delete</option></select>
+  <span class="bulk-x x-spot" hidden>premium <input name="pct" size="4" placeholder="%"> % + $<input name="usd" size="5" placeholder="0"> per item</span>
+  <span class="bulk-x x-fixed" hidden>$<input name="fixed" size="8" placeholder="price"></span>
+  <button class="btn" onclick="return this.form.do.value!=='delete'||confirm('Delete these products permanently?')">Apply</button>
+</div>
+<div class="card"><table class="tbl"><thead><tr><th><input type="checkbox" onclick="document.querySelectorAll('.pick').forEach(c=>c.checked=this.checked)"></th><th></th><th>Product</th><th>Category</th><th>Price</th><th>Status</th></tr></thead><tbody>
+<?php foreach(array_slice($list, ($page - 1) * $per, $per) as $p): $img = $p['images'][0] ?? ''; $price = product_price($p); ?>
+<tr><td><input type="checkbox" class="pick" name="ids[]" value="<?= h($p['id']) ?>"></td><td><?= $img ? '<img src="'.h($img).'" width="40" height="40" alt="" loading="lazy">' : '' ?></td>
+<td><a href="<?= aurl('product', ['id'=>$p['id']]) ?>"><b><?= h($p['name']) ?></b></a><br><span class="muted small"><?= h($p['sku'] ?? '') ?><?= !empty($p['featured']) ? ' · ★ featured' : '' ?><?= product_fine_oz($p) > 0 ? ' · '.rtrim(rtrim(number_format(product_fine_oz($p), 4), '0'), '.').' oz '.h($p['metal']) : ' · no metal weight' ?></span></td>
+<td class="small"><?= h(($p['categories'] ?? [''])[0] ?? '') ?></td>
+<td><?= $price > 0 ? usd($price) : '<span class="muted">—</span>' ?><?= ($p['pricing'] ?? '') === 'spot' ? '<br><span class="muted small">spot + '.(float)$p['premium_pct'].'%'.((float)$p['premium_usd'] ? ' + $'.(float)$p['premium_usd'] : '').'</span>' : '' ?></td>
+<td><?= empty($p['hidden']) ? '<span class="st st-paid">Live</span>' : '<span class="st">Draft</span>' ?></td></tr>
+<?php endforeach; ?></tbody></table><?php if(!$list) echo '<p class="muted">No products match.</p>'; ?></div>
+</form>
+<?php if($pages > 1): ?><p class="pager-a"><?php for($n = 1; $n <= $pages; $n++): if($n > 3 && $n < $pages - 2 && abs($n - $page) > 2){ if($n === 4 || $n === $pages - 3) echo '… '; continue; } ?><?= $n === $page ? '<b>'.$n.'</b>' : '<a href="'.aurl('products', $f + ['page'=>$n]).'">'.$n.'</a>' ?> <?php endfor; ?></p><?php endif; ?>
+<?php }
+
+function page_pricing(){
+  global $STORE;
+  $spot = spot(); $groups = [];
+  foreach($STORE['products'] as $p){
+    $g = ($p['categories'] ?? [''])[0] ?? '';
+    $groups[$g] ??= ['n'=>0, 'live'=>0, 'priced'=>0, 'weight'=>0, 'graded'=>0];
+    $groups[$g]['n']++; if(empty($p['hidden'])) $groups[$g]['live']++; if(product_price($p) > 0) $groups[$g]['priced']++;
+    if(product_fine_oz($p) > 0 && isset(METALS[$p['metal'] ?? ''])) $groups[$g]['weight']++;
+    if(!empty($p['graded']) || !empty($p['proof'])) $groups[$g]['graded']++;
+  }
+  $order = array_column($STORE['categories'], 'slug'); ?>
+<h1>Pricing &amp; publishing</h1>
+<div class="card"><p>Set your selling price for a whole category at once as <b>the live spot value of the metal + a premium</b>. Prices then move with the market automatically and are locked when a customer orders. Tick <b>Publish</b> to show the priced products on the site.</p>
+<p class="muted small">Spot today: gold <?= $spot['gold'] > 0 ? usd($spot['gold']) : '—' ?> · silver <?= $spot['silver'] > 0 ? usd($spot['silver']) : '—' ?> · platinum <?= ($spot['platinum'] ?? 0) > 0 ? usd($spot['platinum']) : '—' ?> · palladium <?= ($spot['palladium'] ?? 0) > 0 ? usd($spot['palladium']) : '—' ?> (<a href="<?= aurl('spot') ?>">spot settings</a>). Products without a known metal weight — accessories, notes, many certified and rare coins — need a fixed price: <a href="<?= aurl('products', ['priced'=>'no']) ?>">see unpriced products</a>.</p></div>
+<form method="post"><?= csrf_field() ?><input type="hidden" name="act" value="pricing">
+<div class="card"><table class="tbl"><thead><tr><th>Category</th><th>Products</th><th>Live</th><th>Priced</th><th>Premium over spot</th><th>Options</th></tr></thead><tbody>
+<?php foreach(array_merge(array_intersect($order, array_keys($groups)), array_diff(array_keys($groups), $order)) as $g): $r = $groups[$g]; $c = null; foreach($STORE['categories'] as $x) if($x['slug'] === $g) $c = $x; ?>
+<tr><td><b><?= h($c['name'] ?? ($g ?: 'Uncategorised')) ?></b><br><span class="muted small"><?= number_format($r['weight']) ?> with known metal weight<?= $r['graded'] ? ' · '.number_format($r['graded']).' certified/proof' : '' ?></span></td>
+<td><?= number_format($r['n']) ?></td><td><?= number_format($r['live']) ?></td><td><?= number_format($r['priced']) ?></td>
+<td class="nowrap"><input name="g[<?= h($g) ?>][pct]" size="4" placeholder="%" inputmode="decimal"> % + $<input name="g[<?= h($g) ?>][usd]" size="5" placeholder="0" inputmode="decimal"></td>
+<td class="small"><label class="check"><input type="checkbox" name="g[<?= h($g) ?>][publish]" value="1"> Publish priced</label><label class="check"><input type="checkbox" name="g[<?= h($g) ?>][unpriced_only]" value="1"> only items without a price</label><?php if($r['graded']): ?><label class="check"><input type="checkbox" name="g[<?= h($g) ?>][bullion_only]" value="1"> skip certified/proof</label><?php endif; ?></td></tr>
+<?php endforeach; ?></tbody></table></div>
+<button class="btn btn-lg">Apply prices</button></form>
 <?php }
 
 function page_export(){
@@ -766,13 +898,13 @@ function page_payments(){
 function page_spot(){
   global $STORE; $S = $STORE['settings']; $spot = spot(); $saved = data_read('spot') ?: []; ?>
 <h1>Spot price</h1>
-<div class="card"><p>Gold: <b><?= $spot['gold'] > 0 ? usd($spot['gold']) : '—' ?></b> · Silver: <b><?= $spot['silver'] > 0 ? usd($spot['silver']) : '—' ?></b> · Source: <?= h($spot['source'] ?: 'none') ?> · Updated <?= $spot['time'] ? date('M j, Y g:i A', $spot['time']) : 'never' ?></p>
+<div class="card"><p>Gold: <b><?= $spot['gold'] > 0 ? usd($spot['gold']) : '—' ?></b> · Silver: <b><?= $spot['silver'] > 0 ? usd($spot['silver']) : '—' ?></b> · Platinum: <b><?= ($spot['platinum'] ?? 0) > 0 ? usd($spot['platinum']) : '—' ?></b> · Palladium: <b><?= ($spot['palladium'] ?? 0) > 0 ? usd($spot['palladium']) : '—' ?></b> · Source: <?= h($spot['source'] ?: 'none') ?> · Updated <?= $spot['time'] ? date('M j, Y g:i A', $spot['time']) : 'never' ?></p>
 <?php if(($S['spot_mode'] ?? 'auto') === 'auto' && empty($saved['gold'])): ?><p class="flash err">The live price feeds haven’t answered from your server yet. If this continues, ask your host to allow outgoing connections (cURL), or use manual prices below.</p><?php endif; ?></div>
 <form method="post"><?= csrf_field() ?><input type="hidden" name="act" value="spot">
 <div class="card">
   <label class="check"><input type="radio" name="spot_mode" value="auto"<?= ($S['spot_mode'] ?? 'auto') === 'auto' ? ' checked' : '' ?>> Live prices (updated every 10 minutes automatically)</label>
   <label class="check"><input type="radio" name="spot_mode" value="manual"<?= ($S['spot_mode'] ?? '') === 'manual' ? ' checked' : '' ?>> Manual prices</label>
-  <div class="grid3"><label>Manual gold price per oz (USD)<input name="manual_gold" value="<?= h($S['manual_gold']) ?>" inputmode="decimal"></label><label>Manual silver price per oz (USD)<input name="manual_silver" value="<?= h($S['manual_silver']) ?>" inputmode="decimal"></label></div>
+  <div class="grid4"><label>Manual gold price per oz (USD)<input name="manual_gold" value="<?= h($S['manual_gold']) ?>" inputmode="decimal"></label><label>Manual silver price per oz (USD)<input name="manual_silver" value="<?= h($S['manual_silver']) ?>" inputmode="decimal"></label><label>Manual platinum per oz<input name="manual_platinum" value="<?= h($S['manual_platinum'] ?? 0) ?>" inputmode="decimal"></label><label>Manual palladium per oz<input name="manual_palladium" value="<?= h($S['manual_palladium'] ?? 0) ?>" inputmode="decimal"></label></div>
   <p class="hint">Manual prices are also used as a fallback if the live feeds have never answered.</p>
   <label class="check"><input type="checkbox" name="refresh" value="1"> Fetch a fresh live price now</label>
 </div><button class="btn btn-lg">Save</button></form>
@@ -856,6 +988,9 @@ textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px}
 .inline{display:inline-flex;gap:8px;align-items:center;margin:0 8px 14px 0}.inline input{width:auto;margin:0}
 .login{max-width:380px;margin:12vh auto;background:#fff;padding:28px;border-radius:14px;border:1px solid var(--line)}
 .count{font-weight:400;color:var(--muted);float:right}
+.filterbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:14px}.filterbar input,.filterbar select{width:auto;margin:0}.filterbar input[name=q]{min-width:220px}
+.bulkbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px}.bulkbar select,.bulkbar input{width:auto;display:inline-block;margin:0}.bulkbar .check{margin:0}
+.nowrap{white-space:nowrap}.nowrap input{width:auto;display:inline-block;margin:0}.pager-a{font-size:15px}.pager-a a,.pager-a b{padding:4px 6px}
 code{background:#f1eee6;padding:1px 5px;border-radius:4px}
 @media(max-width:860px){.layout{grid-template-columns:1fr}.side{display:flex;flex-wrap:wrap;gap:2px}.side b{width:100%;padding-bottom:6px}.main{padding:18px 14px}.grid2,.grid3,.grid4,.cols,.stats{grid-template-columns:1fr 1fr}}
 </style></head><body>
