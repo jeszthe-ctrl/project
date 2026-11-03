@@ -469,3 +469,9 @@ legend{font-weight:750;font-size:18px;padding:0 8px;color:var(--ink);letter-spac
 .review p{margin:8px 0 0;font-size:15px;color:var(--ink-2)}
 .rv-by{font-size:13.5px!important;color:var(--muted)!important}
 .verified{color:var(--up);font-weight:650}
+
+.rtabs{display:inline-flex;margin:14px 0 0}
+.mtabs button[aria-selected=true]{background:#c99a3a;color:#111}
+.mtabs button[data-m=silver][aria-selected=true]{background:#c9cbcf}
+.mtabs button[data-m=platinum][aria-selected=true]{background:#9aa1a9;color:#fff}
+@media (max-width:620px){.chart{font-size:24px;overflow:visible}.chart-wrap{padding-left:30px}.chart .ln{stroke-width:4}.chart .dot{r:7}.pchart{padding:16px 14px 10px}.ptabs button{padding:7px 11px}}

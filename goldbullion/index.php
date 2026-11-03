@@ -222,6 +222,7 @@ function fill($text, $extra=[]){
 function content($html, $extra=[]){
   global $BASE;
   $html = fill($html, $extra);
+  $html = preg_replace_callback('#(?:<p>)?\{price_chart:(gold|silver|platinum|all)\}(?:</p>)?#', fn($m)=>price_chart_html($m[1] === 'all' ? ['gold', 'silver', 'platinum'] : [$m[1]]), $html);
   $blocks = ['price_chart'=>fn()=>price_chart_html(), 'calculator'=>fn()=>calculator_html(), 'payment_list'=>fn()=>payment_list_html(), 'shipping_table'=>fn()=>shipping_table_html(), 'business_details'=>fn()=>business_details_html()];
   foreach($blocks as $k=>$fn){
     if(strpos($html, '{'.$k.'}') === false) continue;
@@ -1106,7 +1107,7 @@ function tool_panel($t){
     case 'spot':
       echo '<div class="tool-top">'.spot_card().'<div class="pboxes">'.$box('Gold per ounce', $s['gold'] > 0 ? usd($s['gold']) : '—', true).$box('Gold per gram', gold_value_txt(1, 'g')).$box('Gold per kilo', gold_value_txt(1, 'kg'))
          .$box('Silver per ounce', $s['silver'] > 0 ? usd($s['silver']) : '—', true).$box('Silver per gram', $s['silver'] > 0 ? usd($s['silver'] / G_PER_OZT) : '—').$box('Silver per kilo', $s['silver'] > 0 ? usd($s['silver'] / G_PER_OZT * 1000) : '—').'</div></div>';
-      echo price_chart_html();
+      echo price_chart_html(['gold', 'silver', 'platinum']);
       echo '<h2 class="h2">Gold price per gram, ounce and tola by karat</h2>'.karat_table([24, 22, 21, 18, 14, 10], true);
       echo calculator_html();
       break;
@@ -1164,37 +1165,38 @@ function tool_panel($t){
   return ob_get_clean();
 }
 
-/* ---------------- gold price history chart ---------------- */
-function chart_series(){
+/* ---------------- price history charts (gold, silver, platinum) ---------------- */
+function chart_series($metal='gold'){
+  [$col, $annual] = CHART_METALS[$metal];
   $days = (data_read('history') ?: [])['days'] ?? [];
   $spot = spot();
-  if($spot['gold'] > 0) $days[date('Y-m-d')] = [$spot['gold'], $spot['silver']];
+  $now = (float)($spot[$metal] ?? 0);
+  if($now > 0) $days[date('Y-m-d')] = [(float)$spot['gold'], (float)$spot['silver'], (float)($spot['platinum'] ?? 0)];
   ksort($days);
   $out = [];
   foreach(['1M'=>'-1 month', '6M'=>'-6 months', '1Y'=>'-1 year'] as $k=>$rel){
     $from = date('Y-m-d', strtotime($rel));
     $pts = [];
-    foreach($days as $d=>$v) if($d >= $from && $v[0] > 0) $pts[] = [$d, (float)$v[0]];
+    foreach($days as $d=>$v) if($d >= $from && (float)($v[$col] ?? 0) > 0) $pts[] = [$d, (float)$v[$col]];
     if(count($pts) >= 7) $out[$k] = $pts;
   }
   /* long term: annual averages, then this site's own yearly averages, then today */
   $years = [];
-  foreach($days as $d=>$v) if($v[0] > 0) $years[(int)substr($d, 0, 4)][] = (float)$v[0];
+  foreach($days as $d=>$v) if((float)($v[$col] ?? 0) > 0) $years[(int)substr($d, 0, 4)][] = (float)$v[$col];
   $long = [];
-  foreach(GOLD_ANNUAL as $y=>$v) $long[] = [(string)$y, (float)$v];
-  foreach($years as $y=>$vals) if($y > array_key_last(GOLD_ANNUAL) && $y < (int)date('Y')) $long[] = [(string)$y, array_sum($vals) / count($vals)];
-  if($spot['gold'] > 0) $long[] = [date('Y-m-d'), (float)$spot['gold']];
-  $out['Since 1970'] = $long;
+  foreach($annual as $y=>$v) $long[] = [(string)$y, (float)$v];
+  foreach($years as $y=>$vals) if($y > array_key_last($annual) && $y < (int)date('Y')) $long[] = [(string)$y, array_sum($vals) / count($vals)];
+  if($now > 0) $long[] = [date('Y-m-d'), $now];
+  $out['Since '.array_key_first($annual)] = $long;
   return [$out, $days ? array_key_first($days) : date('Y-m-d')];
 }
 
-function chart_svg($pts, $long=false){
+function chart_svg($pts, $long, $id){
   $W = 820; $H = 300; $L = 64; $R = 14; $T = 16; $B = 34;
   $vals = array_column($pts, 1);
   $min = min($vals); $max = max($vals);
   if($long) $min = 0;
-  $span = max(1, $max - $min); $min = max(0, $min - $span * 0.08); $max += $span * 0.08;
-  /* x by time, so gaps in the data show as gaps in time */
+  $span = max(0.01, $max - $min); $min = max(0, $min - $span * 0.08); $max += $span * 0.08;
   $ts = array_map(fn($p)=>strlen($p[0]) === 4 ? strtotime($p[0].'-07-01') : strtotime($p[0]), $pts);
   $t0 = min($ts); $t1 = max($ts); $tspan = max(1, $t1 - $t0);
   $x = fn($t)=>$L + ($W - $L - $R) * ($t - $t0) / $tspan;
@@ -1206,36 +1208,42 @@ function chart_svg($pts, $long=false){
   }
   $area = $line.'L'.round($x($ts[count($ts) - 1]), 1).' '.($H - $B).'L'.$L.' '.($H - $B).'Z';
   /* gridlines at round numbers */
-  $step = [1, 2, 2.5, 5, 10][0]; $raw = ($max - $min) / 4; $mag = pow(10, floor(log10(max(1, $raw))));
+  $raw = ($max - $min) / 4; $mag = pow(10, floor(log10(max(0.01, $raw)))); $step = 10 * $mag;
   foreach([1, 2, 2.5, 5, 10] as $m) if($m * $mag >= $raw){ $step = $m * $mag; break; }
   $grid = '';
-  for($v = ceil($min / $step) * $step; $v <= $max; $v += $step)
-    $grid .= '<line x1="'.$L.'" x2="'.($W - $R).'" y1="'.round($y($v), 1).'" y2="'.round($y($v), 1).'" class="g"/><text x="'.($L - 8).'" y="'.round($y($v) + 4, 1).'" text-anchor="end">$'.number_format($v).'</text>';
-  /* x labels: about six evenly spaced */
+  for($v = ceil($min / $step) * $step; $v <= $max + 1e-9; $v += $step)
+    $grid .= '<line x1="'.$L.'" x2="'.($W - $R).'" y1="'.round($y($v), 1).'" y2="'.round($y($v), 1).'" class="g"/><text x="'.($L - 8).'" y="'.round($y($v) + 4, 1).'" text-anchor="end">$'.number_format($v, fmod($step, 1) != 0 ? 2 : 0).'</text>';
   $xl = ''; $n = count($pts); $every = max(1, (int)ceil($n / 6));
   for($i = 0; $i < $n; $i += $every){ $d = $pts[$i][0]; $xl .= '<text x="'.round($x($ts[$i]), 1).'" y="'.($H - 10).'" text-anchor="middle">'.h(strlen($d) === 4 ? $d : ($long ? substr($d, 0, 4) : date($n > 200 ? 'M Y' : 'M j', strtotime($d)))).'</text>'; }
   $last = end($data);
-  return '<svg viewBox="0 0 '.$W.' '.$H.'" class="chart" role="img" aria-label="Gold price chart" data-pts="'.h(json_encode($data)).'">'
-    .'<defs><linearGradient id="cg'.($long ? 'l' : count($pts)).'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a0a0a" stop-opacity=".14"/><stop offset="1" stop-color="#0a0a0a" stop-opacity="0"/></linearGradient></defs>'
-    .$grid.'<path d="'.$area.'" fill="url(#cg'.($long ? 'l' : count($pts)).')"/><path d="'.$line.'" class="ln"/>'.$xl
+  return '<svg viewBox="0 0 '.$W.' '.$H.'" class="chart" role="img" aria-label="Price chart" data-pts="'.h(json_encode($data)).'">'
+    .'<defs><linearGradient id="'.$id.'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a0a0a" stop-opacity=".14"/><stop offset="1" stop-color="#0a0a0a" stop-opacity="0"/></linearGradient></defs>'
+    .$grid.'<path d="'.$area.'" fill="url(#'.$id.')"/><path d="'.$line.'" class="ln"/>'.$xl
     .'<circle cx="'.$last[0].'" cy="'.$last[1].'" r="4.5" class="dot"/><line class="hx" x1="0" x2="0" y1="'.$T.'" y2="'.($H - $B).'"/><circle class="hd" r="5" cx="-10" cy="-10"/></svg>';
 }
 
-function price_chart_html(){
-  [$series, $since] = chart_series();
-  $default = isset($series['1Y']) ? '1Y' : 'Since 1970';
+/* one or more metals; with several, tabs switch between them */
+function price_chart_html($metals=['gold']){
+  $metals = array_values(array_filter((array)$metals, fn($m)=>isset(CHART_METALS[$m])));
+  $label = ['gold'=>'Gold', 'silver'=>'Silver', 'platinum'=>'Platinum'];
   $change = function($pts){ $a = $pts[0][1]; $b = end($pts)[1]; return $a > 0 ? ($b - $a) / $a * 100 : 0; };
+  $since = date('Y-m-d');
   ob_start(); ?>
 <div class="pchart" dir="ltr" lang="en">
-  <div class="pchart-head"><h2 class="h2">Gold price chart</h2>
-    <div class="ptabs" role="tablist"><?php foreach($series as $k=>$pts): ?><button type="button" role="tab" data-r="<?= h($k) ?>" aria-selected="<?= $k === $default ? 'true' : 'false' ?>"><?= h($k) ?></button><?php endforeach; ?></div></div>
-  <?php foreach($series as $k=>$pts): $c = $change($pts); ?>
-  <div class="prange" data-r="<?= h($k) ?>"<?= $k === $default ? '' : ' hidden' ?>>
-    <p class="pchg"><?= h($k === 'Since 1970' ? 'Since 1970' : 'Past '.['1M'=>'month', '6M'=>'6 months', '1Y'=>'year'][$k]) ?>: <b class="<?= $c >= 0 ? 'up' : 'down' ?>"><?= $c >= 0 ? '+' : '' ?><?= number_format($c, 1) ?>%</b> (<?= usd($pts[0][1]) ?> → <?= usd(end($pts)[1]) ?>)</p>
-    <div class="chart-wrap"><?= chart_svg($pts, $k === 'Since 1970') ?><div class="tip" hidden></div></div>
+  <div class="pchart-head"><h2 class="h2"><?= count($metals) > 1 ? 'Gold, silver &amp; platinum price charts' : $label[$metals[0]].' price chart' ?></h2>
+  <?php if(count($metals) > 1): ?><div class="ptabs mtabs" role="tablist" aria-label="Metal"><?php foreach($metals as $i=>$m): ?><button type="button" role="tab" data-m="<?= $m ?>" aria-selected="<?= $i ? 'false' : 'true' ?>"><?= $label[$m] ?></button><?php endforeach; ?></div><?php endif; ?></div>
+  <?php foreach($metals as $mi=>$m): [$series, $first] = chart_series($m); $since = min($since, $first); $default = isset($series['1Y']) ? '1Y' : array_key_last($series); ?>
+  <div class="pmetal" data-m="<?= $m ?>"<?= $mi ? ' hidden' : '' ?>>
+    <div class="ptabs rtabs" role="tablist" aria-label="Time range"><?php foreach($series as $k=>$pts): ?><button type="button" role="tab" data-r="<?= h($k) ?>" aria-selected="<?= $k === $default ? 'true' : 'false' ?>"><?= h($k) ?></button><?php endforeach; ?></div>
+    <?php foreach($series as $k=>$pts): $c = $change($pts); ?>
+    <div class="prange" data-r="<?= h($k) ?>"<?= $k === $default ? '' : ' hidden' ?>>
+      <p class="pchg"><?= $label[$m] ?> — <?= h(strpos($k, 'Since') === 0 ? $k : 'past '.['1M'=>'month', '6M'=>'6 months', '1Y'=>'year'][$k]) ?>: <b class="<?= $c >= 0 ? 'up' : 'down' ?>"><?= $c >= 0 ? '+' : '' ?><?= number_format($c, 1) ?>%</b> (<?= usd($pts[0][1]) ?> → <?= usd(end($pts)[1]) ?>)</p>
+      <div class="chart-wrap"><?= chart_svg($pts, strpos($k, 'Since') === 0, 'cg-'.$m.'-'.preg_replace('/\W/', '', $k)) ?><div class="tip" hidden></div></div>
+    </div>
+    <?php endforeach; ?>
   </div>
   <?php endforeach; ?>
-  <p class="small muted">US dollars per troy ounce. 1970–<?= array_key_last(GOLD_ANNUAL) ?>: approximate annual averages (LBMA). Recent prices: recorded live by this site<?= count($series) > 1 ? '' : ' — daily charts appear once a week of prices has been recorded (since '.date('M j, Y', strtotime($since)).')' ?>. See <a href="<?= link_to('guides/gold-price-history') ?>">gold price history</a>.</p>
+  <p class="small muted">US dollars per troy ounce. Long-term view: approximate annual averages (gold and silver from 1970, platinum from 1990, to <?= array_key_last(GOLD_ANNUAL) ?>). Recent prices are recorded live by this site<?= $since >= date('Y-m-d', strtotime('-7 days')) ? '; the 1-month, 6-month and 1-year views appear once a week of prices has been recorded' : '' ?>. See <a href="<?= link_to('guides/gold-price-history') ?>">gold price history</a>.</p>
 </div>
 <?php return ob_get_clean();
 }

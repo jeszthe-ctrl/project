@@ -24,10 +24,18 @@
 
   /* price chart: range tabs and hover / touch read-out */
   document.querySelectorAll('.pchart').forEach(function(c){
-    c.querySelectorAll('.ptabs button').forEach(function(b){
+    c.querySelectorAll('.mtabs button').forEach(function(b){
       b.addEventListener('click', function(){
-        c.querySelectorAll('.ptabs button').forEach(function(x){ x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
-        c.querySelectorAll('.prange').forEach(function(r){ r.hidden = r.getAttribute('data-r') !== b.getAttribute('data-r'); });
+        c.querySelectorAll('.mtabs button').forEach(function(x){ x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
+        c.querySelectorAll('.pmetal').forEach(function(m){ m.hidden = m.getAttribute('data-m') !== b.getAttribute('data-m'); });
+      });
+    });
+    c.querySelectorAll('.pmetal').forEach(function(m){
+      m.querySelectorAll('.rtabs button').forEach(function(b){
+        b.addEventListener('click', function(){
+          m.querySelectorAll('.rtabs button').forEach(function(x){ x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
+          m.querySelectorAll('.prange').forEach(function(r){ r.hidden = r.getAttribute('data-r') !== b.getAttribute('data-r'); });
+        });
       });
     });
     c.querySelectorAll('.chart-wrap').forEach(function(w){

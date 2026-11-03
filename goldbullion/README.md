@@ -50,7 +50,7 @@ Re-importing an updated catalog CSV (Admin → Import CSV) adds new products and
 
 - **Site-wide discount:** every price on the site — fixed and live — is reduced by the percentage in **Admin → Settings** (2% to start). Set it to 0 to turn it off. Prices are simply lower; the site doesn’t show invented “was” prices. Use a product’s *Compare-at price* only for a price you genuinely charged before.
 - **Customer reviews:** add reviews your customers send you in **Admin → Reviews** (name, rating, their words, date, optional product SKU and order number — a matching order shows “Verified buyer”). They appear on the product page (with star ratings for Google), on `/reviews` and on the home page. Only add genuine reviews: fake reviews are illegal under the FTC’s 2024 rule and Google penalises them.
-- **Gold price chart:** on the Gold Price page and the price-history guide. “Since 1970” uses approximate annual averages; from launch day the site records each day’s price itself, and the 1-month, 6-month and 1-year views appear as that history builds up (after about a week).
+- **Price charts:** gold, silver and platinum on the Gold Price page (tabs), plus gold on the price-history guide, silver on the Silver category and platinum on the Platinum category. Put `{price_chart:gold}`, `{price_chart:silver}`, `{price_chart:platinum}` or `{price_chart:all}` in any page text to add one. The long-term view uses approximate annual averages (gold and silver from 1970, platinum from 1990); from launch day the site records each day’s prices itself, and the 1-month, 6-month and 1-year views appear as that history builds up (after about a week).
 
 ## Live spot price
 

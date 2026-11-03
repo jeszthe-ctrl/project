@@ -272,6 +272,7 @@ HTML,
   'body'=><<<'HTML'
 <h2>Silver price today</h2>
 <p>Silver is trading at <strong>{silver_oz}</strong> per troy ounce. See live <a href="/gold-price">gold and silver prices</a>.</p>
+{price_chart:silver}
 HTML,
   'faqs'=>[],
 ],
