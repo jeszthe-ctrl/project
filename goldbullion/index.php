@@ -115,6 +115,30 @@ function site_img($key){ global $STORE; $i = $STORE['images'][$key] ?? null; ret
 function site_img_tag($i, $class='', $lcp=false, $w=1200, $h=800){
   return '<img src="'.h(img_src($i['src'])).'" alt="'.h($i['alt'] ?? '').'" width="'.$w.'" height="'.$h.'"'.($class ? ' class="'.$class.'"' : '').($lcp ? ' fetchpriority="high"' : ' loading="lazy" decoding="async"').'>';
 }
+/* ---------------- customer reviews (added in Admin → Reviews) ---------------- */
+function reviews_published($product=null){
+  global $STORE;
+  $out = array_values(array_filter($STORE['reviews'] ?? [], fn($r)=>!empty($r['published']) && ($product === null || ($r['product'] ?? '') === $product)));
+  usort($out, fn($a, $b)=>strcmp($b['date'] ?? '', $a['date'] ?? ''));
+  return $out;
+}
+function stars($n, $label=true){ $n = max(0, min(5, (float)$n)); return '<span class="stars" style="--r:'.round($n / 5 * 100, 1).'%"'.($label ? ' role="img" aria-label="'.number_format($n, 1).' out of 5 stars"' : ' aria-hidden="true"').'>★★★★★</span>'; }
+function review_cards($list){
+  $out = '<ul class="reviews">';
+  foreach($list as $r){
+    $prod = !empty($r['product']) ? product_by_id($r['product']) : null;
+    $out .= '<li class="review">'.stars($r['rating']).($r['title'] !== '' ? '<h3>'.h($r['title']).'</h3>' : '').'<p>'.nl2br(h($r['text'])).'</p>'
+      .'<p class="rv-by"><b>'.h($r['name']).'</b>'.($r['location'] !== '' ? ', '.h($r['location']) : '').' · '.h(date('M j, Y', strtotime($r['date']))).(!empty($r['verified']) ? ' · <span class="verified">✓ Verified buyer</span>' : '')
+      .($prod && empty($prod['hidden']) ? '<br><span class="small muted">Bought: <a href="'.product_url($prod).'">'.h($prod['name']).'</a></span>' : '').'</p></li>';
+  }
+  return $out.'</ul>';
+}
+function rating_summary($list){
+  if(!$list) return '';
+  $avg = array_sum(array_column($list, 'rating')) / count($list);
+  return '<p class="rv-sum">'.stars($avg).' <b>'.number_format($avg, 1).'</b> out of 5 · '.count($list).' '.(count($list) === 1 ? 'review' : 'reviews').'</p>';
+}
+
 function in_stock($p){ return ($p['stock'] ?? 'in') !== 'out' && product_price($p) > 0; }
 
 /* ---------------- money, units, tokens ---------------- */
@@ -198,7 +222,7 @@ function fill($text, $extra=[]){
 function content($html, $extra=[]){
   global $BASE;
   $html = fill($html, $extra);
-  $blocks = ['calculator'=>fn()=>calculator_html(), 'payment_list'=>fn()=>payment_list_html(), 'shipping_table'=>fn()=>shipping_table_html(), 'business_details'=>fn()=>business_details_html()];
+  $blocks = ['price_chart'=>fn()=>price_chart_html(), 'calculator'=>fn()=>calculator_html(), 'payment_list'=>fn()=>payment_list_html(), 'shipping_table'=>fn()=>shipping_table_html(), 'business_details'=>fn()=>business_details_html()];
   foreach($blocks as $k=>$fn){
     if(strpos($html, '{'.$k.'}') === false) continue;
     $out = $fn();
@@ -425,6 +449,7 @@ elseif($path === 'cart')                  $view = 'cart';
 elseif($path === 'checkout')              $view = 'checkout';
 elseif($path === 'order-received')        $view = 'received';
 elseif($path === 'search')                $view = 'search';
+elseif($path === 'reviews')               $view = 'reviews';
 elseif(($seg[0] ?? '') === 'products' && count($seg) === 2 && product_by_slug($seg[1])) $view = 'product';
 elseif(($seg[0] ?? '') === 'guides' && count($seg) === 2 && guide_by_slug($seg[1]))      $view = 'guide';
 elseif(tool_by_slug($path))               $view = 'tool';
@@ -494,6 +519,12 @@ function view_home(){
   <article class="prose"><?= content($home['body']) ?></article>
   <aside class="side"><?= side_box() ?></aside>
 </section>
+<?php if($rv = reviews_published()): ?>
+<section class="wrap sec">
+  <div class="sec-head"><h2>What our customers say</h2><a href="<?= link_to('reviews') ?>">All reviews →</a></div>
+  <?= rating_summary($rv) ?><?= review_cards(array_slice($rv, 0, 3)) ?>
+</section>
+<?php endif; ?>
 <section class="wrap sec">
   <div class="sec-head"><h2>Gold bullion guides</h2><a href="<?= link_to('guides') ?>">All guides →</a></div>
   <?= guide_cards(array_slice(guides_all(), 0, 6)) ?>
@@ -708,6 +739,7 @@ function view_product($seg){
   </article>
   <aside class="side"><?= side_box() ?><?= $cat ? related_guides_box(cat_guides($cat['slug'])) : '' ?></aside>
 </section>
+<?php if($rv = reviews_published($p['id'])): ?><section class="wrap sec narrow" id="reviews"><h2 class="h2">Customer reviews</h2><?= rating_summary($rv) ?><?= review_cards($rv) ?></section><?php endif; ?>
 <?php
   $pool = $cat ? cat_products($cat['slug']) : visible_products();
   $related = array_slice(array_values(array_filter($pool, fn($x)=>$x['id'] !== $p['id'] && product_price($x) > 0)), 0, 4) ?: array_slice(array_values(array_filter($pool, fn($x)=>$x['id'] !== $p['id'])), 0, 4);
@@ -943,6 +975,17 @@ function view_search(){
 <?php if($guides): ?><section class="wrap sec"><h2 class="h2">Guides</h2><?= guide_cards(array_slice($guides, 0, 6)) ?></section><?php endif; ?>
 <?php }
 
+function view_reviews(){
+  global $META, $CFG;
+  $list = reviews_published();
+  $META['title'] = 'Customer Reviews'; $META['desc'] = 'Read what customers say about buying gold and silver bullion from '.$CFG['brand'].': reviews of our products, pricing, payment and insured shipping.';
+  $META['canonical'] = abs_url('reviews');
+  if(!$list) $META['robots'] = 'noindex,follow';
+  crumbs([['Customer Reviews', 'reviews']]); ?>
+<div class="wrap page-head"><h1>Customer Reviews</h1><?= $list ? rating_summary($list) : '<p class="lead">Reviews from our customers will appear here. Bought from us? We’d love to hear how it went — <a href="'.link_to('contact').'">send us your review</a>.</p>' ?></div>
+<?php if($list): ?><section class="wrap sec narrow"><?= review_cards($list) ?><p class="small muted">Reviews are written by our customers and published with their permission. “Verified buyer” means the review is linked to an order placed with us. Have something to share? <a href="<?= link_to('contact') ?>">Send us your review</a>.</p></section><?php endif; ?>
+<?php }
+
 function view_notfound(){
   global $META;
   http_response_code(404);
@@ -1063,6 +1106,7 @@ function tool_panel($t){
     case 'spot':
       echo '<div class="tool-top">'.spot_card().'<div class="pboxes">'.$box('Gold per ounce', $s['gold'] > 0 ? usd($s['gold']) : '—', true).$box('Gold per gram', gold_value_txt(1, 'g')).$box('Gold per kilo', gold_value_txt(1, 'kg'))
          .$box('Silver per ounce', $s['silver'] > 0 ? usd($s['silver']) : '—', true).$box('Silver per gram', $s['silver'] > 0 ? usd($s['silver'] / G_PER_OZT) : '—').$box('Silver per kilo', $s['silver'] > 0 ? usd($s['silver'] / G_PER_OZT * 1000) : '—').'</div></div>';
+      echo price_chart_html();
       echo '<h2 class="h2">Gold price per gram, ounce and tola by karat</h2>'.karat_table([24, 22, 21, 18, 14, 10], true);
       echo calculator_html();
       break;
@@ -1118,6 +1162,82 @@ function tool_panel($t){
       break;
   }
   return ob_get_clean();
+}
+
+/* ---------------- gold price history chart ---------------- */
+function chart_series(){
+  $days = (data_read('history') ?: [])['days'] ?? [];
+  $spot = spot();
+  if($spot['gold'] > 0) $days[date('Y-m-d')] = [$spot['gold'], $spot['silver']];
+  ksort($days);
+  $out = [];
+  foreach(['1M'=>'-1 month', '6M'=>'-6 months', '1Y'=>'-1 year'] as $k=>$rel){
+    $from = date('Y-m-d', strtotime($rel));
+    $pts = [];
+    foreach($days as $d=>$v) if($d >= $from && $v[0] > 0) $pts[] = [$d, (float)$v[0]];
+    if(count($pts) >= 7) $out[$k] = $pts;
+  }
+  /* long term: annual averages, then this site's own yearly averages, then today */
+  $years = [];
+  foreach($days as $d=>$v) if($v[0] > 0) $years[(int)substr($d, 0, 4)][] = (float)$v[0];
+  $long = [];
+  foreach(GOLD_ANNUAL as $y=>$v) $long[] = [(string)$y, (float)$v];
+  foreach($years as $y=>$vals) if($y > array_key_last(GOLD_ANNUAL) && $y < (int)date('Y')) $long[] = [(string)$y, array_sum($vals) / count($vals)];
+  if($spot['gold'] > 0) $long[] = [date('Y-m-d'), (float)$spot['gold']];
+  $out['Since 1970'] = $long;
+  return [$out, $days ? array_key_first($days) : date('Y-m-d')];
+}
+
+function chart_svg($pts, $long=false){
+  $W = 820; $H = 300; $L = 64; $R = 14; $T = 16; $B = 34;
+  $vals = array_column($pts, 1);
+  $min = min($vals); $max = max($vals);
+  if($long) $min = 0;
+  $span = max(1, $max - $min); $min = max(0, $min - $span * 0.08); $max += $span * 0.08;
+  /* x by time, so gaps in the data show as gaps in time */
+  $ts = array_map(fn($p)=>strlen($p[0]) === 4 ? strtotime($p[0].'-07-01') : strtotime($p[0]), $pts);
+  $t0 = min($ts); $t1 = max($ts); $tspan = max(1, $t1 - $t0);
+  $x = fn($t)=>$L + ($W - $L - $R) * ($t - $t0) / $tspan;
+  $y = fn($v)=>$T + ($H - $T - $B) * (1 - ($v - $min) / ($max - $min));
+  $line = ''; $data = [];
+  foreach($pts as $i=>[$d, $v]){
+    $line .= ($i ? 'L' : 'M').round($x($ts[$i]), 1).' '.round($y($v), 1);
+    $data[] = [round($x($ts[$i]), 1), round($y($v), 1), strlen($d) === 4 ? $d.' average' : date('M j, Y', strtotime($d)), usd($v)];
+  }
+  $area = $line.'L'.round($x($ts[count($ts) - 1]), 1).' '.($H - $B).'L'.$L.' '.($H - $B).'Z';
+  /* gridlines at round numbers */
+  $step = [1, 2, 2.5, 5, 10][0]; $raw = ($max - $min) / 4; $mag = pow(10, floor(log10(max(1, $raw))));
+  foreach([1, 2, 2.5, 5, 10] as $m) if($m * $mag >= $raw){ $step = $m * $mag; break; }
+  $grid = '';
+  for($v = ceil($min / $step) * $step; $v <= $max; $v += $step)
+    $grid .= '<line x1="'.$L.'" x2="'.($W - $R).'" y1="'.round($y($v), 1).'" y2="'.round($y($v), 1).'" class="g"/><text x="'.($L - 8).'" y="'.round($y($v) + 4, 1).'" text-anchor="end">$'.number_format($v).'</text>';
+  /* x labels: about six evenly spaced */
+  $xl = ''; $n = count($pts); $every = max(1, (int)ceil($n / 6));
+  for($i = 0; $i < $n; $i += $every){ $d = $pts[$i][0]; $xl .= '<text x="'.round($x($ts[$i]), 1).'" y="'.($H - 10).'" text-anchor="middle">'.h(strlen($d) === 4 ? $d : ($long ? substr($d, 0, 4) : date($n > 200 ? 'M Y' : 'M j', strtotime($d)))).'</text>'; }
+  $last = end($data);
+  return '<svg viewBox="0 0 '.$W.' '.$H.'" class="chart" role="img" aria-label="Gold price chart" data-pts="'.h(json_encode($data)).'">'
+    .'<defs><linearGradient id="cg'.($long ? 'l' : count($pts)).'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a0a0a" stop-opacity=".14"/><stop offset="1" stop-color="#0a0a0a" stop-opacity="0"/></linearGradient></defs>'
+    .$grid.'<path d="'.$area.'" fill="url(#cg'.($long ? 'l' : count($pts)).')"/><path d="'.$line.'" class="ln"/>'.$xl
+    .'<circle cx="'.$last[0].'" cy="'.$last[1].'" r="4.5" class="dot"/><line class="hx" x1="0" x2="0" y1="'.$T.'" y2="'.($H - $B).'"/><circle class="hd" r="5" cx="-10" cy="-10"/></svg>';
+}
+
+function price_chart_html(){
+  [$series, $since] = chart_series();
+  $default = isset($series['1Y']) ? '1Y' : 'Since 1970';
+  $change = function($pts){ $a = $pts[0][1]; $b = end($pts)[1]; return $a > 0 ? ($b - $a) / $a * 100 : 0; };
+  ob_start(); ?>
+<div class="pchart" dir="ltr" lang="en">
+  <div class="pchart-head"><h2 class="h2">Gold price chart</h2>
+    <div class="ptabs" role="tablist"><?php foreach($series as $k=>$pts): ?><button type="button" role="tab" data-r="<?= h($k) ?>" aria-selected="<?= $k === $default ? 'true' : 'false' ?>"><?= h($k) ?></button><?php endforeach; ?></div></div>
+  <?php foreach($series as $k=>$pts): $c = $change($pts); ?>
+  <div class="prange" data-r="<?= h($k) ?>"<?= $k === $default ? '' : ' hidden' ?>>
+    <p class="pchg"><?= h($k === 'Since 1970' ? 'Since 1970' : 'Past '.['1M'=>'month', '6M'=>'6 months', '1Y'=>'year'][$k]) ?>: <b class="<?= $c >= 0 ? 'up' : 'down' ?>"><?= $c >= 0 ? '+' : '' ?><?= number_format($c, 1) ?>%</b> (<?= usd($pts[0][1]) ?> → <?= usd(end($pts)[1]) ?>)</p>
+    <div class="chart-wrap"><?= chart_svg($pts, $k === 'Since 1970') ?><div class="tip" hidden></div></div>
+  </div>
+  <?php endforeach; ?>
+  <p class="small muted">US dollars per troy ounce. 1970–<?= array_key_last(GOLD_ANNUAL) ?>: approximate annual averages (LBMA). Recent prices: recorded live by this site<?= count($series) > 1 ? '' : ' — daily charts appear once a week of prices has been recorded (since '.date('M j, Y', strtotime($since)).')' ?>. See <a href="<?= link_to('guides/gold-price-history') ?>">gold price history</a>.</p>
+</div>
+<?php return ob_get_clean();
 }
 
 function calculator_html($k=24){
@@ -1271,6 +1391,11 @@ function product_schema($p, $price){
     'image'=>$imgs ?: [abs_url('assets/img/share.jpg')], 'category'=>'Precious Metals > Gold Bullion'];
   if(!empty($p['brand'])) $d['brand'] = ['@type'=>'Brand', 'name'=>$p['brand']];
   if(!empty($p['gtin'])) $d['gtin'] = $p['gtin'];
+  if($rv = reviews_published($p['id'])){
+    $d['aggregateRating'] = ['@type'=>'AggregateRating', 'ratingValue'=>round(array_sum(array_column($rv, 'rating')) / count($rv), 1), 'reviewCount'=>count($rv), 'bestRating'=>5, 'worstRating'=>1];
+    $d['review'] = array_map(fn($r)=>['@type'=>'Review', 'author'=>['@type'=>'Person', 'name'=>$r['name']], 'datePublished'=>$r['date'], 'reviewBody'=>$r['text'],
+      'reviewRating'=>['@type'=>'Rating', 'ratingValue'=>(int)$r['rating'], 'bestRating'=>5]], array_slice($rv, 0, 5));
+  }
   if((float)($p['weight'] ?? 0) > 0) $d['weight'] = ['@type'=>'QuantitativeValue', 'value'=>(float)$p['weight'], 'unitCode'=>['g'=>'GRM', 'oz'=>'APZ', 'kg'=>'KGM'][$p['unit'] ?? 'oz'] ?? 'APZ'];
   if($price > 0) $d['offers'] = ['@type'=>'Offer', 'url'=>$d['url'], 'priceCurrency'=>'USD', 'price'=>number_format($price, 2, '.', ''),
     'priceValidUntil'=>date('Y-m-d', strtotime('+1 day')), 'itemCondition'=>'https://schema.org/NewCondition',
@@ -1311,6 +1436,7 @@ function sitemap(){
   foreach(visible_products() as $p) $urls[] = ['products/'.$p['slug'], $today, 'daily'];
   foreach($STORE['tools'] as $t) $urls[] = [$t['slug'], $today, 'hourly'];
   foreach(guides_all() as $g) $urls[] = ['guides/'.$g['slug'], $g['updated'] ?? $g['date'] ?? $today, 'monthly'];
+  if(reviews_published()) $urls[] = ['reviews', $today, 'weekly'];
   foreach($STORE['pages'] as $pg) if($pg['slug'] !== 'track-order') $urls[] = [$pg['slug'], $STORE['settings']['policies_updated'] ?? false ? date('Y-m-d', $STORE['settings']['policies_updated']) : '2026-10-30', 'monthly'];
   echo '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'."\n";
   foreach($urls as [$u, $mod, $freq]){
@@ -1444,7 +1570,7 @@ function render($body){
         <li class="has-sub"><a href="<?= link_to('faq') ?>">Help</a><button type="button" class="caret" aria-expanded="false" aria-label="Help menu"></button>
           <ul class="sub"><?php foreach($help as $p): ?><li><a href="<?= link_to($p['slug']) ?>"><?= h($p['title']) ?></a></li><?php endforeach; ?><li><a href="<?= link_to('contact') ?>">Contact us</a></li></ul></li>
         <li class="has-sub"><a href="<?= link_to('about-us') ?>">About</a><button type="button" class="caret" aria-expanded="false" aria-label="About menu"></button>
-          <ul class="sub"><?php foreach($company as $p): ?><li><a href="<?= link_to($p['slug']) ?>"><?= h($p['title']) ?></a></li><?php endforeach; ?><li class="sub-sep"></li><?php foreach($legal as $p): ?><li><a href="<?= link_to($p['slug']) ?>"><?= h($p['title']) ?></a></li><?php endforeach; ?></ul></li>
+          <ul class="sub"><?php foreach($company as $p): ?><li><a href="<?= link_to($p['slug']) ?>"><?= h($p['title']) ?></a></li><?php endforeach; ?><li><a href="<?= link_to('reviews') ?>">Customer Reviews</a></li><li class="sub-sep"></li><?php foreach($legal as $p): ?><li><a href="<?= link_to($p['slug']) ?>"><?= h($p['title']) ?></a></li><?php endforeach; ?></ul></li>
       </ul>
   </nav>
   <form class="search" action="<?= link_to('search') ?>" role="search"><input name="q" placeholder="Search" aria-label="Search products and guides"></form>
@@ -1465,7 +1591,7 @@ function render($body){
     <div><h2>Shop</h2><ul><li><a href="<?= link_to('shop') ?>">All gold bullion</a></li><li><a href="<?= link_to('gold-bars') ?>">Gold bars</a></li><?php foreach($nav_cats as $c): ?><li><a href="<?= link_to($c['slug']) ?>"><?= h($c['name']) ?></a></li><?php endforeach; ?><li><a href="<?= link_to('gold-coins') ?>">Gold coins</a></li></ul></div>
     <div><h2>Gold prices</h2><ul><?php foreach($STORE['tools'] as $t): ?><li><a href="<?= link_to($t['slug']) ?>"<?= ($t['lang'] ?? '') === 'ar' ? ' lang="ar" hreflang="ar"' : '' ?>><?= h($t['nav'] ?? $t['h1']) ?></a></li><?php endforeach; ?></ul></div>
     <div><h2>Help</h2><ul><?php foreach($help as $p): ?><li><a href="<?= link_to($p['slug']) ?>"><?= h($p['title']) ?></a></li><?php endforeach; ?><li><a href="<?= link_to('guides') ?>">Guides</a></li></ul>
-      <h2>Company</h2><ul><?php foreach($company as $p): ?><li><a href="<?= link_to($p['slug']) ?>"><?= h($p['title']) ?></a></li><?php endforeach; ?></ul></div>
+      <h2>Company</h2><ul><?php foreach($company as $p): ?><li><a href="<?= link_to($p['slug']) ?>"><?= h($p['title']) ?></a></li><?php endforeach; ?><li><a href="<?= link_to('reviews') ?>">Customer Reviews</a></li></ul></div>
     <div><h2>Popular guides</h2><ul><?php foreach(guides_from(['what-is-gold-bullion', 'gold-bar-weight-and-sizes', 'how-to-calculate-gold-value', 'gold-karats-explained', 'best-gold-bars-to-buy', 'best-gold-coins-to-buy', 'how-to-tell-if-gold-is-real', 'gold-price-history']) as $g): ?><li><a href="<?= link_to('guides/'.$g['slug']) ?>"><?= h(preg_replace('/[:?(].*$/', '', $g['title'])) ?></a></li><?php endforeach; ?><li><a href="<?= link_to('guides') ?>">All guides</a></li></ul>
       <h2>Legal</h2><ul><?php foreach($legal as $p): ?><li><a href="<?= link_to($p['slug']) ?>"><?= h($p['title']) ?></a></li><?php endforeach; ?></ul></div>
   </div>

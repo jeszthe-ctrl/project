@@ -18,6 +18,7 @@ return [
     'hours'        => 'Monday–Friday 9am–6pm ET · Saturday 10am–2pm ET',
     'reply_time'   => 'within a few business hours',
     'pay_window'   => '24',
+    'discount_pct' => 2,      /* % taken off every price on the site */
     'dispatch_time'=> '1–2 business days after payment clears',
     'announcement' => 'Insured shipping on every order · Live spot pricing · Payment details sent by text or email after you order',
     'author'       => 'Gold Bullion Shop Research Desk',
@@ -85,7 +86,8 @@ return [
   ],
 
   'products'   => [],
-  'images'     => [],   /* site photos: 'hero', 'cat:SLUG', 'guide:SLUG' => ['src'=>…, 'alt'=>…] */
+  'images'     => [],
+  'reviews'    => [],   /* customer reviews you add in Admin → Reviews */   /* site photos: 'hero', 'cat:SLUG', 'guide:SLUG' => ['src'=>…, 'alt'=>…] */
   'categories' => require GB_ROOT.'/inc/content-categories.php',
   'pages'      => require GB_ROOT.'/inc/content-pages.php',
   'tools'      => require GB_ROOT.'/inc/content-tools.php',

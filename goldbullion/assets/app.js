@@ -22,6 +22,31 @@
   document.querySelectorAll('.facet-more').forEach(function(b){ b.addEventListener('click', function(){ b.parentNode.classList.add('all'); b.remove(); }); });
   if(window.matchMedia('(max-width:1000px)').matches) document.querySelectorAll('.filters-box').forEach(function(d){ if(!/[?&](metal|type|w|kind|brand|year)=/.test(location.search)) d.removeAttribute('open'); });
 
+  /* price chart: range tabs and hover / touch read-out */
+  document.querySelectorAll('.pchart').forEach(function(c){
+    c.querySelectorAll('.ptabs button').forEach(function(b){
+      b.addEventListener('click', function(){
+        c.querySelectorAll('.ptabs button').forEach(function(x){ x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
+        c.querySelectorAll('.prange').forEach(function(r){ r.hidden = r.getAttribute('data-r') !== b.getAttribute('data-r'); });
+      });
+    });
+    c.querySelectorAll('.chart-wrap').forEach(function(w){
+      var svg = w.querySelector('svg'), tip = w.querySelector('.tip'), pts = JSON.parse(svg.getAttribute('data-pts') || '[]');
+      var hx = svg.querySelector('.hx'), hd = svg.querySelector('.hd');
+      var move = function(e){
+        var r = svg.getBoundingClientRect(), cx = ((e.touches ? e.touches[0].clientX : e.clientX) - r.left) / r.width * svg.viewBox.baseVal.width, best = pts[0];
+        pts.forEach(function(p){ if(Math.abs(p[0] - cx) < Math.abs(best[0] - cx)) best = p; });
+        if(!best) return;
+        hx.setAttribute('x1', best[0]); hx.setAttribute('x2', best[0]); hd.setAttribute('cx', best[0]); hd.setAttribute('cy', best[1]);
+        tip.hidden = false; tip.innerHTML = '<b>' + best[3] + '</b>' + best[2];
+        tip.style.left = Math.min(Math.max(best[0] / svg.viewBox.baseVal.width * r.width, 60), r.width - 60) + 'px';
+        w.classList.add('on');
+      };
+      svg.addEventListener('mousemove', move); svg.addEventListener('touchmove', move, {passive: true}); svg.addEventListener('touchstart', move, {passive: true});
+      svg.addEventListener('mouseleave', function(){ tip.hidden = true; w.classList.remove('on'); });
+    });
+  });
+
   /* product photos */
   document.querySelectorAll('.thumb').forEach(function(b){
     b.addEventListener('click', function(){

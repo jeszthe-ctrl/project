@@ -190,7 +190,7 @@ function spot(){
     $saved['checked'] = time();                     /* one try per 10 minutes, even when the feeds are down */
     data_write('spot', $saved);
     $fresh = spot_fetch();
-    if($fresh){ $saved = $fresh + ['time'=>time(), 'checked'=>time()]; data_write('spot', $saved); }
+    if($fresh){ $saved = $fresh + ['time'=>time(), 'checked'=>time()]; data_write('spot', $saved); history_record($saved); }
   }
   if((float)($saved['gold'] ?? 0) > 0){
     $silver = (float)($saved['silver'] ?? 0) ?: $manual['silver'];
@@ -199,6 +199,23 @@ function spot(){
   }
   return $cache = $manual;
 }
+
+/* Daily price history, recorded by the site itself from the live feed: the last price of each day
+   (data/history.php, up to 10 years). Used by the price charts alongside the long-term annual averages. */
+function history_record($spot){
+  $h = data_read('history') ?: ['days'=>[]];
+  $h['days'][date('Y-m-d')] = [round((float)$spot['gold'], 2), round((float)($spot['silver'] ?? 0), 3)];
+  if(count($h['days']) > 3700) $h['days'] = array_slice($h['days'], -3700, null, true);
+  data_write('history', $h, false);
+}
+
+/* approximate annual average gold price (USD per troy ounce, LBMA), for the long-term chart */
+const GOLD_ANNUAL = [1970=>36, 1971=>41, 1972=>58, 1973=>97, 1974=>159, 1975=>161, 1976=>125, 1977=>148, 1978=>193, 1979=>307,
+  1980=>615, 1981=>460, 1982=>376, 1983=>424, 1984=>361, 1985=>317, 1986=>368, 1987=>446, 1988=>437, 1989=>381,
+  1990=>384, 1991=>362, 1992=>344, 1993=>360, 1994=>384, 1995=>384, 1996=>388, 1997=>331, 1998=>294, 1999=>279,
+  2000=>279, 2001=>271, 2002=>310, 2003=>363, 2004=>410, 2005=>445, 2006=>603, 2007=>695, 2008=>872, 2009=>972,
+  2010=>1225, 2011=>1572, 2012=>1669, 2013=>1411, 2014=>1266, 2015=>1160, 2016=>1251, 2017=>1257, 2018=>1268, 2019=>1393,
+  2020=>1770, 2021=>1799, 2022=>1800, 2023=>1941, 2024=>2386];
 
 function oz_from($weight, $unit){
   $f = ['g'=>1, 'oz'=>G_PER_OZT, 'kg'=>1000][(string)$unit] ?? G_PER_OZT;
@@ -231,9 +248,15 @@ function product_price_calc($p){
     $oz = product_fine_oz($p);
     if($per_oz <= 0 || $oz <= 0) return 0;
     $metal = $per_oz * $oz;
-    return round($metal * (1 + (float)($p['premium_pct'] ?? 0) / 100) + (float)($p['premium_usd'] ?? 0), 2);
+    return site_discount(round($metal * (1 + (float)($p['premium_pct'] ?? 0) / 100) + (float)($p['premium_usd'] ?? 0), 2));
   }
-  return round((float)($p['price'] ?? 0), 2);
+  return site_discount(round((float)($p['price'] ?? 0), 2));
+}
+
+/* the site-wide discount (Admin → Settings), taken off every price */
+function site_discount($price){
+  $d = min(50, max(0, (float)($GLOBALS['STORE']['settings']['discount_pct'] ?? 0)));
+  return $price > 0 && $d > 0 ? round($price * (1 - $d / 100), 2) : $price;
 }
 
 /* ---------------- shipping ---------------- */

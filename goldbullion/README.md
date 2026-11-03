@@ -46,6 +46,12 @@ Re-importing an updated catalog CSV (Admin → Import CSV) adds new products and
 - Products are filed into the right category automatically (1 gram, 10 gram, 1 oz, 100 g, 10 oz, 1 kilo bars, gold coins, silver) from their name and weight, unless your CSV has a category column.
 - Photos from the CSV are downloaded to your server (`assets/products/`).
 
+## Discount, reviews and the price chart
+
+- **Site-wide discount:** every price on the site — fixed and live — is reduced by the percentage in **Admin → Settings** (2% to start). Set it to 0 to turn it off. Prices are simply lower; the site doesn’t show invented “was” prices. Use a product’s *Compare-at price* only for a price you genuinely charged before.
+- **Customer reviews:** add reviews your customers send you in **Admin → Reviews** (name, rating, their words, date, optional product SKU and order number — a matching order shows “Verified buyer”). They appear on the product page (with star ratings for Google), on `/reviews` and on the home page. Only add genuine reviews: fake reviews are illegal under the FTC’s 2024 rule and Google penalises them.
+- **Gold price chart:** on the Gold Price page and the price-history guide. “Since 1970” uses approximate annual averages; from launch day the site records each day’s price itself, and the 1-month, 6-month and 1-year views appear as that history builds up (after about a week).
+
 ## Live spot price
 
 Gold and silver prices come from public price feeds (goldprice.org, with gold-api.com as a fallback). They're fetched at most every 10 minutes and cached. They feed the price ticker, every price page, all `{value:…}` figures in the guides, and live-priced products. If no feed can be reached, the last good price is used, then the manual price from **Admin → Spot price**.

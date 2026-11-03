@@ -98,6 +98,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
                'gsc_verification','bing_verification','ga4_id','chat_code','smtp_host','smtp_secure','smtp_user'] as $k) if(isset($_POST[$k])) $S[$k] = in_str($k);
       $S['domain'] = rtrim($S['domain'], '/');
       $S['smtp_port'] = (int)in_num('smtp_port', 465);
+      if(isset($_POST['discount_pct'])) $S['discount_pct'] = min(50, max(0, in_num('discount_pct')));
       if(in_str('smtp_pass') !== '') $S['smtp_pass'] = in_str('smtp_pass');
       if(!empty($_POST['smtp_clear'])) $S['smtp_pass'] = '';
       if(!filter_var($S['email'], FILTER_VALIDATE_EMAIL)) note('The shop email address doesn’t look right.', 'err');
@@ -224,6 +225,22 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         if(!empty($cur['src'])){ $cur['alt'] = $alt !== '' ? $alt : ($cur['alt'] ?? $label); $STORE['images'][$key] = $cur; }
       }
       save('Site photos saved.'); go('photos');
+    case 'review':
+      $id = in_str('id'); $i = idx('reviews', $id, 'id');
+      if(!empty($_POST['delete'])){ if($i !== null) array_splice($STORE['reviews'], $i, 1); save('Review deleted.'); go('reviews'); }
+      $r = ['id'=>$id ?: bin2hex(random_bytes(5)), 'name'=>mb_substr(in_str('name'), 0, 60), 'location'=>mb_substr(in_str('location'), 0, 60),
+            'rating'=>max(1, min(5, (int)in_num('rating', 5))), 'title'=>mb_substr(in_str('title'), 0, 120), 'text'=>mb_substr(in_str('text'), 0, 3000),
+            'date'=>preg_match('/^\d{4}-\d{2}-\d{2}$/', in_str('date')) ? in_str('date') : date('Y-m-d'),
+            'product'=>'', 'order'=>strtoupper(in_str('order')), 'published'=>!empty($_POST['published'])];
+      $pq = in_str('product');
+      if($pq !== '') foreach($STORE['products'] as $p) if(strcasecmp($p['id'], $pq) === 0 || strcasecmp($p['sku'] ?? '', $pq) === 0 || strcasecmp($p['slug'] ?? '', $pq) === 0){ $r['product'] = $p['id']; break; }
+      if($pq !== '' && $r['product'] === '') note('No product with that SKU was found, so the review is saved as a shop review.', 'err');
+      $o = $r['order'] !== '' ? order_load($r['order']) : null;
+      $r['verified'] = (bool)$o;
+      if($r['order'] !== '' && !$o) note('Order '.$r['order'].' was not found, so the review is not marked “Verified buyer”.', 'err');
+      if($r['name'] === '' || $r['text'] === ''){ note('Please enter the customer’s name and their review.', 'err'); go('reviews', ['edit'=>$id]); }
+      if($i === null) array_unshift($STORE['reviews'], $r); else $STORE['reviews'][$i] = $r;
+      save('Review saved.'); go('reviews');
     case 'delete_messages':
       data_write('messages', []); note('Messages cleared.'); go('messages');
   }
@@ -491,7 +508,7 @@ function order_action(){
 }
 
 /* ---------------- pages ---------------- */
-$NAV = ['dashboard'=>'Dashboard', 'orders'=>'Orders', 'messages'=>'Messages', 'products'=>'Products', 'pricing'=>'Pricing', 'import'=>'Import CSV', 'photos'=>'Site photos', 'categories'=>'Categories',
+$NAV = ['dashboard'=>'Dashboard', 'orders'=>'Orders', 'messages'=>'Messages', 'reviews'=>'Reviews', 'products'=>'Products', 'pricing'=>'Pricing', 'import'=>'Import CSV', 'photos'=>'Site photos', 'categories'=>'Categories',
         'home'=>'Home page', 'pages'=>'Pages', 'guides'=>'Guides', 'tools'=>'Price pages', 'shipping'=>'Shipping', 'payments'=>'Payments',
         'spot'=>'Spot price', 'settings'=>'Settings', 'account'=>'Login'];
 if($V === 'export' || $V === 'template'){ ('page_'.$V)(); exit; }
@@ -594,6 +611,31 @@ function page_order(){
   <form method="post" onsubmit="return confirm('Delete this order permanently?')"><?= csrf_field() ?><input type="hidden" name="act" value="order"><input type="hidden" name="ref" value="<?= h($o['ref']) ?>"><input type="hidden" name="do" value="delete"><button class="btn btn-danger">Delete order</button></form></div>
 <?php }
 
+function page_reviews(){
+  global $STORE;
+  $edit = null; foreach($STORE['reviews'] as $r) if(($r['id'] ?? '') === ($_GET['edit'] ?? '')) $edit = $r;
+  $e = $edit ?: ['rating'=>5, 'date'=>date('Y-m-d'), 'published'=>true];
+  $v = fn($k)=>h($e[$k] ?? '');
+  $pname = ''; if(!empty($e['product'])) foreach($STORE['products'] as $p) if($p['id'] === $e['product']) $pname = $p['sku'] ?: $p['id']; ?>
+<h1>Customer reviews</h1>
+<div class="card"><p>Add reviews your customers send you — by email, text or in person. They appear on the product (if you choose one), on the <a href="reviews" target="_blank">Customer Reviews page</a> and on the home page.</p>
+<p class="small muted">Only add reviews customers actually wrote, in their own words, with their permission. Made-up or paid-for reviews are illegal under the FTC’s 2024 rule on fake reviews and are penalised by Google. Enter the order number to show a “Verified buyer” badge.</p></div>
+<form method="post" class="card"><?= csrf_field() ?><input type="hidden" name="act" value="review"><input type="hidden" name="id" value="<?= $v('id') ?>">
+  <h2><?= $edit ? 'Edit review' : 'Add a review' ?></h2>
+  <div class="grid3"><label>Customer name as shown (e.g. “James R.”)<input name="name" value="<?= $v('name') ?>" required></label><label>Location (optional)<input name="location" value="<?= $v('location') ?>" placeholder="Austin, TX"></label>
+    <label>Rating<select name="rating"><?php for($n = 5; $n >= 1; $n--): ?><option value="<?= $n ?>"<?= (int)($e['rating'] ?? 5) === $n ? ' selected' : '' ?>><?= str_repeat('★', $n).str_repeat('☆', 5 - $n) ?> (<?= $n ?>)</option><?php endfor; ?></select></label></div>
+  <label>Title (optional)<input name="title" value="<?= $v('title') ?>"></label>
+  <label>Review (the customer’s own words)<textarea name="text" rows="5" required><?= $v('text') ?></textarea></label>
+  <div class="grid3"><label>Date<input type="date" name="date" value="<?= $v('date') ?>"></label><label>Product SKU (optional)<input name="product" value="<?= h($pname) ?>" placeholder="e.g. GB-002026"></label><label>Order number (optional)<input name="order" value="<?= $v('order') ?>" placeholder="GB-…"></label></div>
+  <label class="check"><input type="checkbox" name="published" value="1"<?= !empty($e['published']) ? ' checked' : '' ?>> Show on the website</label>
+  <button class="btn">Save review</button><?php if($edit): ?> <button class="btn btn-danger" name="delete" value="1" onclick="return confirm('Delete this review?')">Delete</button> <a href="<?= aurl('reviews') ?>">Cancel</a><?php endif; ?>
+</form>
+<div class="card"><h2>All reviews (<?= count($STORE['reviews']) ?>)</h2>
+<?php if(!$STORE['reviews']) echo '<p class="muted">No reviews yet.</p>'; else { ?><table class="tbl"><thead><tr><th>Customer</th><th>Rating</th><th>Review</th><th>Product</th><th>Status</th></tr></thead><tbody>
+<?php foreach($STORE['reviews'] as $r): ?><tr><td><a href="<?= aurl('reviews', ['edit'=>$r['id']]) ?>"><b><?= h($r['name']) ?></b></a><br><span class="small muted"><?= h($r['date']) ?><?= !empty($r['verified']) ? ' · verified' : '' ?></span></td><td><?= str_repeat('★', (int)$r['rating']) ?></td><td class="small"><?= h(mb_strimwidth(($r['title'] ? $r['title'].' — ' : '').$r['text'], 0, 120, '…')) ?></td><td class="small"><?= h($r['product'] ?: 'Shop review') ?></td><td><?= !empty($r['published']) ? '<span class="st st-paid">Shown</span>' : '<span class="st">Hidden</span>' ?></td></tr><?php endforeach; ?>
+</tbody></table><?php } ?></div>
+<?php }
+
 function page_messages(){
   $all = data_read('messages') ?: []; ?>
 <h1>Messages</h1><p class="muted">Contact form messages (also emailed to you).</p>
@@ -652,7 +694,7 @@ function page_pricing(){
   }
   $order = array_column($STORE['categories'], 'slug'); ?>
 <h1>Pricing &amp; publishing</h1>
-<div class="card"><p>Set your selling price for a whole category at once as <b>the live spot value of the metal + a premium</b>. Prices then move with the market automatically and are locked when a customer orders. Tick <b>Publish</b> to show the priced products on the site.</p>
+<div class="card"><p class="small">Your site-wide discount of <b><?= (float)($STORE['settings']['discount_pct'] ?? 0) ?>%</b> is taken off every price automatically (change it in <a href="<?= aurl('settings') ?>">Settings</a>).</p><p>Set your selling price for a whole category at once as <b>the live spot value of the metal + a premium</b>. Prices then move with the market automatically and are locked when a customer orders. Tick <b>Publish</b> to show the priced products on the site.</p>
 <p class="muted small">Spot today: gold <?= $spot['gold'] > 0 ? usd($spot['gold']) : '—' ?> · silver <?= $spot['silver'] > 0 ? usd($spot['silver']) : '—' ?> · platinum <?= ($spot['platinum'] ?? 0) > 0 ? usd($spot['platinum']) : '—' ?> · palladium <?= ($spot['palladium'] ?? 0) > 0 ? usd($spot['palladium']) : '—' ?> (<a href="<?= aurl('spot') ?>">spot settings</a>). Products without a known metal weight — accessories, notes, many certified and rare coins — need a fixed price: <a href="<?= aurl('products', ['priced'=>'no']) ?>">see unpriced products</a>.</p></div>
 <form method="post"><?= csrf_field() ?><input type="hidden" name="act" value="pricing">
 <div class="card"><table class="tbl"><thead><tr><th>Category</th><th>Products</th><th>Live</th><th>Priced</th><th>Premium over spot</th><th>Options</th></tr></thead><tbody>
@@ -920,6 +962,7 @@ function page_settings(){
   <div class="grid2"><label>Website address<input name="domain" value="<?= $v('domain') ?>"></label><label>Shop email (shown on the site)<input name="email" value="<?= $v('email') ?>"></label></div>
   <div class="grid2"><label>Phone (shown on the site)<input name="phone" value="<?= $v('phone') ?>"></label><label>Opening hours<input name="hours" value="<?= $v('hours') ?>"></label></div>
   <label>Business address<textarea name="address" rows="3"><?= $v('address') ?></textarea></label>
+  <label>Site-wide discount (% taken off every price on the site)<input name="discount_pct" value="<?= $v('discount_pct') ?>" inputmode="decimal"></label>
   <div class="grid3"><label>We send payment details…<input name="reply_time" value="<?= $v('reply_time') ?>"></label><label>Hours to pay (price lock)<input name="pay_window" value="<?= $v('pay_window') ?>"></label><label>We ship…<input name="dispatch_time" value="<?= $v('dispatch_time') ?>"></label></div>
   <label>Announcement bar<input name="announcement" value="<?= $v('announcement') ?>"></label>
   <div class="grid2"><label>Guides written by<input name="author" value="<?= $v('author') ?>"></label><label>Countries you ship to (comma separated)<input name="countries" value="<?= $v('countries') ?>"></label></div>

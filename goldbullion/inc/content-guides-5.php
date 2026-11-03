@@ -11,6 +11,7 @@ return [
   'summary'=>'The key moments in the price of gold since the end of the gold standard, and what drove them.',
   'body'=><<<'HTML'
 <p class="lead"><strong>Gold has risen from $35 an ounce in 1970 to {gold_oz} today.</strong> The path has not been smooth: long rallies have been followed by long declines, and investors who bought at the 1980 or 2011 peaks waited many years to break even.</p>
+{price_chart}
 <h2>Gold price milestones (USD per troy ounce, approximate)</h2>
 <table><thead><tr><th>Year</th><th>Price</th><th>What happened</th></tr></thead><tbody>
 <tr><td>1934–1971</td><td>$35</td><td>Price fixed by the US government under the gold standard</td></tr>

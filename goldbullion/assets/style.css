@@ -437,3 +437,35 @@ legend{font-weight:750;font-size:18px;padding:0 8px;color:var(--ink);letter-spac
   .sec-tight .cat-tiles{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;padding-bottom:6px;margin-right:-16px;padding-right:16px}
   .sec-tight .cat-tiles li{flex:0 0 72%;scroll-snap-align:start}
 }
+
+/* ---------- price chart ---------- */
+.pchart{border:1px solid var(--line);border-radius:14px;padding:20px 22px 12px;margin:8px 0 30px;background:#fff}
+.pchart-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.pchart-head .h2{margin:0;font-size:21px}
+.ptabs{display:flex;gap:4px;background:var(--bg-2);padding:4px;border-radius:999px}
+.ptabs button{border:0;background:none;padding:7px 14px;border-radius:999px;font:600 13.5px var(--sans);cursor:pointer;color:var(--ink-2)}
+.ptabs button[aria-selected=true]{background:var(--ink);color:#fff}
+.pchg{margin:12px 0 4px;font-size:14.5px;color:var(--ink-2)}
+.pchg .up{color:var(--up)}.pchg .down{color:var(--down)}
+.chart-wrap{position:relative}
+.chart{width:100%;height:auto;display:block;font:12px var(--sans);fill:var(--muted);touch-action:pan-y}
+.chart .g{stroke:var(--line);stroke-width:1}
+.chart .ln{fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linejoin:round}
+.chart .dot{fill:var(--ink)}
+.chart .hx{stroke:var(--ink);stroke-width:1;stroke-dasharray:3 3;opacity:0}
+.chart .hd{fill:#fff;stroke:var(--ink);stroke-width:2;opacity:0}
+.chart-wrap.on .hx,.chart-wrap.on .hd{opacity:1}
+.tip{position:absolute;top:6px;background:var(--ink);color:#fff;font-size:13px;padding:6px 10px;border-radius:8px;pointer-events:none;white-space:nowrap;transform:translateX(-50%)}
+.tip b{display:block;font-size:15px}
+
+/* ---------- reviews ---------- */
+.stars{position:relative;display:inline-block;font-size:17px;letter-spacing:2px;line-height:1;color:var(--line-2)}
+.stars::before{content:"★★★★★";position:absolute;left:0;top:0;width:var(--r);overflow:hidden;color:#c99a3a;white-space:nowrap}
+.rv-sum{display:flex;align-items:center;gap:8px;font-size:15px;margin:4px 0 18px}
+.reviews{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.narrow .reviews{grid-template-columns:1fr}
+.review{border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;background:#fff}
+.review h3{font-size:16px;margin:10px 0 4px;letter-spacing:0}
+.review p{margin:8px 0 0;font-size:15px;color:var(--ink-2)}
+.rv-by{font-size:13.5px!important;color:var(--muted)!important}
+.verified{color:var(--up);font-weight:650}
