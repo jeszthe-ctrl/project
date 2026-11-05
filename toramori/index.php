@@ -130,6 +130,9 @@ function start_session(): void {
     if (session_status() === PHP_SESSION_ACTIVE) return;
     session_name('tmr');
     session_set_cookie_params(['lifetime' => 60 * 60 * 24 * 30, 'path' => '/', 'httponly' => true, 'samesite' => 'Lax', 'secure' => !empty($_SERVER['HTTPS'])]);
+    // sessions live in the site's own (protected) data folder, so they work even where the host's session folder doesn't
+    if (is_dir(DATA) && (is_dir(DATA . '/sessions') || @mkdir(DATA . '/sessions', 0700)) && is_writable(DATA . '/sessions')) session_save_path(DATA . '/sessions');
+    ini_set('session.gc_maxlifetime', (string)(60 * 60 * 24 * 30));
     session_start();
 }
 function csrf_token(): string {
@@ -138,10 +141,18 @@ function csrf_token(): string {
     return $_SESSION['csrf'];
 }
 function csrf_field(): string { return '<input type="hidden" name="csrf" value="' . h(csrf_token()) . '">'; }
-function csrf_check(): void {
+function csrf_valid(): bool {
     start_session();
     $t = $_POST['csrf'] ?? ($_SERVER['HTTP_X_CSRF'] ?? '');
-    if (!$t || !hash_equals($_SESSION['csrf'] ?? '', $t)) { http_response_code(419); exit('Your session expired. Go back, refresh the page and try again.'); }
+    return $t && hash_equals($_SESSION['csrf'] ?? '', $t);
+}
+function csrf_check(): void {
+    if (!csrf_valid()) { http_response_code(419); exit('Your session expired. Go back, refresh the page and try again.'); }
+}
+// The visitor's own address, also behind a CDN or proxy (used only to slow down password guessing).
+function client_ip(): string {
+    $fwd = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_FOR'] ?? ''))[0]);
+    return filter_var($fwd, FILTER_VALIDATE_IP) ? $fwd : (string)($_SERVER['REMOTE_ADDR'] ?? '');
 }
 function view(string $name, array $vars = []): string {
     ob_start();
@@ -1607,7 +1618,7 @@ function page_google_feed(): void {
 /* ================================================================ admin */
 
 
-function admin_ok(): bool { return !empty($_SESSION['admin']) && ($_SESSION['admin_ip'] ?? '') === ($_SERVER['REMOTE_ADDR'] ?? ''); }
+function admin_ok(): bool { return !empty($_SESSION['admin']); }
 
 /* ------------------------------------------------------------------ layout */
 function admin_shell(string $title, string $body, string $active, bool $nav = true): string {
@@ -2560,6 +2571,7 @@ function admin_review_edit(): void {
 }
 
 function admin_main(string $path): void {
+    header('Cache-Control: no-store, private'); header('X-LiteSpeed-Cache-Control: no-cache');
     start_session();
     $apath = '/' . trim(substr($path, strlen('/admin')), '/');
 
@@ -2570,12 +2582,12 @@ function admin_main(string $path): void {
     if (setting('admin_password_hash') === '' || $reset) {
         $err = '';
         if (is_post()) {
-            csrf_check();
-            $pw = (string)($_POST['password'] ?? '');
-            if (mb_strlen($pw) < 10) $err = 'Use at least 10 characters.';
-            elseif ($pw !== ($_POST['password2'] ?? '')) $err = 'The two passwords do not match.';
+            $pw = trim((string)($_POST['password'] ?? ''));
+            if (!csrf_valid()) $err = 'The page had expired. Please type the password again.';
+            elseif (mb_strlen($pw) < 10) $err = 'Use at least 10 characters.';
+            elseif ($pw !== trim((string)($_POST['password2'] ?? ''))) $err = 'The two passwords do not match.';
             elseif ($reset && !@unlink(ROOT . '/reset-admin.txt')) $err = 'reset-admin.txt could not be removed. Delete it in your hosting file manager, then set the password here.';
-            else { set_setting('admin_password_hash', password_hash($pw, PASSWORD_DEFAULT)); set_setting('login_fails', '[]'); session_regenerate_id(true); $_SESSION['admin'] = 1; $_SESSION['admin_ip'] = $_SERVER['REMOTE_ADDR'] ?? ''; redirect('/admin'); }
+            else { set_setting('admin_password_hash', password_hash($pw, PASSWORD_DEFAULT)); set_setting('login_fails', '[]'); session_regenerate_id(true); $_SESSION['admin'] = 1; redirect('/admin'); }
         }
         echo admin_shell($reset ? 'Set a new admin password' : 'Create your admin password', '<form method="post" class="card narrow">' . csrf_field() . '<h1>' . ($reset ? 'Set a new admin password' : 'Welcome to your Toramori admin') . '</h1><p class="muted">' . ($reset ? 'reset-admin.txt was found, so you can choose a new password. The file is removed once you save.' : 'Create the password you will use to sign in. Keep it somewhere safe.') . ' Your username is <strong>' . h(setting('admin_user')) . '</strong>.</p>'
             . ($err ? '<p class="alert">' . h($err) . '</p>' : '') . '<label>Password<input type="password" name="password" required minlength="10" autocomplete="new-password"></label><label>Repeat password<input type="password" name="password2" required autocomplete="new-password"></label><button class="btn primary">Create password</button></form>', '', false);
@@ -2584,18 +2596,21 @@ function admin_main(string $path): void {
     if ($apath === '/logout') { $_SESSION = []; session_destroy(); redirect('/admin'); }
     if (!admin_ok()) {
         $err = '';
-        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        $ip = client_ip();
         $fails = json_decode(setting('login_fails'), true) ?: [];
         foreach ($fails as $k => $f) if ($f[1] < time() - 900) unset($fails[$k]);   // forget failures older than 15 minutes
         $locked = ($fails[$ip][0] ?? 0) >= 8;
         if (is_post()) {
-            csrf_check();
-            if ($locked) $err = 'Too many wrong attempts. Wait 15 minutes and try again.';
+            $pw = (string)($_POST['password'] ?? '');
+            if (!csrf_valid()) $err = 'The page had expired. Please sign in again.';
+            elseif ($locked) $err = 'Too many wrong attempts. Wait 15 minutes and try again, or use reset-admin.txt (see below).';
             else {
                 $userOk = hash_equals(mb_strtolower(setting('admin_user')), mb_strtolower(trim((string)($_POST['user'] ?? ''))));
-                if (password_verify((string)($_POST['password'] ?? ''), setting('admin_password_hash')) && $userOk) {
+                // a space a phone keyboard adds at either end doesn't count
+                $pwOk = password_verify($pw, setting('admin_password_hash')) || ($pw !== trim($pw) && password_verify(trim($pw), setting('admin_password_hash')));
+                if ($pwOk && $userOk) {
                     unset($fails[$ip]); set_setting('login_fails', json_encode($fails));
-                    session_regenerate_id(true); $_SESSION['admin'] = 1; $_SESSION['admin_ip'] = $ip;
+                    session_regenerate_id(true); $_SESSION['admin'] = 1;
                     redirect('/admin' . ($apath !== '/' ? $apath : ''));
                 }
                 $fails[$ip] = [($fails[$ip][0] ?? 0) + 1, time()];
@@ -2607,7 +2622,9 @@ function admin_main(string $path): void {
         echo admin_shell('Sign in', '<form method="post" class="card narrow">' . csrf_field() . '<h1>Sign in</h1>' . ($err ? '<p class="alert">' . h($err) . '</p>' : '')
             . '<label>Username<input name="user" required autofocus autocomplete="username" value="' . h((string)($_POST['user'] ?? '')) . '"></label>'
             . '<label>Password<input type="password" name="password" required autocomplete="current-password"></label><button class="btn primary">Sign in</button>'
-            . '<p class="small muted">Forgot the password? In your hosting file manager, create an empty file named reset-admin.txt next to index.php, then reload this page.</p></form>', '', false);
+            . '<p class="small muted">Forgot the password? In your hosting file manager, create an empty file named reset-admin.txt next to index.php, then reload this page.</p>'
+            . ($err && is_file(DATA . '/config.php') && filemtime(DATA . '/config.php') < filemtime(__FILE__) - 60 ? '<p class="small note">This site is still using the data folder from an earlier upload, so the password that came with the newest index.php does not apply here. Use reset-admin.txt as described above, or delete the data folder and reload the site to start fresh.</p>' : '')
+            . '</form>', '', false);
         exit;
     }
     if (is_post()) csrf_check();
