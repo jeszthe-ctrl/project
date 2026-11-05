@@ -39,7 +39,13 @@ As in your file, products start as **drafts** with no price, so customers don't 
 
 Re-importing an updated catalog CSV (Admin → Import CSV) adds new products and re-categorises existing ones while keeping your prices, photos and publish status.
 
-## Products
+## Adding your prices, photos and descriptions (Admin → Import CSV)
+
+1. **Download your products as a spreadsheet** (button on the Import page): every product in the import format, with its SKU.
+2. In Excel or Google Sheets fill in, for each product you sell: **price** (or **premium_percent** over spot), **image_urls** (links to your photos, several separated by `|`), **description**, and **published** = `true`. Keep the **sku** column unchanged.
+3. Save as CSV and upload it. Only the cells you fill in change anything; empty cells keep what’s already on the site. A CSV over your host’s upload limit can be uploaded as a .zip.
+4. Press **Copy photos to my server**: it copies linked photos in batches until all are done.
+
 
 - **Import CSV** accepts WooCommerce, Shopify and spreadsheet exports. Column names are recognised automatically (name, price, sku, category, weight, images, description, brand, stock…). Download the sample CSV from the Import page.
 - **Fixed price** or **live price**: leave the price empty and fill `premium_percent` / `premium_usd`, and the price follows the live gold spot price (spot × gold weight + premium). The price is locked into the order when the customer checks out.

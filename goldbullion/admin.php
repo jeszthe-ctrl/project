@@ -206,6 +206,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
       }
       save("$done product(s) priced from spot, $published published.".($skipped ? " $skipped have no known metal weight — give them a fixed price on the Products page." : ''));
       go('pricing');
+    case 'copy_photos':
+      copy_photos(); break;
     case 'import':
       csv_import(); break;
     case 'order':
@@ -324,7 +326,15 @@ function csv_import(){
   global $STORE;
   @set_time_limit(600);
   if(empty($_FILES['csv']['tmp_name']) || !is_uploaded_file($_FILES['csv']['tmp_name'])){ note('Choose a CSV file to import.', 'err'); go('import'); }
-  $rows = csv_rows($_FILES['csv']['tmp_name']);
+  $file = $_FILES['csv']['tmp_name'];
+  if(preg_match('/\.zip$/i', $_FILES['csv']['name'] ?? '') && class_exists('ZipArchive')){
+    $z = new ZipArchive(); $csv = null;
+    if($z->open($file) === true){ for($i = 0; $i < $z->numFiles; $i++) if(preg_match('/\.csv$/i', $z->getNameIndex($i))){ $csv = $z->getFromIndex($i); break; } $z->close(); }
+    if($csv === null){ note('That zip file doesn’t contain a .csv file.', 'err'); go('import'); }
+    $file = tempnam(sys_get_temp_dir(), 'csv'); file_put_contents($file, $csv);
+  }
+  $rows = csv_rows($file);
+  if(!$rows){ note('No products found in that file. The first row must be column names.', 'err'); go('import'); }
   if($rows && (isset($rows[0]['catalogspecificationsjson']) || isset($rows[0]['listedweight']))){ catalog_import($rows); }
   $pick = function($r, $names){ foreach($names as $n){ if(isset($r[$n]) && trim((string)$r[$n]) !== '') return trim((string)$r[$n]); } return ''; };
   $A = [
@@ -340,7 +350,7 @@ function csv_import(){
     'featured'=>['featured','isfeatured'],
   ];
   $replace = in_str('mode') === 'replace';
-  $download = !empty($_POST['download']);
+  $download = false;   /* photos are copied afterwards in batches (Import page), so big files never time out */
   $products = $replace ? [] : $STORE['products'];
   $by = []; foreach($products as $k=>$p){ if(!empty($p['sku'])) $by['sku:'.strtolower($p['sku'])] = $k; $by['slug:'.$p['slug']] = $k; }
   $cats = []; foreach($STORE['categories'] as $c){ $cats[strtolower($c['slug'])] = $c['slug']; $cats[strtolower($c['name'])] = $c['slug']; }
@@ -421,27 +431,71 @@ function catalog_import($rows){
   $replace = in_str('mode') === 'replace';
   $old = []; foreach($STORE['products'] as $p) $old[$p['sku'] !== '' ? 'sku:'.$p['sku'] : 'id:'.$p['id']] = $p;
   $out = $replace ? [] : $old; $slugs = []; foreach($out as $p) $slugs[$p['slug']] = 1;
-  $added = 0; $updated = 0;
+  $catslugs = array_flip(array_column($STORE['categories'], 'slug'));
+  $added = 0; $updated = 0; $priced = 0; $photos = 0; $live = 0;
+  $val = fn($r, $k)=>trim((string)($r[$k] ?? ''));
   foreach($rows as $r){
     $row = []; foreach($keys as $k=>$orig) $row[$orig] = $r[$k] ?? '';
+    if($row['catalog_specifications_json'] === '' && isset($r['specificationsjson'])) $row['catalog_specifications_json'] = $r['specificationsjson'];
+    if($row['product_type'] === '' && isset($r['type'])) $row['product_type'] = $r['type'];
     $p = catalog_product($row);
     if($p['name'] === '') continue;
     $key = 'sku:'.$p['sku'];
-    if(isset($old[$key])){
-      $o = $old[$key];
-      foreach(['id', 'slug', 'pricing', 'price', 'premium_pct', 'premium_usd', 'compare_at', 'hidden', 'featured', 'seo_title', 'seo_desc', 'short', 'sort'] as $k) if(isset($o[$k])) $p[$k] = $o[$k];
-      if(!$p['images']) $p['images'] = $o['images'] ?? [];
-      $out[$key] = $p; $updated++;
-    } else {
+    $o = $old[$key] ?? null;
+    if($o){
+      /* keep what this file doesn't say; everything the file does say replaces it */
+      foreach(['id', 'slug', 'pricing', 'price', 'premium_pct', 'premium_usd', 'compare_at', 'hidden', 'featured', 'seo_title', 'seo_desc', 'short', 'sort', 'images'] as $k) if(isset($o[$k])) $p[$k] = $o[$k];
+      if($val($r, 'description') === '' || stripos($val($r, 'description'), 'product collection') !== false) $p['description'] = $o['description'] ?? $p['description'];
+    }
+    if($val($r, 'description') !== '' && stripos($val($r, 'description'), 'product collection') === false) $p['description'] = clean_html($val($r, 'description'));
+    $price = (float)preg_replace('/[^\d.]/', '', $val($r, 'price'));
+    if($price > 0){ $p['pricing'] = 'fixed'; $p['price'] = $price; $priced++; }
+    if($val($r, 'premiumpercent') !== '' || $val($r, 'premiumusd') !== ''){ $p['pricing'] = 'spot'; $p['premium_pct'] = (float)$val($r, 'premiumpercent'); $p['premium_usd'] = (float)preg_replace('/[^\d.-]/', '', $val($r, 'premiumusd')); $priced++; }
+    if($val($r, 'compareatprice') !== '') $p['compare_at'] = (float)preg_replace('/[^\d.]/', '', $val($r, 'compareatprice'));
+    $imgs = array_values(array_filter(preg_split('/\s*[|\n]\s*/', $val($r, 'imageurls')), fn($u)=>preg_match('#^https?://#', $u)));
+    if($imgs){ $p['images'] = $imgs; $photos++; }
+    if($val($r, 'published') !== '') $p['hidden'] = !in_array(strtolower($val($r, 'published')), ['true', '1', 'yes', 'y'], true);
+    elseif(!$o) $p['hidden'] = true;
+    if($val($r, 'shortdescription') !== '') $p['short'] = strip_tags($val($r, 'shortdescription'));
+    if($val($r, 'seotitle') !== '') $p['seo_title'] = $val($r, 'seotitle');
+    if($val($r, 'seodescription') !== '') $p['seo_desc'] = $val($r, 'seodescription');
+    if($val($r, 'featured') !== '') $p['featured'] = in_array(strtolower($val($r, 'featured')), ['true', '1', 'yes', 'y'], true);
+    /* a categories column made of this shop's category addresses (as in an export) is used as it is */
+    $cs = array_values(array_filter(preg_split('/\s*[|,]\s*/', strtolower($val($r, 'categories')))));
+    if($cs && !array_diff($cs, array_keys($catslugs))) $p['categories'] = $cs;
+    if(!$o){
       $base = slugify($p['name']) ?: strtolower($p['id']); $slug = $base; $n = 2;
       while(isset($slugs[$slug])) $slug = $base.'-'.$n++;
-      $slugs[$slug] = 1; $p['slug'] = $slug;
-      $out[$key] = $p; $added++;
-    }
+      $slugs[$slug] = 1; $p['slug'] = $slug; $added++;
+    } else $updated++;
+    if(empty($p['hidden'])) $live++;
+    $out[$key] = $p;
   }
   $STORE['products'] = array_values($out);
-  save("Catalog imported: $added added, $updated updated and re-categorised. New products start as drafts — set prices and publish them under Pricing.");
-  go('pricing');
+  $remote = count(array_filter($STORE['products'], fn($p)=>remote_photos($p)));
+  save("Import finished: $added added, $updated updated, $priced with prices, $photos with photos, $live live on the site.".($remote ? " $remote products have photos on other websites — copy them to your server below." : ''));
+  go('import');
+}
+
+/* photos still linked from another website */
+function remote_photos($p){ return array_values(array_filter((array)($p['images'] ?? []), fn($u)=>preg_match('#^https?://#', $u))); }
+
+/* copies linked photos to this server, a batch at a time so large catalogs never time out */
+function copy_photos(){
+  global $STORE;
+  @set_time_limit(120);
+  $start = time(); $done = 0; $failed = 0;
+  foreach($STORE['products'] as &$p){
+    if(time() - $start > 40 || $done + $failed >= 60) break;
+    foreach((array)($p['images'] ?? []) as $k=>$u){
+      if(!preg_match('#^https?://#', $u) || !empty($p['photo_failed'][$u])) continue;
+      $local = fetch_image($u, $p['slug'].($k ? '-'.($k + 1) : ''));
+      if($local){ $p['images'][$k] = $local; $done++; } else { $p['photo_failed'][$u] = 1; $failed++; }
+    }
+  } unset($p);
+  save("Copied $done photos to your server".($failed ? ", $failed couldn’t be downloaded (they stay linked)" : '').'.');
+  $left = 0; foreach($STORE['products'] as $p) foreach(remote_photos($p) as $u) if(empty($p['photo_failed'][$u])) $left++;
+  go('import', $left && !empty($_POST['auto']) ? ['copy'=>1] : []);
 }
 
 function fetch_image($url, $name){ return store_image(http_get($url, 8), $name); }
@@ -711,62 +765,62 @@ function page_export(){
   global $STORE;
   header('Content-Type: text/csv; charset=utf-8'); header('Content-Disposition: attachment; filename="products-'.date('Y-m-d').'.csv"');
   $out = fopen('php://output', 'w');
-  $cols = ['name','slug','sku','category','metal','type','weight','unit','purity','brand','packaging','price','premium_percent','premium_usd','compare_at_price','stock','featured','images','short_description','description','seo_title','seo_description','gtin'];
+  fwrite($out, "\xEF\xBB\xBF");   /* so Excel opens it as UTF-8 */
+  $cols = ['sku', 'name', 'price', 'premium_percent', 'premium_usd', 'compare_at_price', 'published', 'featured', 'image_urls', 'short_description', 'description',
+           'seo_title', 'seo_description', 'metal', 'product_type', 'listed_weight', 'listed_year', 'listed_grade', 'listed_grading_service', 'manufacturer', 'categories', 'catalog_specifications_json'];
   fputcsv($out, $cols, ',', '"', '\\');
-  foreach($STORE['products'] as $p) fputcsv($out, [$p['name'], $p['slug'], $p['sku'] ?? '', implode('|', $p['categories'] ?? []), $p['metal'] ?? '', $p['type'] ?? '', $p['weight'] ?? '', $p['unit'] ?? '', $p['purity'] ?? '', $p['brand'] ?? '', $p['packaging'] ?? '',
-    ($p['pricing'] ?? '') === 'spot' ? '' : ($p['price'] ?? ''), ($p['pricing'] ?? '') === 'spot' ? ($p['premium_pct'] ?? 0) : '', ($p['pricing'] ?? '') === 'spot' ? ($p['premium_usd'] ?? 0) : '', $p['compare_at'] ?? '',
-    $p['stock'] ?? 'in', !empty($p['featured']) ? 'yes' : '', implode('|', $p['images'] ?? []), $p['short'] ?? '', $p['description'] ?? '', $p['seo_title'] ?? '', $p['seo_desc'] ?? '', $p['gtin'] ?? ''], ',', '"', '\\');
+  foreach($STORE['products'] as $p){
+    $spot = ($p['pricing'] ?? '') === 'spot';
+    fputcsv($out, [$p['sku'] ?: $p['id'], $p['name'], $spot ? '' : (($p['price'] ?? 0) ?: ''), $spot ? $p['premium_pct'] : '', $spot ? $p['premium_usd'] : '', ($p['compare_at'] ?? 0) ?: '',
+      empty($p['hidden']) ? 'true' : 'false', !empty($p['featured']) ? 'true' : '', implode('|', (array)($p['images'] ?? [])), $p['short'] ?? '', $p['description'] ?? '',
+      $p['seo_title'] ?? '', $p['seo_desc'] ?? '', ucfirst($p['metal'] ?? ''), ucfirst($p['type'] ?? ''), ($p['weight'] ?? 0) > 0 ? weight_label($p['weight'], $p['unit'] ?? 'oz') : '',
+      $p['year'] ?? '', $p['grade'] ?? '', $p['grader'] ?? '', $p['brand'] ?? '', implode('|', (array)($p['categories'] ?? [])), json_encode($p['specs'] ?? new stdClass, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE)], ',', '"', '\\');
+  }
   exit;
 }
 
-function page_photos(){
+function page_import(){
   global $STORE;
-  $groups = ['Home page'=>[], 'Categories'=>[], 'Guides'=>[]];
-  foreach(photo_keys() as $k=>$l) $groups[$k === 'hero' ? 'Home page' : (strpos($k, 'cat:') === 0 ? 'Categories' : 'Guides')][$k] = $l; ?>
-<h1>Site photos</h1>
-<p class="muted">Real photos of gold bars and coins make the site more trustworthy and can bring visitors from Google Images. Use your own photos, your supplier’s product photos (with permission), or public-domain images. Each photo needs a short description (“alt text”) of what it shows, e.g. “Stack of 1 oz gold bars”.</p>
-<form method="post" enctype="multipart/form-data"><?= csrf_field() ?><input type="hidden" name="act" value="photos">
-<?php foreach($groups as $gname=>$keys): ?>
-<div class="card"><h2><?= h($gname) ?></h2>
-<table class="tbl"><tbody>
-<?php foreach($keys as $k=>$label): $cur = $STORE['images'][$k] ?? null; ?>
-<tr><td style="width:120px"><?= !empty($cur['src']) ? '<img src="'.h($cur['src']).'" width="110" height="80" alt="" style="object-fit:cover">' : '<span class="muted small">No photo</span>' ?></td>
-<td><b><?= h($label) ?></b>
-  <div class="grid3" style="margin-top:6px"><label>Upload<input type="file" name="img[<?= h($k) ?>]" accept="image/*"></label><label>Or photo address<input name="url[<?= h($k) ?>]" placeholder="https://…"></label><label>Description (alt text)<input name="alt[<?= h($k) ?>]" value="<?= h($cur['alt'] ?? '') ?>"></label></div>
-  <?php if(!empty($cur['src'])): ?><label class="check"><input type="checkbox" name="rm[<?= h($k) ?>]" value="1"> remove</label><?php endif; ?></td></tr>
-<?php endforeach; ?>
-</tbody></table></div>
-<?php endforeach; ?>
-<button class="btn btn-lg">Save photos</button></form>
+  $limit = min(ini_bytes(ini_get('upload_max_filesize')), ini_bytes(ini_get('post_max_size')));
+  $left = 0; $failed = 0; foreach($STORE['products'] as $p) foreach(remote_photos($p) as $u){ if(empty($p['photo_failed'][$u])) $left++; else $failed++; } ?>
+<h1>Import products</h1>
+<div class="card"><h2>The easy way</h2><ol>
+  <li><a class="btn btn-ghost" href="<?= aurl('export') ?>">Download your products as a spreadsheet</a> — every product, in the import format.</li>
+  <li>Open it in Excel or Google Sheets. For each product you’re selling, fill in <b>price</b> (or <b>premium_percent</b> over spot), <b>image_urls</b>, <b>description</b>, and set <b>published</b> to <code>true</code>. Leave the <b>sku</b> column as it is.</li>
+  <li>Save as CSV and upload it below. Only columns you fill in are changed; empty cells keep what’s already on the site.</li></ol></div>
+<div class="card"><h2>Upload your CSV</h2><form method="post" enctype="multipart/form-data"><?= csrf_field() ?><input type="hidden" name="act" value="import">
+  <label>CSV file (or a .zip containing it)<input type="file" name="csv" accept=".csv,.zip,text/csv,text/plain,application/zip" required></label>
+  <p class="hint">Your hosting accepts uploads up to <b><?= $limit ? number_format($limit / 1048576, 1).' MB' : 'its set limit' ?></b>. If your CSV is bigger, put it in a .zip (CSVs shrink about 10×) and upload the zip.</p>
+  <label class="check"><input type="radio" name="mode" value="merge" checked> Add new products and update existing ones (matched by SKU)</label>
+  <label class="check"><input type="radio" name="mode" value="replace"> Replace all products with this file</label>
+  <button class="btn">Import</button></form></div>
+<?php if($left || $failed): ?>
+<div class="card"><h2>Product photos</h2>
+  <p><b><?= number_format($left) ?></b> photos are still linked from other websites<?= $failed ? ' ('.number_format($failed).' couldn’t be downloaded)' : '' ?>. Copy them to your server so they load fast and can’t disappear. This runs in batches; keep this page open until it finishes.</p>
+  <form method="post" id="copyform"><?= csrf_field() ?><input type="hidden" name="act" value="copy_photos"><input type="hidden" name="auto" value="1"><button class="btn">Copy photos to my server</button></form>
+  <?php if(!empty($_GET['copy']) && $left): ?><script>setTimeout(function(){ document.getElementById('copyform').submit(); }, 400);</script><p class="muted">Working… <?= number_format($left) ?> to go.</p><?php endif; ?>
+</div>
+<?php endif; ?>
+<div class="card"><h2>Columns you can use</h2>
+<ul class="small">
+<li><b>sku</b> — matches the product on the site. Keep it unchanged when updating.</li>
+<li><b>name</b> (required for new products), <b>description</b> (text or simple HTML), <b>short_description</b></li>
+<li><b>price</b> — a fixed price in USD; <b>or</b> <b>premium_percent</b> / <b>premium_usd</b> — the price follows the live spot price</li>
+<li><b>published</b> — <code>true</code> shows the product on the site, <code>false</code> keeps it as a draft</li>
+<li><b>image_urls</b> — links to your photos, several separated by <code>|</code>. Use photos you took or have permission to use.</li>
+<li><b>compare_at_price</b> (only a price you really charged before), <b>featured</b>, <b>seo_title</b>, <b>seo_description</b></li>
+<li><b>metal</b>, <b>product_type</b>, <b>listed_weight</b>, <b>listed_year</b>, <b>listed_grade</b>, <b>listed_grading_service</b>, <b>manufacturer</b> — used to sort products into categories automatically</li>
+</ul>
+<p class="small">Other spreadsheets work too: exports from WooCommerce and Shopify, or any file with columns such as name, price, images, weight and category. <a href="<?= aurl('template') ?>">Download a small sample CSV</a>.</p></div>
 <?php }
 
-function page_import(){ ?>
-<h1>Import products from CSV</h1>
-<div class="card"><form method="post" enctype="multipart/form-data"><?= csrf_field() ?><input type="hidden" name="act" value="import">
-  <label>CSV file<input type="file" name="csv" accept=".csv,text/csv,text/plain" required></label>
-  <label class="check"><input type="radio" name="mode" value="merge" checked> Add new products and update existing ones (matched by SKU, or by name)</label>
-  <label class="check"><input type="radio" name="mode" value="replace"> Replace all products with this file</label>
-  <label class="check"><input type="checkbox" name="download" value="1" checked> Download product photos to my server (recommended — faster and they can’t disappear)</label>
-  <button class="btn">Import</button></form></div>
-<div class="card"><h2>What the file can contain</h2>
-<p>The first row must be column names. Exports from WooCommerce, Shopify and most spreadsheets work as they are. Recognised columns (any one of the names in each group):</p>
-<ul class="small">
-<li><b>Name</b> (required): name, title, product name</li>
-<li><b>Price</b>: price, sale price, regular price, variant price — a fixed price in USD</li>
-<li><b>Or live pricing</b>: leave price empty and fill <b>premium_percent</b> and/or <b>premium_usd</b>: the price then follows the live spot price (spot × weight + premium)</li>
-<li><b>Weight</b>: weight + unit (g, oz, kg). If missing, it’s read from the name (“1 oz”, “10 gram”, “1 kilo”, “1/10 oz”)</li>
-<li><b>Category</b>: category, categories, type, collection — category names or addresses (e.g. 1-oz-gold-bars). If missing, products are filed automatically by metal, bar/coin and weight</li>
-<li><b>Images</b>: images, image src, image url — several separated by | or ,</li>
-<li>Also: sku, brand / vendor, purity, metal, description, short description, stock / quantity, compare at price, seo title, seo description, gtin / upc, featured, handle / slug</li>
-</ul>
-<p><a href="<?= aurl('template') ?>">Download a sample CSV</a></p></div>
-<?php }
+function ini_bytes($v){ $v = trim((string)$v); $n = (float)$v; $u = strtolower(substr($v, -1)); return (int)($n * (['g'=>1073741824, 'm'=>1048576, 'k'=>1024][$u] ?? 1)); }
 
 function page_template(){
   header('Content-Type: text/csv; charset=utf-8'); header('Content-Disposition: attachment; filename="products-sample.csv"');
-  echo "name,sku,category,weight,unit,purity,brand,price,premium_percent,premium_usd,stock,images,short_description,description\n";
-  echo "\"1 oz Gold Bar - PAMP Suisse Lady Fortuna (In Assay)\",PAMP-1OZ,1-oz-gold-bars,1,oz,.9999,PAMP Suisse,,3.5,0,in,https://example.com/pamp-1oz.jpg,\"One troy ounce of .9999 fine gold in sealed CertiPAMP packaging.\",\"<p>The PAMP Suisse Lady Fortuna 1 oz gold bar...</p>\"\n";
-  echo "\"1 gram Gold Bar - Valcambi (In Assay)\",VAL-1G,1-gram-gold-bars,1,g,.9999,Valcambi,149.99,,,in,https://example.com/val-1g.jpg,\"1 gram of .9999 fine gold in a sealed assay card.\",\n";
+  echo "\xEF\xBB\xBFsku,name,price,premium_percent,premium_usd,published,image_urls,short_description,description,metal,product_type,listed_weight,listed_year,manufacturer\n";
+  echo "MY-0001,\"1 oz Gold Bar - PAMP Suisse Lady Fortuna (In Assay)\",,3.5,0,true,https://example.com/photos/pamp-1oz-front.jpg|https://example.com/photos/pamp-1oz-back.jpg,\"One troy ounce of .9999 fine gold in sealed CertiPAMP packaging.\",\"<p>Our own description of this bar...</p>\",Gold,Bar,1 oz,,PAMP Suisse\n";
+  echo "MY-0002,\"2026 1 oz American Silver Eagle Coin (BU)\",56.90,,,true,https://example.com/photos/ase-2026.jpg,,\"Brilliant uncirculated 2026 Silver Eagle.\",Silver,Coin,1 oz,2026,US Mint\n";
   exit;
 }
 
