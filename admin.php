@@ -458,8 +458,8 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     if($free !== null) $STORE['settings']['free_ship_usd'] = round($free, 2); else note('Free shipping: enter an amount in USD, or 0 to turn it off. The old amount was kept.', 'err');
     $policy = in_str('shipping_policy');
     if($policy !== '') $STORE['settings']['shipping_policy'] = str_replace("\r", '', $policy);
-    else note('The Shipping & Returns page text was empty, so the old text was kept.', 'err');
-    if($policy !== '' && strpos($policy, '{rates}') === false) note('The Shipping & Returns text has no {rates} line, so the rate tables won’t show on that page.', 'err');
+    else note('The Shipping & customs / Returns text was empty, so the old text was kept.', 'err');
+    if($policy !== '' && strpos($policy, '{rates}') === false) note('The shipping text has no {rates} line, so the rate tables won’t show on Shipping & customs.', 'err');
     save('Shipping rates saved.');
     go('shipping');
   }
@@ -581,6 +581,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     if($o){
       if(array_key_exists(in_str('status'), ORDER_STATUSES)) $o['status'] = in_str('status');
       $o['admin_note'] = in_str('admin_note');
+      $o['tracking'] = in_str('tracking');
       if(order_save($o)) note("Order {$o['ref']} updated."); else note('Could not save the order.', 'err');
       go('order', ['ref'=>$o['ref']]);
     }
@@ -637,10 +638,18 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
 }
 
 /* ---------------- view data ---------------- */
-$NAV = ['dashboard'=>'Dashboard', 'orders'=>'Orders', 'products'=>'Products', 'categories'=>'Categories',
+$NAV = ['dashboard'=>'Dashboard', 'orders'=>'Orders', 'leads'=>'Leads', 'products'=>'Products', 'categories'=>'Categories',
         'sets'=>'Sets', 'collections'=>'Collections', 'guides'=>'Guides', 'pages'=>'Pages',
         'shipping'=>'Shipping', 'payments'=>'Payments', 'settings'=>'Settings', 'faq'=>'FAQ', 'password'=>'Sign-in'];
 if(is_admin() && !isset($NAV[$v]) && !in_array($v, ['product','order','collection','guide','page'], true)) $v = 'dashboard';
+/* Leads → download the B2B list as a spreadsheet (CSV) */
+if(is_admin() && $v === 'leads' && isset($_GET['csv'])){
+  header('Content-Type: text/csv; charset=utf-8'); header('Content-Disposition: attachment; filename="b2b-list-'.gmdate('Y-m-d').'.csv"');
+  $out = fopen('php://output', 'w'); fwrite($out, "\xEF\xBB\xBF");
+  fputcsv($out, ['Email', 'Business', 'Type', 'Country', 'Interested in', 'Joined']);
+  foreach(data_read('b2b_list') ?: [] as $r) fputcsv($out, [$r['email'] ?? '', $r['company'] ?? '', $r['type'] ?? '', $r['country_name'] ?? '', $r['interest'] ?? '', $r['time'] ?? '']);
+  exit;
+}
 $nav_on = ['product'=>'products', 'order'=>'orders', 'collection'=>'collections', 'guide'=>'guides', 'page'=>'pages'][$v] ?? $v;
 $flash = $_SESSION['admin_flash'] ?? []; unset($_SESSION['admin_flash']);
 $writable = is_writable(data_dir()) && (is_dir(FK_ROOT.'/assets/products') ? is_writable(FK_ROOT.'/assets/products') : is_writable(FK_ROOT.'/assets'));
@@ -814,6 +823,28 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
   </div>
   <div class="row"><a class="btn" href="<?= h(self_url('product')) ?>">+ Add a product</a><a class="btn g" href="<?= h(self_url('settings')) ?>">Business details</a></div>
 
+<?php elseif($v === 'leads'):
+  $quotes = data_read('quotes') ?: []; $b2b = data_read('b2b_list') ?: []; ?>
+  <h1>Leads</h1>
+  <p class="sub">Quote requests and B2B list sign-ups from the shop, newest first. Each one was also emailed to <?= h($S['order_email']) ?>.</p>
+  <div class="card"><h2>Quote requests (<?= count($quotes) ?>)</h2>
+    <?php if(!$quotes): ?><p class="muted">None yet. They come from <a href="index.php?p=quote" target="_blank" rel="noopener">Request a quote</a>.</p>
+    <?php else: ?><div class="scroll"><table class="t"><thead><tr><th>Received</th><th>From</th><th>Ships to</th><th>Request</th></tr></thead><tbody>
+      <?php foreach(array_slice($quotes, 0, 200) as $q): ?><tr>
+        <td class="small"><?= h($q['ref'] ?? '') ?><br><span class="muted"><?= h($q['time'] ?? '') ?></span></td>
+        <td><a href="mailto:<?= h($q['email']) ?>?subject=<?= rawurlencode('Your quote '.($q['ref'] ?? '')) ?>"><?= h($q['email']) ?></a><br><span class="small"><?= h(trim(($q['name'] ?? '').' '.(($q['company'] ?? '') !== '' ? '· '.$q['company'] : ''))) ?></span></td>
+        <td class="small"><?= h($q['country_name'] ?? '') ?></td>
+        <td class="small"><?php foreach($q['lines'] ?? [] as $l) echo h($l['qty'].' × '.$l['name']).'<br>'; ?><?= nl2br(h($q['message'] ?? '')) ?></td></tr>
+      <?php endforeach; ?></tbody></table></div><?php endif; ?>
+  </div>
+  <div class="card"><h2>B2B list (<?= count($b2b) ?>)</h2>
+    <?php if(!$b2b): ?><p class="muted">No sign-ups yet. They come from <a href="index.php?p=b2b" target="_blank" rel="noopener">Join the B2B list</a>.</p>
+    <?php else: ?><p><a class="btn s" href="<?= h(self_url('leads', ['csv'=>1])) ?>">Download as CSV</a></p>
+    <div class="scroll"><table class="t"><thead><tr><th>Email</th><th>Business</th><th>Type</th><th>Country</th><th>Interested in</th><th>Joined</th></tr></thead><tbody>
+      <?php foreach(array_slice($b2b, 0, 500) as $r): ?><tr><td><a href="mailto:<?= h($r['email']) ?>"><?= h($r['email']) ?></a></td><td><?= h($r['company'] ?? '') ?></td><td><?= h($r['type'] ?? '') ?></td><td><?= h($r['country_name'] ?? '') ?></td><td><?= h($r['interest'] ?? '') ?></td><td class="small muted"><?= h($r['time'] ?? '') ?></td></tr><?php endforeach; ?>
+    </tbody></table></div><?php endif; ?>
+  </div>
+
 <?php elseif($v === 'orders'):
   $orders = orders_all(); $f = str($_GET['status'] ?? '');
   if(array_key_exists($f, ORDER_STATUSES)) $orders = array_filter($orders, fn($o)=>($o['status'] ?? 'new') === $f); ?>
@@ -847,6 +878,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
     <div class="card"><h2>Status</h2>
       <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="order_update"><input type="hidden" name="ref" value="<?= h($o['ref']) ?>">
         <div class="fld"><select name="status" aria-label="Status"><?php foreach(ORDER_STATUSES as $k=>$label): ?><option value="<?= h($k) ?>" <?= $st===$k?'selected':'' ?>><?= h($label) ?></option><?php endforeach; ?></select></div>
+        <div class="fld"><label class="f" for="trk">Tracking number <span class="muted small">(shown to the customer on Track an order)</span></label><input id="trk" name="tracking" value="<?= h($o['tracking'] ?? '') ?>" placeholder="e.g. EJ123456789JP"></div>
         <div class="fld"><label class="f" for="an">Private note</label><textarea id="an" name="admin_note" placeholder="Tracking number, what you sent, anything to remember"><?= h($o['admin_note'] ?? '') ?></textarea></div>
         <button class="btn" type="submit">Save</button>
       </form>
@@ -1228,8 +1260,8 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
         <?php endforeach; ?>
       </tbody></table>
     </div>
-    <div class="card"><h2>Shipping &amp; Returns page</h2>
-      <p class="small muted" style="margin-top:0">The text of your <a href="index.php?p=shipping" target="_blank" rel="noopener">Shipping &amp; Returns page</a>. Keep the line <b>{rates}</b> where the delivery options and rate tables should appear.
+    <div class="card"><h2>Shipping &amp; customs and Returns pages</h2>
+      <p class="small muted" style="margin-top:0">The text of your <a href="index.php?p=shipping" target="_blank" rel="noopener">Shipping &amp; customs</a> and <a href="index.php?p=returns" target="_blank" rel="noopener">Returns</a> pages. Sections headed “If something goes wrong”, “Returns”, “Refunds”, “Cancellations…” and “Authenticity…” show on Returns, the rest on Shipping &amp; customs. Keep the line <b>{rates}</b> where the delivery options and rate tables should appear.
         Numbered steps start with “1. ”, and questions under “## Questions” start with “### ” (Google reads those as FAQs).
         {free_ship} {standard} {express} {standard_days} {express_days} {hold_hours} {reply_hours} {min_order} {email} {company} {address} are filled in for you.</p>
       <textarea name="shipping_policy" rows="26" style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px"><?= h($S['shipping_policy'] ?? '') ?></textarea>

@@ -13,7 +13,7 @@ return [
   'settings' => [
     'strip_text'    => 'Authentic Japanese Pokémon TCG · Wholesale MOQs & case pricing · Shipped worldwide from Japan',
     'hero_title'    => 'Wholesale Japanese Pokémon cards, shipped worldwide from Japan.',
-    'hero_lede'     => 'Authentic sealed booster boxes, Elite Trainer Boxes, premium sets, singles and TCG accessories for card shops, online retailers, tournament organizers and distributors. No approval process: minimum order quantities, case multiples and quantity-break prices are built into every listing.',
+    'hero_lede'     => 'Japanese booster boxes, Elite Trainer Boxes, premium sets, singles and accessories for card shops, online stores, event organizers and distributors. Bulk prices are on every product: tap 6+, 12+ or 24+ and the lower price applies straight away. No account, no approval wait.',
     'footer_blurb'  => 'Independent distributor and reseller of authentic Japanese Pokémon TCG products, shipping wholesale orders worldwide from Japan to card shops, online retailers, tournament organizers and distributors.',
     'home_seo_title'=> 'Japanese Pokémon Cards Wholesale: Booster Boxes & Singles',
     'home_seo_desc' => 'Wholesale Japanese Pokémon cards from Japan: sealed booster boxes, ETBs, premium sets and singles for card shops and retailers, with MOQ and case pricing.',
@@ -28,9 +28,9 @@ Everything we sell is sourced in Japan and shipped worldwide, including to the U
 
 {brand} is an independent distributor and reseller of Japanese Pokémon TCG products. There's no approval-gated registration: every listing shows its minimum order quantity, case multiple and full quantity-break ladder, so card shops, online retailers, tournament organizers and distributors can price a complete order up front. See our [wholesale terms](page:wholesale).
 MD,
-    /* the Shipping & Returns page ({rates} = the delivery options and rate tables) */
+    /* the Shipping & customs page and, from its returns sections on, the Returns page ({rates} = the delivery options and rate tables) */
     'shipping_policy' => <<<'MD'
-Every {brand} order ships from Japan with tracking. This page explains how we ship, what it costs, how long it takes and what happens if something goes wrong, in plain English. The price at checkout is always the final word on shipping for your order.
+Every {brand} order ships from Japan with tracking. This page explains how we ship, what it costs, how long it takes and how customs works, in plain English. If something arrives damaged, short or wrong, see [Returns](page:returns). The price at checkout is always the final word on shipping for your order.
 
 ## Delivery options and rates
 
@@ -415,7 +415,7 @@ Japanese cards work exactly like English ones in casual play — the attacks, HP
 
 US stores such as Walmart and Target sell English cards ([where to buy Pokémon cards](guide:where-to-buy-pokemon-cards)), so Japanese cards mostly come from importers. Official Chinese-language cards are a different product again: see [Chinese Pokémon cards](guide:chinese-pokemon-cards).
 
-We source every [booster box](category:boxes) and [single card](category:singles) in Japan and ship it to the USA with tracking. Shipping is calculated at checkout and free on orders over {free_ship}, and US import duty may be charged on delivery — see [Shipping & Returns](page:shipping) for details.
+We source every [booster box](category:boxes) and [single card](category:singles) in Japan and ship it to the USA with tracking. Shipping is calculated at checkout and free on orders over {free_ship}, and US import duty may be charged on delivery — see [Shipping & customs](page:shipping) for details.
 MD],
     ['slug'=>'most-expensive-pokemon-cards', 'updated'=>'2026-09-25',
      'title'=>'The most expensive Pokémon cards ever sold',
@@ -750,7 +750,7 @@ Card shows are events where many sellers set up tables to buy, sell and trade ca
 
 ## Shop Pokémon cards near me, delivered from Japan
 
-If there's no card shop near you, or you want Japanese cards, shop online. We ship sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb), [rare singles](category:singles) and [accessories](category:accessories) from Japan to the USA with tracking: {standard} delivery in {standard_days}, or {express} in {express_days}, free on orders over {free_ship}. See [Shipping & Returns](page:shipping).
+If there's no card shop near you, or you want Japanese cards, shop online. We ship sealed Japanese [booster boxes](category:boxes), [Elite Trainer Boxes](category:etb), [rare singles](category:singles) and [accessories](category:accessories) from Japan to the USA with tracking: {standard} delivery in {standard_days}, or {express} in {express_days}, free on orders over {free_ship}. See [Shipping & customs](page:shipping).
 
 ## Questions
 
@@ -1449,8 +1449,8 @@ We supply local card shops, online retailers, tournament organizers and independ
 ## How we work
 
 - **Wholesale without the paperwork.** There's no approval-gated registration. Minimum order quantities, case multiples and tiered quantity-break pricing are built into every listing, and applied automatically.
-- **Sourced in Japan.** Everything is bought through Japanese distribution and ships sealed in its original factory packaging. We never sell resealed, reprinted or fake product.
-- **Shipped worldwide.** Every order ships from Japan with tracking; see [Shipping & Returns](page:shipping).
+- **Sourced in Japan.** Everything comes through Japanese distribution and reaches you in its untouched factory shrink wrap. Nothing we sell is resealed, reprinted or fake.
+- **Shipped worldwide.** Every order ships from Japan with tracking; see [Shipping & customs](page:shipping).
 - **Straight answers.** Questions go to a real person at [{email}](mailto:{email}).
 
 ## Independent
@@ -1493,7 +1493,7 @@ Check any price with our [Pokémon card price checker](guide:pokemon-card-price-
 
 ## Worldwide shipping from Japan
 
-Orders ship directly from Japan with tracking: {standard} ({standard_days}) or {express} ({express_days}), priced by weight and shown at checkout. Orders over {free_ship} ship free with {standard}. Import duty and taxes are paid by the buyer. See [Shipping & Returns](page:shipping).
+Orders ship directly from Japan with tracking: {standard} ({standard_days}) or {express} ({express_days}), priced by weight and shown at checkout. Orders over {free_ship} ship free with {standard}. Import duty and taxes are paid by the buyer. See [Shipping & customs](page:shipping).
 
 ## Paying for wholesale orders
 
@@ -1505,7 +1505,7 @@ Upcoming Japanese sets can be preordered at published prices. Preorders are invo
 
 ## Authentic Japanese product
 
-Everything is sourced through Japanese distribution and ships sealed in its original factory packaging. We never sell resealed, reprinted or counterfeit product ([how to tell if a Pokémon card is fake](guide:how-to-tell-if-a-pokemon-card-is-fake)).
+Everything comes through Japanese distribution and reaches you in its untouched factory shrink wrap: nothing resealed, reprinted or counterfeit ([how to tell if a Pokémon card is fake](guide:how-to-tell-if-a-pokemon-card-is-fake)).
 
 ## How to place a wholesale order
 
@@ -1528,7 +1528,7 @@ Each product has its own minimum quantity and case multiple, shown on the listin
 
 ### Do you ship wholesale orders worldwide?
 
-Yes. We ship from Japan with tracking to {countries} countries; the rates are on [Shipping & Returns](page:shipping).
+Yes. We ship from Japan with tracking to {countries} countries; the rates are on [Shipping & customs](page:shipping).
 
 ### Do you offer distributor pricing for larger volumes?
 
@@ -1572,8 +1572,8 @@ You can ask for a copy of the information we hold about you, or ask us to correc
 
 {company}, {address} — [{email}](mailto:{email})
 MD],
-    ['slug'=>'terms', 'title'=>'Terms of sale',
-     'seo_title'=>'Terms of Sale',
+    ['slug'=>'terms', 'title'=>'Terms of service',
+     'seo_title'=>'Terms of Service',
      'seo_desc'=>'Terms for ordering Japanese Pokémon cards from {brand}: prices, minimum order, payment, preorders, shipping, duties and authenticity.',
      'body'=><<<'MD'
 These terms apply to orders placed on {brand}.
@@ -1596,11 +1596,11 @@ Preorders are invoiced when stock is allocated, not when you order.
 
 ## Shipping and duties
 
-Orders ship from Japan with tracking, and shipping is calculated at checkout. Orders over {free_ship} (goods total) ship free with Standard delivery. Import duty, taxes and carrier fees charged on delivery are the buyer's responsibility. See [Shipping & Returns](page:shipping).
+Orders ship from Japan with tracking, and shipping is calculated at checkout. Orders over {free_ship} (goods total) ship free with Standard delivery. Import duty, taxes and carrier fees charged on delivery are the buyer's responsibility. See [Shipping & customs](page:shipping).
 
 ## Damage and shortages
 
-Report damage, shortages or wrong items within seven days of delivery. Returns, refunds and cancellations follow our [Shipping & Returns policy](page:shipping#returns).
+Report damage, shortages or wrong items within seven days of delivery. Returns, refunds and cancellations follow our [returns policy](page:returns).
 
 ## Authenticity and trademarks
 
@@ -1617,10 +1617,10 @@ MD],
     ['Are Japanese Pokémon cards the same size as English cards?', 'Yes. Both are 63 × 88 mm (about 2.5 × 3.5 inches), so they fit standard sleeves, toploaders and binders.'],
     ['How do I pay?', 'Choose a method at checkout. Bitcoin is paid on your order page straight after you order: scan the QR code, or copy the amount and address into your wallet. For other methods, we send the details to your email and phone within {reply_hours} hours, together with your invoice.'],
     ['Do you offer free shipping?', 'Yes. Orders with a goods total over {free_ship} ship free with Standard delivery to every country we ship to, applied automatically at checkout. Choose Express and you pay only the difference.'],
-    ['When is my stock allocated?', 'Placing an order reserves your stock for {hold_hours} hours. Once payment clears, the allocation is confirmed and we dispatch within {hold_hours} hours. If payment does not clear inside the window, high-demand stock returns to general availability.'],
+    ['When is my stock allocated?', 'As soon as you place your order, we set your stock aside for {hold_hours} hours. When your payment arrives it\'s yours, and we send it within {hold_hours} hours. If payment doesn\'t arrive in time, the stock goes back on sale.'],
     ['Will I pay import duty in the USA?', 'Possibly. US imports of any value can be charged import duty and carrier fees, which your carrier collects on delivery. These are not included in our prices.'],
-    ['Can I preorder an upcoming set?', 'Yes. Preorder lines commit an allocation ahead of release at the same published prices, and are invoiced at allocation rather than at request.'],
-    ['Are your Pokémon cards authentic?', 'Yes. Everything is sourced through Japanese distribution and ships sealed in its original factory packaging. We do not deal in resealed, reprinted or fake product.'],
-    ['What if something arrives damaged or short?', 'Report transit damage, a short shipment or a wrong item within seven days of delivery, with photos, and we replace, credit or refund the affected items and their shipping. Our Shipping & Returns page has the details.'],
+    ['Can I preorder an upcoming set?', 'Yes. Preorder at the listed bulk prices to secure stock before release. We invoice preorders when the stock reaches us, not when you order.'],
+    ['Are your Pokémon cards authentic?', 'Yes. Everything comes through Japanese distribution and reaches you in its untouched factory shrink wrap. Nothing we sell is resealed, reprinted or fake.'],
+    ['What if something arrives damaged or short?', 'Email us within 7 days of delivery with your order reference and photos. If an item is damaged, missing or wrong, we send a replacement or refund it, shipping included. Our Returns page has the details.'],
   ],
 ];

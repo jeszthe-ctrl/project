@@ -75,7 +75,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 7;
+const CONTENT_VERSION = 8;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -127,7 +127,7 @@ function content_upgrade($s, $d, $version){
   if($version < 5){   /* Shipping & Returns: a stated 7-day window for returns */
     if(md5((string)($s['settings']['shipping_policy'] ?? '')) === '6fc5100a55b8ac83dbc3673897fc6bce') $s['settings']['shipping_policy'] = $d['settings']['shipping_policy'];
   }
-  if($version < 6){   /* pokekura.com has its own Tawk.to chat, separate from the FUDAKURA one it started with */
+  if($version < 6){   /* pokekura.com uses its own Tawk.to chat property */
     if(stripos((string)($s['settings']['domain'] ?? ''), 'pokekura.com') !== false)
       $s['settings']['chat_code'] = str_replace('embed.tawk.to/6ab599650aebd43443ef66b2/', 'embed.tawk.to/6abb9f8e86a597344956abe4/', (string)($s['settings']['chat_code'] ?? ''));
   }
@@ -144,6 +144,35 @@ function content_upgrade($s, $d, $version){
     foreach($cut as $a=>$b) $cut[str_replace("\n", "\r\n", $a)] = str_replace("\n", "\r\n", $b);
     foreach(['settings', 'pages', 'guides', 'faqs', 'categories', 'series', 'sets', 'collections'] as $k)
       if(isset($s[$k]) && is_array($s[$k])) array_walk_recursive($s[$k], function(&$v) use($cut){ if(is_string($v)) $v = strtr($v, $cut); });
+  }
+  if($version < 8){   /* own wording throughout, the Returns page split from Shipping & customs, "Terms of service" */
+    $cut = [
+      'Authentic sealed booster boxes, Elite Trainer Boxes, premium sets, singles and TCG accessories for card shops, online retailers, tournament organizers and distributors. No approval process: minimum order quantities, case multiples and quantity-break prices are built into every listing.'
+        => 'Japanese booster boxes, Elite Trainer Boxes, premium sets, singles and accessories for card shops, online stores, event organizers and distributors. Bulk prices are on every product: tap 6+, 12+ or 24+ and the lower price applies straight away. No account, no approval wait.',
+      'Every {brand} order ships from Japan with tracking. This page explains how we ship, what it costs, how long it takes and what happens if something goes wrong, in plain English.'
+        => 'Every {brand} order ships from Japan with tracking. This page explains how we ship, what it costs, how long it takes and how customs works, in plain English. If something arrives damaged, short or wrong, see [Returns](page:returns).',
+      'Everything is bought through Japanese distribution and ships sealed in its original factory packaging. We never sell resealed, reprinted or fake product.'
+        => 'Everything comes through Japanese distribution and reaches you in its untouched factory shrink wrap. Nothing we sell is resealed, reprinted or fake.',
+      'Everything is sourced through Japanese distribution and ships sealed in its original factory packaging. We never sell resealed, reprinted or counterfeit product ('
+        => 'Everything comes through Japanese distribution and reaches you in its untouched factory shrink wrap: nothing resealed, reprinted or counterfeit (',
+      'Yes. Everything is sourced through Japanese distribution and ships sealed in its original factory packaging. We do not deal in resealed, reprinted or fake product.'
+        => 'Yes. Everything comes through Japanese distribution and reaches you in its untouched factory shrink wrap. Nothing we sell is resealed, reprinted or fake.',
+      'Report transit damage, a short shipment or a wrong item within seven days of delivery, with photos, and we replace, credit or refund the affected items and their shipping. Our Shipping & Returns page has the details.'
+        => 'Email us within 7 days of delivery with your order reference and photos. If an item is damaged, missing or wrong, we send a replacement or refund it, shipping included. Our Returns page has the details.',
+      'Placing an order reserves your stock for {hold_hours} hours. Once payment clears, the allocation is confirmed and we dispatch within {hold_hours} hours. If payment does not clear inside the window, high-demand stock returns to general availability.'
+        => 'As soon as you place your order, we set your stock aside for {hold_hours} hours. When your payment arrives it\'s yours, and we send it within {hold_hours} hours. If payment doesn\'t arrive in time, the stock goes back on sale.',
+      'Yes. Preorder lines commit an allocation ahead of release at the same published prices, and are invoiced at allocation rather than at request.'
+        => 'Yes. Preorder at the listed bulk prices to secure stock before release. We invoice preorders when the stock reaches us, not when you order.',
+      '[Shipping & Returns policy](page:shipping#returns)'
+        => '[returns policy](page:returns)',
+      '[Shipping & Returns](page:shipping)'
+        => '[Shipping & customs](page:shipping)'];
+    foreach(['settings', 'pages', 'guides', 'faqs', 'categories', 'series', 'sets', 'collections'] as $k)
+      if(isset($s[$k]) && is_array($s[$k])) array_walk_recursive($s[$k], function(&$v) use($cut){ if(is_string($v)) $v = strtr($v, $cut); });
+    foreach($s['pages'] ?? [] as $i=>$pg) if(($pg['slug'] ?? '') === 'terms'){
+      if(($pg['title'] ?? '') === 'Terms of sale') $s['pages'][$i]['title'] = 'Terms of service';
+      if(($pg['seo_title'] ?? '') === 'Terms of Sale') $s['pages'][$i]['seo_title'] = 'Terms of Service';
+    }
   }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;
