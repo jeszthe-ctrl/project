@@ -1515,7 +1515,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
       </div>
       <div class="stats">
         <div><strong><?= count($in_stock) ?></strong>SKUs in stock</div>
-        <div><strong><?= money($MIN_ORDER) ?></strong>Minimum order, incl. shipping</div>
+        <div><strong>Wholesale</strong>Quantity-break pricing</div>
         <div><strong><?= count($COUNTRIES) ?></strong>Countries served</div>
         <div><strong><?= (int)$CONFIG['hold_hours'] ?>h</strong>Stock held on order</div>
       </div>
@@ -1606,7 +1606,6 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
       <div><span>Sourcing</span><span>Japanese distribution</span></div>
       <div><span>Minimum order, sealed</span><span>6 units</span></div>
       <div><span>Minimum order, singles</span><span>1 unit</span></div>
-      <div><span>Minimum order value</span><span><?= money($MIN_ORDER) ?> incl. shipping</span></div>
       <div><span>Stock hold on order</span><span><?= (int)$CONFIG['hold_hours'] ?> hours</span></div>
       <div><span>Dispatch after payment</span><span>Within <?= (int)$CONFIG['hold_hours'] ?> hours</span></div>
       <?php if(free_ship_usd($STORE)): ?><div><span>Free shipping</span><span>Orders over <?= money_whole(free_ship_usd($STORE)) ?></span></div><?php endif; ?>
@@ -1851,7 +1850,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
             <?php if(cart_saved()>0): ?><div style="font-size:13.5px;color:var(--muted)">You save <?= money(cart_saved()) ?> against single-unit pricing</div><?php endif; ?>
             <div style="font-size:26px;font-weight:900;margin:4px 0 4px">Goods total <?= money(cart_total()) ?></div>
             <?php free_ship_meter(cart_total()); ?>
-            <div style="font-size:13.5px;color:var(--muted);margin-bottom:10px">Shipping is calculated at checkout. Minimum order <?= money($MIN_ORDER) ?> including shipping.</div>
+            <div style="font-size:13.5px;color:var(--muted);margin-bottom:10px">Shipping is calculated at checkout.</div>
             <a class="btn" href="<?= url('checkout') ?>">Continue to checkout</a>
           </div>
         </div>
@@ -1983,7 +1982,6 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
           <div class="sl"><span style="color:var(--muted)">Goods</span><span><?= money(cart_total()) ?></span></div>
           <div class="sl"><span style="color:var(--muted)" id="shipLabel">Shipping</span><span id="shipCost" style="color:var(--muted)">Select your country</span></div>
           <div class="tot"><span>Order total</span><span id="grandTotal"><?= money(cart_total()) ?></span></div>
-          <p style="font-size:12.5px;color:var(--muted);margin-top:8px">Minimum order <?= money($MIN_ORDER) ?> including shipping.</p>
           <?php
           /* per-country shipping for this cart, so the summary updates as the country changes */
           $cm = $CURRENCIES[cur_code()]; $kg = cart_weight(); $ship_by = [];

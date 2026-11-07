@@ -75,7 +75,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 6;
+const CONTENT_VERSION = 7;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -130,6 +130,20 @@ function content_upgrade($s, $d, $version){
   if($version < 6){   /* pokekura.com has its own Tawk.to chat, separate from the FUDAKURA one it started with */
     if(stripos((string)($s['settings']['domain'] ?? ''), 'pokekura.com') !== false)
       $s['settings']['chat_code'] = str_replace('embed.tawk.to/6ab599650aebd43443ef66b2/', 'embed.tawk.to/6abb9f8e86a597344956abe4/', (string)($s['settings']['chat_code'] ?? ''));
+  }
+  if($version < 7){   /* no minimum order value in the shop's text: it's still checked at checkout */
+    $cut = [
+      ' Orders start at {min_order} including shipping.'=>'',
+      ', orders start at {min_order} including shipping, and US import duty'=>', and US import duty',
+      "\n- **Minimum order:** {min_order} including shipping."=>'',
+      "### What is the minimum wholesale order?\n\n{min_order} including shipping. Each product also has its own minimum quantity and case multiple, shown on the listing."
+        =>"### What is the minimum wholesale order?\n\nEach product has its own minimum quantity and case multiple, shown on the listing. Sealed product usually starts at 4 or 6 boxes; single cards start at one.",
+      ' Orders must total at least {min_order} including shipping.'=>'',
+      ', and orders start at {min_order} including shipping.'=>'.',
+      'Every order must total at least {min_order} including shipping. Sealed product'=>'Each product has its own minimum quantity, shown on the listing. Sealed product'];
+    foreach($cut as $a=>$b) $cut[str_replace("\n", "\r\n", $a)] = str_replace("\n", "\r\n", $b);
+    foreach(['settings', 'pages', 'guides', 'faqs', 'categories', 'series', 'sets', 'collections'] as $k)
+      if(isset($s[$k]) && is_array($s[$k])) array_walk_recursive($s[$k], function(&$v) use($cut){ if(is_string($v)) $v = strtr($v, $cut); });
   }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;

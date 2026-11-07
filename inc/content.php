@@ -26,7 +26,7 @@ Everything we sell is sourced in Japan and shipped worldwide, including to the U
 
 ## Wholesale Japanese Pokémon cards
 
-{brand} is an independent distributor and reseller of Japanese Pokémon TCG products. There's no approval-gated registration: every listing shows its minimum order quantity, case multiple and full quantity-break ladder, so card shops, online retailers, tournament organizers and distributors can price a complete order up front. Orders start at {min_order} including shipping. See our [wholesale terms](page:wholesale).
+{brand} is an independent distributor and reseller of Japanese Pokémon TCG products. There's no approval-gated registration: every listing shows its minimum order quantity, case multiple and full quantity-break ladder, so card shops, online retailers, tournament organizers and distributors can price a complete order up front. See our [wholesale terms](page:wholesale).
 MD,
     /* the Shipping & Returns page ({rates} = the delivery options and rate tables) */
     'shipping_policy' => <<<'MD'
@@ -415,7 +415,7 @@ Japanese cards work exactly like English ones in casual play — the attacks, HP
 
 US stores such as Walmart and Target sell English cards ([where to buy Pokémon cards](guide:where-to-buy-pokemon-cards)), so Japanese cards mostly come from importers. Official Chinese-language cards are a different product again: see [Chinese Pokémon cards](guide:chinese-pokemon-cards).
 
-We source every [booster box](category:boxes) and [single card](category:singles) in Japan and ship it to the USA with tracking. Shipping is calculated at checkout and free on orders over {free_ship}, orders start at {min_order} including shipping, and US import duty may be charged on delivery — see [Shipping & Returns](page:shipping) for details.
+We source every [booster box](category:boxes) and [single card](category:singles) in Japan and ship it to the USA with tracking. Shipping is calculated at checkout and free on orders over {free_ship}, and US import duty may be charged on delivery — see [Shipping & Returns](page:shipping) for details.
 MD],
     ['slug'=>'most-expensive-pokemon-cards', 'updated'=>'2026-09-25',
      'title'=>'The most expensive Pokémon cards ever sold',
@@ -1474,7 +1474,6 @@ Most distributors make you apply, wait for approval and then ask for a price lis
 - **Minimum order quantities (MOQs):** sealed product starts at a case-friendly quantity, usually 4 or 6 boxes; single cards start at one.
 - **Case multiples:** quantities go up in the product's selling step, so every order matches how the product is packed.
 - **Automatic quantity breaks:** the unit price drops at each tier, such as 6+, 24+ or 36+, and your order applies it for you.
-- **Minimum order:** {min_order} including shipping.
 
 Check any price with our [Pokémon card price checker](guide:pokemon-card-price-checker).
 
@@ -1525,7 +1524,7 @@ No. Wholesale pricing is public on every listing, with no application or approva
 
 ### What is the minimum wholesale order?
 
-{min_order} including shipping. Each product also has its own minimum quantity and case multiple, shown on the listing.
+Each product has its own minimum quantity and case multiple, shown on the listing. Sealed product usually starts at 4 or 6 boxes; single cards start at one.
 
 ### Do you ship wholesale orders worldwide?
 
@@ -1585,7 +1584,7 @@ Prices are set in US dollars. Prices shown in other currencies are converted at 
 
 ## Orders
 
-Placing an order reserves stock for {hold_hours} hours while we send payment details, and an order is confirmed once payment clears. Orders must total at least {min_order} including shipping.
+Placing an order reserves stock for {hold_hours} hours while we send payment details, and an order is confirmed once payment clears.
 
 ## Payment
 
@@ -1610,11 +1609,11 @@ MD],
   ],
 
   'faqs' => [
-    ['Do you ship Japanese Pokémon cards to the USA?', 'Yes. Everything ships from Japan to the USA with tracking. Choose Standard delivery (3–6 working days) or Express (1–2 working days) at checkout; shipping is priced by the weight of your order, and orders start at {min_order} including shipping.'],
+    ['Do you ship Japanese Pokémon cards to the USA?', 'Yes. Everything ships from Japan to the USA with tracking. Choose Standard delivery (3–6 working days) or Express (1–2 working days) at checkout; shipping is priced by the weight of your order.'],
     ['Do I need a wholesale account to see pricing?', 'No. Every product shows its minimum order quantity, case multiple and full quantity-break ladder publicly, so you can price a complete order before contacting anyone. There is no application form and no approval wait.'],
     ['Who do you sell to?', 'Local card shops, online retailers, tournament organizers and independent distributors, as well as collectors who buy by the box. Wholesale terms are on every listing, with no registration needed.'],
     ['Do you ship worldwide?', 'Yes. Every order ships from Japan with tracking to {countries} countries, by Standard or Express delivery, priced by weight and shown at checkout.'],
-    ['What is the minimum order?', 'Every order must total at least {min_order} including shipping. Sealed product is sold in cases (usually multiples of four or six); single cards start at one.'],
+    ['What is the minimum order?', 'Each product has its own minimum quantity, shown on the listing. Sealed product is sold in cases (usually multiples of four or six); single cards start at one.'],
     ['Are Japanese Pokémon cards the same size as English cards?', 'Yes. Both are 63 × 88 mm (about 2.5 × 3.5 inches), so they fit standard sleeves, toploaders and binders.'],
     ['How do I pay?', 'Choose a method at checkout. Bitcoin is paid on your order page straight after you order: scan the QR code, or copy the amount and address into your wallet. For other methods, we send the details to your email and phone within {reply_hours} hours, together with your invoice.'],
     ['Do you offer free shipping?', 'Yes. Orders with a goods total over {free_ship} ship free with Standard delivery to every country we ship to, applied automatically at checkout. Choose Express and you pay only the difference.'],
