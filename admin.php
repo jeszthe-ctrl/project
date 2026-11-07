@@ -234,7 +234,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     $p = [
       'id'=>$id, 'sku'=>in_str('sku'), 'name'=>$name, 'set'=>in_str('set'), 'cat'=>in_str('cat'),
       'moq'=>(int)(num(in_str('moq'), 1) ?? 0), 'step'=>(int)(num(in_str('step'), 1) ?? 0),
-      'status'=>in_str('status'), 'cond'=>in_str('cond'), 'release'=>in_str('release'), 'weight'=>num(in_str('weight'), 0),
+      'status'=>in_str('status'), 'cond'=>in_str('cond'), 'lang'=>in_array(in_str('lang'), LANGUAGES, true) ? in_str('lang') : '', 'release'=>in_str('release'), 'weight'=>num(in_str('weight'), 0),
       'hidden'=>!empty($_POST['hidden']), 'ladder'=>array_values($ladder), 'desc'=>in_str('desc'),
       'seo_title'=>str(in_arr('seo')['seo_title'] ?? ''), 'seo_desc'=>str(in_arr('seo')['seo_desc'] ?? ''),
     ];
@@ -977,6 +977,10 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
           <div class="hint">“Sold out” shows the product but stops orders.</div></div>
         <div class="fld"><label class="f" for="cond">Condition</label><select id="cond" name="cond">
           <?php foreach(CONDITIONS as $c): ?><option <?= ($p['cond'] ?? 'Sealed')===$c?'selected':'' ?>><?= h($c) ?></option><?php endforeach; ?></select></div>
+        <div class="fld"><label class="f" for="lang">Card language</label><select id="lang" name="lang">
+          <option value="">Automatic (<?= h(product_lang(['cat'=>$p['cat'] ?? '', 'name'=>$p['name'] ?? ''])) ?>)</option>
+          <?php foreach(LANGUAGES as $c): ?><option <?= ($p['lang'] ?? '')===$c?'selected':'' ?>><?= h($c) ?></option><?php endforeach; ?></select>
+          <div class="hint">Shown on the product. Automatic = English for Elite Trainer Boxes, Japanese for everything else.</div></div>
       </div>
       <div class="grid3">
         <div class="fld"><label class="f" for="release">Release date (preorders)</label><input type="text" id="release" name="release" value="<?= h($p['release']) ?>" placeholder="e.g. November 2026"></div>

@@ -9,6 +9,14 @@ const FK_GUARD = "<?php http_response_code(404); exit; ?>\n";
 
 const PRODUCT_STATUSES = ['in'=>'In stock', 'new'=>'New', 'low'=>'Low stock', 'preorder'=>'Preorder', 'soldout'=>'Sold out'];
 const CONDITIONS       = ['Sealed', 'Graded', 'Near Mint', 'Lightly Played'];
+const LANGUAGES        = ['Japanese', 'English', 'Chinese', 'Korean'];
+/* a product's card language: set on the product, else English for Elite Trainer Boxes (an English-only product)
+   and anything named "(English)", else Japanese */
+function product_lang($p){
+  if(in_array($p['lang'] ?? '', LANGUAGES, true)) return $p['lang'];
+  if(($p['cat'] ?? '') === 'etb' || stripos($p['name'] ?? '', 'elite trainer') !== false || stripos($p['name'] ?? '', '(english)') !== false) return 'English';
+  return 'Japanese';
+}
 const ORDER_STATUSES   = ['new'=>'New', 'invoiced'=>'Payment details sent', 'paid'=>'Paid', 'shipped'=>'Shipped', 'cancelled'=>'Cancelled'];
 
 function status_label($list, $key){ return $list[$key] ?? (string)$key; }
@@ -75,7 +83,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 8;
+const CONTENT_VERSION = 9;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -174,6 +182,24 @@ function content_upgrade($s, $d, $version){
       if(($pg['seo_title'] ?? '') === 'Terms of Sale') $s['pages'][$i]['seo_title'] = 'Terms of Service';
     }
   }
+  if($version < 9){   /* ETB language, worldwide shipping and delivery answered up front */
+    $have = array_map(fn($f)=>strtolower($f[0] ?? ''), $s['faqs'] ?? []);
+    $add = array_values(array_filter([
+      ['Are your Elite Trainer Boxes English or Japanese?', 'English. Elite Trainer Boxes are an English-language product (it\'s in the name), so every ETB we sell is the English edition. Our booster boxes, premium sets and single cards are Japanese unless the listing says otherwise, and every product page shows its language.'],
+      ['Which countries do you ship to?', 'We ship worldwide from Japan to {countries} countries across North and South America, Europe, Asia, the Middle East, Africa and Oceania, with tracking on every parcel. The full list and the rates are on our Shipping & customs page, and checkout shows your exact shipping price before you pay. Don\'t see your country? Email {email} and we\'ll quote it.'],
+      ['How long does delivery take?', 'We send your order from Japan within {hold_hours} hours of payment. {standard} delivery then takes {standard_days} and {express} takes {express_days}, door to door with tracking.'],
+      ['How do I track my order?', 'We email your tracking number as soon as your order ships. You can also check your order any time on our Track an order page with your order reference and email address.']], fn($f)=>!in_array(strtolower($f[0]), $have, true)));
+    $s['faqs'] = array_merge($add, $s['faqs'] ?? []);
+    foreach($s['faqs'] as $i=>$f) if(($f[1] ?? '') === 'Yes. Every order ships from Japan with tracking to {countries} countries, by Standard or Express delivery, priced by weight and shown at checkout.') $s['faqs'][$i][1] = 'Yes. We ship worldwide: every order leaves Japan with tracking to {countries} countries, by Standard or Express delivery, priced by weight and shown at checkout.';
+    if(($s['settings']['strip_text'] ?? '') === 'Authentic Japanese Pokémon TCG · Wholesale MOQs & case pricing · Shipped worldwide from Japan') $s['settings']['strip_text'] = 'Japanese booster boxes · English Elite Trainer Boxes · Bulk prices on every product';
+    if(isset($s['categories']['etb'])){
+      if(($s['categories']['etb']['blurb'] ?? '') === 'Elite Trainer Boxes and cases, with packs, sleeves and accessories inside.') $s['categories']['etb']['blurb'] = 'English Elite Trainer Boxes and cases, with packs, sleeves and accessories inside.';
+      $s['categories']['etb']['intro'] = str_replace('ETBs are sold in multiples of four, or by the 10-box case, with lower prices from 24 boxes.', "Elite Trainer Boxes are an English-language product, so every ETB we sell is the English edition. Our booster boxes are Japanese.\n\nETBs are sold in multiples of four, or by the 10-box case, with lower prices from 24 boxes. We ship them worldwide from Japan with tracking.", (string)($s['categories']['etb']['intro'] ?? ''));
+    }
+    foreach($s['products'] ?? [] as $i=>$p) if(($p['cat'] ?? '') === 'etb')
+      $s['products'][$i]['desc'] = str_replace('Elite Trainer Box from the Japanese Mega Evolution series.', 'Elite Trainer Box from the Pokémon TCG Mega Evolution series, in English.', (string)($p['desc'] ?? ''));
+  }
+
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;
 }

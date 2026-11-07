@@ -11,7 +11,7 @@ if(!defined('FK_ROOT')){ http_response_code(404); exit; }
 
 return [
   'settings' => [
-    'strip_text'    => 'Authentic Japanese Pokémon TCG · Wholesale MOQs & case pricing · Shipped worldwide from Japan',
+    'strip_text'    => 'Japanese booster boxes · English Elite Trainer Boxes · Bulk prices on every product',
     'hero_title'    => 'Wholesale Japanese Pokémon cards, shipped worldwide from Japan.',
     'hero_lede'     => 'Japanese booster boxes, Elite Trainer Boxes, premium sets, singles and accessories for card shops, online stores, event organizers and distributors. Bulk prices are on every product: tap 6+, 12+ or 24+ and the lower price applies straight away. No account, no approval wait.',
     'footer_blurb'  => 'Independent distributor and reseller of authentic Japanese Pokémon TCG products, shipping wholesale orders worldwide from Japan to card shops, online retailers, tournament organizers and distributors.',
@@ -227,7 +227,7 @@ MD,
     ],
     'etb' => [
       'label' => 'Elite Trainer Boxes', 'slug' => 'elite-trainer-boxes',
-      'blurb' => 'Elite Trainer Boxes and cases, with packs, sleeves and accessories inside.',
+      'blurb' => 'English Elite Trainer Boxes and cases, with packs, sleeves and accessories inside.',
       'h1' => 'Pokémon Elite Trainer Boxes',
       'seo_title' => 'Pokémon Elite Trainer Boxes: Perfect Order, Ascended Heroes',
       'seo_desc' => 'Sealed Pokémon TCG Elite Trainer Boxes, including Mega Evolution Perfect Order, Ascended Heroes, Chaos Rising and 30th Celebration, with bulk pricing by the case.',
@@ -238,7 +238,9 @@ An Elite Trainer Box (ETB) bundles booster packs with card sleeves, dice, damage
 
 We carry ETBs across the Pokémon Trading Card Game Mega Evolution series — including [Perfect Order](product:perfect-order-elite-trainer-box), [Ascended Heroes](product:mega-evolution-ascended-heroes-elite-trainer-box), [Chaos Rising](product:chaos-rising-elite-trainer-box) and [Pitch Black](product:pitch-black-elite-trainer-box) — plus the [30th Celebration](set:30th-celebration) ETB and full cases.
 
-ETBs are sold in multiples of four, or by the 10-box case, with lower prices from 24 boxes.
+Elite Trainer Boxes are an English-language product, so every ETB we sell is the English edition. Our booster boxes are Japanese.
+
+ETBs are sold in multiples of four, or by the 10-box case, with lower prices from 24 boxes. We ship them worldwide from Japan with tracking.
 MD,
     ],
     'premium' => [
@@ -1609,10 +1611,14 @@ MD],
   ],
 
   'faqs' => [
+    ['Are your Elite Trainer Boxes English or Japanese?', 'English. Elite Trainer Boxes are an English-language product (it\'s in the name), so every ETB we sell is the English edition. Our booster boxes, premium sets and single cards are Japanese unless the listing says otherwise, and every product page shows its language.'],
+    ['Which countries do you ship to?', 'We ship worldwide from Japan to {countries} countries across North and South America, Europe, Asia, the Middle East, Africa and Oceania, with tracking on every parcel. The full list and the rates are on our Shipping & customs page, and checkout shows your exact shipping price before you pay. Don\'t see your country? Email {email} and we\'ll quote it.'],
+    ['How long does delivery take?', 'We send your order from Japan within {hold_hours} hours of payment. {standard} delivery then takes {standard_days} and {express} takes {express_days}, door to door with tracking.'],
+    ['How do I track my order?', 'We email your tracking number as soon as your order ships. You can also check your order any time on our Track an order page with your order reference and email address.'],
     ['Do you ship Japanese Pokémon cards to the USA?', 'Yes. Everything ships from Japan to the USA with tracking. Choose Standard delivery (3–6 working days) or Express (1–2 working days) at checkout; shipping is priced by the weight of your order.'],
     ['Do I need a wholesale account to see pricing?', 'No. Every product shows its minimum order quantity, case multiple and full quantity-break ladder publicly, so you can price a complete order before contacting anyone. There is no application form and no approval wait.'],
     ['Who do you sell to?', 'Local card shops, online retailers, tournament organizers and independent distributors, as well as collectors who buy by the box. Wholesale terms are on every listing, with no registration needed.'],
-    ['Do you ship worldwide?', 'Yes. Every order ships from Japan with tracking to {countries} countries, by Standard or Express delivery, priced by weight and shown at checkout.'],
+    ['Do you ship worldwide?', 'Yes. We ship worldwide: every order leaves Japan with tracking to {countries} countries, by Standard or Express delivery, priced by weight and shown at checkout.'],
     ['What is the minimum order?', 'Each product has its own minimum quantity, shown on the listing. Sealed product is sold in cases (usually multiples of four or six); single cards start at one.'],
     ['Are Japanese Pokémon cards the same size as English cards?', 'Yes. Both are 63 × 88 mm (about 2.5 × 3.5 inches), so they fit standard sleeves, toploaders and binders.'],
     ['How do I pay?', 'Choose a method at checkout. Bitcoin is paid on your order page straight after you order: scan the QR code, or copy the amount and address into your wallet. For other methods, we send the details to your email and phone within {reply_hours} hours, together with your invoice.'],

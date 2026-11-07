@@ -589,6 +589,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     if(!cart_lines())                                    $errors[] = 'Your order is empty.';
     if($f['name'] === '')                                $errors[] = 'Enter the name the order ships to.';
     if(!filter_var($f['email'], FILTER_VALIDATE_EMAIL))  $errors[] = 'Enter a valid email address.';
+    if(strlen(preg_replace('/\D/', '', $f['phone'])) < 6) $errors[] = 'Enter a phone number with its country code. The courier needs it for delivery and customs.';
     if(!isset($COUNTRIES[$f['country']]))                $errors[] = 'Select your country.';
     if($f['address1'] === '')                            $errors[] = 'Enter a street address.';
     if($f['city'] === '')                                $errors[] = 'Enter a city.';
@@ -907,7 +908,8 @@ switch($page){
     if($pset) $crumbs[] = [$pset['name'], 'set', ['s'=>$pset['slug']]];
     $crumbs[] = [$prod['name'], '', []];
     $auto = $prod['name'];
-    if(stripos($auto, 'japanese') === false && strlen($auto) < 34) $auto .= ' — Japanese Pokémon TCG';
+    $plang = product_lang($prod);
+    if(stripos($auto, $plang) === false && strlen($auto) < 34) $auto .= $plang === 'Japanese' ? ' — Japanese Pokémon TCG' : ' — Pokémon TCG ('.$plang.')';
     $page_title = ($prod['seo_title'] ?? '') ?: $auto;
     $from = unit_price($prod, $prod['moq']);
     $page_desc  = ($prod['seo_desc'] ?? '') ?: plain(desc_parts($prod['desc'])[0], 105).' From $'.number_format($from, 2).' each; ships worldwide from Japan.';
@@ -1065,6 +1067,7 @@ if($prod){
   $graph[] = array_filter(['@type'=>'Product','name'=>$prod['name'],'sku'=>$prod['sku'],'url'=>$canonical,
     'image'=>array_map($abs_img, photos($prod['id'])) ?: null,
     'description'=>plain($prod['desc'], 2000),'category'=>$CATEGORIES[$prod['cat']]['label'],
+    'additionalProperty'=>[['@type'=>'PropertyValue','name'=>'Language','value'=>product_lang($prod)]],
     'brand'=>['@type'=>'Brand','name'=>'Pokémon'],'offers'=>$offer]);
 }
 if($guide){
@@ -1352,6 +1355,10 @@ h1{font-size:clamp(32px,4.4vw,52px);margin-bottom:18px}
 .buybox .buyrow .btn{flex:1;min-width:150px}
 .buybox .live{font-size:14px;color:var(--ink2);margin-top:10px;min-height:1.3em}.buybox .live span{color:var(--muted)}.buybox .live .ok{color:var(--green)}
 @media(max-width:520px){.ladder .row{grid-template-columns:1fr auto}.ladder .row .add{display:none}}
+.facts{list-style:none;margin:16px 0 0;padding:14px 0 0;border-top:1px solid var(--hair);display:grid;gap:7px;font-size:13.5px}
+.facts li{display:grid;grid-template-columns:118px 1fr;gap:10px;color:var(--ink2)}
+.facts b{color:var(--ink);font-weight:700}
+.meta .lang,.sub .lang{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--indigo);background:var(--tint);border-radius:5px;padding:1px 6px;margin-right:2px;vertical-align:1px}
 .trustline{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;margin-top:16px}
 .trustline span{padding:5px 10px;border-radius:999px;background:#E9F7F0;color:var(--green);font-weight:600}
 .pinfo{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;margin-top:10px}
@@ -1647,7 +1654,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
 
 <div class="strip"><div class="wrap">
   <?php if(free_ship_usd($STORE)): ?><a class="fship" href="<?= url('shipping') ?>"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M3 6.5A1.5 1.5 0 0 1 4.5 5h9A1.5 1.5 0 0 1 15 6.5V8h2.6a1.5 1.5 0 0 1 1.2.6l2.4 3.2c.2.26.3.58.3.9V16a1.5 1.5 0 0 1-1.5 1.5h-.6a2.75 2.75 0 0 1-5.3 0H9.9a2.75 2.75 0 0 1-5.3 0h-.1A1.5 1.5 0 0 1 3 16V6.5Zm12 3V13h4.5l-1.9-2.5a1.5 1.5 0 0 0-1.2-.6H15ZM7.25 18.25a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm9.4 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/></svg><span>Free shipping on orders over <?= money_whole(free_ship_usd($STORE)) ?></span></a><?php endif; ?>
-  <span class="st"><?= h($CONFIG['strip_text']) ?></span>
+  <span class="st"><b>Worldwide shipping to <?= count($COUNTRIES) ?> countries</b> · <?= h($CONFIG['strip_text']) ?></span>
   <?php if($CONFIG['strip_link_text']): ?><a class="sl" href="<?= h($CONFIG['strip_link_url'] ?: url('catalog')) ?>"><?= h($CONFIG['strip_link_text']) ?></a><?php endif; ?>
 </div></div>
 
@@ -1910,7 +1917,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
   <div class="wrap pdp">
     <div>
       <div class="gal-main">
-        <?php if($ph): ?><?= str_replace('<img ', '<img id="galMain" ', img_tag($ph[0], $prod['name'].' — Japanese Pokémon TCG', '(max-width:900px) 100vw, 620px', true)) ?>
+        <?php if($ph): ?><?= str_replace('<img ', '<img id="galMain" ', img_tag($ph[0], $prod['name'].' — '.product_lang($prod).' Pokémon TCG', '(max-width:900px) 100vw, 620px', true)) ?>
         <?php else: ?><div class="ph"><span><?= h($CONFIG['kanji']) ?></span><span><?= h($prod['set'] ?: $CATEGORIES[$prod['cat']]['label']) ?></span></div><?php endif; ?>
       </div>
       <?php if(count($ph)>1): ?>
@@ -1924,7 +1931,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
     </div>
     <div>
       <h1><?= h($prod['name']) ?></h1>
-      <div class="sub"><?= h(implode(' · ', array_filter([$prod['set'], $CATEGORIES[$prod['cat']]['label'], $prod['cond'] ?? 'Sealed',
+      <div class="sub"><span class="lang"><?= h(product_lang($prod)) ?></span> <?= h(implode(' · ', array_filter([$prod['set'], $CATEGORIES[$prod['cat']]['label'], $prod['cond'] ?? 'Sealed',
         $prod['status']==='preorder' ? 'Releases '.$prod['release'] : status_label(PRODUCT_STATUSES, $prod['status'])]))) ?></div>
       <?php if($summary !== ''): ?><p class="summary-line"><?= rich_inline($summary) ?></p><?php endif; ?>
 
@@ -1953,11 +1960,14 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
           <?php endif; ?>
         </div>
         <div class="live" aria-live="polite"></div>
-        <div class="trustline">
-          <span><?= $prod['step']>1 ? 'Sold in '.(int)$prod['step'].'s' : 'Sold individually' ?></span>
-          <span>Ships tracked from Japan</span>
-          <span>No account needed</span>
-        </div>
+        <?php $SMq = ship_methods($STORE); ?>
+        <ul class="facts">
+          <li><b>Language</b><span><?= h(product_lang($prod)) ?><?= $prod['cat'] === 'etb' ? ' — Elite Trainer Boxes are an English product' : ($prod['cat'] !== 'accessories' && product_lang($prod) === 'Japanese' ? ' — Japanese-language cards' : '') ?></span></li>
+          <li><b>Ships worldwide</b><span>From Japan to <?= count($COUNTRIES) ?> countries, tracked door to door</span></li>
+          <li><b>Delivery</b><span><?= h($SMq['standard']['label'].' '.$SMq['standard']['days'].' · '.$SMq['express']['label'].' '.$SMq['express']['days']) ?></span></li>
+          <li><b>Duty &amp; taxes</b><span>Not included; your courier collects any import charges</span></li>
+          <li><b>Sold in</b><span><?= $prod['step']>1 ? 'Multiples of '.(int)$prod['step'] : 'Any quantity' ?><?= $prod['moq'] > 1 ? ', from '.(int)$prod['moq'] : '' ?> · no account needed</span></li>
+        </ul>
         <p class="sm" style="margin:12px 0 0">Buying more than <?= (int)end($tt)[0] ?>? <a href="<?= h(url('quote')) ?>">Get a bulk quote</a></p>
       </form>
     </div>
@@ -1975,11 +1985,12 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
           <?php if($pset && $pset['code'] !== ''): ?><dt>Set code</dt><dd><?= h($pset['code']) ?></dd><?php endif; ?>
           <?php if($sser): ?><dt>Series</dt><dd><a href="<?= h(url('series', ['s'=>$sser['slug']])) ?>"><?= h($sser['name']) ?></a></dd><?php endif; ?>
           <dt>Product type</dt><dd><a href="<?= h(url('catalog', ['cat'=>$prod['cat']])) ?>"><?= h($CATEGORIES[$prod['cat']]['label']) ?></a></dd>
+          <dt>Language</dt><dd><?= h(product_lang($prod)) ?><?= $prod['cat'] === 'etb' ? ' <span style="font-weight:400;color:var(--muted)">(Elite Trainer Boxes are an English product)</span>' : '' ?></dd>
           <dt>Condition</dt><dd><?= h($prod['cond'] ?? 'Sealed') ?></dd>
           <dt>Availability</dt><dd><?= h($prod['status']==='preorder' ? 'Preorder · releases '.$prod['release'] : status_label(PRODUCT_STATUSES, $prod['status'])) ?></dd>
           <dt>Minimum order</dt><dd><?= (int)$prod['moq'] ?><?= $prod['step'] > 1 ? ', then in '.(int)$prod['step'].'s' : '' ?></dd>
           <?php if($prod['sku'] !== ''): ?><dt>SKU</dt><dd><?= h($prod['sku']) ?></dd><?php endif; ?>
-          <dt>Ships from</dt><dd>Japan, tracked</dd>
+          <dt>Ships from</dt><dd>Japan, tracked, to <?= count($COUNTRIES) ?> countries worldwide</dd>
         </dl>
       </div>
       <div class="panel"><h2>Shipping &amp; payment</h2>
@@ -2067,7 +2078,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
   $_SESSION['co_time']  = time(); ?>
   <section style="padding-top:22px"><div class="wrap">
     <div class="sechead"><div><h1><?= h($h1) ?></h1>
-      <p>Where it ships and how you’ll pay — that’s all. No account needed.</p></div></div>
+      <p>Where it ships and how you’ll pay — that’s all. No account needed. We ship worldwide from Japan to <?= count($COUNTRIES) ?> countries.</p></div></div>
 
     <?php if(!$lines): ?>
       <p class="empty">Your order is empty. <a href="<?= url('catalog') ?>">Browse the catalog →</a></p>
@@ -2090,6 +2101,9 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
             <div class="fld"><label for="email">Email</label>
               <input id="email" name="email" type="email" required autocomplete="email" inputmode="email" value="<?= h($f['email']??'') ?>"></div>
           </div>
+          <div class="two">
+          <div class="fld"><label for="phone">Phone <span class="opt">— with country code, for the courier</span></label>
+            <input id="phone" name="phone" type="tel" required autocomplete="tel" placeholder="+1 555 123 4567" value="<?= h($f['phone']??'') ?>"></div>
           <div class="fld"><label for="country">Country</label>
             <select id="country" name="country" required autocomplete="country" onchange="filterPay(this.value)">
               <option value="">Select your country…</option>
@@ -2098,6 +2112,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
                 <option value="<?= h($code) ?>" <?= $co_country===$code?'selected':'' ?>><?= h($nm) ?></option>
               <?php endforeach; ?>
             </select></div>
+          </div>
           <div class="fld"><label for="address1">Street address</label>
             <input id="address1" name="address1" required autocomplete="address-line1" value="<?= h($f['address1']??'') ?>"></div>
           <div class="three">
@@ -2108,16 +2123,14 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
             <div class="fld"><label for="postcode">Postal code</label>
               <input id="postcode" name="postcode" autocomplete="postal-code" value="<?= h($f['postcode']??'') ?>"></div>
           </div>
-          <details class="more"<?= ($f['company'] ?? '') !== '' || ($f['address2'] ?? '') !== '' || ($f['phone'] ?? '') !== '' || ($f['notes'] ?? '') !== '' ? ' open' : '' ?>>
-            <summary>Add company, apartment, phone or order notes</summary>
+          <details class="more"<?= ($f['company'] ?? '') !== '' || ($f['address2'] ?? '') !== '' || ($f['notes'] ?? '') !== '' ? ' open' : '' ?>>
+            <summary>Add company, apartment or order notes</summary>
             <div class="two">
               <div class="fld"><label for="company">Company</label>
                 <input id="company" name="company" autocomplete="organization" value="<?= h($f['company']??'') ?>"></div>
               <div class="fld"><label for="address2">Apartment, suite, unit</label>
                 <input id="address2" name="address2" autocomplete="address-line2" value="<?= h($f['address2']??'') ?>"></div>
             </div>
-            <div class="fld"><label for="phone">Phone <span class="opt">— helps the courier and customs</span></label>
-              <input id="phone" name="phone" type="tel" autocomplete="tel" value="<?= h($f['phone']??'') ?>"></div>
             <div class="fld"><label for="notes">Order notes</label>
               <textarea id="notes" name="notes" placeholder="Delivery instructions, VAT/EORI number, anything we should know."><?= h($f['notes']??'') ?></textarea></div>
           </details>
@@ -2929,14 +2942,14 @@ function include_card($p){
     <a class="art" href="<?= url('product',['id'=>$p['id']]) ?>" style="display:block">
       <span class="flag <?= $flag[0] ?>"><?= $flag[1] ?></span>
       <?php if($ph): ?>
-        <?= img_tag($ph[0], $p['name'].' — Japanese Pokémon TCG') ?>
+        <?= img_tag($ph[0], $p['name'].' — '.product_lang($p).' Pokémon TCG') ?>
       <?php else: ?>
         <div class="ph"><span><?= h($CONFIG['kanji']) ?></span><span><?= h($p['set']) ?></span></div>
       <?php endif; ?>
     </a>
     <div class="in">
       <h3><a href="<?= url('product',['id'=>$p['id']]) ?>"><?= h($p['name']) ?></a></h3>
-      <div class="meta"><?= h(implode(' · ', array_filter([$p['set'], ($p['cond'] ?? 'Sealed') !== 'Sealed' ? $p['cond'] : '', $p['status']==='preorder' ? $p['release'] : '']))) ?></div>
+      <div class="meta"><span class="lang"><?= h(product_lang($p)) ?></span> <?= h(implode(' · ', array_filter([$p['set'], ($p['cond'] ?? 'Sealed') !== 'Sealed' ? $p['cond'] : '', $p['status']==='preorder' ? $p['release'] : '']))) ?></div>
       <div class="px"><span class="u"><?= money($base) ?></span><span class="per">each<?= $p['moq'] > 1 ? ' at '.(int)$p['moq'] : '' ?></span><?php if($p['ladder'][0][1] > $base): ?><span class="w"><?= money($p['ladder'][0][1]) ?></span><?php endif; ?></div>
       <?php if(count($p['ladder']) > 1 && $best[1] < $base): ?><div class="drop">Drops to <b><?= money($best[1]) ?></b> each at <?= (int)max($best[0], $p['moq']) ?>+</div><?php endif; ?>
     </div>
@@ -2987,6 +3000,9 @@ function ship_rates_block(){
     </tbody>
   </table></div>
   <p class="small">As a guide, a sealed Japanese booster box weighs about 0.4 kg packed and an Elite Trainer Box about 0.9 kg. Checkout shows the exact price for your order before you pay.</p>
+  <h3 id="countries">Countries we ship to</h3>
+  <?php $cn = $GLOBALS['COUNTRIES']; asort($cn); ?>
+  <p>We ship worldwide from Japan to <?= count($cn) ?> countries: <?= h(implode(', ', $cn)) ?>. Don’t see yours? Email <a href="mailto:<?= h($CONFIG['email']) ?>"><?= h($CONFIG['email']) ?></a> and we’ll quote it.</p>
 <?php }
 
 /* A guide's text, with tool blocks where a line says {price_list}, {set_table} or {card_template} */

@@ -28,7 +28,7 @@ $d = [
     'pretty_urls'   => false,            /* clean addresses like /products/151-booster-box: switched on by themselves when the host supports them */
     'pretty_auto'   => false,            /* set once that automatic switch has happened, so turning them off in the admin sticks */
     'free_ship_usd' => 2000,             /* free Standard shipping from this goods total (USD); 0 = off */
-    'content_version' => 8,              /* set by the shop: which built-in content updates are applied */
+    'content_version' => 9,              /* set by the shop: which built-in content updates are applied */
     'moved_to'      => '',               /* an old domain running this code can send every visitor here (301) */
     'google_verify' => '', 'bing_verify' => '',   /* Search Console / Bing verification codes (Admin → Settings) */
     /* SMTP for order emails (Admin → Settings → Email); blank host = the web host's mail() */
@@ -74,7 +74,7 @@ HTML,
      'name'=>'Storm Emeralda Elite Trainer Box', 'set'=>'Storm Emeralda', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,45.00],[6,38.00],[18,36.00],[36,34.00]],
-     'desc'=>'A factory-sealed Storm Emeralda Elite Trainer Box from the Japanese Mega Evolution series.
+     'desc'=>'A factory-sealed Storm Emeralda Elite Trainer Box from the Pokémon TCG Mega Evolution series, in English.
 
 Inside are booster packs plus card sleeves, dice, damage counters, energy cards and the set promo, packed in a storage box — everything needed to open and play Storm Emeralda. A steady seller next to [Storm Emeralda booster boxes](product:storm-emeralda-m6-booster-box).
 
@@ -147,7 +147,7 @@ Storm Emeralda\'s chase cards include the [Mega Rayquaza ex Master Ultra Rare](p
      'name'=>'Abyss Eye Elite Trainer Box', 'set'=>'Abyss Eye', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,42.00],[6,35.50],[18,33.60],[36,32.00]],
-     'desc'=>'A factory-sealed Abyss Eye Elite Trainer Box from the Japanese Mega Evolution series.
+     'desc'=>'A factory-sealed Abyss Eye Elite Trainer Box from the Pokémon TCG Mega Evolution series, in English.
 
 Booster packs with sleeves, dice, damage counters and the promo card in a storage box — the easy way to open Abyss Eye alongside [booster boxes](product:abyss-eye-m5-booster-box).
 
