@@ -246,7 +246,7 @@ Yes. English cases hold 6 booster boxes. See our [sealed cases](page:cases), or 
 
 ### Do you ship booster boxes worldwide?
 
-Yes. Every order ships from Japan with tracking to {countries} countries. See [Shipping & customs](page:shipping).
+Yes. Every order ships worldwide from Japan with tracking. See [Shipping & customs](page:shipping).
 MD,
     ],
     'etb' => [
@@ -286,7 +286,7 @@ Yes. The price per box drops at 4, 6, 10 and 24 boxes, applied in your cart auto
 
 ### Do you ship Elite Trainer Boxes worldwide?
 
-Yes, from Japan with tracking to {countries} countries.
+Yes, worldwide from Japan with tracking.
 MD,
     ],
     'premium' => [
@@ -378,7 +378,7 @@ Main booster sets from [OP-01 Romance Dawn](product:one-piece-op-01-romance-dawn
 
 ### Do you ship One Piece booster boxes worldwide?
 
-Yes, from Japan with tracking to {countries} countries, with lower prices at 4, 6, 10 and 24 boxes.
+Yes, worldwide from Japan with tracking, with lower prices at 4, 6, 10 and 24 boxes.
 MD,
     ],
   ],
@@ -1713,7 +1713,7 @@ Yes. Elite Trainer Boxes are an English-language product, and so are their Poké
 
 ### Can I buy Pokémon Center ETBs outside the USA?
 
-Yes. The official Pokémon Center ships to a limited list of countries, but we ship Pokémon Center ETBs worldwide from Japan with tracking to {countries} countries.
+Yes. The official Pokémon Center ships to a limited list of countries, but we ship Pokémon Center ETBs worldwide from Japan with tracking.
 
 ### Can I buy Pokémon Center ETBs in bulk?
 
@@ -1770,7 +1770,7 @@ Yes. Every UPC we sell is the English edition, factory sealed.
 
 ### Do you ship UPCs worldwide?
 
-Yes, from Japan with tracking to {countries} countries.
+Yes, worldwide from Japan with tracking.
 MD],
     ['slug'=>'pokemon-booster-box-vs-etb-vs-booster-bundle', 'updated'=>'2026-11-08', 'title'=>'Booster box, ETB or booster bundle? Every Pokémon sealed product explained', 'seo_title'=>'Pokémon Booster Box vs ETB vs Booster Bundle: Which to Buy?', 'seo_desc'=>'Every Pokémon sealed product explained: booster boxes, Elite Trainer Boxes, booster bundles, Build & Battle Boxes, blisters, tins, UPCs and cases, and which to buy.', 'body'=><<<'MD'
 Pokémon TCG sealed product comes in a dozen formats, and the names don't always say what's inside. Here's every format, how many packs it holds, and who it's best for.
@@ -1824,7 +1824,7 @@ Special sets such as Prismatic Evolutions, 151 and Paldean Fates are released wi
 
 ### Do you sell all of these in bulk?
 
-Yes. Every product shows its bulk prices, which apply automatically in your cart, and we ship worldwide from Japan to {countries} countries.
+Yes. Every product shows its bulk prices, which apply automatically in your cart, and we ship worldwide from Japan.
 MD],
     ['slug'=>'one-piece-card-game-booster-box-guide', 'updated'=>'2026-11-08', 'title'=>'One Piece Card Game booster boxes: every English set explained', 'seo_title'=>'One Piece Card Game Booster Boxes: Every English Set (OP-01+)', 'seo_desc'=>'Every English One Piece Card Game booster box from OP-01 Romance Dawn onwards, plus Extra Boosters, Premium Boosters and starter decks, and how they differ.', 'body'=><<<'MD'
 The One Piece Card Game from Bandai is one of the fastest-growing trading card games, and its sealed product comes in four kinds: main booster sets, Extra Boosters, Premium Boosters and starter decks. Here's how they differ and which sets we stock, all in English.
@@ -1863,7 +1863,7 @@ OP boxes are the main booster sets. EB (Extra Booster) boxes are smaller special
 
 ### Do you ship One Piece booster boxes worldwide?
 
-Yes, from Japan with tracking to {countries} countries.
+Yes, worldwide from Japan with tracking.
 MD],
   ],
 
@@ -1973,7 +1973,7 @@ Each product has its own minimum quantity and case multiple, shown on the listin
 
 ### Do you ship wholesale orders worldwide?
 
-Yes. We ship from Japan with tracking to {countries} countries; the rates are on [Shipping & customs](page:shipping).
+Yes. We ship worldwide from Japan with tracking; the rates are on [Shipping & customs](page:shipping).
 
 ### Do you offer distributor pricing for larger volumes?
 
@@ -2055,13 +2055,13 @@ MD],
 
   'faqs' => [
     ['Are your Elite Trainer Boxes English or Japanese?', 'English. Elite Trainer Boxes are an English-language product (it\'s in the name), so every ETB we sell is the English edition. Our booster boxes, premium sets and single cards are Japanese unless the listing says otherwise, and every product page shows its language.'],
-    ['Which countries do you ship to?', 'We ship worldwide from Japan to {countries} countries across North and South America, Europe, Asia, the Middle East, Africa and Oceania, with tracking on every parcel. The full list and the rates are on our Shipping & customs page, and checkout shows your exact shipping price before you pay. Don\'t see your country? Email {email} and we\'ll quote it.'],
+    ['Which countries do you ship to?', 'We ship worldwide from Japan, to every country, with tracking on every parcel. The full list and the rates are on our Shipping & customs page, and checkout shows your exact shipping price before you pay. Don\'t see your country? Email {email} and we\'ll quote it.'],
     ['How long does delivery take?', 'We send your order from Japan within {hold_hours} hours of payment. {standard} delivery then takes {standard_days} and {express} takes {express_days}, door to door with tracking.'],
     ['How do I track my order?', 'We email your tracking number as soon as your order ships. You can also check your order any time on our Track an order page with your order reference and email address.'],
     ['Do you ship Japanese Pokémon cards to the USA?', 'Yes. Everything ships from Japan to the USA with tracking. Choose Standard delivery (3–6 working days) or Express (1–2 working days) at checkout; shipping is priced by the weight of your order.'],
     ['Do I need a wholesale account to see pricing?', 'No. Every product shows its minimum order quantity, case multiple and full quantity-break ladder publicly, so you can price a complete order before contacting anyone. There is no application form and no approval wait.'],
     ['Who do you sell to?', 'Local card shops, online retailers, tournament organizers and independent distributors, as well as collectors who buy by the box. Wholesale terms are on every listing, with no registration needed.'],
-    ['Do you ship worldwide?', 'Yes. We ship worldwide: every order leaves Japan with tracking to {countries} countries, by Standard or Express delivery, priced by weight and shown at checkout.'],
+    ['Do you ship worldwide?', 'Yes. We ship worldwide: every order leaves Japan with tracking, by Standard or Express delivery, priced by weight and shown at checkout.'],
     ['What is the minimum order?', 'Each product has its own minimum quantity, shown on the listing. Sealed product is sold in cases (usually multiples of four or six); single cards start at one.'],
     ['Are Japanese Pokémon cards the same size as English cards?', 'Yes. Both are 63 × 88 mm (about 2.5 × 3.5 inches), so they fit standard sleeves, toploaders and binders.'],
     ['How do I pay?', 'Choose a method at checkout. Bitcoin is paid on your order page straight after you order: scan the QR code, or copy the amount and address into your wallet. For other methods, we send the details to your email and phone within {reply_hours} hours, together with your invoice.'],

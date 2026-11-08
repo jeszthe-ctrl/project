@@ -1122,7 +1122,7 @@ switch($page){
     if($h1 !== '') $crumbs[] = [$h1, '', []]; else $crumbs = [];
     if($page === 'notfound') $crumbs = [];
     $page_desc = ['shipping'=>(free_ship_usd($STORE) ? 'Free shipping over '.money_whole(free_ship_usd($STORE)).'. ' : '')
-                    .'Pokémon cards shipped from Japan with tracking: delivery times, rates by country, customs, import duty and taxes.',
+                    .'Pokémon cards shipped worldwide from Japan with tracking: delivery times, rates by country, customs, import duty and taxes.',
                   'returns'=>'Returns, refunds and cancellations at {brand}: what to do about damaged, missing or wrong items, how refunds are paid, and preorder cancellations.',
                   'faq'=>'Answers to common questions about buying Japanese Pokémon cards wholesale from Japan: bulk pricing, shipping worldwide, payment, duty and returns.',
                   'how'=>'How wholesale ordering works at {brand}: bulk prices on every listing, no account needed, pay by Bitcoin or invoice, tracked shipping from Japan.',
@@ -1860,6 +1860,9 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
 .rev p{font-size:14.5px;color:var(--ink2);line-height:1.6}
 .rev-by{font-size:13px;color:var(--muted);margin-top:auto}.rev-by b{color:var(--ink)}
 .rev-prod{font-size:13px;font-weight:600;color:var(--indigo);text-decoration:none}.rev-prod:hover{text-decoration:underline}
+details.countries{border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:0 0 16px;background:#fff}
+details.countries summary{cursor:pointer;font-weight:650;color:var(--ink)}
+details.countries p{margin:10px 0 0;font-size:14px;line-height:1.8;color:var(--ink2)}
 .pstars{display:inline-flex;gap:6px;align-items:center;font-size:13.5px;color:var(--ink2);text-decoration:none;margin:-4px 0 10px}.pstars:hover{color:var(--indigo)}
 .revband{background:var(--paper);border-block:1px solid var(--line)}
 .sechead p .stars{font-size:14px;vertical-align:-1px}
@@ -2084,7 +2087,7 @@ html[data-view=list] .pgrid .card .buyrow .btn{min-width:84px}
 
 <div class="strip"><div class="wrap">
   <?php if(free_ship_usd($STORE)): ?><a class="fship" href="<?= url('shipping') ?>"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M3 6.5A1.5 1.5 0 0 1 4.5 5h9A1.5 1.5 0 0 1 15 6.5V8h2.6a1.5 1.5 0 0 1 1.2.6l2.4 3.2c.2.26.3.58.3.9V16a1.5 1.5 0 0 1-1.5 1.5h-.6a2.75 2.75 0 0 1-5.3 0H9.9a2.75 2.75 0 0 1-5.3 0h-.1A1.5 1.5 0 0 1 3 16V6.5Zm12 3V13h4.5l-1.9-2.5a1.5 1.5 0 0 0-1.2-.6H15ZM7.25 18.25a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm9.4 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/></svg><span>Free shipping on orders over <?= money_whole(free_ship_usd($STORE)) ?></span></a><?php endif; ?>
-  <span class="st"><b>Worldwide shipping to <?= count($COUNTRIES) ?> countries</b> · <?= h($CONFIG['strip_text']) ?></span>
+  <span class="st"><b>We ship worldwide</b> · <?= h($CONFIG['strip_text']) ?></span>
   <?php if($CONFIG['strip_link_text']): ?><a class="sl" href="<?= h($CONFIG['strip_link_url'] ?: url('catalog')) ?>"><?= h($CONFIG['strip_link_text']) ?></a><?php endif; ?>
 </div></div>
 
@@ -2154,7 +2157,7 @@ html[data-view=list] .pgrid .card .buyrow .btn{min-width:84px}
       <div class="stats<?= $max_off >= 5 ? '' : ' n3' ?>">
         <div><strong><?= count($in_stock) ?></strong>Products in stock</div>
         <?php if($max_off >= 5): ?><div><strong><?= $max_off ?>%</strong>Max bulk saving</div><?php endif; ?>
-        <div><strong><?= count($COUNTRIES) ?></strong>Countries we ship to</div>
+        <div><strong>Worldwide</strong>Tracked shipping</div>
         <div><strong><?= (int)$CONFIG['hold_hours'] ?>h</strong>Dispatch after payment</div>
       </div>
     </div>
@@ -2241,7 +2244,7 @@ html[data-view=list] .pgrid .card .buyrow .btn{min-width:84px}
       <div><span class="wi"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4 18 10 12l3 3 7-8M15 7h5v5"/></svg></span>
         <b>Bulk prices on every product</b><span>Tap 4+, 6+ or 10+ and the price per unit drops by itself.</span></div>
       <div><span class="wi"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z"/></svg></span>
-        <b>Worldwide, tracked</b><span>Shipped from Japan to <?= count($COUNTRIES) ?> countries, with tracking on every parcel.</span></div>
+        <b>Worldwide shipping</b><span>To every country, from Japan, with tracking on every parcel.</span></div>
       <div><span class="wi"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M4 5h16v11H9l-5 4V5Z"/></svg></span>
         <b>Real people</b><span>Replies within <?= (int)$CONFIG['reply_hours'] ?> hours<?= trim($CONFIG['chat_code'] ?? '') !== '' ? ', or live chat' : '' ?>.</span></div>
     </div>
@@ -2469,7 +2472,7 @@ html[data-view=list] .pgrid .card .buyrow .btn{min-width:84px}
         <?php $SMq = ship_methods($STORE); ?>
         <ul class="facts">
           <li><b>Language</b><span><?= h(product_lang($prod)) ?><?= $prod['cat'] === 'etb' ? ' — Elite Trainer Boxes are an English product' : ($prod['cat'] !== 'accessories' && product_lang($prod) === 'Japanese' ? ' — Japanese-language cards' : '') ?></span></li>
-          <li><b>Ships worldwide</b><span>From Japan to <?= count($COUNTRIES) ?> countries, tracked door to door</span></li>
+          <li><b>Ships worldwide</b><span>To every country from Japan, tracked door to door</span></li>
           <li><b>Delivery</b><span><?= h($SMq['standard']['label'].' '.$SMq['standard']['days'].' · '.$SMq['express']['label'].' '.$SMq['express']['days']) ?></span></li>
           <li><b>Duty &amp; taxes</b><span>Not included; your courier collects any import charges</span></li>
           <li><b>Sold in</b><span><?= $prod['step']>1 ? 'Multiples of '.(int)$prod['step'] : 'Any quantity' ?><?= $prod['moq'] > 1 ? ', from '.(int)$prod['moq'] : '' ?> · no account needed</span></li>
@@ -2502,7 +2505,7 @@ html[data-view=list] .pgrid .card .buyrow .btn{min-width:84px}
           <dt>Availability</dt><dd><?= h($prod['status']==='preorder' ? 'Preorder · releases '.$prod['release'] : status_label(PRODUCT_STATUSES, $prod['status'])) ?></dd>
           <dt>Minimum order</dt><dd><?= (int)$prod['moq'] ?><?= $prod['step'] > 1 ? ', then in '.(int)$prod['step'].'s' : '' ?></dd>
           <?php if($prod['sku'] !== ''): ?><dt>SKU</dt><dd><?= h($prod['sku']) ?></dd><?php endif; ?>
-          <dt>Ships from</dt><dd>Japan, tracked, to <?= count($COUNTRIES) ?> countries worldwide</dd>
+          <dt>Ships from</dt><dd>Japan, tracked, worldwide</dd>
         </dl>
       </div>
       <div class="panel"><h2>Shipping &amp; payment</h2>
@@ -2597,7 +2600,7 @@ html[data-view=list] .pgrid .card .buyrow .btn{min-width:84px}
   $_SESSION['co_time']  = time(); ?>
   <section style="padding-top:22px"><div class="wrap">
     <div class="sechead"><div><h1><?= h($h1) ?></h1>
-      <p>Where it ships and how you’ll pay — that’s all. No account needed. We ship worldwide from Japan to <?= count($COUNTRIES) ?> countries.</p></div></div>
+      <p>Where it ships and how you’ll pay — that’s all. No account needed. We ship worldwide.</p></div></div>
 
     <?php if(!$lines): ?>
       <p class="empty">Your order is empty. <a href="<?= url('catalog') ?>">Browse the catalog →</a></p>
@@ -3033,7 +3036,7 @@ html[data-view=list] .pgrid .card .buyrow .btn{min-width:84px}
         <ul class="ticks">
           <li>Bulk prices on every listing apply automatically — order those directly any time.</li>
           <li>Quotes cover volumes above our top tier, mixed cases, standing orders and preorder allocations.</li>
-          <li>Everything ships from Japan with tracking to <?= count($COUNTRIES) ?> countries.</li>
+          <li>Everything ships worldwide from Japan, with tracking.</li>
         </ul>
         <p class="n">Prefer email? <a href="mailto:<?= h($CONFIG['email']) ?>?subject=<?= rawurlencode('Bulk quote') ?>"><?= h($CONFIG['email']) ?></a></p>
       </aside>
@@ -3554,7 +3557,8 @@ function ship_rates_block(){
   <p class="small">As a guide, a sealed Japanese booster box weighs about 0.4 kg packed and an Elite Trainer Box about 0.9 kg. Checkout shows the exact price for your order before you pay.</p>
   <h3 id="countries">Countries we ship to</h3>
   <?php $cn = $GLOBALS['COUNTRIES']; asort($cn); ?>
-  <p>We ship worldwide from Japan to <?= count($cn) ?> countries: <?= h(implode(', ', $cn)) ?>. Don’t see yours? Email <a href="mailto:<?= h($CONFIG['email']) ?>"><?= h($CONFIG['email']) ?></a> and we’ll quote it.</p>
+  <p>We ship worldwide: every country and territory below can order at checkout, with tracking. Countries without their own zone in the table above use the <b>Rest of world</b> rates. Can’t find yours? Email <a href="mailto:<?= h($CONFIG['email']) ?>"><?= h($CONFIG['email']) ?></a> and we’ll quote it.</p>
+  <details class="countries"><summary>See all <?= count($cn) ?> countries and territories</summary><p><?= h(implode(' · ', $cn)) ?></p></details>
 <?php }
 
 /* A guide's text, with tool blocks where a line says {price_list}, {set_table} or {card_template} */

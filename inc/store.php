@@ -83,7 +83,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 13;
+const CONTENT_VERSION = 14;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -241,6 +241,23 @@ function content_upgrade($s, $d, $version){
   if($version < 13){   /* One Piece booster box and starter deck pages for the brand menu */
     $have = array_column($s['collections'] ?? [], 'slug');
     foreach($d['collections'] ?? [] as $c) if(!in_array($c['slug'], $have, true)) $s['collections'][] = $c;
+  }
+  if($version < 14){   /* worldwide shipping: every country available, and "worldwide" instead of a country count */
+    $now = [];
+    foreach($d['countries'] as $code=>$name) $now[$code] = $s['countries'][$code] ?? $name;   /* A–Z, keeping any names the owner changed */
+    foreach($s['countries'] ?? [] as $code=>$name) if(!isset($now[$code])) $now[$code] = $name;
+    $s['countries'] = $now;
+    $cut = [
+      'We ship worldwide from Japan to {countries} countries across North and South America, Europe, Asia, the Middle East, Africa and Oceania, with tracking on every parcel.'=>'We ship worldwide from Japan, to every country, with tracking on every parcel.',
+      'Every order ships from Japan with tracking to {countries} countries.'=>'Every order ships worldwide from Japan with tracking.',
+      'and we ship worldwide from Japan to {countries} countries.'=>'and we ship worldwide from Japan.',
+      'but we ship Pokémon Center ETBs worldwide from Japan with tracking to {countries} countries.'=>'but we ship Pokémon Center ETBs worldwide from Japan with tracking.',
+      'We ship from Japan with tracking to {countries} countries; the rates are on'=>'We ship worldwide from Japan with tracking; the rates are on',
+      'every order leaves Japan with tracking to {countries} countries, by Standard'=>'every order leaves Japan with tracking, by Standard',
+      'Yes, from Japan with tracking to {countries} countries, with lower prices'=>'Yes, worldwide from Japan with tracking, with lower prices',
+      'Yes, from Japan with tracking to {countries} countries.'=>'Yes, worldwide from Japan with tracking.'];
+    foreach(['settings', 'pages', 'guides', 'faqs', 'categories', 'series', 'sets', 'collections'] as $k)
+      if(isset($s[$k]) && is_array($s[$k])) array_walk_recursive($s[$k], function(&$v) use($cut){ if(is_string($v)) $v = strtr($v, $cut); });
   }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;
