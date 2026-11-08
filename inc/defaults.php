@@ -684,6 +684,7 @@ Terastal Festival ex is built around Terastal Pokémon and all of the Eevee evol
 
 ];
 
+$d['reviews'] = [];   /* customer reviews, added in the admin (Reviews) */
 $c = require __DIR__.'/content.php';
 $d['settings']    = $c['settings'] + $d['settings'];
 $d['categories']  = $c['categories'];

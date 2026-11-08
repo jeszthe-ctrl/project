@@ -28,6 +28,7 @@ $SERIES     = $STORE['series'] ?? [];
 $COLLECTIONS= $STORE['collections'] ?? [];
 $GUIDES     = $STORE['guides'] ?? [];
 $INFO_PAGES = $STORE['pages'] ?? [];
+$REVIEWS    = array_values(array_filter($STORE['reviews'] ?? [], fn($r)=>!empty($r['published'])));   /* added in admin.php → Reviews */
 
 /* Settings → "This site has moved to": every visitor (and Google) goes to the same page on the new domain */
 if(($moved = rtrim(trim((string)($CONFIG['moved_to'] ?? '')), '/')) !== '' && preg_match('#^https?://[^/]+$#i', $moved)
@@ -108,6 +109,21 @@ function payment_ok($key, $country){
 }
 
 function flash($msg){ $_SESSION['flash'][] = $msg; }
+/* customer reviews */
+function reviews_for($pid){ global $REVIEWS; return array_values(array_filter($REVIEWS, fn($r)=>($r['product'] ?? '') === $pid)); }
+function stars($n){ $n = max(0, min(5, (float)$n)); $full = (int)floor($n + 0.25);
+  return '<span class="stars" role="img" aria-label="'.number_format($n, 1).' out of 5 stars">'.str_repeat('★', $full).'<i>'.str_repeat('★', 5 - $full).'</i></span>'; }
+function review_avg($rs){ return $rs ? round(array_sum(array_column($rs, 'rating')) / count($rs), 1) : 0; }
+function review_card($r, $show_product=true){
+  global $COUNTRIES; $p = ($r['product'] ?? '') !== '' ? product($r['product']) : null; ?>
+  <article class="rev">
+    <div class="rev-top"><?= stars($r['rating']) ?><?php if(!empty($r['verified'])): ?><span class="ver">✓ Verified order</span><?php endif; ?></div>
+    <?php if(($r['title'] ?? '') !== ''): ?><h3><?= h($r['title']) ?></h3><?php endif; ?>
+    <p><?= nl2br(h($r['text'])) ?></p>
+    <div class="rev-by"><b><?= h($r['name']) ?></b><?= ($r['country'] ?? '') !== '' && isset($COUNTRIES[$r['country']]) ? ' · '.h($COUNTRIES[$r['country']]) : '' ?> · <time datetime="<?= h($r['date']) ?>"><?= h(date('j M Y', strtotime($r['date']))) ?></time></div>
+    <?php if($show_product && $p): ?><a class="rev-prod" href="<?= h(url('product', ['id'=>$p['id']])) ?>"><?= h($p['name']) ?> →</a><?php endif; ?>
+  </article>
+<?php }
 /* this page's address relative to the shop, for "add and stay here" */
 function here_path(){
   global $BASE;
@@ -163,7 +179,7 @@ $BASE = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/index.
 const PAGE_PATHS = ['cart'=>'cart', 'checkout'=>'checkout', 'received'=>'order-received', 'how'=>'how-it-works',
                     'shipping'=>'shipping', 'returns'=>'returns', 'payment'=>'payment-methods', 'faq'=>'faq', 'contact'=>'contact',
                     'cases'=>'sealed-cases', 'moq'=>'minimum-order-quantities', 'quote'=>'request-a-quote', 'b2b'=>'b2b-list',
-                    'track'=>'track-order', 'sets'=>'sets', 'guides'=>'guides', 'sitemap'=>'sitemap.xml', 'pay'=>'pay', 'paystatus'=>'pay-status'];
+                    'track'=>'track-order', 'reviews'=>'reviews', 'sets'=>'sets', 'guides'=>'guides', 'sitemap'=>'sitemap.xml', 'pay'=>'pay', 'paystatus'=>'pay-status'];
 /* older addresses that now live on another page: path => [page, #section] */
 const MOVED_PATHS = ['shipping-returns'=>['shipping', '']];
 
@@ -302,7 +318,7 @@ function link_page($kind, $slug){
   $m = [0, $kind, $slug];
   $pages = ['home'=>'home', 'shop'=>'catalog', 'sets'=>'sets', 'guides'=>'guides', 'faq'=>'faq', 'shipping'=>'shipping',
             'returns'=>'returns', 'payment'=>'payment', 'how'=>'how', 'contact'=>'contact', 'cases'=>'cases', 'moq'=>'moq',
-            'quote'=>'quote', 'b2b'=>'b2b', 'track'=>'track'];
+            'quote'=>'quote', 'b2b'=>'b2b', 'track'=>'track', 'reviews'=>'reviews'];
   switch($m[1]){
     case 'product':  return url('product', ['id'=>$m[2]]);
     case 'category': return url('catalog', ['cat'=>$m[2]]);
@@ -820,7 +836,7 @@ if($page === 'rewritecheck' && $from_path){
   exit;
 }
 $PAGES = ['home','catalog','product','sets','set','series','collection','guides','guide','page','cart','checkout','received',
-          'how','shipping','returns','payment','faq','contact','cases','moq','quote','b2b','track','sitemap','pay','paystatus','notfound'];
+          'how','shipping','returns','payment','faq','contact','cases','moq','quote','b2b','track','reviews','sitemap','pay','paystatus','notfound'];
 if(!in_array($page, $PAGES, true)) $page = 'notfound';
 
 $gs    = fn($k)=>is_string($_GET[$k] ?? null) ? trim($_GET[$k]) : '';
@@ -894,6 +910,7 @@ if($page === 'sitemap'){
   if($GUIDES) $urls[] = [abs_url('guides'), []];
   foreach($GUIDES as $g) $urls[] = [abs_url('guide', ['g'=>$g['slug']]), []];
   foreach(['how','cases','moq','quote','b2b','shipping','returns','payment','faq','contact'] as $pg) $urls[] = [abs_url($pg), []];
+  if($REVIEWS) $urls[] = [abs_url('reviews'), []];
   foreach($INFO_PAGES as $ip) $urls[] = [abs_url('page', ['pg'=>$ip['slug']]), []];
   $x = fn($v)=>htmlspecialchars($v, ENT_XML1|ENT_QUOTES, 'UTF-8');
   $mod = gmdate('Y-m-d', @filemtime(data_file('store')) ?: time());
@@ -921,6 +938,7 @@ $fixed = [
   'quote'    => ['Request a Bulk Quote — Wholesale Pokémon Cards', 'Request a bulk quote'],
   'b2b'      => ['Join the B2B List — Pokémon TCG Wholesale Restocks & Preorders', 'Join the B2B list'],
   'track'    => ['Track Your Order', 'Track your order'],
+  'reviews'  => ['Customer Reviews — Wholesale Pokémon Cards from Japan', 'Customer reviews'],
   'shipping' => ['Shipping & Customs — Pokémon Cards Shipped from Japan', 'Shipping & customs'],
   'returns'  => ['Returns, Refunds & Cancellations', 'Returns, refunds & cancellations'],
   'pay'      => ['Pay for your order', ''],
@@ -1032,6 +1050,7 @@ switch($page){
                   'quote'=>'Request a bulk quote for wholesale Pokémon cards: full cases, standing orders and preorder allocations, shipped from Japan. Reply within '.(int)$CONFIG['reply_hours'].' hours.',
                   'b2b'=>'Join the {brand} B2B list for card shops and resellers: new Japanese Pokémon TCG stock, preorder openings and bulk deals by email.',
                   'track'=>'Check the status of your {brand} order with your order reference and email address.',
+                  'reviews'=>'What customers say about buying Pokémon cards from {brand}: reviews of our sealed products, bulk orders and worldwide shipping from Japan.',
                   'payment'=>'How to pay for Japanese Pokémon cards at {brand}: Bitcoin straight from your wallet, or the method that suits you, with an invoice by email.',
                   'contact'=>'Contact {brand} about wholesale Japanese Pokémon card orders, case pricing, shipping from Japan or an existing order. We reply within '.(int)$CONFIG['reply_hours'].' hours.'][$page] ?? '';
 }
@@ -1125,7 +1144,11 @@ if($prod){
     'image'=>array_map($abs_img, photos($prod['id'])) ?: null,
     'description'=>plain($prod['desc'], 2000),'category'=>$CATEGORIES[$prod['cat']]['label'],
     'additionalProperty'=>[['@type'=>'PropertyValue','name'=>'Language','value'=>product_lang($prod)]],
-    'brand'=>['@type'=>'Brand','name'=>$prod['cat'] === 'onepiece' ? 'One Piece Card Game' : 'Pokémon'],'offers'=>$offer]);
+    'brand'=>['@type'=>'Brand','name'=>$prod['cat'] === 'onepiece' ? 'One Piece Card Game' : 'Pokémon'],'offers'=>$offer,
+    /* star ratings only from reviews of this product, as Google's rules require */
+    'aggregateRating'=>($pr_ = reviews_for($prod['id'])) ? ['@type'=>'AggregateRating','ratingValue'=>review_avg($pr_),'reviewCount'=>count($pr_),'bestRating'=>5,'worstRating'=>1] : null,
+    'review'=>$pr_ ? array_map(fn($r)=>['@type'=>'Review','reviewRating'=>['@type'=>'Rating','ratingValue'=>(int)$r['rating'],'bestRating'=>5],
+      'author'=>['@type'=>'Person','name'=>$r['name']],'datePublished'=>$r['date'],'reviewBody'=>$r['text']] + (($r['title'] ?? '') !== '' ? ['name'=>$r['title']] : []), array_slice($pr_, 0, 10)) : null]);
 }
 if($guide){
   $graph[] = ['@type'=>'Article','headline'=>fill($guide['title']),'description'=>$page_desc,'url'=>$canonical,
@@ -1736,6 +1759,21 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
 .prose .srcontact .btn{color:#fff;text-decoration:none}.prose .srcontact .btn.g{color:var(--ink)}
 .prose a.btn{color:#fff;text-decoration:none}.prose a.btn.g{color:var(--ink)}.prose a.btn.gold{color:#fff}
 
+/* customer reviews */
+.stars{color:var(--ink);letter-spacing:1px;font-size:15px;white-space:nowrap}.stars i{font-style:normal;color:#D1D5DB}
+.revs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media(max-width:900px){.revs{grid-template-columns:1fr 1fr}}@media(max-width:600px){.revs{grid-template-columns:1fr;gap:10px}}
+.rev{border:1px solid var(--line);border-radius:12px;background:#fff;padding:18px;display:flex;flex-direction:column;gap:8px}
+.rev-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.rev .ver{font-size:12px;font-weight:650;color:var(--green)}
+.rev h3{font-size:16px}
+.rev p{font-size:14.5px;color:var(--ink2);line-height:1.6}
+.rev-by{font-size:13px;color:var(--muted);margin-top:auto}.rev-by b{color:var(--ink)}
+.rev-prod{font-size:13px;font-weight:600;color:var(--indigo);text-decoration:none}.rev-prod:hover{text-decoration:underline}
+.pstars{display:inline-flex;gap:6px;align-items:center;font-size:13.5px;color:var(--ink2);text-decoration:none;margin:-4px 0 10px}.pstars:hover{color:var(--indigo)}
+.revband{background:var(--paper);border-block:1px solid var(--line)}
+.sechead p .stars{font-size:14px;vertical-align:-1px}
+
 /* ================= layout system: white first, blue for actions, black for emphasis ================= */
 body{font-size:15.5px;line-height:1.6}
 h1,h2,h3{font-weight:750;letter-spacing:-.018em}
@@ -2079,6 +2117,14 @@ html[data-view=list] .pgrid .card .buyrow .btn{min-width:84px}
   </div></section>
   <?php endforeach; ?>
 
+  <?php if($REVIEWS): ?>
+  <section class="revband"><div class="wrap">
+    <div class="sechead"><div><h2>What our customers say</h2><p><?= stars(review_avg($REVIEWS)) ?> <?= number_format(review_avg($REVIEWS), 1) ?> out of 5 from <?= count($REVIEWS) ?> review<?= count($REVIEWS)===1?'':'s' ?></p></div>
+      <a href="<?= url('reviews') ?>">All reviews →</a></div>
+    <div class="revs"><?php foreach(array_slice($REVIEWS, 0, 3) as $r) review_card($r); ?></div>
+  </div></section>
+  <?php endif; ?>
+
   <section>
     <div class="wrap">
       <div class="sechead"><div><h2>In stock now</h2>
@@ -2269,6 +2315,7 @@ html[data-view=list] .pgrid .card .buyrow .btn{min-width:84px}
     </div>
     <div>
       <h1><?= h($prod['name']) ?></h1>
+      <?php if($prv_ = reviews_for($prod['id'])): ?><a class="pstars" href="#reviews"><?= stars(review_avg($prv_)) ?> <?= number_format(review_avg($prv_), 1) ?> · <?= count($prv_) ?> review<?= count($prv_)===1?'':'s' ?></a><?php endif; ?>
       <div class="sub"><span class="lang"><?= h(product_lang($prod)) ?></span> <?= h(implode(' · ', array_filter([$prod['set'], $CATEGORIES[$prod['cat']]['label'], $prod['cond'] ?? 'Sealed',
         $prod['status']==='preorder' ? 'Releases '.$prod['release'] : status_label(PRODUCT_STATUSES, $prod['status'])]))) ?></div>
       <?php if($summary !== ''): ?><p class="summary-line"><?= rich_inline($summary) ?></p><?php endif; ?>
@@ -2355,6 +2402,13 @@ html[data-view=list] .pgrid .card .buyrow .btn{min-width:84px}
     </div>
   </div></section>
 
+  <?php $prv = reviews_for($prod['id']); if($prv): ?>
+  <section class="top" id="reviews"><div class="wrap">
+    <div class="sechead"><div><h2>Customer reviews</h2><p><?= stars(review_avg($prv)) ?> <?= number_format(review_avg($prv), 1) ?> out of 5 · <?= count($prv) ?> review<?= count($prv)===1?'':'s' ?></p></div>
+      <?php if(count($REVIEWS) > count($prv)): ?><a href="<?= url('reviews') ?>">All reviews →</a><?php endif; ?></div>
+    <div class="revs"><?php foreach($prv as $r) review_card($r, false); ?></div>
+  </div></section>
+  <?php endif; ?>
   <?php $sibs = $pset ? array_values(array_filter(set_products($pset['name']), fn($x)=>$x['id'] !== $prod['id'])) : [];
   if($sibs): ?>
   <section><div class="wrap">
@@ -2937,6 +2991,15 @@ html[data-view=list] .pgrid .card .buyrow .btn{min-width:84px}
     <p style="margin-top:18px;font-size:14px;color:var(--ink2)">Can’t find your reference? Email <a href="mailto:<?= h($CONFIG['email']) ?>"><?= h($CONFIG['email']) ?></a> from the address you ordered with. Carrier tracking can take 24–48 hours to show its first scan — see <a href="<?= h(url('shipping')) ?>">Shipping &amp; customs</a>.</p>
   </div></section>
 
+<?php elseif($page==='reviews'): ?>
+  <section class="top"><div class="wrap">
+    <div class="sechead"><div><h1><?= h($h1) ?></h1>
+      <?php if($REVIEWS): ?><p><?= stars(review_avg($REVIEWS)) ?> <b><?= number_format(review_avg($REVIEWS), 1) ?> out of 5</b> from <?= count($REVIEWS) ?> review<?= count($REVIEWS)===1?'':'s' ?>. Every review here was sent to us by a customer.</p><?php endif; ?></div></div>
+    <?php if($REVIEWS): ?><div class="revs"><?php foreach($REVIEWS as $r) review_card($r); ?></div>
+    <?php else: ?><p class="empty">No reviews yet. Bought from us? Email <a href="mailto:<?= h($CONFIG['email']) ?>?subject=<?= rawurlencode('My review') ?>"><?= h($CONFIG['email']) ?></a> and tell us how it went.</p><?php endif; ?>
+    <p style="margin-top:22px;font-size:14px;color:var(--ink2)">Ordered from us? We'd love to hear how it went: email <a href="mailto:<?= h($CONFIG['email']) ?>?subject=<?= rawurlencode('My review') ?>"><?= h($CONFIG['email']) ?></a> with your order reference.</p>
+  </div></section>
+
 <?php elseif($page==='faq'): ?>
   <section style="padding-top:22px"><div class="wrap" style="max-width:860px">
     <div class="sechead"><div><h1><?= h($h1) ?></h1></div></div>
@@ -3099,6 +3162,7 @@ html[data-view=list] .pgrid .card .buyrow .btn{min-width:84px}
       <?php if($GUIDES): ?><li><a href="<?= url('guides') ?>">Buyer guides</a></li><?php endif; ?>
     </ul></nav>
     <nav aria-label="Company"><h4>Company</h4><ul>
+      <?php if($REVIEWS): ?><li><a href="<?= url('reviews') ?>">Customer reviews</a></li><?php endif; ?>
       <?php foreach(['about'=>'About '.$CONFIG['brand'], 'terms'=>'Terms of service', 'privacy-policy'=>'Privacy policy'] as $pg_=>$lb_):
         if(info_page($pg_)): ?><li><a href="<?= h(url('page', ['pg'=>$pg_])) ?>"><?= h($lb_) ?></a></li><?php endif; endforeach; ?>
       <?php foreach($INFO_PAGES as $ip): if(in_array($ip['slug'] ?? '', ['about','wholesale','terms','privacy-policy'], true)) continue; ?><li><a href="<?= h(url('page', ['pg'=>$ip['slug']])) ?>"><?= h(fill($ip['title'])) ?></a></li><?php endforeach; ?>

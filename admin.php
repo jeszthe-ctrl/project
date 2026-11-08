@@ -562,6 +562,29 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
     go('settings');
   }
 
+  /* ----- customer reviews (added by the owner from what customers send) ----- */
+  if($do === 'reviews_save'){
+    $out = []; $bad = 0;
+    foreach(in_arr('reviews') as $row){
+      if(!is_array($row) || !empty($row['delete'])) continue;
+      $name = str($row['name'] ?? ''); $text = str($row['text'] ?? '');
+      if($name === '' && $text === '') continue;                         /* the empty "new review" block */
+      if($name === '' || $text === ''){ $bad++; continue; }
+      $ref = strtoupper(str($row['order'] ?? ''));
+      $date = preg_match('/^\d{4}-\d{2}-\d{2}$/', str($row['date'] ?? '')) ? str($row['date']) : gmdate('Y-m-d');
+      $pid = str($row['product'] ?? '');
+      $out[] = ['id'=>preg_match('/^[a-f0-9]{8}$/', str($row['id'] ?? '')) ? str($row['id']) : bin2hex(random_bytes(4)),
+        'name'=>mb_substr($name, 0, 60), 'country'=>isset($STORE['countries'][str($row['country'] ?? '')]) ? str($row['country']) : '',
+        'rating'=>max(1, min(5, (int)($row['rating'] ?? 5))), 'title'=>mb_substr(str($row['title'] ?? ''), 0, 90), 'text'=>mb_substr($text, 0, 3000),
+        'product'=>in_array($pid, array_column($STORE['products'], 'id'), true) ? $pid : '', 'date'=>$date,
+        'order'=>$ref, 'verified'=>$ref !== '' && order_load($ref) !== null, 'published'=>!empty($row['published'])];
+    }
+    usort($out, fn($a, $b)=>strcmp($b['date'], $a['date']));
+    $STORE['reviews'] = $out;
+    save('Reviews saved.'.($bad ? " $bad review(s) were skipped: each needs a name and the review text." : ''));
+    go('reviews');
+  }
+
   /* ----- FAQ ----- */
   if($do === 'faq_save'){
     $faqs = [];
@@ -638,7 +661,7 @@ if(is_admin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
 }
 
 /* ---------------- view data ---------------- */
-$NAV = ['dashboard'=>'Dashboard', 'orders'=>'Orders', 'leads'=>'Leads', 'products'=>'Products', 'categories'=>'Categories',
+$NAV = ['dashboard'=>'Dashboard', 'orders'=>'Orders', 'leads'=>'Leads', 'reviews'=>'Reviews', 'products'=>'Products', 'categories'=>'Categories',
         'sets'=>'Sets', 'collections'=>'Collections', 'guides'=>'Guides', 'pages'=>'Pages',
         'shipping'=>'Shipping', 'payments'=>'Payments', 'settings'=>'Settings', 'faq'=>'FAQ', 'password'=>'Sign-in'];
 if(is_admin() && !isset($NAV[$v]) && !in_array($v, ['product','order','collection','guide','page'], true)) $v = 'dashboard';
@@ -1423,6 +1446,39 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;word-break:break-word}
     <form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="mail_test">
       <input type="email" name="to" value="<?= h($S['order_email']) ?>" style="max-width:320px" aria-label="Send the test to"><button class="btn" type="submit">Send test email</button></form>
   </div>
+
+<?php elseif($v === 'reviews'):
+  $revs = $STORE['reviews'] ?? []; $plist = $STORE['products']; usort($plist, fn($a, $b)=>strcasecmp($a['name'], $b['name'])); ?>
+  <h1>Customer reviews</h1>
+  <p class="sub">Add the reviews customers send you. They show on the home page, on the product they're about, and on the Customer reviews page.</p>
+  <div class="msg warn">Only add reviews customers actually sent you, in their own words (fixing typos is fine). Ask before showing their name — first name and last initial is common. Made-up or paid-for reviews are illegal in the US, UK and EU, and Google penalises them.</div>
+  <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="reviews_save">
+    <?php $rows = array_merge([['id'=>'', 'name'=>'', 'country'=>'', 'rating'=>5, 'title'=>'', 'text'=>'', 'product'=>'', 'date'=>gmdate('Y-m-d'), 'order'=>'', 'published'=>true, 'new'=>true]], $revs);
+    foreach($rows as $i=>$r): ?>
+      <div class="card">
+        <h2><?= !empty($r['new']) ? 'Add a review' : h($r['name']).' · '.str_repeat('★', (int)$r['rating']).str_repeat('☆', 5 - (int)$r['rating']).(!empty($r['verified']) ? ' · <span class="small" style="color:var(--ok)">verified order</span>' : '').(empty($r['published']) ? ' · <span class="small muted">hidden</span>' : '') ?></h2>
+        <input type="hidden" name="reviews[<?= $i ?>][id]" value="<?= h($r['id']) ?>">
+        <div class="grid3">
+          <div class="fld"><label class="f" for="rn<?= $i ?>">Customer name (as shown)</label><input type="text" id="rn<?= $i ?>" name="reviews[<?= $i ?>][name]" value="<?= h($r['name']) ?>" placeholder="e.g. Daniel K." maxlength="60"></div>
+          <div class="fld"><label class="f" for="rc<?= $i ?>">Country</label><select id="rc<?= $i ?>" name="reviews[<?= $i ?>][country]"><option value="">—</option>
+            <?php foreach($STORE['countries'] as $code=>$nm): ?><option value="<?= h($code) ?>" <?= $r['country']===$code?'selected':'' ?>><?= h($nm) ?></option><?php endforeach; ?></select></div>
+          <div class="fld"><label class="f" for="rr<?= $i ?>">Rating</label><select id="rr<?= $i ?>" name="reviews[<?= $i ?>][rating]">
+            <?php for($n=5; $n>=1; $n--): ?><option value="<?= $n ?>" <?= (int)$r['rating']===$n?'selected':'' ?>><?= str_repeat('★', $n) ?> <?= $n ?></option><?php endfor; ?></select></div>
+        </div>
+        <div class="fld"><label class="f" for="rt<?= $i ?>">Title <span class="muted small">(optional)</span></label><input type="text" id="rt<?= $i ?>" name="reviews[<?= $i ?>][title]" value="<?= h($r['title'] ?? '') ?>" maxlength="90" placeholder="e.g. Fast shipping to Germany"></div>
+        <div class="fld"><label class="f" for="rx<?= $i ?>">Their review</label><textarea id="rx<?= $i ?>" name="reviews[<?= $i ?>][text]" maxlength="3000"><?= h($r['text']) ?></textarea></div>
+        <div class="grid3">
+          <div class="fld"><label class="f" for="rp<?= $i ?>">Product <span class="muted small">(optional)</span></label><select id="rp<?= $i ?>" name="reviews[<?= $i ?>][product]"><option value="">The shop in general</option>
+            <?php foreach($plist as $pp): ?><option value="<?= h($pp['id']) ?>" <?= $r['product']===$pp['id']?'selected':'' ?>><?= h($pp['name']) ?></option><?php endforeach; ?></select></div>
+          <div class="fld"><label class="f" for="rd<?= $i ?>">Date received</label><input type="date" id="rd<?= $i ?>" name="reviews[<?= $i ?>][date]" value="<?= h($r['date']) ?>"></div>
+          <div class="fld"><label class="f" for="ro<?= $i ?>">Order reference <span class="muted small">(optional: shows “Verified order”)</span></label><input type="text" id="ro<?= $i ?>" name="reviews[<?= $i ?>][order]" value="<?= h($r['order']) ?>" placeholder="PK-26-XXXXX"></div>
+        </div>
+        <div class="row small"><label class="row"><input type="checkbox" name="reviews[<?= $i ?>][published]" value="1" <?= !empty($r['published'])?'checked':'' ?>> Show on the shop</label>
+          <?php if(empty($r['new'])): ?><label class="row"><input type="checkbox" name="reviews[<?= $i ?>][delete]" value="1"> Delete this review</label><?php endif; ?></div>
+      </div>
+    <?php endforeach; ?>
+    <button class="btn" type="submit">Save reviews</button>
+  </form>
 
 <?php elseif($v === 'faq'): ?>
   <h1>FAQ</h1>
