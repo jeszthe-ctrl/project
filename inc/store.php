@@ -83,7 +83,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 12;
+const CONTENT_VERSION = 13;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -237,6 +237,10 @@ function content_upgrade($s, $d, $version){
       'onepiece'=>['intro'=>'bb065d20253266695f70b061cc90dce5', 'blurb'=>'6946d2f0f3a7ab7fa3900d225f573021', 'h1'=>'b8548c93104c66f470e3695ab65717ea', 'seo_title'=>'439571ba75d55fe3e7376ed563495047', 'seo_desc'=>'e02a141f2b5b2a6e84282c36ad1cfbb8']];
     foreach($was as $k=>$fields) foreach($fields as $f=>$h)
       if(isset($s['categories'][$k], $d['categories'][$k][$f]) && md5((string)($s['categories'][$k][$f] ?? '')) === $h) $s['categories'][$k][$f] = $d['categories'][$k][$f];
+  }
+  if($version < 13){   /* One Piece booster box and starter deck pages for the brand menu */
+    $have = array_column($s['collections'] ?? [], 'slug');
+    foreach($d['collections'] ?? [] as $c) if(!in_array($c['slug'], $have, true)) $s['collections'][] = $c;
   }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;

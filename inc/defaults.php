@@ -28,7 +28,7 @@ $d = [
     'pretty_urls'   => false,            /* clean addresses like /products/151-booster-box: switched on by themselves when the host supports them */
     'pretty_auto'   => false,            /* set once that automatic switch has happened, so turning them off in the admin sticks */
     'free_ship_usd' => 2000,             /* free Standard shipping from this goods total (USD); 0 = off */
-    'content_version' => 12,              /* set by the shop: which built-in content updates are applied */
+    'content_version' => 13,              /* set by the shop: which built-in content updates are applied */
     'moved_to'      => '',               /* an old domain running this code can send every visitor here (301) */
     'google_verify' => '', 'bing_verify' => '',   /* Search Console / Bing verification codes (Admin → Settings) */
     /* SMTP for order emails (Admin → Settings → Email); blank host = the web host's mail() */
