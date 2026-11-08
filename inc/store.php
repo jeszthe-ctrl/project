@@ -83,7 +83,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 11;
+const CONTENT_VERSION = 12;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -225,6 +225,18 @@ function content_upgrade($s, $d, $version){
       if(md5(json_encode($p['ladder'] ?? [])) === $was[$id][0]) $s['products'][$i]['ladder'] = $now[$id]['ladder'];
       if(md5((string)($p['seo_desc'] ?? '')) === $was[$id][1]) $s['products'][$i]['seo_desc'] = $now[$id]['seo_desc'];
     }
+  }
+  if($version < 12){   /* buyer guides, real set intros, fuller category text with questions */
+    $have = array_column($s['guides'] ?? [], 'slug');
+    foreach($d['guides'] ?? [] as $g) if(!in_array($g['slug'], $have, true)) $s['guides'][] = $g;
+    foreach($d['sets'] ?? [] as $name=>$st) if(isset($s['sets'][$name]) && trim((string)($s['sets'][$name]['intro'] ?? '')) === '' && ($st['intro'] ?? '') !== '') $s['sets'][$name]['intro'] = $st['intro'];
+    $was = [
+      'boxes'=>['intro'=>'893a9729c4844c0bb85ac430ea1cc9a1', 'blurb'=>'2c9dff17c6880f8b0b6e16a2c186ad90', 'h1'=>'9242e234e1a0defb16661012d1d38167', 'seo_title'=>'8e50dc48588277a6c46ebe159404ea29', 'seo_desc'=>'6244614d72c8b59c7fd306bc80c6c4f5'],
+      'etb'=>['intro'=>'8891c55768c55b27565768c581ea301b', 'blurb'=>'aafcfcc0becae9ab4e7f72554acbd2b8', 'h1'=>'8e85bca151c8f5f1ac7349c81cc9a246', 'seo_title'=>'7554fd5ab16ac0a3458235ca7d24bfd1', 'seo_desc'=>'3ce0962d30ee992e51d2e315c67047fb'],
+      'premium'=>['intro'=>'748486908e9dc71f6f782480976fe231', 'blurb'=>'20b421ca3c7ad8404f74816c439112bd', 'h1'=>'80c55f1c2546921cd88efbb6e6897b41', 'seo_title'=>'9c4b1207529144912e3199fe6493a2b1', 'seo_desc'=>'b9256501522a80cb327fe807fd9b4f74'],
+      'onepiece'=>['intro'=>'bb065d20253266695f70b061cc90dce5', 'blurb'=>'6946d2f0f3a7ab7fa3900d225f573021', 'h1'=>'b8548c93104c66f470e3695ab65717ea', 'seo_title'=>'439571ba75d55fe3e7376ed563495047', 'seo_desc'=>'e02a141f2b5b2a6e84282c36ad1cfbb8']];
+    foreach($was as $k=>$fields) foreach($fields as $f=>$h)
+      if(isset($s['categories'][$k], $d['categories'][$k][$f]) && md5((string)($s['categories'][$k][$f] ?? '')) === $h) $s['categories'][$k][$f] = $d['categories'][$k][$f];
   }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;

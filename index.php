@@ -383,6 +383,10 @@ const GUIDE_ANCHORS = [
   'mew-mewtwo-arceus-pokemon-cards'=>'Mew, Mewtwo & Arceus cards', 'where-to-sell-pokemon-cards'=>'Where to sell Pokémon cards',
   'pokemon-card-size'=>'Pokémon card size', 'how-to-tell-if-a-pokemon-card-is-fake'=>'How to tell if a Pokémon card is fake',
   'pokemon-card-rarities'=>'Pokémon card rarities', 'pokemon-card-values'=>'Pokémon card values',
+  'pokemon-center-elite-trainer-box-vs-elite-trainer-box'=>'Pokémon Center ETB vs regular ETB',
+  'what-is-a-pokemon-ultra-premium-collection'=>'What is a Pokémon UPC?',
+  'pokemon-booster-box-vs-etb-vs-booster-bundle'=>'Booster box vs ETB vs booster bundle',
+  'one-piece-card-game-booster-box-guide'=>'One Piece booster box guide',
 ];
 const GUIDE_RELATED = [
   'japanese-pokemon-cards'=>['where-to-buy-pokemon-cards','pokemon-card-database','chinese-pokemon-cards','how-to-read-a-pokemon-card'],
@@ -405,13 +409,25 @@ const GUIDE_RELATED = [
   'how-to-tell-if-a-pokemon-card-is-fake'=>['chinese-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','where-to-buy-pokemon-cards','pokemon-card-values'],
   'pokemon-card-rarities'=>['rarest-pokemon-cards','coolest-pokemon-cards','how-to-read-a-pokemon-card','pokemon-card-database'],
   'pokemon-card-values'=>['pokemon-card-price-checker','most-expensive-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','where-to-sell-pokemon-cards'],
+  'pokemon-center-elite-trainer-box-vs-elite-trainer-box'=>['pokemon-booster-box-vs-etb-vs-booster-bundle','what-is-a-pokemon-ultra-premium-collection','where-to-buy-pokemon-cards','japanese-pokemon-cards'],
+  'what-is-a-pokemon-ultra-premium-collection'=>['pokemon-center-elite-trainer-box-vs-elite-trainer-box','pokemon-booster-box-vs-etb-vs-booster-bundle','most-expensive-pokemon-cards','pokemon-card-values'],
+  'pokemon-booster-box-vs-etb-vs-booster-bundle'=>['pokemon-center-elite-trainer-box-vs-elite-trainer-box','what-is-a-pokemon-ultra-premium-collection','japanese-pokemon-cards','where-to-buy-pokemon-cards'],
+  'one-piece-card-game-booster-box-guide'=>['pokemon-booster-box-vs-etb-vs-booster-bundle','where-to-buy-pokemon-cards','how-to-tell-if-a-pokemon-card-is-fake','pokemon-card-price-checker'],
 ];
 const PAGE_GUIDES = [
-  'cat:boxes'=>['japanese-pokemon-cards','pokemon-card-database','pokemon-card-price-checker','where-to-buy-pokemon-cards','chinese-pokemon-cards'],
-  'cat:etb'=>['how-to-play-pokemon-cards','where-to-buy-pokemon-cards','japanese-pokemon-cards','pokemon-card-database','pokemon-card-shops-near-me'],
-  'cat:premium'=>['how-to-play-pokemon-cards','how-to-read-a-pokemon-card','coolest-pokemon-cards','japanese-pokemon-cards','mew-mewtwo-arceus-pokemon-cards'],
+  'cat:boxes'=>['pokemon-booster-box-vs-etb-vs-booster-bundle','japanese-pokemon-cards','pokemon-card-database','pokemon-card-price-checker','where-to-buy-pokemon-cards','chinese-pokemon-cards'],
+  'cat:etb'=>['pokemon-center-elite-trainer-box-vs-elite-trainer-box','pokemon-booster-box-vs-etb-vs-booster-bundle','how-to-play-pokemon-cards','where-to-buy-pokemon-cards','japanese-pokemon-cards','pokemon-card-database','pokemon-card-shops-near-me'],
+  'cat:premium'=>['what-is-a-pokemon-ultra-premium-collection','pokemon-booster-box-vs-etb-vs-booster-bundle','how-to-play-pokemon-cards','how-to-read-a-pokemon-card','coolest-pokemon-cards','japanese-pokemon-cards','mew-mewtwo-arceus-pokemon-cards'],
   'cat:singles'=>['pokemon-card-values','most-expensive-pokemon-cards','rarest-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','how-to-tell-if-a-pokemon-card-is-fake'],
-  'cat:onepiece'=>[],
+  'cat:onepiece'=>['one-piece-card-game-booster-box-guide'],
+  'coll:pokemon-center-elite-trainer-boxes'=>['pokemon-center-elite-trainer-box-vs-elite-trainer-box','pokemon-booster-box-vs-etb-vs-booster-bundle'],
+  'coll:pokemon-ultra-premium-collections'=>['what-is-a-pokemon-ultra-premium-collection','pokemon-center-elite-trainer-box-vs-elite-trainer-box','most-expensive-pokemon-cards'],
+  'coll:english-pokemon-booster-boxes'=>['pokemon-booster-box-vs-etb-vs-booster-bundle','japanese-pokemon-cards','pokemon-card-database'],
+  'coll:japanese-pokemon-booster-boxes'=>['japanese-pokemon-cards','pokemon-booster-box-vs-etb-vs-booster-bundle','chinese-pokemon-cards','pokemon-card-database'],
+  'coll:pokemon-booster-bundles'=>['pokemon-booster-box-vs-etb-vs-booster-bundle','pokemon-center-elite-trainer-box-vs-elite-trainer-box'],
+  'coll:pokemon-tins'=>['pokemon-booster-box-vs-etb-vs-booster-bundle','what-is-a-pokemon-ultra-premium-collection'],
+  'coll:pokemon-build-and-battle-boxes'=>['pokemon-booster-box-vs-etb-vs-booster-bundle','how-to-play-pokemon-cards'],
+  'coll:pokemon-booster-packs-and-blisters'=>['pokemon-booster-box-vs-etb-vs-booster-bundle','pokemon-card-rarities'],
   'cat:accessories'=>['pokemon-card-size','pokemon-card-template','how-to-play-pokemon-cards','where-to-sell-pokemon-cards','pokemon-card-scanner'],
   'shop'=>['where-to-buy-pokemon-cards','pokemon-card-price-checker','pokemon-card-database','japanese-pokemon-cards','pokemon-card-shops-near-me','chinese-pokemon-cards'],
   'set'=>['pokemon-card-database','pokemon-card-price-checker','pokemon-card-rarities','japanese-pokemon-cards'],
@@ -424,18 +440,22 @@ const PAGE_GUIDES = [
   'coll:gengar-pokemon-cards'=>['coolest-pokemon-cards','pokemon-card-rarities','pokemon-card-price-checker','pokemon-card-values'],
   'coll:psa-graded-pokemon-cards'=>['how-much-does-it-cost-to-grade-a-pokemon-card','pokemon-card-values','how-to-tell-if-a-pokemon-card-is-fake','where-to-sell-pokemon-cards'],
   'faq'=>['how-to-play-pokemon-cards','where-to-buy-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','how-to-tell-if-a-pokemon-card-is-fake','pokemon-card-price-checker','japanese-pokemon-cards','pokemon-card-shops-near-me','chinese-pokemon-cards'],
-  'home'=>['most-expensive-pokemon-cards','pokemon-card-price-checker','where-to-buy-pokemon-cards','pokemon-card-database','how-to-play-pokemon-cards','rarest-pokemon-cards'],
+  'home'=>['pokemon-booster-box-vs-etb-vs-booster-bundle','pokemon-center-elite-trainer-box-vs-elite-trainer-box','what-is-a-pokemon-ultra-premium-collection','most-expensive-pokemon-cards','pokemon-card-price-checker','where-to-buy-pokemon-cards','pokemon-card-database','how-to-play-pokemon-cards','rarest-pokemon-cards'],
 ];
 /* where each group of guides sends readers to shop */
 const GUIDE_SHOP = [
   'collect'=>'Shop [rare Pokémon cards](category:singles), [PSA graded Pokémon cards](cards:psa-graded-pokemon-cards) and [Charizard Pokémon cards](cards:charizard-pokemon-cards), shipped from Japan.',
   'play'=>'Shop [Elite Trainer Boxes](category:etb), [starter decks and premium sets](category:premium) and [card sleeves, binders and playmats](category:accessories), shipped from Japan.',
   'buy'=>'Shop [Japanese booster boxes](category:boxes), [Elite Trainer Boxes](category:etb) and [rare single cards](category:singles), shipped worldwide from Japan.',
+  'sealed'=>'Shop [Elite Trainer Boxes](category:etb), [Pokémon Center ETBs](cards:pokemon-center-elite-trainer-boxes), [booster boxes](cards:english-pokemon-booster-boxes) and [Ultra-Premium Collections](cards:pokemon-ultra-premium-collections), with bulk prices and worldwide shipping from Japan.',
+  'op'=>'Shop [English One Piece Card Game booster boxes and starter decks](category:onepiece), factory sealed, with bulk prices and worldwide shipping from Japan.',
 ];
 const GUIDE_GROUP = ['most-expensive-pokemon-cards'=>'collect','rarest-pokemon-cards'=>'collect','pokemon-card-values'=>'collect','pokemon-card-price-checker'=>'collect',
   'how-much-does-it-cost-to-grade-a-pokemon-card'=>'collect','where-to-sell-pokemon-cards'=>'collect','pokemon-card-scanner'=>'collect','coolest-pokemon-cards'=>'collect',
   'mew-mewtwo-arceus-pokemon-cards'=>'collect','pokemon-card-rarities'=>'collect','how-to-play-pokemon-cards'=>'play','how-to-read-a-pokemon-card'=>'play',
-  'pokemon-card-template'=>'play','pokemon-card-size'=>'play'];
+  'pokemon-card-template'=>'play','pokemon-card-size'=>'play',
+  'pokemon-center-elite-trainer-box-vs-elite-trainer-box'=>'sealed', 'what-is-a-pokemon-ultra-premium-collection'=>'sealed',
+  'pokemon-booster-box-vs-etb-vs-booster-bundle'=>'sealed', 'one-piece-card-game-booster-box-guide'=>'op'];
 
 function guide_anchor($g){ return GUIDE_ANCHORS[$g['slug']] ?? fill($g['title']); }
 function guides_list($slugs){ return array_values(array_filter(array_map('guide_by_slug', $slugs))); }
@@ -1051,7 +1071,7 @@ $in_stock = array_values(array_filter($PRODUCTS, fn($p)=>!in_array($p['status'],
 <?php if($og): ?><meta property="og:image" content="<?= h($abs_img($og[0])) ?>">
 <?php if($og[0] === SITE_SHARE): ?><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="<?= h($CONFIG['brand']) ?>: wholesale Japanese Pokémon cards, shipped worldwide from Japan"><?php endif; endif; ?>
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#FFFFFF">
+<meta name="theme-color" content="#FFF6D9">
 <link rel="icon" href="favicon.ico" sizes="48x48">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -1126,15 +1146,15 @@ if(count($crumbs) > 1){
 /* White theme: indigo and Pokémon-yellow accents on white. System fonts only: nothing to download before first paint. */
 :root{
   color-scheme:light;
-  --bg:#FFFFFF; --paper:#F5F7FB; --card:#FFFFFF; --card2:#F2F4F9; --tint:#EEF2FF; --tint2:#DCE3FB;
-  --ink:#0C1633; --ink2:#3A4566; --muted:#646E8B; --line:#E1E5EE; --hair:#ECEFF5;
-  --indigo:#2A44D4; --indigo2:#1E34B0; --yellow:#FFCC00; --amber:#935E00; --red:#B5241D; --green:#07774A;
+  --bg:#FFFFFF; --paper:#F7F8FC; --card:#FFFFFF; --card2:#F3F5FA; --tint:#F0F3FF; --tint2:#E0E6FB;
+  --ink:#1E2740; --ink2:#48536E; --muted:#6B7590; --line:#E7EAF1; --hair:#F0F2F7;
+  --indigo:#4257D6; --indigo2:#3346BD; --yellow:#FFD84D; --amber:#8A5A00; --red:#B0352E; --green:#137A52;
   --teal:#086E6D; --violet:#6A4DE0; --btc:#E8870F; --btc-text:#A0530A;
   --brand:var(--indigo); --link:var(--indigo); --seal:var(--green); --gold:var(--amber);
   --sans:system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue','Hiragino Kaku Gothic ProN','Noto Sans JP',Arial,sans-serif;
   --jp:'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic','Noto Sans JP',system-ui,sans-serif;
-  --r:12px;
-  --lift:0 1px 2px rgba(12,22,51,.04),0 10px 28px -14px rgba(12,22,51,.18);
+  --r:16px;
+  --lift:0 1px 2px rgba(30,39,64,.03),0 12px 30px -18px rgba(30,39,64,.16);
 }
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-padding-top:130px;background:var(--bg)}
@@ -1149,9 +1169,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 .holo-text{color:var(--indigo)}
 
 /* top strip */
-.strip{background:var(--yellow);color:var(--ink);font-size:12.5px;position:relative}
+.strip{background:#FFF6D9;color:var(--ink);font-size:12.5px;position:relative;border-bottom:1px solid #F6E7B4}
 .strip .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:36px;flex-wrap:wrap}
-.strip .st{color:rgba(12,22,51,.78)}
+.strip .st{color:rgba(30,39,64,.78)}
 .strip a{color:var(--ink);text-decoration:none;font-weight:800}
 .strip a.sl:hover{text-decoration:underline}
 
@@ -1182,9 +1202,11 @@ select.pick{appearance:none;background-color:#fff;border:1px solid var(--line);b
   background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
   background-position:calc(100% - 15px) 53%,calc(100% - 11px) 53%;background-size:4px 4px;background-repeat:no-repeat}
 select.pick:hover{border-color:var(--indigo)}
-.cartbtn{display:flex;align-items:center;gap:8px;background:var(--ink);color:#fff;text-decoration:none;border-radius:10px;
+.cartbtn{display:flex;align-items:center;gap:8px;background:var(--indigo);color:#fff;text-decoration:none;border-radius:12px;
   padding:9px 14px 9px 16px;font-size:13.5px;font-weight:700}
-.cartbtn:hover{background:var(--indigo)}
+.cartbtn:hover{background:var(--indigo2)}
+.cartbtn .ct{font-weight:600;opacity:.85}
+@media(max-width:760px){.cartbtn .ct,.cartbtn .cl{display:none}}
 .cartbtn b{background:var(--yellow);color:var(--ink);border-radius:999px;padding:0 7px;min-width:22px;text-align:center;font-size:12.5px;line-height:20px}
 
 /* category bar */
@@ -1211,9 +1233,9 @@ select.pick:hover{border-color:var(--indigo)}
 .crumbs a{text-decoration:none;color:var(--ink2)}.crumbs a:hover{color:var(--indigo);text-decoration:underline}
 
 /* buttons */
-.btn{display:inline-block;text-align:center;text-decoration:none;border:0;background:var(--indigo);color:#fff;border-radius:10px;
-  padding:12px 22px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 18px -10px rgba(42,68,212,.75);transition:transform .12s,background .12s,box-shadow .12s}
-.btn:hover{background:var(--indigo2);transform:translateY(-1px);box-shadow:0 12px 22px -10px rgba(42,68,212,.8)}
+.btn{display:inline-block;text-align:center;text-decoration:none;border:0;background:var(--indigo);color:#fff;border-radius:12px;
+  padding:12px 22px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 6px 16px -10px rgba(66,87,214,.6);transition:transform .12s,background .12s,box-shadow .12s}
+.btn:hover{background:var(--indigo2);transform:translateY(-1px);box-shadow:0 10px 20px -12px rgba(66,87,214,.7)}
 .btn.g{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
 .btn.g:hover{box-shadow:inset 0 0 0 1px var(--indigo);color:var(--indigo)}
 .btn.gold{background:var(--yellow);color:var(--ink);box-shadow:0 8px 18px -10px rgba(168,106,0,.6)}
@@ -1235,9 +1257,9 @@ section.rail+section.rail{border-top:1px solid var(--hair)}
 .sub2{font-size:clamp(20px,2.4vw,27px);margin:40px 0 16px}
 
 /* hero */
-.hero{padding:60px 0 58px;position:relative;overflow:hidden;background:linear-gradient(180deg,#F2F5FF 0%,#FFFFFF 100%);border-bottom:1px solid var(--hair)}
+.hero{padding:60px 0 58px;position:relative;overflow:hidden;background:linear-gradient(180deg,#F5F7FF 0%,#FFFDF6 70%,#FFFFFF 100%);border-bottom:1px solid var(--hair)}
 .hero::before{content:"";position:absolute;inset:0 0 0 45%;pointer-events:none;
-  background-image:radial-gradient(circle at 1px 1px,rgba(42,68,212,.16) 1.2px,transparent 0);background-size:22px 22px;
+  background-image:radial-gradient(circle at 1px 1px,rgba(66,87,214,.09) 1.2px,transparent 0);background-size:22px 22px;
   -webkit-mask-image:linear-gradient(90deg,transparent,#000 35%,#000 70%,transparent);mask-image:linear-gradient(90deg,transparent,#000 35%,#000 70%,transparent)}
 .hgrid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;position:relative}
 @media(max-width:960px){.hgrid{grid-template-columns:1fr;gap:36px}}
@@ -1248,14 +1270,27 @@ h1{font-size:clamp(32px,4.4vw,52px);margin-bottom:18px}
 .hero h1{letter-spacing:-.03em}
 @media(max-width:520px){.hero{padding:40px 0 44px}.lede{font-size:16.5px}}
 .lede{font-size:17.5px;color:var(--ink2);max-width:56ch;margin-bottom:28px}
+.trustbar{padding:18px 0;background:#fff;border-bottom:1px solid var(--hair)}
+.trustbar .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.trustbar .wrap>div{display:flex;flex-direction:column;gap:2px;padding:4px 0 4px 16px;border-left:3px solid var(--tint2)}
+.trustbar b{font-size:14.5px;color:var(--ink)}.trustbar span{font-size:13px;color:var(--muted)}
+@media(max-width:860px){.trustbar .wrap{grid-template-columns:1fr 1fr}}
+.stickybuy{position:fixed;left:0;right:0;bottom:0;z-index:70;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid var(--line);box-shadow:0 -10px 30px -20px rgba(30,39,64,.35)}
+.stickybuy[hidden]{display:none}
+.stickybuy div{display:flex;flex-direction:column;min-width:0}
+.stickybuy b{font-size:19px;color:var(--ink)}.stickybuy span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stickybuy .btn{flex:none;padding:12px 20px}
+@media(min-width:761px){.stickybuy{display:none!important}}
+@media(max-width:760px){body:has(#stickyBuy) footer.site{padding-bottom:96px}}
 .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:36px}
 .stats{display:grid;grid-template-columns:repeat(4,auto);justify-content:start;gap:12px 0;font-size:13px;color:var(--muted)}
 .stats>div{padding:0 26px;border-left:1px solid var(--line)}.stats>div:first-child{padding-left:0;border-left:0}
 @media(max-width:560px){.stats{grid-template-columns:1fr 1fr;gap:16px 0}.stats>div:nth-child(3){padding-left:0;border-left:0}}
 .stats strong{display:block;font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
-.heroart{position:relative;border-radius:20px;aspect-ratio:4/3;background:#fff;border:1px solid var(--line);
-  box-shadow:16px 16px 0 0 var(--yellow),0 30px 60px -34px rgba(12,22,51,.35);margin:0 16px 16px 0}
-.heroart img,.heroart .ph{width:100%;height:100%;object-fit:cover;border-radius:19px}
+.heroart{position:relative;border-radius:24px;aspect-ratio:4/3;background:#fff;border:1px solid var(--line);
+  box-shadow:14px 14px 0 0 #FFE9A6,0 30px 60px -38px rgba(30,39,64,.3);margin:0 14px 14px 0}
+.heroart img,.heroart .ph{width:100%;height:100%;object-fit:cover;border-radius:23px}
 .heroart.light img{object-fit:contain;padding:22px;background:#fff}
 .heroimg{display:block;width:100%;height:100%}
 
@@ -1274,9 +1309,8 @@ h1{font-size:clamp(32px,4.4vw,52px);margin-bottom:18px}
 
 /* placeholder art (until photos are uploaded) */
 .ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;text-align:center;padding:14px;
-  color:var(--muted);font-size:12px;
-  background:repeating-linear-gradient(135deg,rgba(12,22,51,.028) 0 2px,transparent 2px 11px),linear-gradient(160deg,#F4F6FC,#EDF1FB)}
-.ph span:first-child{font-family:var(--jp);font-size:28px;font-weight:700;color:var(--indigo);letter-spacing:.04em}
+  color:var(--muted);font-size:12.5px;background:radial-gradient(circle at 30% 20%,#FFFFFF 0,#F5F7FD 45%,#EEF1FA 100%)}
+.ph span:first-child{font-family:var(--jp);font-size:26px;font-weight:700;color:#8A97D8;letter-spacing:.04em}
 
 /* category tiles */
 .cats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
@@ -1300,11 +1334,11 @@ h1{font-size:clamp(32px,4.4vw,52px);margin-bottom:18px}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 @media(max-width:1040px){.grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){.grid{grid-template-columns:1fr}}
-.card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;
   transition:transform .15s,box-shadow .15s,border-color .15s}
 .card:hover{transform:translateY(-3px);border-color:var(--tint2);box-shadow:var(--lift)}
 .card .art{aspect-ratio:1/1;position:relative;border-bottom:1px solid var(--hair);overflow:hidden;text-decoration:none;display:block;background:var(--paper)}
-.card .art img{width:100%;height:100%;object-fit:contain;padding:14px;mix-blend-mode:multiply}
+.card .art img{width:100%;height:100%;object-fit:contain;padding:16px;mix-blend-mode:multiply}
 .flag{position:absolute;top:10px;left:10px;font-size:10.5px;font-weight:800;letter-spacing:.06em;padding:4px 9px;border-radius:999px;
   background:#E6F6EE;color:var(--green);z-index:2}
 .flag.new{background:var(--tint);color:var(--indigo)}
@@ -1327,7 +1361,7 @@ h1{font-size:clamp(32px,4.4vw,52px);margin-bottom:18px}
 .card .live{font-size:12.5px;color:var(--ink2);min-height:1.2em}.card .live span{color:var(--muted)}.card .live .ok{color:var(--green)}
 /* bulk tier buttons */
 .tiers{display:flex;flex-wrap:wrap;gap:6px}
-.tiers button,.tiers span{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 8px;font-size:12px;color:var(--ink2);cursor:pointer;line-height:1.3;white-space:nowrap}
+.tiers button,.tiers span{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 8px;font-size:12px;color:var(--ink2);cursor:pointer;line-height:1.3;white-space:nowrap}
 .tiers span{cursor:default}
 .tiers button:hover{border-color:var(--indigo);color:var(--indigo);background:var(--tint)}
 .tiers b{color:var(--ink)}.tiers i{font-style:normal;color:var(--green);font-weight:700}
@@ -1350,6 +1384,18 @@ h1{font-size:clamp(32px,4.4vw,52px);margin-bottom:18px}
 .pager a{min-width:40px;text-align:center;padding:8px 12px;border:1px solid var(--line);border-radius:9px;text-decoration:none;font-size:14px;font-weight:600;color:var(--ink2);background:#fff}
 .pager a:hover{border-color:var(--indigo);color:var(--indigo)}
 .pager a[aria-current]{background:var(--indigo);border-color:var(--indigo);color:#fff}
+.quick{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 0 14px;padding-bottom:2px}
+.quick::-webkit-scrollbar{display:none}
+.quick a{flex:none;padding:9px 15px;border-radius:999px;border:1px solid var(--line);background:#fff;text-decoration:none;font-size:14px;font-weight:600;color:var(--ink2);white-space:nowrap}
+.quick a:hover{border-color:var(--indigo);color:var(--indigo)}
+.quick a[aria-current]{background:var(--ink);border-color:var(--ink);color:#fff}
+.filterbox{margin-bottom:22px}
+.filterbox>summary{display:none;cursor:pointer;list-style:none;font-weight:700;font-size:14.5px;padding:11px 16px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+.filterbox>summary::-webkit-details-marker{display:none}
+.filterbox>summary::after{content:" ▾";color:var(--muted)}
+.filterbox[open]>summary{margin-bottom:10px}
+@media(max-width:700px){.filterbox>summary{display:block}}
+.filterbox .filters{margin-bottom:0}
 .filters{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:22px}
 .filters label{display:flex;flex-direction:column;gap:5px;font-size:11.5px;font-weight:700;letter-spacing:.03em;color:var(--muted);flex:1 1 150px;min-width:0;text-transform:uppercase}
 .filters select,.filters input{background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-size:14px;font-weight:400;color:var(--ink);width:100%;text-transform:none;letter-spacing:0}
@@ -1360,7 +1406,7 @@ h1{font-size:clamp(32px,4.4vw,52px);margin-bottom:18px}
 @media(max-width:560px){.filters label{flex-basis:calc(50% - 6px)}.filters label.price{flex-basis:100%}}
 
 /* qty stepper */
-.step{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.step{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
 .step button{background:transparent;border:none;padding:6px 12px;cursor:pointer;font-weight:700;color:var(--ink2)}
 .step button:hover{background:var(--tint);color:var(--indigo)}
 .step input{width:52px;border:none;border-inline:1px solid var(--line);background:transparent;text-align:center;padding:6px 0;font-size:14px;color:var(--ink);font-weight:600}
@@ -1433,17 +1479,17 @@ h1{font-size:clamp(32px,4.4vw,52px);margin-bottom:18px}
 /* checkout */
 .cogrid{display:grid;grid-template-columns:1.25fr .75fr;gap:38px;align-items:start}
 @media(max-width:900px){.cogrid{grid-template-columns:1fr}}
-fieldset{border:1px solid var(--line);border-radius:var(--r);padding:20px;margin:0 0 18px;background:#fff}
+fieldset{border:1px solid var(--line);border-radius:var(--r);padding:22px;margin:0 0 18px;background:#fff}
 legend{font-weight:800;font-size:18px;padding:0 8px;color:var(--ink);letter-spacing:-.01em}
 .fld{margin-bottom:14px}
 .fld label{display:block;font-size:13px;font-weight:700;color:var(--ink2);margin-bottom:5px}
-.fld input,.fld select,.fld textarea{width:100%;background:#fff;border:1px solid #D5DBE7;border-radius:8px;padding:11px 12px;font-size:15px;color:var(--ink)}
-.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--indigo);outline:none;box-shadow:0 0 0 3px rgba(42,68,212,.14)}
+.fld input,.fld select,.fld textarea{width:100%;background:#fff;border:1px solid #DDE2EC;border-radius:10px;padding:12px 13px;font-size:15px;color:var(--ink)}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--indigo);outline:none;box-shadow:0 0 0 3px rgba(66,87,214,.14)}
 .fld textarea{min-height:82px;resize:vertical}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:560px){.two{grid-template-columns:1fr}}
 .pay{display:grid;gap:9px}
-.pay label{display:flex;gap:11px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:13px 14px;cursor:pointer;background:#fff}
+.pay label{display:flex;gap:11px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:14px 15px;cursor:pointer;background:#fff}
 .pay label:hover{border-color:var(--tint2)}
 .pay label:has(input:checked){border-color:var(--indigo);background:var(--tint)}
 .pay label[hidden]{display:none}
@@ -1536,7 +1582,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
 .prose ul{margin:0 0 15px;padding-left:0;list-style:none}
 .prose li{margin-bottom:8px;padding-left:22px;position:relative}
 .prose li::before{content:"";position:absolute;left:5px;top:.66em;width:7px;height:7px;border-radius:50%;background:var(--indigo)}
-.prose a{color:var(--link);font-weight:600;text-decoration:underline;text-decoration-color:rgba(42,68,212,.3);text-underline-offset:3px}
+.prose a{color:var(--link);font-weight:600;text-decoration:underline;text-decoration-color:rgba(66,87,214,.3);text-underline-offset:3px}
 .prose a:hover{text-decoration-color:var(--link)}
 .prose strong{color:var(--ink)}
 .prose.lead{margin-bottom:26px}
@@ -1637,7 +1683,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
 .pcheck{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
 .pcheck label{font-weight:800;color:var(--ink)}
 .pcheck input{flex:1;min-width:220px;background:#fff;border:1px solid #D5DBE7;border-radius:10px;padding:11px 16px;font-size:15px;color:var(--ink)}
-.pcheck input:focus{border-color:var(--indigo);outline:none;box-shadow:0 0 0 3px rgba(42,68,212,.14)}
+.pcheck input:focus{border-color:var(--indigo);outline:none;box-shadow:0 0 0 3px rgba(66,87,214,.14)}
 .pcheck span{font-size:13px;color:var(--muted)}
 .tbl.pc .sk{font-weight:500}
 .tplbox{display:grid;grid-template-columns:200px minmax(0,1fr);gap:22px;align-items:center;border:1px solid var(--line);border-radius:14px;background:var(--paper);padding:18px;margin:6px 0 20px}
@@ -1722,7 +1768,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
           <option value="<?= h(url($here, $u)) ?>" <?= cur_code()===$code?'selected':'' ?>><?= h($code) ?></option>
         <?php endforeach; ?>
       </select>
-      <a class="cartbtn" href="<?= url('cart') ?>">Order <b><?= cart_units() ?></b></a>
+      <a class="cartbtn" href="<?= url('cart') ?>" aria-label="Cart, <?= cart_units() ?> item<?= cart_units()===1?'':'s' ?>"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M3 4.75A.75.75 0 0 1 3.75 4h1.6a1.5 1.5 0 0 1 1.46 1.16L7.06 6.5H19.5a1 1 0 0 1 .97 1.24l-1.5 6A1 1 0 0 1 18 14.5H8.6l.3 1.5H18a.75.75 0 0 1 0 1.5H8.5a1.25 1.25 0 0 1-1.22-1l-1.9-9.4-.2-.85H3.75A.75.75 0 0 1 3 4.75ZM9 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm8 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></svg><span class="cl">Cart</span><?php if(cart_units()): ?><span class="ct"><?= money(cart_total()) ?></span><?php endif; ?> <b><?= cart_units() ?></b></a>
     </div>
   </div>
   <nav class="catbar" aria-label="Main"><div class="wrap">
@@ -1758,7 +1804,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
       <h1><?= h($CONFIG['hero_title']) ?></h1>
       <p class="lede"><?= h($CONFIG['hero_lede']) ?></p>
       <div class="hero-cta">
-        <a class="btn" href="<?= url('catalog') ?>">Shop Japanese Pokémon cards</a>
+        <a class="btn" href="<?= url('catalog') ?>">Shop all Pokémon cards</a>
         <a class="btn g" href="<?= url('cases') ?>">Sealed cases</a>
       </div>
       <div class="stats">
@@ -1803,6 +1849,13 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
     </div>
   </div></section>
   <?php endif; ?>
+
+  <section class="trustbar"><div class="wrap">
+    <div><b>Factory sealed</b><span>Never resealed, reprinted or fake</span></div>
+    <div><b>Bulk prices on every product</b><span>Tap 4+, 6+ or 10+ — the price drops by itself</span></div>
+    <div><b>Worldwide, tracked</b><span>To <?= count($COUNTRIES) ?> countries from Japan</span></div>
+    <div><b>Real people</b><span>Replies within <?= (int)$CONFIG['reply_hours'] ?> hours<?= trim($CONFIG['chat_code'] ?? '') !== '' ? ', or live chat' : '' ?></span></div>
+  </div></section>
 
   <?php /* the featured ranges: each row links to its full page */
   $coll_ = fn($slug)=>($c_ = collection_by_slug($slug)) ? collection_products($c_) : [];
@@ -1930,6 +1983,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
     usort($list, fn($a, $b)=>unit_price($a, $a['moq']) <=> unit_price($b, $b['moq']));
     if($f_sort === 'price-desc') $list = array_reverse($list);
   } elseif($f_sort === 'name') usort($list, fn($a, $b)=>strcasecmp($a['name'], $b['name']));
+  elseif($f_sort === 'new') $list = new_first(array_values($list));
   $count_by = fn($key)=>array_count_values(array_map(fn($p)=>(string)($p[$key] ?? ($key==='cond' ? 'Sealed' : '')), $PRODUCTS));
   $sets = array_filter($count_by('set'), fn($k)=>$k !== '', ARRAY_FILTER_USE_KEY);
   $conds = $count_by('cond');
@@ -1941,6 +1995,14 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
       <h1><?= h($h1) ?></h1>
       <p><?= $cat ? h($CATEGORIES[$cat]['blurb']) : 'Sealed booster boxes, Elite Trainer Boxes, rare singles and accessories, with the full quantity-break ladder on every listing.' ?></p>
     </div><span style="color:var(--muted);font-size:14px"><?= count($list) ?> product<?= count($list)===1?'':'s' ?></span></div>
+    <?php /* one tap to the ranges buyers ask for most */
+    $quick = [['All products', url('catalog'), $page === 'catalog' && !$cat && !$filtered]];
+    foreach(['etb'=>'Elite Trainer Boxes', 'boxes'=>'Booster boxes', 'premium'=>'Collections & tins', 'onepiece'=>'One Piece'] as $k=>$lb) if(isset($CATEGORIES[$k])) $quick[] = [$lb, url('catalog', ['cat'=>$k]), $cat === $k && !$filtered];
+    foreach(['pokemon-center-elite-trainer-boxes'=>'Pokémon Center ETBs', 'pokemon-ultra-premium-collections'=>'UPCs', 'japanese-pokemon-booster-boxes'=>'Japanese boxes'] as $k=>$lb) if(collection_by_slug($k)) $quick[] = [$lb, url('collection', ['c'=>$k]), false];
+    if($n_pre) $quick[] = ['Preorders', url('catalog', ['avail'=>'preorder']), $f_avail === 'preorder'];
+    $quick[] = ['Sealed cases', url('cases'), false]; ?>
+    <nav class="quick" aria-label="Quick picks"><?php foreach($quick as [$ql, $qu, $qon]): ?><a href="<?= h($qu) ?>"<?= $qon ? ' aria-current="page"' : '' ?>><?= h($ql) ?></a><?php endforeach; ?></nav>
+    <details class="filterbox" id="filterbox" open<?= $filtered ? ' data-keep' : '' ?>><summary>Filter &amp; sort<?= $filtered ? ' · filters on' : '' ?></summary>
     <form class="filters" method="get" action="<?= empty($CONFIG['pretty_urls']) ? 'index.php' : 'shop' ?>" id="filters" onsubmit="fsub(this); return false">
       <?php if(empty($CONFIG['pretty_urls'])): ?><input type="hidden" name="p" value="catalog"><?php endif; ?>
       <?php if($q !== ''): ?><input type="hidden" name="q" value="<?= h($q) ?>"><?php endif; ?>
@@ -1965,10 +2027,11 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
         <input type="number" name="min" min="0" step="any" placeholder="Min" value="<?= $f_min===null?'':h($f_min) ?>" aria-label="Minimum price">
         <input type="number" name="max" min="0" step="any" placeholder="Max" value="<?= $f_max===null?'':h($f_max) ?>" aria-label="Maximum price"></span></label>
       <label>Sort<select name="sort" onchange="fsub(this.form)">
-        <?php foreach([''=>'Featured','price-asc'=>'Price: low to high','price-desc'=>'Price: high to low','name'=>'Name A–Z'] as $k=>$lbl): ?><option value="<?= h($k) ?>" <?= $f_sort===$k?'selected':'' ?>><?= h($lbl) ?></option><?php endforeach; ?>
+        <?php foreach([''=>'Featured','new'=>'Newest first','price-asc'=>'Price: low to high','price-desc'=>'Price: high to low','name'=>'Name A–Z'] as $k=>$lbl): ?><option value="<?= h($k) ?>" <?= $f_sort===$k?'selected':'' ?>><?= h($lbl) ?></option><?php endforeach; ?>
       </select></label>
       <div class="fbtns"><button class="btn" type="submit">Apply</button><?php if($filtered || $cat): ?><a class="btn g" href="<?= url('catalog') ?>">Clear</a><?php endif; ?></div>
     </form>
+    </details>
     <?php if($list): ?>
       <?php $per = 48; $pages_n = (int)ceil(count($list) / $per); $pg_now = min(max(1, $pg_num), max(1, $pages_n)); ?>
       <div class="grid"><?php foreach(array_slice(array_values($list), ($pg_now - 1) * $per, $per) as $p) include_card($p); ?></div>
@@ -1983,6 +2046,8 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
       <p class="empty">Nothing matches that. Try a set name, a card name or an SKU — or <a href="<?= url('catalog') ?>">browse everything</a>.</p>
     <?php endif; ?>
     <?php if($cinfo && !$filtered && trim($cinfo['intro'] ?? '') !== ''): ?><div class="prose after"><?= rich($cinfo['intro']) ?></div><?php endif; ?>
+    <?php if($cinfo && !$filtered && ($qa = policy_questions($cinfo['intro'] ?? ''))): ?><script type="application/ld+json"><?= json_encode(['@context'=>'https://schema.org','@type'=>'FAQPage','mainEntity'=>array_map(fn($x)=>
+      ['@type'=>'Question','name'=>$x[0],'acceptedAnswer'=>['@type'=>'Answer','text'=>$x[1]]], $qa)], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_HEX_TAG) ?></script><?php endif; ?>
     <?php if(!$filtered) guide_links(PAGE_GUIDES[$cinfo ? 'cat:'.$cat : 'shop'] ?? [], $cinfo ? 'Guides for '.strtolower($cinfo['label']) : 'Pokémon card guides'); ?>
   </div></section>
 
@@ -2013,7 +2078,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
       <?php if($summary !== ''): ?><p class="summary-line"><?= rich_inline($summary) ?></p><?php endif; ?>
 
       <?php $tt = tiers($prod); $single = (float)$prod['ladder'][0][1]; ?>
-      <form method="post" action="index.php" class="buybox" data-tiers="<?= h(json_encode(array_map(fn($t)=>[$t[0], $t[1]], $tt))) ?>">
+      <form method="post" action="index.php" class="buybox" id="buyForm" data-tiers="<?= h(json_encode(array_map(fn($t)=>[$t[0], $t[1]], $tt))) ?>">
         <input type="hidden" name="action" value="add">
         <input type="hidden" name="id" value="<?= h($prod['id']) ?>"><input type="hidden" name="from" value="<?= h(here_path()) ?>"><button type="submit" class="hp" tabindex="-1" aria-hidden="true">Add</button>
         <div class="big" data-unit><?= money($base) ?></div>
@@ -2050,6 +2115,12 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
     </div>
   </div>
 
+  <?php if(can_order($prod)): ?>
+  <div class="stickybuy" id="stickyBuy" hidden>
+    <div><b data-sticky-price><?= money($base) ?></b><span><?= h(mb_strimwidth($prod['name'], 0, 46, '…', 'UTF-8')) ?></span></div>
+    <button class="btn" type="submit" form="buyForm"><?= $prod['status']==='preorder' ? 'Add preorder' : 'Add to order' ?></button>
+  </div>
+  <?php endif; ?>
   <section class="top"><div class="wrap pinfo">
     <div class="panel">
       <h2>About this product</h2>
@@ -2858,6 +2929,16 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
 <script>window.Tawk_API = window.Tawk_API || {}; Tawk_API.visitor = <?= json_encode(['name'=>$who['name'], 'email'=>$who['email']], JSON_HEX_TAG|JSON_HEX_AMP) ?>;</script>
 <?php endif; endif; ?>
 <script>
+/* on phones the filters start folded away (unless some are in use), so products come first */
+(function(){ const fb = document.getElementById('filterbox'); if(fb && !fb.hasAttribute('data-keep') && matchMedia('(max-width:700px)').matches) fb.open = false; })();
+/* phones: an "Add to order" bar while the buy box is off screen */
+(function(){
+  const bar = document.getElementById('stickyBuy'), box = document.getElementById('buyForm');
+  if(!bar || !box || !('IntersectionObserver' in window)) return;
+  new IntersectionObserver(([e]) => { bar.hidden = e.isIntersecting; }).observe(box);
+  const big = box.querySelector('[data-unit]'), sp = bar.querySelector('[data-sticky-price]');
+  if(big && sp) new MutationObserver(() => { sp.textContent = big.textContent; }).observe(big, {childList: true, characterData: true, subtree: true});
+})();
 /* catalogue filters: drop empty fields so shared links stay short */
 function fsub(f){
   [...f.elements].forEach(el => { if(el.name && el.value === '') el.disabled = true; });

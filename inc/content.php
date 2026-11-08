@@ -211,10 +211,10 @@ MD,
   'categories' => [
     'boxes' => [
       'label' => 'Booster Boxes', 'slug' => 'booster-boxes',
-      'blurb' => 'Sealed Japanese Pokémon booster boxes and cases, straight from Japan.',
-      'h1' => 'Japanese Pokémon booster boxes & card packs',
-      'seo_title' => 'Japanese Pokémon Booster Boxes & Card Packs',
-      'seo_desc' => 'Sealed Japanese Pokémon booster boxes and cases — 151, Terastal Festival ex, Mega Evolution sets and more — shipped from Japan to the USA with bulk pricing.',
+      'blurb' => 'English and Japanese Pokémon booster boxes, bundles, packs and sealed cases.',
+      'h1' => 'Pokémon booster boxes — English & Japanese',
+      'seo_title' => 'Pokémon Booster Boxes — English & Japanese, Sealed',
+      'seo_desc' => 'Sealed Pokémon booster boxes: English 36-pack displays and Japanese boxes shipped from Japan, plus booster bundles, packs and sealed cases, with bulk prices.',
       'intro' => <<<'MD'
 ## Pokémon booster boxes from Japan
 
@@ -223,6 +223,30 @@ A Pokémon booster box is a sealed display of card packs from a single set, and 
 We stock the current Japanese [Mega Evolution](set:mega-evolution) sets alongside favourites from the [Scarlet & Violet](set:scarlet-violet) era, plus full sealed cases for bulk buyers. Every Pokémon box ships sealed from Japan, and the price per box drops as you order more — the full ladder is on each listing.
 
 New to Japanese product? Read [what makes Japanese Pokémon cards different](guide:japanese-pokemon-cards).
+
+## English Pokémon booster boxes
+
+An English booster box (booster display box) holds 36 booster packs of 10 cards. We stock English booster boxes from the current [Mega Evolution](set:mega-evolution-english) sets back through [Scarlet & Violet](set:scarlet-violet-english), plus factory-sealed cases of 6 boxes: see [English Pokémon booster boxes](cards:english-pokemon-booster-boxes). Special sets such as [Prismatic Evolutions](set:prismatic-evolutions) and [151](set:scarlet-violet-151) have no English booster boxes, so [booster bundles](cards:pokemon-booster-bundles) of 6 packs are the closest thing.
+
+Not sure which format to buy? Read [booster box vs ETB vs booster bundle](guide:pokemon-booster-box-vs-etb-vs-booster-bundle).
+
+## Questions
+
+### How many packs are in a Pokémon booster box?
+
+An English booster box holds 36 packs of 10 cards. Most Japanese booster boxes hold 30 packs of 5 cards, and Japanese high-class sets hold 10 packs of 10 cards.
+
+### Are your booster boxes English or Japanese?
+
+Both. Every listing shows its language: English booster display boxes, and Japanese boxes shipped straight from Japan.
+
+### Do you sell sealed booster box cases?
+
+Yes. English cases hold 6 booster boxes. See our [sealed cases](page:cases), or [request a quote](page:quote) for several cases.
+
+### Do you ship booster boxes worldwide?
+
+Yes. Every order ships from Japan with tracking to {countries} countries. See [Shipping & customs](page:shipping).
 MD,
     ],
     'etb' => [
@@ -241,20 +265,60 @@ We carry ETBs across the Pokémon Trading Card Game Mega Evolution series — in
 Elite Trainer Boxes are an English-language product, so every ETB we sell is the English edition. Our booster boxes are Japanese.
 
 ETBs are sold in multiples of four, or by the 10-box case, with lower prices from 24 boxes. We ship them worldwide from Japan with tracking.
+
+## Pokémon Center Elite Trainer Boxes
+
+Every recent set also has a Pokémon Center Elite Trainer Box, sold only through the official Pokémon Center: more booster packs than the standard box (11 in most recent sets, compared with 9) and an exclusive promo card. See all [Pokémon Center Elite Trainer Boxes](cards:pokemon-center-elite-trainer-boxes), and what sets them apart in [Pokémon Center ETB vs regular ETB](guide:pokemon-center-elite-trainer-box-vs-elite-trainer-box).
+
+## Questions
+
+### What comes in an Elite Trainer Box?
+
+Booster packs (9 in most recent sets), 65 card sleeves, 45 Pokémon TCG Energy cards, a player's guide, damage-counter dice, a coin-flip die, condition markers and a storage box with dividers.
+
+### Are your Elite Trainer Boxes English?
+
+Yes. Elite Trainer Boxes are an English-language product, so every ETB we sell is the English edition.
+
+### Can I buy ETBs in bulk?
+
+Yes. The price per box drops at 4, 6, 10 and 24 boxes, applied in your cart automatically, and some sets come in sealed cases of 10 ETBs.
+
+### Do you ship Elite Trainer Boxes worldwide?
+
+Yes, from Japan with tracking to {countries} countries.
 MD,
     ],
     'premium' => [
       'label' => 'Premium & Special Sets', 'slug' => 'premium-special-sets',
-      'blurb' => 'Collection boxes, starter decks, premium sets and 30th Celebration specials.',
-      'h1' => 'Pokémon collection boxes, starter sets & premium sets',
-      'seo_title' => 'Pokémon Collection Boxes, Starter Sets & Premium Sets',
-      'seo_desc' => 'Pokémon collection boxes, Starter Set ex decks, Premium Trainer Box MEGA and 30th Celebration special sets, shipped from Japan to the USA with bulk pricing.',
+      'blurb' => 'Ultra-Premium Collections, collection boxes, tins, blisters, decks and Build & Battle Boxes.',
+      'h1' => 'Pokémon collections, UPCs, tins & blisters',
+      'seo_title' => 'Pokémon Ultra-Premium Collections, Tins & Collection Boxes',
+      'seo_desc' => 'Pokémon Ultra-Premium Collections, collection boxes, tins, mini tins, blisters, battle decks and Build & Battle Boxes, English and sealed, with bulk prices.',
       'intro' => <<<'MD'
 ## Pokémon boxes beyond the booster box
 
 Not every Pokémon box is a booster box. Collection boxes such as the [30th Celebration Greninja ex Box](product:30th-celebration-greninja-ex-box) and [Sylveon ex Box](product:30th-celebration-sylveon-ex-box) pair booster packs with a promo card, while [Starter Set ex](product:starter-set-ex-eevee-ex) decks and the [MEGA Start Deck 100 Battle Collection](product:mega-start-deck-100-battle-collection) give new players a ready-to-play deck.
 
 For collectors, the [30th Celebration Premium Deck Set](product:30th-celebration-premium-deck-set-espeon-and-umbreon) marks Pokémon's 30th anniversary. Starter decks are one of the easiest ways to learn to play the Pokémon Trading Card Game — and a low-price add-on for card shops.
+
+## Ultra-Premium Collections, tins and blisters
+
+Beyond collection boxes, we stock [Ultra-Premium Collections](cards:pokemon-ultra-premium-collections) (the top tier of Pokémon sealed product), [tins and mini tins](cards:pokemon-tins), [Build & Battle Boxes](cards:pokemon-build-and-battle-boxes) for prerelease events, and [booster packs and blisters](cards:pokemon-booster-packs-and-blisters) for counters and pegs. New to UPCs? Read [what is a Pokémon Ultra-Premium Collection](guide:what-is-a-pokemon-ultra-premium-collection).
+
+## Questions
+
+### What is the difference between a collection box and a booster box?
+
+A collection box pairs a few booster packs with promo cards and extras such as a figure, binder or pin. A booster box is a sealed display of booster packs only: 36 packs in English.
+
+### What is an Ultra-Premium Collection?
+
+The largest Pokémon TCG collection boxes: many booster packs, several foil promo cards and premium extras. See [our UPC guide](guide:what-is-a-pokemon-ultra-premium-collection).
+
+### Are these products English?
+
+Yes, except where a listing says Japanese. Every product page shows its language.
 MD,
     ],
     'singles' => [
@@ -297,6 +361,24 @@ MD,
 We stock English One Piece Card Game sealed product from Bandai: the main booster sets from OP-01 Romance Dawn onwards, the Extra Booster (EB) and Premium Booster (PRB) releases, and starter decks for new players and tournament nights. Upcoming sets are open for preorder.
 
 Every product shows its bulk prices: the price per box drops at 4, 6, 10 and 24 boxes, and your cart applies it automatically. Orders ship worldwide from Japan with tracking — see [Shipping & customs](page:shipping), or [request a quote](page:quote) for full cases and standing orders.
+
+## Questions
+
+### How many packs are in a One Piece booster box?
+
+A main-set One Piece Card Game booster box (OP-01 onwards) holds 24 packs of 12 cards. Extra Booster and Premium Booster boxes differ: see each listing.
+
+### Are your One Piece products English?
+
+Yes, every One Piece Card Game product we sell is the English edition.
+
+### Which One Piece sets do you stock?
+
+Main booster sets from [OP-01 Romance Dawn](product:one-piece-op-01-romance-dawn-booster-box) onwards, Extra Boosters EB-01 to EB-06, Premium Boosters PRB-01 and PRB-02, and starter decks. See our [One Piece booster box guide](guide:one-piece-card-game-booster-box-guide).
+
+### Do you ship One Piece booster boxes worldwide?
+
+Yes, from Japan with tracking to {countries} countries, with lower prices at 4, 6, 10 and 24 boxes.
 MD,
     ],
   ],
@@ -387,54 +469,54 @@ MD,
       'seo_desc'=>'Japanese 151 Pokémon cards (SV2a): sealed 151 booster boxes and the Charizard ex Special Illustration Rare, shipped from Japan to the USA.',
       'intro'=>"Pokémon Card 151 (SV2a) is the Japanese special set that revisits the original 151 Pokémon from Red and Green, from Bulbasaur to Mew. It is one of the most collected sets of the Scarlet & Violet era, released in English as Scarlet & Violet—151. Japanese 151 booster boxes hold 20 packs of 7 cards, and the chase cards include the Charizard ex Special Illustration Rare.\n\n## Pokémon 151 card list\n\nJapanese 151 (released on 16 June 2023) has 210 cards: a 165-card main set covering the original 151 Pokémon plus Trainer and Energy cards, and 45 secret rares: 18 Art Rares (AR), 16 Super Rares (SR), 8 Special Art Rares (SAR) and 3 gold Ultra Rares (UR). More in our [Pokémon card database](guide:pokemon-card-database).\n\nWe stock sealed 151 booster boxes and the 151 Charizard ex SAR. Looking for more 151 Pokémon cards? See all our [Charizard Pokémon cards](cards:charizard-pokemon-cards)."],
     'Delta Reign' => ['slug'=>'delta-reign', 'series'=>'mega-en', 'code'=>'', 'intro'=>''],
-    'Phantasmal Flames' => ['slug'=>'phantasmal-flames', 'series'=>'mega-en', 'code'=>'', 'intro'=>''],
-    'Ascended Heroes' => ['slug'=>'ascended-heroes', 'series'=>'mega-en', 'code'=>'', 'intro'=>''],
-    'Perfect Order' => ['slug'=>'perfect-order', 'series'=>'mega-en', 'code'=>'', 'intro'=>''],
-    'Chaos Rising' => ['slug'=>'chaos-rising', 'series'=>'mega-en', 'code'=>'', 'intro'=>''],
-    'Pitch Black' => ['slug'=>'pitch-black', 'series'=>'mega-en', 'code'=>'', 'intro'=>''],
-    'Mega Evolution' => ['slug'=>'mega-evolution-english-base-set', 'series'=>'mega-en', 'code'=>'', 'intro'=>''],
-    'Black Bolt' => ['slug'=>'black-bolt', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
-    'White Flare' => ['slug'=>'white-flare', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
-    'Destined Rivals' => ['slug'=>'destined-rivals', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
-    'Journey Together' => ['slug'=>'journey-together', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
-    'Prismatic Evolutions' => ['slug'=>'prismatic-evolutions', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
-    'Surging Sparks' => ['slug'=>'surging-sparks', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
-    'Stellar Crown' => ['slug'=>'stellar-crown', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
-    'Shrouded Fable' => ['slug'=>'shrouded-fable', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
-    'Twilight Masquerade' => ['slug'=>'twilight-masquerade', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
-    'Temporal Forces' => ['slug'=>'temporal-forces', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
-    'Paldean Fates' => ['slug'=>'paldean-fates', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
-    'Scarlet & Violet—151' => ['slug'=>'scarlet-violet-151', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
-    'Obsidian Flames' => ['slug'=>'obsidian-flames', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
-    'Paldea Evolved' => ['slug'=>'paldea-evolved', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
-    'Scarlet & Violet Base Set' => ['slug'=>'scarlet-violet-base-set', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
-    'Crown Zenith' => ['slug'=>'crown-zenith', 'series'=>'swsh-en', 'code'=>'', 'intro'=>''],
-    'Celebrations' => ['slug'=>'celebrations', 'series'=>'swsh-en', 'code'=>'', 'intro'=>''],
-    'Black Bolt (Japanese)' => ['slug'=>'black-bolt-sv11b', 'series'=>'sv', 'code'=>'SV11B', 'intro'=>''],
-    'White Flare (Japanese)' => ['slug'=>'white-flare-sv11w', 'series'=>'sv', 'code'=>'SV11W', 'intro'=>''],
-    'Battle Partners' => ['slug'=>'battle-partners-sv9', 'series'=>'sv', 'code'=>'SV9', 'intro'=>''],
-    'Super Electric Breaker' => ['slug'=>'super-electric-breaker-sv8', 'series'=>'sv', 'code'=>'SV8', 'intro'=>''],
+    'Phantasmal Flames' => ['slug'=>'phantasmal-flames', 'series'=>'mega-en', 'code'=>'', 'intro'=>'Phantasmal Flames is an English Mega Evolution-series expansion headlined by Mega Charizard X ex, which makes it one of the most in-demand sets of the series. Its cards first appeared in Japan in [Inferno X](set:inferno-x). We stock Phantasmal Flames booster boxes, Elite Trainer Boxes and the Pokémon Center ETB.'],
+    'Ascended Heroes' => ['slug'=>'ascended-heroes', 'series'=>'mega-en', 'code'=>'', 'intro'=>'Ascended Heroes is an English special set of the Pokémon TCG Mega Evolution series, the counterpart to the Japanese [Mega Dream ex](set:mega-dream-ex) set. Special sets have no booster boxes, so Elite Trainer Boxes and the Pokémon Center ETB are the way to open it.'],
+    'Perfect Order' => ['slug'=>'perfect-order', 'series'=>'mega-en', 'code'=>'', 'intro'=>'Perfect Order is an English Pokémon TCG Mega Evolution expansion, the counterpart to the Japanese [Nihil Zero](set:nihil-zero) set. We stock Perfect Order booster boxes, bundles, Build & Battle Boxes, Elite Trainer Boxes and the Pokémon Center ETB.'],
+    'Chaos Rising' => ['slug'=>'chaos-rising', 'series'=>'mega-en', 'code'=>'', 'intro'=>'Chaos Rising is an English Pokémon TCG Mega Evolution expansion, the counterpart to the Japanese [Ninja Spinner](set:ninja-spinner) set with Mega Greninja ex. We stock Chaos Rising booster boxes, bundles, Build & Battle Boxes, Elite Trainer Boxes and the Pokémon Center ETB.'],
+    'Pitch Black' => ['slug'=>'pitch-black', 'series'=>'mega-en', 'code'=>'', 'intro'=>'Pitch Black is an English Pokémon TCG Mega Evolution expansion, the counterpart to the Japanese [Abyss Eye](set:abyss-eye) set with Mega Darkrai ex. We stock Pitch Black booster boxes, bundles, Build & Battle Boxes, Elite Trainer Boxes and the Pokémon Center ETB.'],
+    'Mega Evolution' => ['slug'=>'mega-evolution-english-base-set', 'series'=>'mega-en', 'code'=>'', 'intro'=>'Mega Evolution launched the English Pokémon TCG Mega Evolution series in 2025, bringing Mega Pokémon back to the game with Mega Lucario ex and Mega Gardevoir ex. Its cards first appeared in Japan in the twin sets [Mega Brave](set:mega-brave) and [Mega Symphonia](set:mega-symphonia). We stock Mega Evolution booster boxes, both Elite Trainer Boxes (Mega Lucario and Mega Gardevoir) and their Pokémon Center editions.'],
+    'Black Bolt' => ['slug'=>'black-bolt', 'series'=>'sv-en', 'code'=>'', 'intro'=>'Black Bolt is one of the twin Scarlet & Violet special sets of 2025 that celebrate the Unova region, with Zekrom ex leading Black Bolt and Reshiram ex leading its partner set [White Flare](set:white-flare). Special sets have no booster boxes, so Elite Trainer Boxes and booster bundles are the way to open it. The Japanese version has the same name: see [Japanese Black Bolt (SV11B)](set:black-bolt-sv11b).'],
+    'White Flare' => ['slug'=>'white-flare', 'series'=>'sv-en', 'code'=>'', 'intro'=>'White Flare is one of the twin Scarlet & Violet special sets of 2025 that celebrate the Unova region, with Reshiram ex leading White Flare and Zekrom ex leading its partner set [Black Bolt](set:black-bolt). Special sets have no booster boxes, so Elite Trainer Boxes and booster bundles are the way to open it. The Japanese version has the same name: see [Japanese White Flare (SV11W)](set:white-flare-sv11w).'],
+    'Destined Rivals' => ['slug'=>'destined-rivals', 'series'=>'sv-en', 'code'=>'', 'intro'=>'Destined Rivals (2025) brought back Team Rocket\'s Pokémon and other Trainer\'s Pokémon, and quickly became one of the most sought-after Scarlet & Violet sets. Its cards first appeared in Japan in [Glory of Team Rocket](set:glory-of-team-rocket) and [Heat Wave Arena](set:heat-wave-arena).'],
+    'Journey Together' => ['slug'=>'journey-together', 'series'=>'sv-en', 'code'=>'', 'intro'=>'Journey Together (2025) returned Trainer\'s Pokémon to the Pokémon TCG, pairing Pokémon with the Trainers who raise them. Its cards first appeared in Japan in [Battle Partners](set:battle-partners-sv9).'],
+    'Prismatic Evolutions' => ['slug'=>'prismatic-evolutions', 'series'=>'sv-en', 'code'=>'', 'intro'=>'Prismatic Evolutions (2025) is the Scarlet & Violet special set built around Eevee and its evolutions, and one of the most in-demand Pokémon sets ever. Special sets have no booster boxes, so Elite Trainer Boxes, booster bundles and collections are the way to open it. The Japanese counterpart is [Terastal Festival ex](set:terastal-festival-ex).'],
+    'Surging Sparks' => ['slug'=>'surging-sparks', 'series'=>'sv-en', 'code'=>'', 'intro'=>'Surging Sparks (2024) is headlined by Pikachu ex and is one of the best-selling English Scarlet & Violet expansions. Its cards first appeared in Japan in [Super Electric Breaker](set:super-electric-breaker-sv8).'],
+    'Stellar Crown' => ['slug'=>'stellar-crown', 'series'=>'sv-en', 'code'=>'', 'intro'=>'Stellar Crown (2024) is built around Terapagos ex and the Stellar Tera type. Its cards first appeared in Japan in [Stellar Miracle](set:stellar-miracle-sv7).'],
+    'Shrouded Fable' => ['slug'=>'shrouded-fable', 'series'=>'sv-en', 'code'=>'', 'intro'=>'Shrouded Fable (2024) is a Scarlet & Violet special set featuring Pecharunt ex and the Loyal Three. Its cards first appeared in Japan in [Night Wanderer](set:night-wanderer-sv6a).'],
+    'Twilight Masquerade' => ['slug'=>'twilight-masquerade', 'series'=>'sv-en', 'code'=>'', 'intro'=>'Twilight Masquerade (2024) brought the Kitakami region and Ogerpon\'s masks to the Pokémon TCG. Its cards first appeared in Japan in [Mask of Change](set:mask-of-change-sv6).'],
+    'Temporal Forces' => ['slug'=>'temporal-forces', 'series'=>'sv-en', 'code'=>'', 'intro'=>'Temporal Forces (2024) introduced ACE SPEC cards to the Scarlet & Violet era alongside Ancient and Future Pokémon. Its cards first appeared in Japan in [Wild Force](set:wild-force-sv5k) and [Cyber Judge](set:cyber-judge-sv5m).'],
+    'Paldean Fates' => ['slug'=>'paldean-fates', 'series'=>'sv-en', 'code'=>'', 'intro'=>'Paldean Fates (2024) is the Scarlet & Violet special set of shiny Pokémon, with a large shiny subset that collectors chase. Its cards first appeared in Japan in the high-class set [Shiny Treasure ex](set:shiny-treasure-ex-sv4a).'],
+    'Scarlet & Violet—151' => ['slug'=>'scarlet-violet-151', 'series'=>'sv-en', 'code'=>'', 'intro'=>'Scarlet & Violet—151 (2023) revisits the original 151 Pokémon from Bulbasaur to Mew and is one of the most collected English Pokémon sets of all time. Special sets have no English booster boxes, so ETBs, the Ultra-Premium Collection, bundles, mini tins and collections are the way to open it. The Japanese version is [151 (SV2a)](set:151).'],
+    'Obsidian Flames' => ['slug'=>'obsidian-flames', 'series'=>'sv-en', 'code'=>'', 'intro'=>'Obsidian Flames (2023) is the Scarlet & Violet expansion headlined by a Darkness-type Tera Charizard ex. Its cards first appeared in Japan in [Ruler of the Black Flame](set:ruler-of-the-black-flame-sv3).'],
+    'Paldea Evolved' => ['slug'=>'paldea-evolved', 'series'=>'sv-en', 'code'=>'', 'intro'=>'Paldea Evolved (2023) brought the Paldea starters\' final evolutions to the Pokémon TCG. Its cards first appeared in Japan in [Clay Burst](set:clay-burst-sv2d) and [Snow Hazard](set:snow-hazard-sv2p).'],
+    'Scarlet & Violet Base Set' => ['slug'=>'scarlet-violet-base-set', 'series'=>'sv-en', 'code'=>'', 'intro'=>'Scarlet & Violet (2023) launched the Scarlet & Violet era with Koraidon ex and Miraidon ex, each on its own Elite Trainer Box. Its cards first appeared in Japan in [Scarlet ex](set:scarlet-ex-sv1s) and [Violet ex](set:violet-ex-sv1v).'],
+    'Crown Zenith' => ['slug'=>'crown-zenith', 'series'=>'swsh-en', 'code'=>'', 'intro'=>'Crown Zenith (2023) closed the Sword & Shield era with the Galarian Gallery subset of full-art cards. Special sets have no booster boxes, so the Elite Trainer Box, the Pokémon Center ETB Plus and the Shiny Zacian and Zamazenta figure collections are the way to open it. Many of its cards first appeared in Japan in [VSTAR Universe](set:vstar-universe-s12a).'],
+    'Celebrations' => ['slug'=>'celebrations', 'series'=>'swsh-en', 'code'=>'', 'intro'=>'Celebrations (2021) marked the Pokémon TCG\'s 25th anniversary, with a Classic Collection of reprinted cards from the game\'s history. Sealed Celebrations product is long out of print, which is why the Ultra-Premium Collection is a collector favourite.'],
+    'Black Bolt (Japanese)' => ['slug'=>'black-bolt-sv11b', 'series'=>'sv', 'code'=>'SV11B', 'intro'=>'Black Bolt (SV11B) is the Japanese Unova-themed special set led by Zekrom ex, released in Japan in 2025 alongside [White Flare (SV11W)](set:white-flare-sv11w). The English version has the same name: see [Black Bolt](set:black-bolt).'],
+    'White Flare (Japanese)' => ['slug'=>'white-flare-sv11w', 'series'=>'sv', 'code'=>'SV11W', 'intro'=>'White Flare (SV11W) is the Japanese Unova-themed special set led by Reshiram ex, released in Japan in 2025 alongside [Black Bolt (SV11B)](set:black-bolt-sv11b). The English version has the same name: see [White Flare](set:white-flare).'],
+    'Battle Partners' => ['slug'=>'battle-partners-sv9', 'series'=>'sv', 'code'=>'SV9', 'intro'=>'Battle Partners (SV9) is the Japanese set that brought Trainer\'s Pokémon back to the game in 2025. Its cards reached English in [Journey Together](set:journey-together).'],
+    'Super Electric Breaker' => ['slug'=>'super-electric-breaker-sv8', 'series'=>'sv', 'code'=>'SV8', 'intro'=>'Super Electric Breaker (SV8) is the Japanese set headlined by Pikachu ex. Its cards reached English in [Surging Sparks](set:surging-sparks).'],
     'Paradise Dragona' => ['slug'=>'paradise-dragona-sv7a', 'series'=>'sv', 'code'=>'SV7a', 'intro'=>''],
-    'Stellar Miracle' => ['slug'=>'stellar-miracle-sv7', 'series'=>'sv', 'code'=>'SV7', 'intro'=>''],
-    'Night Wanderer' => ['slug'=>'night-wanderer-sv6a', 'series'=>'sv', 'code'=>'SV6a', 'intro'=>''],
-    'Mask of Change' => ['slug'=>'mask-of-change-sv6', 'series'=>'sv', 'code'=>'SV6', 'intro'=>''],
+    'Stellar Miracle' => ['slug'=>'stellar-miracle-sv7', 'series'=>'sv', 'code'=>'SV7', 'intro'=>'Stellar Miracle (SV7) is the Japanese set built around Terapagos ex and the Stellar Tera type. Its cards reached English in [Stellar Crown](set:stellar-crown).'],
+    'Night Wanderer' => ['slug'=>'night-wanderer-sv6a', 'series'=>'sv', 'code'=>'SV6a', 'intro'=>'Night Wanderer (SV6a) is the Japanese set featuring Pecharunt ex and the Loyal Three. Its cards reached English in [Shrouded Fable](set:shrouded-fable).'],
+    'Mask of Change' => ['slug'=>'mask-of-change-sv6', 'series'=>'sv', 'code'=>'SV6', 'intro'=>'Mask of Change (SV6) is the Japanese set that brought Ogerpon\'s masks to the Pokémon TCG. Its cards reached English in [Twilight Masquerade](set:twilight-masquerade).'],
     'Crimson Haze' => ['slug'=>'crimson-haze-sv5a', 'series'=>'sv', 'code'=>'SV5a', 'intro'=>''],
-    'Wild Force' => ['slug'=>'wild-force-sv5k', 'series'=>'sv', 'code'=>'SV5K', 'intro'=>''],
-    'Cyber Judge' => ['slug'=>'cyber-judge-sv5m', 'series'=>'sv', 'code'=>'SV5M', 'intro'=>''],
-    'Shiny Treasure ex' => ['slug'=>'shiny-treasure-ex-sv4a', 'series'=>'sv', 'code'=>'SV4a', 'intro'=>''],
-    'Ancient Roar' => ['slug'=>'ancient-roar-sv4k', 'series'=>'sv', 'code'=>'SV4K', 'intro'=>''],
-    'Future Flash' => ['slug'=>'future-flash-sv4m', 'series'=>'sv', 'code'=>'SV4M', 'intro'=>''],
+    'Wild Force' => ['slug'=>'wild-force-sv5k', 'series'=>'sv', 'code'=>'SV5K', 'intro'=>'Wild Force (SV5K) is one of the twin Japanese sets, with [Cyber Judge](set:cyber-judge-sv5m), whose cards reached English in [Temporal Forces](set:temporal-forces).'],
+    'Cyber Judge' => ['slug'=>'cyber-judge-sv5m', 'series'=>'sv', 'code'=>'SV5M', 'intro'=>'Cyber Judge (SV5M) is one of the twin Japanese sets, with [Wild Force](set:wild-force-sv5k), whose cards reached English in [Temporal Forces](set:temporal-forces).'],
+    'Shiny Treasure ex' => ['slug'=>'shiny-treasure-ex-sv4a', 'series'=>'sv', 'code'=>'SV4a', 'intro'=>'Shiny Treasure ex (SV4a) is a Japanese high-class set of shiny Pokémon: each box holds 10 packs of 10 cards. Its cards reached English in [Paldean Fates](set:paldean-fates).'],
+    'Ancient Roar' => ['slug'=>'ancient-roar-sv4k', 'series'=>'sv', 'code'=>'SV4K', 'intro'=>'Ancient Roar (SV4K) is one of the twin Japanese sets, with [Future Flash](set:future-flash-sv4m), built around Ancient and Future Paradox Pokémon. Their cards reached English in Paradox Rift.'],
+    'Future Flash' => ['slug'=>'future-flash-sv4m', 'series'=>'sv', 'code'=>'SV4M', 'intro'=>'Future Flash (SV4M) is one of the twin Japanese sets, with [Ancient Roar](set:ancient-roar-sv4k), built around Ancient and Future Paradox Pokémon. Their cards reached English in Paradox Rift.'],
     'Raging Surf' => ['slug'=>'raging-surf-sv3a', 'series'=>'sv', 'code'=>'SV3a', 'intro'=>''],
-    'Ruler of the Black Flame' => ['slug'=>'ruler-of-the-black-flame-sv3', 'series'=>'sv', 'code'=>'SV3', 'intro'=>''],
-    'Clay Burst' => ['slug'=>'clay-burst-sv2d', 'series'=>'sv', 'code'=>'SV2D', 'intro'=>''],
-    'Snow Hazard' => ['slug'=>'snow-hazard-sv2p', 'series'=>'sv', 'code'=>'SV2P', 'intro'=>''],
+    'Ruler of the Black Flame' => ['slug'=>'ruler-of-the-black-flame-sv3', 'series'=>'sv', 'code'=>'SV3', 'intro'=>'Ruler of the Black Flame (SV3) is the Japanese set headlined by a Darkness-type Tera Charizard ex. Its cards reached English in [Obsidian Flames](set:obsidian-flames).'],
+    'Clay Burst' => ['slug'=>'clay-burst-sv2d', 'series'=>'sv', 'code'=>'SV2D', 'intro'=>'Clay Burst (SV2D) is one of the twin Japanese sets, with [Snow Hazard](set:snow-hazard-sv2p), whose cards reached English in [Paldea Evolved](set:paldea-evolved).'],
+    'Snow Hazard' => ['slug'=>'snow-hazard-sv2p', 'series'=>'sv', 'code'=>'SV2P', 'intro'=>'Snow Hazard (SV2P) is one of the twin Japanese sets, with [Clay Burst](set:clay-burst-sv2d), whose cards reached English in [Paldea Evolved](set:paldea-evolved).'],
     'Triplet Beat' => ['slug'=>'triplet-beat-sv1a', 'series'=>'sv', 'code'=>'SV1a', 'intro'=>''],
-    'Violet ex' => ['slug'=>'violet-ex-sv1v', 'series'=>'sv', 'code'=>'SV1V', 'intro'=>''],
-    'Scarlet ex' => ['slug'=>'scarlet-ex-sv1s', 'series'=>'sv', 'code'=>'SV1S', 'intro'=>''],
-    'VSTAR Universe' => ['slug'=>'vstar-universe-s12a', 'series'=>'swsh', 'code'=>'S12a', 'intro'=>''],
-    'Lost Abyss' => ['slug'=>'lost-abyss-s11', 'series'=>'swsh', 'code'=>'S11', 'intro'=>''],
-    'Pokémon GO' => ['slug'=>'pokemon-go-s10b', 'series'=>'swsh', 'code'=>'S10b', 'intro'=>''],
-    'Eevee Heroes' => ['slug'=>'eevee-heroes-s6a', 'series'=>'swsh', 'code'=>'S6a', 'intro'=>''],
+    'Violet ex' => ['slug'=>'violet-ex-sv1v', 'series'=>'sv', 'code'=>'SV1V', 'intro'=>'Violet ex (SV1V) is one of the twin Japanese sets that launched the Scarlet & Violet era with [Scarlet ex](set:scarlet-ex-sv1s). Their cards reached English in the [Scarlet & Violet base set](set:scarlet-violet-base-set).'],
+    'Scarlet ex' => ['slug'=>'scarlet-ex-sv1s', 'series'=>'sv', 'code'=>'SV1S', 'intro'=>'Scarlet ex (SV1S) is one of the twin Japanese sets that launched the Scarlet & Violet era with [Violet ex](set:violet-ex-sv1v). Their cards reached English in the [Scarlet & Violet base set](set:scarlet-violet-base-set).'],
+    'VSTAR Universe' => ['slug'=>'vstar-universe-s12a', 'series'=>'swsh', 'code'=>'S12a', 'intro'=>'VSTAR Universe (S12a) is the Japanese high-class set that closed the Sword & Shield era: each box holds 10 packs of 10 cards, and its alternate-art cards are among the most collected Japanese cards. Many of them reached English in [Crown Zenith](set:crown-zenith).'],
+    'Lost Abyss' => ['slug'=>'lost-abyss-s11', 'series'=>'swsh', 'code'=>'S11', 'intro'=>'Lost Abyss (S11) is the Japanese Sword & Shield set built around Giratina VSTAR and the Lost Zone. Its cards reached English in Lost Origin.'],
+    'Pokémon GO' => ['slug'=>'pokemon-go-s10b', 'series'=>'swsh', 'code'=>'S10b', 'intro'=>'Pokémon GO (S10b) is the Japanese Sword & Shield set based on the Pokémon GO mobile game, released in English under the same name.'],
+    'Eevee Heroes' => ['slug'=>'eevee-heroes-s6a', 'series'=>'swsh', 'code'=>'S6a', 'intro'=>'Eevee Heroes (S6a) is the Japanese Sword & Shield set built around Eevee and its evolutions, with some of the most valuable alternate-art cards of the era. Its cards reached English in Evolving Skies, and sealed Japanese boxes are now highly collectible.'],
   ],
 
   /* products are included if their id is listed, or their name contains a match term
@@ -1570,6 +1652,208 @@ A card's price is what a seller asks; its value is what buyers actually pay. Whe
 ## Are modern Pokémon cards worth money?
 
 Modern cards can be valuable too. Chase cards from recent Japanese sets — like the [Mega Rayquaza ex Master Ultra Rare](product:mega-rayquaza-ex-mur) or the [Mega Gengar ex Special Illustration Rare](product:mega-gengar-ex-sir) — can sell for hundreds or even thousands of dollars soon after release. Our [rare single cards](category:singles) show current prices on every listing, with lower prices when you buy more. Ready to sell some of yours? See [where to sell Pokémon cards](guide:where-to-sell-pokemon-cards) and [how much it costs to grade a Pokémon card](guide:how-much-does-it-cost-to-grade-a-pokemon-card).
+MD],
+    ['slug'=>'pokemon-center-elite-trainer-box-vs-elite-trainer-box', 'updated'=>'2026-11-08', 'title'=>'Pokémon Center Elite Trainer Box vs regular ETB: what’s the difference?', 'seo_title'=>'Pokémon Center ETB vs Regular ETB: What’s the Difference?', 'seo_desc'=>'Pokémon Center Elite Trainer Boxes vs standard ETBs: how many packs each has, the exclusive promo, where to buy them and which is better value.', 'body'=><<<'MD'
+Every new Pokémon TCG set gets two Elite Trainer Boxes: the standard ETB sold in shops everywhere, and a Pokémon Center edition sold only through the official Pokémon Center. They look almost the same on the shelf, but they aren't the same box. Here's what's different, and which one to buy.
+
+## What's in a standard Elite Trainer Box
+
+An Elite Trainer Box (ETB) is the complete way to open a new set. In recent Scarlet & Violet and Mega Evolution sets, it holds:
+
+- 9 booster packs from the set
+- 65 card sleeves in the set's artwork
+- 45 Pokémon TCG Energy cards
+- a player's guide to the set
+- damage-counter dice, a coin-flip die and condition markers
+- a collector's storage box with dividers
+
+Older sets vary: the [Crown Zenith Elite Trainer Box](product:pokemon-crown-zenith-elite-trainer-box), for example, has 10 packs.
+
+## What a Pokémon Center Elite Trainer Box adds
+
+The Pokémon Center edition keeps everything in the standard box and adds:
+
+- **More booster packs.** Most recent Pokémon Center ETBs hold 11 packs instead of 9.
+- **An exclusive promo card** that isn't in the standard box.
+- **Exclusivity.** It's sold only through the official Pokémon Center, so fewer are made and fewer are on the market.
+
+That's why collectors keep Pokémon Center ETBs sealed, and why they usually cost more than the standard box and hold their value better.
+
+## Which is better value?
+
+**To open:** compare the price per booster pack. Divide the price by the number of packs: the Pokémon Center ETB often works out close to the standard box per pack, with the promo on top.
+
+**To collect or resell:** the Pokémon Center ETB. Smaller production and the exclusive promo make it the more collectible of the two, especially for popular sets like [Prismatic Evolutions](product:prismatic-evolutions-pokemon-center-elite-trainer-box) and [151](product:pokemon-scarlet-violet-151-pokemon-center-elite-trainer-box).
+
+**For a shop:** stock both. Standard ETBs are your volume seller; Pokémon Center ETBs bring in collectors.
+
+## Pokémon Center ETBs we stock
+
+We carry the Pokémon Center ETB for every recent set, from [Delta Reign](product:delta-reign-pokemon-center-elite-trainer-box) and [Phantasmal Flames](product:phantasmal-flames-pokemon-center-elite-trainer-box) back through [Destined Rivals](product:destined-rivals-pokemon-center-elite-trainer-box), [Surging Sparks](product:surging-sparks-pokemon-center-elite-trainer-box) and [Paldean Fates](product:paldean-fates-pokemon-center-elite-trainer-box), plus the [Crown Zenith ETB Plus](product:pokemon-crown-zenith-pokemon-center-elite-trainer-box-plus). See them all on [Pokémon Center Elite Trainer Boxes](cards:pokemon-center-elite-trainer-boxes), or every standard box on [Elite Trainer Boxes](category:etb).
+
+## Questions
+
+### How many packs are in a Pokémon Center Elite Trainer Box?
+
+Most recent Pokémon Center ETBs hold 11 booster packs, compared with 9 in the standard Elite Trainer Box.
+
+### Are Pokémon Center Elite Trainer Boxes English?
+
+Yes. Elite Trainer Boxes are an English-language product, and so are their Pokémon Center editions.
+
+### Can I buy Pokémon Center ETBs outside the USA?
+
+Yes. The official Pokémon Center ships to a limited list of countries, but we ship Pokémon Center ETBs worldwide from Japan with tracking to {countries} countries.
+
+### Can I buy Pokémon Center ETBs in bulk?
+
+Yes. The price per box drops at 4, 6, 10 and 24 boxes, applied in your cart automatically. For more, [request a quote](page:quote).
+MD],
+    ['slug'=>'what-is-a-pokemon-ultra-premium-collection', 'updated'=>'2026-11-08', 'title'=>'What is a Pokémon Ultra-Premium Collection (UPC)?', 'seo_title'=>'What Is a Pokémon Ultra-Premium Collection (UPC)?', 'seo_desc'=>'Pokémon Ultra-Premium Collections explained: what’s inside a UPC, the most collected UPCs (Charizard, 151, Celebrations), and whether to open or keep them sealed.', 'body'=><<<'MD'
+An Ultra-Premium Collection (UPC) is the biggest, most premium box in the Pokémon Trading Card Game. Where an Elite Trainer Box is built for opening a set, a UPC is built for collectors: lots of booster packs, special promo cards and display-worthy extras in a large presentation box.
+
+## What's inside a UPC
+
+Contents vary from one UPC to the next, but most include:
+
+- **Booster packs**, usually far more than an Elite Trainer Box
+- **Foil promo cards**, often full-art cards of the Pokémon on the box
+- **A metal card** in many UPCs, one of the main reasons collectors buy them
+- **Accessories**: playmat, card sleeves, deck box, dice, coin and similar extras
+
+Each product page lists the box, and the full contents are printed on the box itself.
+
+## The most collected UPCs
+
+Some UPCs became collector favourites because of the Pokémon on the box, the promo cards inside, or because they're long out of print:
+
+- **[Sword & Shield Charizard UPC](product:pokemon-sword-and-shield-charizard-ultra-premium-collection)**: Charizard is the most collected Pokémon in the game.
+- **[Celebrations UPC](product:pokemon-celebrations-ultra-premium-collection)**: the 25th-anniversary collection, long out of print.
+- **[Scarlet & Violet—151 UPC](product:pokemon-scarlet-violet-151-ultra-premium-collection)**: the original 151 Pokémon.
+- **[Arceus VSTAR UPC](product:pokemon-arceus-vstar-ultra-premium-collection)**: a Sword & Shield-era favourite.
+- **[30th Celebration UPC — Day](product:pokemon-30th-celebration-ultra-premium-collection-day)** and **[Night](product:pokemon-30th-celebration-ultra-premium-collection-night)**: the 30th-anniversary pair.
+- **[Mega Charizard X ex UPC](product:pokemon-mega-charizard-x-ex-ultra-premium-collection)**: the Mega Evolution era's Charizard.
+
+The [Prismatic Evolutions Super-Premium Collection](product:pokemon-prismatic-evolutions-super-premium-collection) is a similar top-tier box for the Eevee special set.
+
+## Open it or keep it sealed?
+
+Both are popular. Opening a UPC gives you a lot of packs and the promos in one go. Keeping it sealed is a bet on the future: once a UPC goes out of print, sealed copies tend to become scarcer and are sought after by collectors. Many buyers do both: one to open, one to keep.
+
+## Buying UPCs in bulk
+
+Every UPC we sell is English and factory sealed, with lower prices from 4 boxes. For a whole sealed case, see the [30th Celebration UPC case](product:pokemon-30th-celebration-upc-factory-sealed-case-configuration). All of them are on [Pokémon Ultra-Premium Collections](cards:pokemon-ultra-premium-collections).
+
+## Questions
+
+### What does UPC stand for in Pokémon?
+
+Ultra-Premium Collection: the largest and most premium Pokémon TCG collection box.
+
+### What's the difference between a UPC and an Elite Trainer Box?
+
+An Elite Trainer Box is built for playing a set: booster packs plus sleeves, Energy cards and dice. A UPC is built for collectors, with more packs, special promo cards and premium extras, at a higher price.
+
+### Are your Ultra-Premium Collections English?
+
+Yes. Every UPC we sell is the English edition, factory sealed.
+
+### Do you ship UPCs worldwide?
+
+Yes, from Japan with tracking to {countries} countries.
+MD],
+    ['slug'=>'pokemon-booster-box-vs-etb-vs-booster-bundle', 'updated'=>'2026-11-08', 'title'=>'Booster box, ETB or booster bundle? Every Pokémon sealed product explained', 'seo_title'=>'Pokémon Booster Box vs ETB vs Booster Bundle: Which to Buy?', 'seo_desc'=>'Every Pokémon sealed product explained: booster boxes, Elite Trainer Boxes, booster bundles, Build & Battle Boxes, blisters, tins, UPCs and cases, and which to buy.', 'body'=><<<'MD'
+Pokémon TCG sealed product comes in a dozen formats, and the names don't always say what's inside. Here's every format, how many packs it holds, and who it's best for.
+
+## Every format at a glance
+
+- **Booster box (booster display box):** 36 booster packs. Best value per pack; how shops sell packs. See [English booster boxes](cards:english-pokemon-booster-boxes).
+- **Elite Trainer Box (ETB):** 9 packs in most recent sets, plus sleeves, Energy cards, dice and a storage box. Best for opening a set and playing it. See [Elite Trainer Boxes](category:etb).
+- **Pokémon Center Elite Trainer Box:** usually 11 packs plus an exclusive promo, sold only by the Pokémon Center. Best for collectors. See [Pokémon Center ETBs](cards:pokemon-center-elite-trainer-boxes).
+- **Booster bundle:** 6 packs. A simple way to open a set without buying a box, and the closest thing to a booster box for special sets. See [booster bundles](cards:pokemon-booster-bundles).
+- **Build & Battle Box:** 4 packs, a 40-card deck and a foil promo. Made for prerelease events. See [Build & Battle Boxes](cards:pokemon-build-and-battle-boxes).
+- **3-pack blister:** 3 packs, a foil promo card and a coin.
+- **Checklane blister:** 1 pack and a coin. Premium checklane blisters add another pack and a foil promo.
+- **Sleeved booster pack:** 1 pack in an artwork sleeve, for counter displays.
+- **Tin and mini tin:** booster packs and a promo or art card in a collectible tin. See [tins](cards:pokemon-tins).
+- **Collection box:** a few packs with promo cards and extras such as a figure, binder or poster.
+- **Ultra-Premium Collection (UPC):** the biggest collection box, with many packs, special promos and premium extras. See [our UPC guide](guide:what-is-a-pokemon-ultra-premium-collection).
+- **Sealed case:** 6 English booster boxes, or 10 Elite Trainer Boxes, in the original carton. See [sealed cases](page:cases).
+
+## Which is the best value?
+
+Per pack, a **booster box** is almost always the cheapest way to buy Pokémon cards, and a **sealed case** of booster boxes is cheaper still. Formats with extras (ETBs, collections, UPCs) cost more per pack, but you get the promo cards and accessories. Blisters and single packs cost the most per pack, and are best as impulse buys or gifts.
+
+Special sets such as [Prismatic Evolutions](set:prismatic-evolutions), [151](set:scarlet-violet-151) and [Paldean Fates](set:paldean-fates) have **no English booster box**, so booster bundles and ETBs are the best value for those.
+
+## Which to buy
+
+- **To open a set and chase its best cards:** a booster box, or a case for the lowest price per pack.
+- **To play the set:** an Elite Trainer Box.
+- **To collect:** Pokémon Center ETBs and Ultra-Premium Collections, kept sealed.
+- **As a gift:** an ETB, a tin or a collection box.
+- **To stock a shop:** booster boxes for loose packs, ETBs and bundles for the shelf, and blisters and tins for the counter and pegs.
+
+## Japanese booster boxes are different
+
+Japanese booster boxes are smaller and cheaper per box: most hold 30 packs of 5 cards, and high-class sets hold 10 packs of 10. Japanese sets also come out before their English versions. See [Japanese booster boxes](cards:japanese-pokemon-booster-boxes) and [Japanese Pokémon cards explained](guide:japanese-pokemon-cards).
+
+## Questions
+
+### Is a booster box or an ETB better value?
+
+Per pack, a booster box. An ETB costs more per pack, but includes sleeves, Energy cards, dice and a storage box.
+
+### How many packs are in a booster bundle?
+
+Six booster packs from one set.
+
+### Why don't some sets have booster boxes?
+
+Special sets such as Prismatic Evolutions, 151 and Paldean Fates are released without English booster boxes. Their packs come in ETBs, bundles, collections and tins instead.
+
+### Do you sell all of these in bulk?
+
+Yes. Every product shows its bulk prices, which apply automatically in your cart, and we ship worldwide from Japan to {countries} countries.
+MD],
+    ['slug'=>'one-piece-card-game-booster-box-guide', 'updated'=>'2026-11-08', 'title'=>'One Piece Card Game booster boxes: every English set explained', 'seo_title'=>'One Piece Card Game Booster Boxes: Every English Set (OP-01+)', 'seo_desc'=>'Every English One Piece Card Game booster box from OP-01 Romance Dawn onwards, plus Extra Boosters, Premium Boosters and starter decks, and how they differ.', 'body'=><<<'MD'
+The One Piece Card Game from Bandai is one of the fastest-growing trading card games, and its sealed product comes in four kinds: main booster sets, Extra Boosters, Premium Boosters and starter decks. Here's how they differ and which sets we stock, all in English.
+
+## Main booster sets (OP)
+
+Main sets are numbered OP-01, OP-02 and so on, starting with [OP-01 Romance Dawn](product:one-piece-op-01-romance-dawn-booster-box), the first English set. Each main-set booster box holds **24 packs of 12 cards**, with new Leaders, alternate-art cards and the set's chase cards.
+
+Early sets are out of print and collected sealed: [OP-02 Paramount War](product:one-piece-op-02-paramount-war-booster-box), [OP-03 Pillars of Strength](product:one-piece-op-03-pillars-of-strength-booster-box), [OP-04 Kingdoms of Intrigue](product:one-piece-op-04-kingdoms-of-intrigue-booster-box) and [OP-05 Awakening of the New Era](product:one-piece-op-05-awakening-of-the-new-era-booster-box) among them. Newer sets, and upcoming ones on preorder, are the way to build a playable collection.
+
+## Extra Boosters (EB) and Premium Boosters (PRB)
+
+**Extra Booster** boxes (EB-01 onwards, starting with [EB-01 Memorial Collection](product:one-piece-eb-01-memorial-collection-extra-booster-box)) are smaller special releases, often themed, with reprints and alternate arts. **Premium Booster** boxes (PRB-01 and PRB-02, "The Best") collect fan-favourite cards with special finishes. Pack counts differ from main sets, so check each listing.
+
+## Starter decks (ST)
+
+Starter decks are ready-to-play decks with a Leader card and 50 cards, plus DON!! cards: the way into the game, and a steady seller for shops running tournaments. See every set and deck in [One Piece Card Game](category:onepiece).
+
+## Buying One Piece in bulk
+
+Every One Piece product we sell is the English edition and factory sealed. The price per box drops at 4, 6, 10 and 24 boxes, applied in your cart automatically, and we ship worldwide from Japan with tracking. For full cases or standing orders, [request a quote](page:quote).
+
+## Questions
+
+### How many packs are in a One Piece booster box?
+
+A main-set booster box (OP-01 onwards) holds 24 packs of 12 cards. Extra Booster and Premium Booster boxes differ.
+
+### What was the first English One Piece set?
+
+OP-01 Romance Dawn.
+
+### What is the difference between OP, EB and PRB?
+
+OP boxes are the main booster sets. EB (Extra Booster) boxes are smaller special releases. PRB (Premium Booster) boxes collect fan-favourite cards with special finishes.
+
+### Do you ship One Piece booster boxes worldwide?
+
+Yes, from Japan with tracking to {countries} countries.
 MD],
   ],
 

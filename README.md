@@ -57,6 +57,12 @@ Uploading the files by hand instead:
 
 `inc/catalog.php` holds the 180 products added in November 2026: English Pokémon sealed product (30th Celebration, Delta Reign and the other Mega Evolution sets, Scarlet & Violet ETBs and Pokémon Center ETBs, booster boxes, bundles, UPCs, tins, blisters), Japanese booster boxes and English One Piece Card Game. Each has its own description, SEO title and description, bulk tiers (4+, 6+, 10+, 24+; 10+, 36+, 100+ for packs and blisters; 2+, 4+, 6+ for items over $300), weight and language. **Prices are set 8% under market estimates** (`DISCOUNT` in the generator): check them in **Products**. Shops installed earlier receive any of these products they don't already have once, on the first page load (nothing you added or edited is changed). New set pages, the One Piece Card Game category and collection pages (Pokémon Center ETBs, UPCs, English and Japanese booster boxes, bundles, tins, Build & Battle Boxes, packs and blisters) come with them, and the home page features the new ranges. Add your own photos in **Products**. `tools/catalog_gen.py` regenerates the file.
 
+## Shopping and content (content update 12)
+
+- **Shop pages** have quick picks (Elite Trainer Boxes, booster boxes, collections, One Piece, Pokémon Center ETBs, UPCs, Japanese boxes, preorders, sealed cases), a **Newest first** sort, and filters that fold away on phones.
+- **Product pages on phones** keep an "Add to order" bar at the bottom while the buy box is off screen. The header button shows **Cart**, the item count and the order total.
+- **Content:** real intros on the English and Japanese set pages (with the matching English or Japanese set), questions and answers on the main category pages (sent to Google as FAQ data), and four buyer guides — Pokémon Center ETB vs regular ETB, what a UPC is, booster box vs ETB vs booster bundle, and One Piece booster boxes — linked from the categories, collections and home page. Existing shops get them once; text you've edited is kept.
+
 ## Bitcoin payments
 
 Customers who choose Bitcoin are taken straight to their order's payment page. It shows the exact BTC amount (worked out from the US-dollar total at the live price, held for 60 minutes and then renewed if unpaid), a QR code for their wallet, your address and copy buttons. The same page link is in their order email.
