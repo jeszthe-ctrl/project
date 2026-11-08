@@ -1052,6 +1052,7 @@ $in_stock = array_values(array_filter($PRODUCTS, fn($p)=>!in_array($p['status'],
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
+<script>try{var pkv=localStorage.getItem('pk_view');if(pkv==='compact'||pkv==='list')document.documentElement.dataset.view=pkv;}catch(e){}</script>
 <meta charset="utf-8">
 <base href="<?= h($BASE) ?>">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -1071,7 +1072,7 @@ $in_stock = array_values(array_filter($PRODUCTS, fn($p)=>!in_array($p['status'],
 <?php if($og): ?><meta property="og:image" content="<?= h($abs_img($og[0])) ?>">
 <?php if($og[0] === SITE_SHARE): ?><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="<?= h($CONFIG['brand']) ?>: wholesale Japanese Pokémon cards, shipped worldwide from Japan"><?php endif; endif; ?>
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#FFF6D9">
+<meta name="theme-color" content="#0B0F19">
 <link rel="icon" href="favicon.ico" sizes="48x48">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -1143,17 +1144,17 @@ if(count($crumbs) > 1){
 </script>
 
 <style>
-/* White theme: indigo and Pokémon-yellow accents on white. System fonts only: nothing to download before first paint. */
+/* White theme: white first, blue for actions, black for emphasis. System fonts only: nothing to download before first paint. */
 :root{
   color-scheme:light;
-  --bg:#FFFFFF; --paper:#F7F8FC; --card:#FFFFFF; --card2:#F3F5FA; --tint:#F0F3FF; --tint2:#E0E6FB;
-  --ink:#1E2740; --ink2:#48536E; --muted:#6B7590; --line:#E7EAF1; --hair:#F0F2F7;
-  --indigo:#4257D6; --indigo2:#3346BD; --yellow:#FFD84D; --amber:#8A5A00; --red:#B0352E; --green:#137A52;
+  --bg:#FFFFFF; --paper:#F8FAFC; --card:#FFFFFF; --card2:#F3F5F8; --tint:#EFF4FF; --tint2:#DBE5FE;
+  --ink:#0B0F19; --ink2:#3A4250; --muted:#6B7280; --line:#E5E7EB; --hair:#F1F3F5;
+  --indigo:#1D4ED8; --indigo2:#1E40AF; --yellow:#0B0F19; --amber:#1D4ED8; --red:#B42318; --green:#067647;
   --teal:#086E6D; --violet:#6A4DE0; --btc:#E8870F; --btc-text:#A0530A;
   --brand:var(--indigo); --link:var(--indigo); --seal:var(--green); --gold:var(--amber);
   --sans:system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue','Hiragino Kaku Gothic ProN','Noto Sans JP',Arial,sans-serif;
   --jp:'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic','Noto Sans JP',system-ui,sans-serif;
-  --r:16px;
+  --r:12px;
   --lift:0 1px 2px rgba(30,39,64,.03),0 12px 30px -18px rgba(30,39,64,.16);
 }
 *,*::before,*::after{box-sizing:border-box}
@@ -1169,10 +1170,10 @@ button,input,select,textarea{font:inherit;color:inherit}
 .holo-text{color:var(--indigo)}
 
 /* top strip */
-.strip{background:#FFF6D9;color:var(--ink);font-size:12.5px;position:relative;border-bottom:1px solid #F6E7B4}
+.strip{background:#0B0F19;color:#fff;font-size:12.5px;position:relative}
 .strip .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:36px;flex-wrap:wrap}
-.strip .st{color:rgba(30,39,64,.78)}
-.strip a{color:var(--ink);text-decoration:none;font-weight:800}
+.strip .st{color:rgba(255,255,255,.72)}.strip .st b{color:#fff;font-weight:600}
+.strip a{color:#fff;text-decoration:none;font-weight:700}
 .strip a.sl:hover{text-decoration:underline}
 
 /* header */
@@ -1184,7 +1185,7 @@ header.site{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.94);ba
 .brand svg.word{display:block;height:19px;width:auto;aspect-ratio:570/73.5}
 .brand span.logo{position:relative;width:38px;height:38px;border-radius:10px;background:var(--indigo);color:#fff;display:grid;place-items:center;
   font-family:var(--jp);font-size:21px;font-weight:700;line-height:1;flex:none}
-.brand span.logo::after{content:"";position:absolute;right:-4px;top:-4px;width:12px;height:12px;border-radius:50%;background:var(--yellow);border:2px solid #fff}
+.brand span.logo::after{content:"";position:absolute;right:-4px;top:-4px;width:12px;height:12px;border-radius:50%;background:var(--indigo);border:2px solid #fff}
 .brand .wm{display:flex;flex-direction:column;line-height:1.1}
 .brand .mk{font-weight:900;font-size:19px;letter-spacing:.07em;color:var(--ink)}
 .brand .kj{font-family:var(--jp);font-size:11px;color:var(--muted);letter-spacing:.08em;margin-top:4px}
@@ -1207,7 +1208,7 @@ select.pick:hover{border-color:var(--indigo)}
 .cartbtn:hover{background:var(--indigo2)}
 .cartbtn .ct{font-weight:600;opacity:.85}
 @media(max-width:760px){.cartbtn .ct,.cartbtn .cl{display:none}}
-.cartbtn b{background:var(--yellow);color:var(--ink);border-radius:999px;padding:0 7px;min-width:22px;text-align:center;font-size:12.5px;line-height:20px}
+.cartbtn b{background:#fff;color:var(--indigo);border-radius:999px;padding:0 7px;min-width:22px;text-align:center;font-size:12.5px;line-height:20px}
 
 /* category bar */
 .catbar{border-top:1px solid var(--hair)}
@@ -1238,8 +1239,8 @@ select.pick:hover{border-color:var(--indigo)}
 .btn:hover{background:var(--indigo2);transform:translateY(-1px);box-shadow:0 10px 20px -12px rgba(66,87,214,.7)}
 .btn.g{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
 .btn.g:hover{box-shadow:inset 0 0 0 1px var(--indigo);color:var(--indigo)}
-.btn.gold{background:var(--yellow);color:var(--ink);box-shadow:0 8px 18px -10px rgba(168,106,0,.6)}
-.btn.gold:hover{background:#FFD83D}
+.btn.gold{background:var(--ink);color:#fff;box-shadow:none}
+.btn.gold:hover{background:#262B36}
 .btn.wide{width:100%;padding:15px}
 .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
 
@@ -1257,7 +1258,7 @@ section.rail+section.rail{border-top:1px solid var(--hair)}
 .sub2{font-size:clamp(20px,2.4vw,27px);margin:40px 0 16px}
 
 /* hero */
-.hero{padding:60px 0 58px;position:relative;overflow:hidden;background:linear-gradient(180deg,#F5F7FF 0%,#FFFDF6 70%,#FFFFFF 100%);border-bottom:1px solid var(--hair)}
+.hero{padding:56px 0 52px;position:relative;overflow:hidden;background:linear-gradient(180deg,#F7F9FF 0%,#FFFFFF 100%);border-bottom:1px solid var(--line)}
 .hero::before{content:"";position:absolute;inset:0 0 0 45%;pointer-events:none;
   background-image:radial-gradient(circle at 1px 1px,rgba(66,87,214,.09) 1.2px,transparent 0);background-size:22px 22px;
   -webkit-mask-image:linear-gradient(90deg,transparent,#000 35%,#000 70%,transparent);mask-image:linear-gradient(90deg,transparent,#000 35%,#000 70%,transparent)}
@@ -1289,13 +1290,13 @@ h1{font-size:clamp(32px,4.4vw,52px);margin-bottom:18px}
 @media(max-width:560px){.stats{grid-template-columns:1fr 1fr;gap:16px 0}.stats>div:nth-child(3){padding-left:0;border-left:0}}
 .stats strong{display:block;font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
 .heroart{position:relative;border-radius:24px;aspect-ratio:4/3;background:#fff;border:1px solid var(--line);
-  box-shadow:14px 14px 0 0 #FFE9A6,0 30px 60px -38px rgba(30,39,64,.3);margin:0 14px 14px 0}
+  box-shadow:0 30px 60px -40px rgba(11,15,25,.35)}
 .heroart img,.heroart .ph{width:100%;height:100%;object-fit:cover;border-radius:23px}
 .heroart.light img{object-fit:contain;padding:22px;background:#fff}
 .heroimg{display:block;width:100%;height:100%}
 
 /* featured release */
-.feature{position:relative;overflow:hidden;border-block:1px solid #F3E6B0;background:linear-gradient(120deg,#FFF6CF 0%,#FFFBEA 50%,#FFFFFF 100%)}
+.feature{position:relative;overflow:hidden;border-block:1px solid var(--line);background:var(--paper)}
 .fgrid{display:grid;grid-template-columns:230px 1fr 400px;gap:40px;align-items:center}
 @media(max-width:1060px){.fgrid{grid-template-columns:200px 1fr}.fbox{grid-column:1 / -1}}
 @media(max-width:640px){.fgrid{grid-template-columns:1fr;gap:24px}.fpack{max-width:200px;margin:0 auto}}
@@ -1319,7 +1320,7 @@ h1{font-size:clamp(32px,4.4vw,52px);margin-bottom:18px}
 .cats a{--c:var(--indigo);background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:20px 18px 18px;text-decoration:none;display:block;position:relative;
   transition:transform .15s,border-color .15s,box-shadow .15s}
 .cats a::before{content:"";position:absolute;left:18px;top:0;width:34px;height:4px;border-radius:0 0 4px 4px;background:var(--c)}
-.cats a:nth-child(2){--c:var(--amber)}.cats a:nth-child(3){--c:var(--red)}.cats a:nth-child(4){--c:var(--teal)}.cats a:nth-child(5){--c:var(--violet)}
+
 .cats a:hover{transform:translateY(-2px);border-color:var(--c);box-shadow:var(--lift)}
 .cats .n{display:inline-block;font-size:11.5px;color:var(--c);font-weight:800;background:color-mix(in srgb,var(--c) 10%,#fff);padding:2px 8px;border-radius:999px}
 .cats h3{font-size:17px;margin:10px 0 6px}
@@ -1342,7 +1343,7 @@ h1{font-size:clamp(32px,4.4vw,52px);margin-bottom:18px}
 .flag{position:absolute;top:10px;left:10px;font-size:10.5px;font-weight:800;letter-spacing:.06em;padding:4px 9px;border-radius:999px;
   background:#E6F6EE;color:var(--green);z-index:2}
 .flag.new{background:var(--tint);color:var(--indigo)}
-.flag.pre{background:#FFF1B8;color:#7A5300}
+.flag.pre{background:var(--ink);color:#fff}
 .flag.low{background:#FDE8E7;color:var(--red)}
 .flag.out{background:var(--card2);color:var(--muted)}
 .card .in{padding:15px;display:flex;flex-direction:column;gap:7px;flex:1}
@@ -1542,7 +1543,7 @@ details.more summary{cursor:pointer;font-size:13.5px;font-weight:700;color:var(-
 @media(max-width:540px){.steps{grid-template-columns:1fr}}
 .steps>div{padding:20px 18px 22px;border:1px solid var(--line);border-radius:var(--r);background:#fff}
 .steps .n{width:36px;height:36px;border-radius:10px;background:var(--indigo);color:#fff;font-size:16px;font-weight:800;display:grid;place-items:center;margin-bottom:12px}
-.steps>div:nth-child(2) .n{background:var(--ink)}.steps>div:nth-child(3) .n{background:var(--yellow);color:var(--ink)}.steps>div:nth-child(4) .n{background:var(--green)}
+.steps>div:nth-child(2) .n{background:var(--ink)}.steps>div:nth-child(3) .n{background:var(--indigo);color:#fff}.steps>div:nth-child(4) .n{background:var(--green)}
 .steps h3{font-size:17px;margin-bottom:7px}
 .steps p{font-size:14px;color:var(--ink2)}
 
@@ -1614,7 +1615,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
 .toc a:hover{text-decoration:underline}
 
 /* free shipping: top bar, cart and checkout */
-.strip .fship{display:inline-flex;align-items:center;gap:7px;color:var(--ink);font-weight:800;letter-spacing:.01em}
+.strip .fship{display:inline-flex;align-items:center;gap:7px;color:#fff;font-weight:700;letter-spacing:.01em}
 .strip .fship svg{flex:none}
 .strip .fship:hover span{text-decoration:underline}
 .fsm{margin:10px 0 12px;max-width:420px;margin-left:auto;text-align:left}
@@ -1700,7 +1701,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
 @media(max-width:520px){.srcards{gap:10px}.srcards>div{padding:14px}.srcards .ic{width:32px;height:32px}.srcards b{font-size:15px}}
 .srcards>div{--c:var(--amber);border:1px solid color-mix(in srgb,var(--c) 22%,#fff);border-radius:14px;padding:18px;display:grid;gap:4px;
   background:color-mix(in srgb,var(--c) 6%,#fff)}
-.srcards .k2{--c:var(--teal)}.srcards .k3{--c:var(--red)}.srcards .k4{--c:var(--indigo)}
+.srcards .k2,.srcards .k3,.srcards .k4{--c:var(--indigo)}
 .srcards .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;color:var(--c);background:color-mix(in srgb,var(--c) 14%,#fff);margin-bottom:6px}
 .srcards .ic svg{width:21px;height:21px}
 .srcards b{color:var(--ink);font-size:16px}.srcards span:last-child{font-size:13.5px;color:var(--ink2)}
@@ -1733,12 +1734,207 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
 .srcontact b{display:block;color:var(--ink);font-size:17px}.srcontact span{font-size:14px;color:var(--ink2)}
 .srcontact .row2{display:flex;gap:10px;flex-wrap:wrap}
 .prose .srcontact .btn{color:#fff;text-decoration:none}.prose .srcontact .btn.g{color:var(--ink)}
-.prose a.btn{color:#fff;text-decoration:none}.prose a.btn.g{color:var(--ink)}.prose a.btn.gold{color:var(--ink)}
+.prose a.btn{color:#fff;text-decoration:none}.prose a.btn.g{color:var(--ink)}.prose a.btn.gold{color:#fff}
+
+/* ================= layout system: white first, blue for actions, black for emphasis ================= */
+body{font-size:15.5px;line-height:1.6}
+h1,h2,h3{font-weight:750;letter-spacing:-.018em}
+.wrap{width:min(1280px,calc(100% - 48px))}
+@media(max-width:640px){.wrap{width:calc(100% - 28px)}}
+section{padding:48px 0}
+@media(max-width:640px){section{padding:28px 0}}
+
+/* one height for everything you can tap */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border-radius:10px;padding:10px 20px;font-size:14.5px;font-weight:650;box-shadow:none}
+.btn:hover{transform:none;box-shadow:none}
+.btn.g{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.btn.g:hover{box-shadow:inset 0 0 0 1px var(--ink);color:var(--ink)}
+.btn.wide{display:flex;width:100%}
+
+/* header */
+.strip .wrap{min-height:34px}
+.bar{min-height:70px;gap:16px}
+form.search input{height:44px;background:var(--paper);border:1px solid var(--line);border-right:0;border-radius:10px 0 0 10px}
+form.search input:focus{background:#fff}
+form.search button{height:44px;border-radius:0 10px 10px 0;font-weight:650}
+select.pick{height:44px;border-radius:10px;font-weight:600}
+.cartbtn{height:44px;border-radius:10px;padding:0 14px;font-weight:650}
+.catbar .wrap{gap:0}
+.catbar a{padding:12px 11px;font-size:14px;font-weight:500;color:var(--ink2)}
+.catbar a.on{color:var(--ink);font-weight:650}.catbar a::after{background:var(--ink)}
+.catbar a.hl{color:var(--indigo);font-weight:650}
+@media(max-width:820px){.bar{gap:10px;padding-top:8px}form.search{margin-bottom:10px}}
+@media(max-width:520px){
+  .bar{min-height:54px;gap:8px}
+  .brand svg.logo{width:34px;height:34px}.brand svg.word{height:14px}.brand .kj{display:none}
+  form.search input,form.search button,select.pick,.cartbtn{height:40px}
+  form.search input{font-size:15px}
+  .catbar a{padding:11px 9px;font-size:13.5px}
+}
+
+/* section headings: title left, one "view all" link right */
+.sechead{margin-bottom:18px;align-items:flex-end}
+.sechead h2{font-size:clamp(20px,2.1vw,27px)}
+.sechead p{font-size:14.5px;margin-top:6px}
+.sechead>a{font-size:13.5px;font-weight:650;padding:8px 14px;border:1px solid var(--line);border-radius:999px;color:var(--ink);background:#fff}
+.sechead>a:hover{border-color:var(--ink);text-decoration:none}
+@media(max-width:640px){.sechead{gap:10px;margin-bottom:14px;flex-wrap:nowrap}.sechead>a{padding:6px 12px;font-size:12.5px;flex:none}
+  .pg-home .sechead p{display:none}.sechead>span{display:none}}
+
+@media(max-width:1440px){.catbar a{padding:12px 9px;font-size:13.5px}}
+/* hero */
+.hero h1{font-size:clamp(28px,3.9vw,48px);letter-spacing:-.025em}
+.hero .lede{font-size:17px;color:var(--ink2)}
+.eyebrow span{border-radius:8px;font-weight:650}
+.eyebrow span:first-child{background:var(--ink)}
+.stats strong{font-size:22px}
+@media(max-width:640px){
+  .hero{padding:26px 0 30px}.hgrid{gap:22px}
+  .hero h1{font-size:26px;margin-bottom:12px}
+  .hero .lede{font-size:15px;margin-bottom:18px}
+  .eyebrow{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-bottom:16px}.eyebrow::-webkit-scrollbar{display:none}.eyebrow span{flex:none}
+  .hero-cta{margin-bottom:20px;flex-wrap:nowrap}.hero-cta .btn{flex:1 1 auto;white-space:nowrap;padding:10px 14px;font-size:14px}
+  .stats{grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .stats>div{padding:12px 14px;border-left:0;border-top:1px solid var(--line)}
+  .stats>div:nth-child(-n+2){border-top:0}.stats>div:nth-child(even){border-left:1px solid var(--line)}
+  .stats>div:nth-child(3){padding-left:14px}
+  .stats strong{font-size:19px}
+  .heroart{max-width:340px;margin:0 auto;aspect-ratio:4/3}
+}
+
+/* reassurance bar */
+.trustbar .wrap>div{border-left-color:var(--ink)}
+@media(max-width:640px){.trustbar{padding:14px 0}.trustbar .wrap{gap:10px 12px}.trustbar b{font-size:13.5px}.trustbar span{font-size:12px}}
+
+/* category tiles: one row on desktop, tidy grid on phones */
+.cats{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.cats a{border-radius:12px;padding:18px 16px}
+.cats a::before{background:var(--indigo)}
+.cats a:hover{transform:none;border-color:var(--ink);box-shadow:none}
+.cats .n{color:var(--indigo);background:var(--tint)}
+@media(max-width:640px){.cats{grid-template-columns:1fr 1fr;gap:8px}.cats a{padding:14px 12px}.cats a p{display:none}.cats h3{font-size:15px;margin:8px 0 0}}
+
+/* chips rows scroll in one line on phones */
+@media(max-width:640px){.chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.chips::-webkit-scrollbar{display:none}.chips a{flex:none}}
+
+/* product grid: 4 / 3 / 2 columns */
+.grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+@media(max-width:1100px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+.card{border-radius:12px}
+.card:hover{transform:none;border-color:#CBD2DC;box-shadow:0 10px 26px -18px rgba(11,15,25,.3)}
+.card .art{background:#fff;border-bottom:1px solid var(--hair)}
+.card .in{padding:12px 13px 8px;gap:5px}
+.card h3{font-size:14px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.7em}
+.card .meta{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .px .u{font-size:19px;font-weight:750}
+.card .drop{font-size:12px}
+.card form{padding:0 13px 13px;gap:8px}
+.card .buyrow .btn{min-height:38px;padding:8px 10px;font-size:13.5px}
+.card .step input{width:42px}
+.flag{top:8px;left:8px;font-size:10px;padding:3px 8px;border-radius:6px}
+@media(max-width:760px){
+  .card .in{padding:10px 10px 6px;gap:4px}
+  .card h3{font-size:13px}
+  .card .px{gap:5px}.card .px .u{font-size:16.5px}.card .px .per,.card .px .w{font-size:11px}
+  .card .drop{font-size:11.5px}
+  .card form{padding:0 10px 10px}
+  .card .tiers,.card .live,.card .step{display:none}
+  .card .buyrow .btn{min-height:36px;font-size:13px}
+}
+
+/* view switch */
+.listbar{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin:0 0 12px}
+.listbar .lb{font-size:13px;color:var(--muted)}
+.viewsw{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.viewsw button{display:inline-flex;align-items:center;gap:6px;height:36px;border:0;background:#fff;padding:0 12px;font-size:13px;font-weight:600;color:var(--ink2);cursor:pointer}
+.viewsw button+button{border-left:1px solid var(--line)}
+.viewsw button[aria-pressed=true]{background:var(--ink);color:#fff}
+.viewsw svg{width:15px;height:15px}
+@media(max-width:520px){.viewsw button span{display:none}.viewsw button{padding:0 13px}}
+
+/* Compact: 6 / 4 / 3 columns, just picture, name, price and Add */
+html[data-view=compact] .pgrid{grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+@media(max-width:1100px){html[data-view=compact] .pgrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:760px){html[data-view=compact] .pgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}}
+html[data-view=compact] .pgrid .card .tiers,html[data-view=compact] .pgrid .card .live,html[data-view=compact] .pgrid .card .drop,
+html[data-view=compact] .pgrid .card .meta,html[data-view=compact] .pgrid .card .step,html[data-view=compact] .pgrid .card .px .per,
+html[data-view=compact] .pgrid .card .px .w,html[data-view=compact] .pgrid .card .flag{display:none}
+html[data-view=compact] .pgrid .card .art img{padding:8px}
+html[data-view=compact] .pgrid .card .in{padding:8px 9px 4px}
+html[data-view=compact] .pgrid .card h3{font-size:12.5px}
+html[data-view=compact] .pgrid .card .px .u{font-size:15px}
+html[data-view=compact] .pgrid .card form{padding:0 9px 9px}
+html[data-view=compact] .pgrid .card .buyrow .btn{min-height:32px;padding:5px;font-size:12.5px}
+html[data-view=compact] .pgrid .card .ph span:first-child{font-size:18px}
+
+/* List: a price list, one product per row */
+html[data-view=list] .pgrid{grid-template-columns:1fr;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+html[data-view=list] .pgrid .card{display:grid;grid-template-columns:92px minmax(0,1fr) auto;align-items:center;border:0;border-radius:0;border-bottom:1px solid var(--line)}
+html[data-view=list] .pgrid .card:last-child{border-bottom:0}
+html[data-view=list] .pgrid .card:hover{box-shadow:none;background:var(--paper)}
+html[data-view=list] .pgrid .card .art{width:92px;height:92px;aspect-ratio:auto;border-bottom:0;border-right:1px solid var(--hair)}
+html[data-view=list] .pgrid .card .art img{padding:8px}
+html[data-view=list] .pgrid .card .flag,html[data-view=list] .pgrid .card .live{display:none}
+html[data-view=list] .pgrid .card .ph span:first-child{font-size:14px;white-space:nowrap}
+html[data-view=list] .pgrid .card .ph span+span,html[data-view=compact] .pgrid .card .ph span+span{display:none}
+html[data-view=list] .pgrid .card .in{padding:10px 16px;gap:3px}
+html[data-view=list] .pgrid .card h3{min-height:0;-webkit-line-clamp:1;font-size:14.5px}
+html[data-view=list] .pgrid .card .px{margin-top:2px}
+html[data-view=list] .pgrid .card form{display:flex;align-items:center;gap:12px;padding:10px 16px}
+html[data-view=list] .pgrid .card .tiers{flex-wrap:nowrap}
+html[data-view=list] .pgrid .card .buyrow .btn{min-width:84px}
+@media(max-width:1000px){html[data-view=list] .pgrid .card .tiers{display:none}}
+@media(max-width:760px){
+  html[data-view=list] .pgrid .card{grid-template-columns:76px minmax(0,1fr)}
+  html[data-view=list] .pgrid .card .art{width:76px;height:76px;grid-row:span 2;align-self:start}
+  html[data-view=list] .pgrid .card .in{padding:9px 12px 0}
+  html[data-view=list] .pgrid .card h3{-webkit-line-clamp:2;font-size:13.5px}
+  html[data-view=list] .pgrid .card .drop{display:none}
+  html[data-view=list] .pgrid .card form{grid-column:2;padding:6px 12px 10px}
+  html[data-view=list] .pgrid .card .buyrow .btn{min-height:34px}
+}
+
+/* product page */
+.buybox{background:#fff;border-color:var(--line)}
+.ladder{border-radius:12px}
+.ladder .row.on{background:var(--tint);box-shadow:inset 3px 0 0 var(--ink)}
+.trustline span{border-radius:8px}
+
+/* filters line up in a grid */
+.filters{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px 12px;align-items:end;border-radius:12px;background:var(--paper)}
+.filters select,.filters input{height:42px;border-radius:9px}
+.filters .fbtns .btn{min-height:42px;padding:8px 16px}
+@media(max-width:560px){.filters{grid-template-columns:1fr 1fr}.filters label.price{grid-column:1 / -1}.filters .fbtns{grid-column:1 / -1}.filters .fbtns .btn{flex:1}}
+.quick a[aria-current]{background:var(--ink);border-color:var(--ink)}
+
+/* readable long text */
+.prose{font-size:16.5px;line-height:1.78;color:#2B3240;max-width:72ch}
+.prose h2{font-size:clamp(20px,2.2vw,26px);margin:36px 0 10px;color:var(--ink)}
+.prose h3{font-size:18px;margin:24px 0 6px}
+.prose li::before{background:var(--ink)}
+.pg-home .prose{margin-inline:auto}
+@media(max-width:640px){.prose{font-size:16px;line-height:1.72}}
+
+/* home: guides, steps and feature band */
+.gcards a,.tiles a,.steps>div,.panel,.spec,.summary,fieldset{border-radius:12px}
+.gcards a:hover,.tiles a:hover{transform:none;border-color:var(--ink);box-shadow:none}
+.deep{background:var(--paper);border-block:1px solid var(--line)}
+.kicker{background:var(--indigo)}
+@media(max-width:640px){
+  .steps{grid-template-columns:1fr 1fr;gap:10px}.steps>div{padding:14px}.steps h3{font-size:15px}.steps p{font-size:13px}.steps .n{width:30px;height:30px;font-size:14px;margin-bottom:8px}
+  .gcards{grid-template-columns:1fr;gap:8px}.gcards a{padding:14px 16px}.gcards p{display:none}.gcards h3{font-size:15.5px}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+}
+
+/* footer: two columns on phones */
+@media(max-width:860px){.fg{grid-template-columns:1fr 1fr;gap:24px 18px}.fg>div:first-child{grid-column:1 / -1}}
+@media(max-width:520px){footer.site{padding:36px 0 24px}.popular{font-size:12.5px}}
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
-<body>
+<body class="pg-<?= h($page) ?>">
 
 <div class="strip"><div class="wrap">
   <?php if(free_ship_usd($STORE)): ?><a class="fship" href="<?= url('shipping') ?>"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M3 6.5A1.5 1.5 0 0 1 4.5 5h9A1.5 1.5 0 0 1 15 6.5V8h2.6a1.5 1.5 0 0 1 1.2.6l2.4 3.2c.2.26.3.58.3.9V16a1.5 1.5 0 0 1-1.5 1.5h-.6a2.75 2.75 0 0 1-5.3 0H9.9a2.75 2.75 0 0 1-5.3 0h-.1A1.5 1.5 0 0 1 3 16V6.5Zm12 3V13h4.5l-1.9-2.5a1.5 1.5 0 0 0-1.2-.6H15ZM7.25 18.25a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm9.4 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/></svg><span>Free shipping on orders over <?= money_whole(free_ship_usd($STORE)) ?></span></a><?php endif; ?>
@@ -1779,7 +1975,6 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
     <a href="<?= url('cases') ?>" class="<?= $page==='cases'?'on':'' ?>">Sealed cases</a>
     <a href="<?= url('sets') ?>" class="<?= in_array($page, ['sets','series','set'], true)?'on':'' ?>">Sets</a>
     <?php if(info_page('wholesale')): ?><a href="<?= h(url('page', ['pg'=>'wholesale'])) ?>" class="<?= $page==='page'&&($info['slug'] ?? '')==='wholesale'?'on':'' ?>">Wholesale</a><?php endif; ?>
-    <?php if($GUIDES): ?><a href="<?= url('guides') ?>" class="<?= in_array($page, ['guides','guide'], true)?'on':'' ?>">Guides</a><?php endif; ?>
     <a href="<?= url('quote') ?>" class="hl<?= $page==='quote'?' on':'' ?>">Bulk quote</a>
   </div></nav>
 </header>
@@ -2034,7 +2229,8 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
     </details>
     <?php if($list): ?>
       <?php $per = 48; $pages_n = (int)ceil(count($list) / $per); $pg_now = min(max(1, $pg_num), max(1, $pages_n)); ?>
-      <div class="grid"><?php foreach(array_slice(array_values($list), ($pg_now - 1) * $per, $per) as $p) include_card($p); ?></div>
+      <?php view_switch(); ?>
+      <div class="grid pgrid"><?php foreach(array_slice(array_values($list), ($pg_now - 1) * $per, $per) as $p) include_card($p); ?></div>
       <?php if($pages_n > 1): $pargs = array_filter(['cat'=>$cat, 'q'=>$q, 'set'=>$f_set, 'cond'=>$f_cond, 'avail'=>$f_avail, 'sort'=>$f_sort], fn($v)=>$v !== ''); ?>
         <nav class="pager" aria-label="Pages">
           <?php if($pg_now > 1): ?><a rel="prev" href="<?= h(url('catalog', $pargs + ($pg_now > 2 ? ['page'=>$pg_now - 1] : []))) ?>">← Previous</a><?php endif; ?>
@@ -2570,7 +2766,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
       <a href="<?= url('quote') ?>">Need more than listed? Get a quote →</a></div>
     <?php if($cases): ?>
       <h2 class="sub2" style="margin-top:6px">Sealed cases</h2>
-      <div class="grid"><?php foreach($cases as $p) include_card($p); ?></div>
+<?php view_switch(); ?><div class="grid pgrid"><?php foreach($cases as $p) include_card($p); ?></div>
     <?php endif; ?>
     <?php if($packs): ?>
       <h2 class="sub2">Case-pack pricing on boxes</h2>
@@ -2797,7 +2993,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
     <div class="sechead"><div><h1><?= h($h1) ?></h1></div><span class="count"><?= count($sp) ?> product<?= count($sp)===1?'':'s' ?></span></div>
     <?php if(trim($series['intro'] ?? '') !== ''): ?><div class="prose lead"><?= rich($series['intro']) ?></div><?php endif; ?>
     <?php if($ss): ?><h2 class="sub2">Sets</h2><?php set_tiles($ss); endif; ?>
-    <?php if($sp): ?><h2 class="sub2">All <?= h($series['name']) ?> products</h2><div class="grid"><?php foreach($sp as $p) include_card($p); ?></div><?php endif; ?>
+    <?php if($sp): ?><h2 class="sub2">All <?= h($series['name']) ?> products</h2><?php view_switch(); ?><div class="grid pgrid"><?php foreach($sp as $p) include_card($p); ?></div><?php endif; ?>
     <?php guide_links(PAGE_GUIDES['series'], 'Guides to '.$series['name'].' cards'); ?>
   </div></section>
 
@@ -2807,7 +3003,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
   <section class="top"><div class="wrap">
     <div class="sechead"><div><h1><?= h($h1) ?></h1></div><span class="count"><?= count($sp) ?> product<?= count($sp)===1?'':'s' ?></span></div>
     <?php if(trim($set['intro']) !== ''): ?><div class="prose lead"><?= rich($set['intro']) ?></div><?php endif; ?>
-    <div class="grid"><?php foreach($sp as $p) include_card($p); ?></div>
+    <?php view_switch(); ?><div class="grid pgrid"><?php foreach($sp as $p) include_card($p); ?></div>
     <?php if($others): ?><h2 class="sub2">More <?= h($SERIES[$set['series']]['name']) ?> sets</h2><?php set_tiles($others); endif; ?>
     <?php guide_links(PAGE_GUIDES['set:'.$set['slug']] ?? PAGE_GUIDES['set'], 'Guides to '.$set['name'].' and more'); ?>
   </div></section>
@@ -2817,7 +3013,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
   <section class="top"><div class="wrap">
     <div class="sechead"><div><h1><?= h($h1) ?></h1></div><span class="count"><?= count($cp) ?> product<?= count($cp)===1?'':'s' ?></span></div>
     <?php if(trim($coll['intro'] ?? '') !== ''): ?><div class="prose lead"><?= rich($coll['intro']) ?></div><?php endif; ?>
-    <?php if($cp): ?><div class="grid"><?php foreach($cp as $p) include_card($p); ?></div>
+    <?php if($cp): ?><?php view_switch(); ?><div class="grid pgrid"><?php foreach($cp as $p) include_card($p); ?></div>
     <?php else: ?><p class="empty">Nothing in stock here right now — see all <a href="<?= url('catalog', ['cat'=>'singles']) ?>">single cards</a>.</p><?php endif; ?>
     <?php guide_links(PAGE_GUIDES['coll:'.$coll['slug']] ?? PAGE_GUIDES['coll'], 'Helpful guides'); ?>
   </div></section>
@@ -2931,6 +3127,16 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
 <script>
 /* on phones the filters start folded away (unless some are in use), so products come first */
 (function(){ const fb = document.getElementById('filterbox'); if(fb && !fb.hasAttribute('data-keep') && matchMedia('(max-width:700px)').matches) fb.open = false; })();
+/* product view switch: Grid / Compact / List, remembered in this browser */
+(function(){
+  const set = v => {
+    if(v === 'grid') delete document.documentElement.dataset.view; else document.documentElement.dataset.view = v;
+    document.querySelectorAll('.viewsw button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
+    try{ localStorage.setItem('pk_view', v); }catch(e){}
+  };
+  document.querySelectorAll('.viewsw button').forEach(b => b.addEventListener('click', () => set(b.dataset.view)));
+  set(document.documentElement.dataset.view || 'grid');
+})();
 /* phones: an "Add to order" bar while the buy box is off screen */
 (function(){
   const bar = document.getElementById('stickyBuy'), box = document.getElementById('buyForm');
@@ -3259,6 +3465,15 @@ function tier_chips($p, $buttons=true){
   }
   echo '</div>';
 }
+
+/* Grid / Compact / List: each visitor's choice is remembered in their browser */
+function view_switch(){ ?>
+  <div class="listbar"><span class="lb">View</span><div class="viewsw" role="group" aria-label="Product view">
+    <button type="button" data-view="grid" aria-pressed="true" title="Grid"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M1 1h6v6H1zM9 1h6v6H9zM1 9h6v6H1zM9 9h6v6H9z"/></svg><span>Grid</span></button>
+    <button type="button" data-view="compact" aria-pressed="false" title="Compact"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M1 1h4v4H1zM6 1h4v4H6zM11 1h4v4h-4zM1 6h4v4H1zM6 6h4v4H6zM11 6h4v4h-4zM1 11h4v4H1zM6 11h4v4H6zM11 11h4v4h-4z"/></svg><span>Compact</span></button>
+    <button type="button" data-view="list" aria-pressed="false" title="List"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M1 2h3v3H1zM6 2.75h9v1.5H6zM1 6.5h3v3H1zM6 7.25h9v1.5H6zM1 11h3v3H1zM6 11.75h9v1.5H6z"/></svg><span>List</span></button>
+  </div></div>
+<?php }
 
 function stepper($p, $name, $value, $min){ ?>
   <div class="step">

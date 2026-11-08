@@ -57,6 +57,10 @@ Uploading the files by hand instead:
 
 `inc/catalog.php` holds the 180 products added in November 2026: English Pokémon sealed product (30th Celebration, Delta Reign and the other Mega Evolution sets, Scarlet & Violet ETBs and Pokémon Center ETBs, booster boxes, bundles, UPCs, tins, blisters), Japanese booster boxes and English One Piece Card Game. Each has its own description, SEO title and description, bulk tiers (4+, 6+, 10+, 24+; 10+, 36+, 100+ for packs and blisters; 2+, 4+, 6+ for items over $300), weight and language. **Prices are set 8% under market estimates** (`DISCOUNT` in the generator): check them in **Products**. Shops installed earlier receive any of these products they don't already have once, on the first page load (nothing you added or edited is changed). New set pages, the One Piece Card Game category and collection pages (Pokémon Center ETBs, UPCs, English and Japanese booster boxes, bundles, tins, Build & Battle Boxes, packs and blisters) come with them, and the home page features the new ranges. Add your own photos in **Products**. `tools/catalog_gen.py` regenerates the file.
 
+## Design
+
+White first, blue for buttons and links, black for emphasis (top bar, active tabs, badges). Product lists (shop, categories, sets, series, collections, sealed cases) have a **Grid / Compact / List** switch: Grid shows 4 products a row on desktop and 2 on phones, Compact 6 and 3, and List is a one-row-per-product price list with bulk tiers and quantity. Each visitor's choice is remembered in their browser. The logo files and the link-preview image (`assets/site/share-pokekura.jpg`) are white, blue and black.
+
 ## Shopping and content (content update 12)
 
 - **Shop pages** have quick picks (Elite Trainer Boxes, booster boxes, collections, One Piece, Pokémon Center ETBs, UPCs, Japanese boxes, preorders, sealed cases), a **Newest first** sort, and filters that fold away on phones.
