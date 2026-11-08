@@ -198,8 +198,10 @@ TYPES = {  # type: (category, weight kg, sku code, label)
  'opstarter': ('onepiece', 0.18, 'OPS', 'starter deck'),
 }
 
+DISCOUNT = 0.92   # prices sit 8% under the market estimates in the list below
+
 def nice(x):
-    if x < 10: return round(x, 2)
+    if x < 10: return round(math.floor((x + 0.01) * 10) / 10 - 0.01, 2)   # 6.39, 5.49 …
     return math.floor(x * 2) / 2 - 0.01        # 52.49, 52.99 …
 
 def ladder(p):
@@ -365,6 +367,7 @@ for p in P:
     cat, kg, code, _ = TYPES[p['typ']]
     counters[code] = counters.get(code, 0) + 1
     lang = 'Japanese' if p['typ'] in ('jpbox', 'jpdeckset') else 'English'
+    p['price'] = nice(p['price'] * DISCOUNT)
     lad = ladder(p['price'])
     out.append({'id': pid, 'sku': f"PK-{code}-{counters[code]:03d}", 'name': p['name'], 'set': p['set'], 'cat': cat, 'cond': 'Sealed', 'lang': lang,
                 'moq': 1, 'step': 1, 'status': p.get('status', 'in'), 'release': p.get('release', ''), 'weight': kg, 'hidden': False,
@@ -374,7 +377,7 @@ for o in out: assert len(o['seo_desc']) <= 160, (o['id'], len(o['seo_desc']))
 src = ("<?php\n/* The product range added in November 2026: English Pokémon TCG sealed product (30th Celebration, Mega Evolution,\n"
        "   Scarlet & Violet, Sword & Shield), Japanese booster boxes and English One Piece Card Game. New shops get these\n"
        "   with the starting data; shops installed earlier get any that are missing, once (content update 10).\n"
-       "   Prices are starting estimates in USD: check them in Admin → Products. */\n"
+       "   Prices are set 8% under market estimates, in USD: check them in Admin → Products. */\n"
        "if(!defined('FK_ROOT')){ http_response_code(404); exit; }\n\nreturn [\n")
 src += ',\n'.join('  ' + php(o, 2) for o in out) + '\n];\n'
 open('inc/catalog.php', 'w').write(src)

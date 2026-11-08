@@ -83,7 +83,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 10;
+const CONTENT_VERSION = 11;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -216,6 +216,15 @@ function content_upgrade($s, $d, $version){
       'home_seo_title'=>['Japanese Pokémon Cards Wholesale: Booster Boxes & Singles', 'Pokémon Cards Wholesale: ETBs, Booster Boxes & UPCs'],
       'home_seo_desc'=>['Wholesale Japanese Pokémon cards from Japan: sealed booster boxes, ETBs, premium sets and singles for card shops and retailers, with MOQ and case pricing.', 'Wholesale Pokémon cards shipped worldwide from Japan: English ETBs, Pokémon Center ETBs, booster boxes, UPCs, Japanese boxes and One Piece. Bulk prices.'],
     ] as $k=>[$was, $now]) if(($s['settings'][$k] ?? '') === $was) $s['settings'][$k] = $now;
+  }
+  if($version < 11){   /* the November 2026 range priced 8% under market: only products whose prices the owner hasn't changed */
+    $was = require FK_ROOT.'/inc/catalog-prices-v10.php';
+    $now = array_column(require FK_ROOT.'/inc/catalog.php', null, 'id');
+    foreach($s['products'] ?? [] as $i=>$p){
+      $id = $p['id'] ?? ''; if(!isset($was[$id], $now[$id])) continue;
+      if(md5(json_encode($p['ladder'] ?? [])) === $was[$id][0]) $s['products'][$i]['ladder'] = $now[$id]['ladder'];
+      if(md5((string)($p['seo_desc'] ?? '')) === $was[$id][1]) $s['products'][$i]['seo_desc'] = $now[$id]['seo_desc'];
+    }
   }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;
