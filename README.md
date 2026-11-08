@@ -53,6 +53,10 @@ Uploading the files by hand instead:
 - **Payments**: the customer picks a method (each can be limited to certain countries). For ordinary methods you send them the details. **Bitcoin** is paid on the site — see below.
 - **Shipping & customs and Returns pages** (`/shipping`, `/returns`): both come from the one policy text in **Shipping**. Sections headed *If something goes wrong*, *Returns*, *Refunds*, *Cancellations…* and *Authenticity…* show on Returns; everything else on Shipping & customs. The line `{rates}` is where the rate tables go, and questions under `## Questions` written as `### Question` are given to Google as FAQs. The old `/shipping-returns` address redirects.
 
+## Product range (November 2026)
+
+`inc/catalog.php` holds the 180 products added in November 2026: English Pokémon sealed product (30th Celebration, Delta Reign and the other Mega Evolution sets, Scarlet & Violet ETBs and Pokémon Center ETBs, booster boxes, bundles, UPCs, tins, blisters), Japanese booster boxes and English One Piece Card Game. Each has its own description, SEO title and description, bulk tiers (4+, 6+, 10+, 24+; 10+, 36+, 100+ for packs and blisters; 2+, 4+, 6+ for items over $300), weight and language. **Prices are starting estimates**: check them in **Products**. Shops installed earlier receive any of these products they don't already have once, on the first page load (nothing you added or edited is changed). New set pages, the One Piece Card Game category and collection pages (Pokémon Center ETBs, UPCs, English and Japanese booster boxes, bundles, tins, Build & Battle Boxes, packs and blisters) come with them, and the home page features the new ranges. Add your own photos in **Products**. `tools/catalog_gen.py` regenerates the file.
+
 ## Bitcoin payments
 
 Customers who choose Bitcoin are taken straight to their order's payment page. It shows the exact BTC amount (worked out from the US-dollar total at the live price, held for 60 minutes and then renewed if unpaid), a QR code for their wallet, your address and copy buttons. The same page link is in their order email.

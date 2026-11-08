@@ -83,7 +83,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 9;
+const CONTENT_VERSION = 10;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -200,6 +200,23 @@ function content_upgrade($s, $d, $version){
       $s['products'][$i]['desc'] = str_replace('Elite Trainer Box from the Japanese Mega Evolution series.', 'Elite Trainer Box from the Pokémon TCG Mega Evolution series, in English.', (string)($p['desc'] ?? ''));
   }
 
+  if($version < 10){   /* the November 2026 range: English Pokémon sealed product, more Japanese boxes, One Piece Card Game */
+    foreach(['categories', 'series', 'sets'] as $k) foreach($d[$k] ?? [] as $key=>$v) if(!isset($s[$k][$key])) $s[$k][$key] = $v;
+    $have = array_column($s['collections'] ?? [], 'slug');
+    foreach($d['collections'] ?? [] as $c) if(!in_array($c['slug'], $have, true)) $s['collections'][] = $c;
+    $have = array_column($s['products'] ?? [], 'id');
+    foreach(require FK_ROOT.'/inc/catalog.php' as $p) if(!in_array($p['id'], $have, true)) $s['products'][] = $p;
+    /* English ETBs move from the Japanese set they were filed under to their own English set page */
+    $to = ['pitch-black-elite-trainer-box'=>['Abyss Eye', 'Pitch Black'], 'chaos-rising-elite-trainer-box'=>['Ninja Spinner', 'Chaos Rising'],
+           'perfect-order-elite-trainer-box'=>['Nihil Zero', 'Perfect Order'], 'mega-evolution-ascended-heroes-elite-trainer-box'=>['Mega Dream ex', 'Ascended Heroes']];
+    foreach($s['products'] as $i=>$p) if(isset($to[$p['id'] ?? '']) && ($p['set'] ?? '') === $to[$p['id']][0]) $s['products'][$i]['set'] = $to[$p['id']][1];
+    foreach([
+      'hero_title'=>['Wholesale Japanese Pokémon cards, shipped worldwide from Japan.', 'Pokémon cards wholesale — English & Japanese, shipped worldwide from Japan.'],
+      'hero_lede'=>['Japanese booster boxes, Elite Trainer Boxes, premium sets, singles and accessories for card shops, online stores, event organizers and distributors. Bulk prices are on every product: tap 6+, 12+ or 24+ and the lower price applies straight away. No account, no approval wait.', 'Elite Trainer Boxes, Pokémon Center ETBs, booster boxes, Ultra-Premium Collections, Japanese booster boxes and One Piece Card Game for card shops, online stores and collectors. Bulk prices on every product: tap 4+, 6+ or 10+ and the lower price applies straight away. No account, no approval wait.'],
+      'home_seo_title'=>['Japanese Pokémon Cards Wholesale: Booster Boxes & Singles', 'Pokémon Cards Wholesale: ETBs, Booster Boxes & UPCs'],
+      'home_seo_desc'=>['Wholesale Japanese Pokémon cards from Japan: sealed booster boxes, ETBs, premium sets and singles for card shops and retailers, with MOQ and case pricing.', 'Wholesale Pokémon cards shipped worldwide from Japan: English ETBs, Pokémon Center ETBs, booster boxes, UPCs, Japanese boxes and One Piece. Bulk prices.'],
+    ] as $k=>[$was, $now]) if(($s['settings'][$k] ?? '') === $was) $s['settings'][$k] = $now;
+  }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;
 }

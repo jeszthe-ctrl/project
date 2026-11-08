@@ -28,7 +28,7 @@ $d = [
     'pretty_urls'   => false,            /* clean addresses like /products/151-booster-box: switched on by themselves when the host supports them */
     'pretty_auto'   => false,            /* set once that automatic switch has happened, so turning them off in the admin sticks */
     'free_ship_usd' => 2000,             /* free Standard shipping from this goods total (USD); 0 = off */
-    'content_version' => 9,              /* set by the shop: which built-in content updates are applied */
+    'content_version' => 10,              /* set by the shop: which built-in content updates are applied */
     'moved_to'      => '',               /* an old domain running this code can send every visitor here (301) */
     'google_verify' => '', 'bing_verify' => '',   /* Search Console / Bing verification codes (Admin → Settings) */
     /* SMTP for order emails (Admin → Settings → Email); blank host = the web host's mail() */
@@ -501,7 +501,7 @@ A low-price item that sells well at the counter and in online baskets next to 30
 - 30th Celebration sticker collection
 - Sold in 12s, with the lowest price from 72'],
     ['id'=>'pitch-black-elite-trainer-box', 'sku'=>'PK-ETB-PB-01',
-     'name'=>'Pitch Black Elite Trainer Box', 'set'=>'Abyss Eye', 'cat'=>'etb', 'cond'=>'Sealed',
+     'name'=>'Pitch Black Elite Trainer Box', 'set'=>'Pitch Black', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,44.09],[4,39.60],[24,29.90]],
      'desc'=>'A factory-sealed Pokémon TCG Mega Evolution Pitch Black Elite Trainer Box.
@@ -512,7 +512,7 @@ Pitch Black is part of the Pokémon Trading Card Game\'s Mega Evolution series. 
 - Booster packs, sleeves, dice, damage counters and storage box
 - Sold in fours, with the lowest price from 24'],
     ['id'=>'chaos-rising-elite-trainer-box', 'sku'=>'PK-ETB-CR-01',
-     'name'=>'Chaos Rising Elite Trainer Box', 'set'=>'Ninja Spinner', 'cat'=>'etb', 'cond'=>'Sealed',
+     'name'=>'Chaos Rising Elite Trainer Box', 'set'=>'Chaos Rising', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,44.09],[4,39.60],[24,29.90]],
      'desc'=>'A factory-sealed Pokémon TCG Mega Evolution Chaos Rising Elite Trainer Box.
@@ -523,7 +523,7 @@ Chaos Rising is part of the Pokémon Trading Card Game\'s Mega Evolution series.
 - Booster packs, sleeves, dice, damage counters and storage box
 - Sold in fours, with the lowest price from 24'],
     ['id'=>'perfect-order-elite-trainer-box', 'sku'=>'PK-ETB-PO-01',
-     'name'=>'Perfect Order Elite Trainer Box', 'set'=>'Nihil Zero', 'cat'=>'etb', 'cond'=>'Sealed',
+     'name'=>'Perfect Order Elite Trainer Box', 'set'=>'Perfect Order', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,44.09],[4,39.60],[24,29.90]],
      'desc'=>'A factory-sealed Pokémon TCG Mega Evolution Perfect Order Elite Trainer Box.
@@ -534,7 +534,7 @@ Perfect Order is part of the Pokémon Trading Card Game\'s Mega Evolution series
 - Booster packs, sleeves, dice, damage counters and storage box
 - Sold in fours, with the lowest price from 24'],
     ['id'=>'mega-evolution-ascended-heroes-elite-trainer-box', 'sku'=>'PK-ETB-AH-01',
-     'name'=>'Mega Evolution: Ascended Heroes Elite Trainer Box', 'set'=>'Mega Dream ex', 'cat'=>'etb', 'cond'=>'Sealed',
+     'name'=>'Mega Evolution: Ascended Heroes Elite Trainer Box', 'set'=>'Ascended Heroes', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
      'ladder'=>[[1,44.09],[4,39.60],[24,29.90]],
      'desc'=>'A factory-sealed Pokémon TCG Mega Evolution Ascended Heroes Elite Trainer Box.
@@ -693,4 +693,5 @@ $d['sets']        = $c['sets'];
 $d['collections'] = $c['collections'];
 $d['guides']      = $c['guides'];
 $d['pages']       = $c['pages'];
+$d['products']    = array_merge($d['products'], require __DIR__.'/catalog.php');   /* the November 2026 range */
 return $d;

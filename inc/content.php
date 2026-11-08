@@ -12,11 +12,11 @@ if(!defined('FK_ROOT')){ http_response_code(404); exit; }
 return [
   'settings' => [
     'strip_text'    => 'Japanese booster boxes · English Elite Trainer Boxes · Bulk prices on every product',
-    'hero_title'    => 'Wholesale Japanese Pokémon cards, shipped worldwide from Japan.',
-    'hero_lede'     => 'Japanese booster boxes, Elite Trainer Boxes, premium sets, singles and accessories for card shops, online stores, event organizers and distributors. Bulk prices are on every product: tap 6+, 12+ or 24+ and the lower price applies straight away. No account, no approval wait.',
+    'hero_title'    => 'Pokémon cards wholesale — English & Japanese, shipped worldwide from Japan.',
+    'hero_lede'     => 'Elite Trainer Boxes, Pokémon Center ETBs, booster boxes, Ultra-Premium Collections, Japanese booster boxes and One Piece Card Game for card shops, online stores and collectors. Bulk prices on every product: tap 4+, 6+ or 10+ and the lower price applies straight away. No account, no approval wait.',
     'footer_blurb'  => 'Independent distributor and reseller of authentic Japanese Pokémon TCG products, shipping wholesale orders worldwide from Japan to card shops, online retailers, tournament organizers and distributors.',
-    'home_seo_title'=> 'Japanese Pokémon Cards Wholesale: Booster Boxes & Singles',
-    'home_seo_desc' => 'Wholesale Japanese Pokémon cards from Japan: sealed booster boxes, ETBs, premium sets and singles for card shops and retailers, with MOQ and case pricing.',
+    'home_seo_title'=> 'Pokémon Cards Wholesale: ETBs, Booster Boxes & UPCs',
+    'home_seo_desc' => 'Wholesale Pokémon cards shipped worldwide from Japan: English ETBs, Pokémon Center ETBs, booster boxes, UPCs, Japanese boxes and One Piece. Bulk prices.',
     'home_intro'    => <<<'MD'
 ## Why buy Japanese Pokémon cards?
 
@@ -285,6 +285,20 @@ A good card binder and the right sleeves keep a collection in Near Mint conditio
 Pokémon cards are 63 × 88 mm, so they need standard-size sleeves — see our [Pokémon card size guide](guide:pokemon-card-size) before you buy. Accessories are sold in bulk packs for card shops, with lower prices at higher quantities.
 MD,
     ],
+    'onepiece' => [
+      'label' => 'One Piece Card Game', 'slug' => 'one-piece-card-game',
+      'blurb' => 'English One Piece Card Game booster boxes, extra boosters and starter decks.',
+      'h1' => 'One Piece Card Game booster boxes & starter decks (English)',
+      'seo_title' => 'One Piece Card Game Booster Boxes — OP-01 to OP-19 (English)',
+      'seo_desc' => 'English One Piece Card Game booster boxes from OP-01 Romance Dawn to OP-19, extra boosters EB-01 to EB-06, premium boosters and starter decks, with bulk prices.',
+      'intro' => <<<'MD'
+## One Piece Card Game booster boxes
+
+We stock English One Piece Card Game sealed product from Bandai: the main booster sets from OP-01 Romance Dawn onwards, the Extra Booster (EB) and Premium Booster (PRB) releases, and starter decks for new players and tournament nights. Upcoming sets are open for preorder.
+
+Every product shows its bulk prices: the price per box drops at 4, 6, 10 and 24 boxes, and your cart applies it automatically. Orders ship worldwide from Japan with tracking — see [Shipping & customs](page:shipping), or [request a quote](page:quote) for full cases and standing orders.
+MD,
+    ],
   ],
 
   'series' => [
@@ -309,6 +323,34 @@ The Pokémon Trading Card Game Scarlet & Violet era ran from 2023 until the Mega
 
 We still stock sealed Scarlet & Violet booster boxes from Japan, including [Heat Wave Arena](set:heat-wave-arena) and [Glory of Team Rocket](set:glory-of-team-rocket). As these sets go out of print, sealed boxes become harder to find.
 MD,
+    ],
+    'mega-en' => [
+      'name' => 'Mega Evolution (English)', 'slug' => 'mega-evolution-english',
+      'h1' => 'Pokémon TCG Mega Evolution English sets: ETBs, booster boxes & bundles',
+      'seo_title' => 'Mega Evolution English Sets — Pokémon ETBs & Booster Boxes',
+      'seo_desc' => 'English Pokémon TCG Mega Evolution sets — Delta Reign, Phantasmal Flames, Ascended Heroes, Perfect Order, Chaos Rising, Pitch Black — ETBs, booster boxes and bundles.',
+      'intro' => "The English Pokémon Trading Card Game Mega Evolution series brought Mega Pokémon back to the game. We stock every English Mega Evolution set: Elite Trainer Boxes and Pokémon Center ETBs, booster display boxes, booster bundles, Build & Battle Boxes and blisters, with bulk prices on every product.",
+    ],
+    'sv-en' => [
+      'name' => 'Scarlet & Violet (English)', 'slug' => 'scarlet-violet-english',
+      'h1' => 'Pokémon TCG Scarlet & Violet English sets',
+      'seo_title' => 'Scarlet & Violet English Sets — Pokémon ETBs & Booster Boxes',
+      'seo_desc' => 'English Pokémon TCG Scarlet & Violet sets: Prismatic Evolutions, 151, Destined Rivals, Surging Sparks, Black Bolt, White Flare and more — ETBs, booster boxes, bundles.',
+      'intro' => "Scarlet & Violet produced some of the most collected English Pokémon sets ever, from 151 and Paldean Fates to Prismatic Evolutions. We stock sealed Elite Trainer Boxes, Pokémon Center ETBs, booster display boxes, bundles and collections across the series, with bulk prices on every product.",
+    ],
+    'swsh-en' => [
+      'name' => 'Sword & Shield (English)', 'slug' => 'sword-shield-english',
+      'h1' => 'Pokémon TCG Sword & Shield English sets',
+      'seo_title' => 'Sword & Shield English Sets — Crown Zenith & Celebrations',
+      'seo_desc' => 'Sealed English Pokémon TCG Sword & Shield product: Crown Zenith Elite Trainer Boxes and figure collections, and the Celebrations Ultra-Premium Collection.',
+      'intro' => "Sword & Shield sealed product is out of print, which is why collectors keep it sealed. We stock Crown Zenith Elite Trainer Boxes and premium figure collections and the Celebrations Ultra-Premium Collection.",
+    ],
+    'swsh' => [
+      'name' => 'Sword & Shield (Japanese)', 'slug' => 'sword-shield-japanese',
+      'h1' => 'Japanese Pokémon TCG Sword & Shield sets',
+      'seo_title' => 'Japanese Sword & Shield Booster Boxes — VSTAR Universe & More',
+      'seo_desc' => 'Sealed Japanese Pokémon Sword & Shield booster boxes: VSTAR Universe (S12a), Lost Abyss (S11), Pokémon GO (S10b) and Eevee Heroes (S6a), shipped from Japan.',
+      'intro' => "Japanese Sword & Shield booster boxes are long out of print in Japan, and sets like Eevee Heroes and VSTAR Universe are among the most collected Japanese boxes of all. We ship them sealed, straight from Japan.",
     ],
   ],
 
@@ -344,6 +386,55 @@ MD,
       'seo_title'=>'151 Pokémon Cards — Japanese 151 Booster Box & Charizard',
       'seo_desc'=>'Japanese 151 Pokémon cards (SV2a): sealed 151 booster boxes and the Charizard ex Special Illustration Rare, shipped from Japan to the USA.',
       'intro'=>"Pokémon Card 151 (SV2a) is the Japanese special set that revisits the original 151 Pokémon from Red and Green, from Bulbasaur to Mew. It is one of the most collected sets of the Scarlet & Violet era, released in English as Scarlet & Violet—151. Japanese 151 booster boxes hold 20 packs of 7 cards, and the chase cards include the Charizard ex Special Illustration Rare.\n\n## Pokémon 151 card list\n\nJapanese 151 (released on 16 June 2023) has 210 cards: a 165-card main set covering the original 151 Pokémon plus Trainer and Energy cards, and 45 secret rares: 18 Art Rares (AR), 16 Super Rares (SR), 8 Special Art Rares (SAR) and 3 gold Ultra Rares (UR). More in our [Pokémon card database](guide:pokemon-card-database).\n\nWe stock sealed 151 booster boxes and the 151 Charizard ex SAR. Looking for more 151 Pokémon cards? See all our [Charizard Pokémon cards](cards:charizard-pokemon-cards)."],
+    'Delta Reign' => ['slug'=>'delta-reign', 'series'=>'mega-en', 'code'=>'', 'intro'=>''],
+    'Phantasmal Flames' => ['slug'=>'phantasmal-flames', 'series'=>'mega-en', 'code'=>'', 'intro'=>''],
+    'Ascended Heroes' => ['slug'=>'ascended-heroes', 'series'=>'mega-en', 'code'=>'', 'intro'=>''],
+    'Perfect Order' => ['slug'=>'perfect-order', 'series'=>'mega-en', 'code'=>'', 'intro'=>''],
+    'Chaos Rising' => ['slug'=>'chaos-rising', 'series'=>'mega-en', 'code'=>'', 'intro'=>''],
+    'Pitch Black' => ['slug'=>'pitch-black', 'series'=>'mega-en', 'code'=>'', 'intro'=>''],
+    'Mega Evolution' => ['slug'=>'mega-evolution-english-base-set', 'series'=>'mega-en', 'code'=>'', 'intro'=>''],
+    'Black Bolt' => ['slug'=>'black-bolt', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
+    'White Flare' => ['slug'=>'white-flare', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
+    'Destined Rivals' => ['slug'=>'destined-rivals', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
+    'Journey Together' => ['slug'=>'journey-together', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
+    'Prismatic Evolutions' => ['slug'=>'prismatic-evolutions', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
+    'Surging Sparks' => ['slug'=>'surging-sparks', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
+    'Stellar Crown' => ['slug'=>'stellar-crown', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
+    'Shrouded Fable' => ['slug'=>'shrouded-fable', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
+    'Twilight Masquerade' => ['slug'=>'twilight-masquerade', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
+    'Temporal Forces' => ['slug'=>'temporal-forces', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
+    'Paldean Fates' => ['slug'=>'paldean-fates', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
+    'Scarlet & Violet—151' => ['slug'=>'scarlet-violet-151', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
+    'Obsidian Flames' => ['slug'=>'obsidian-flames', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
+    'Paldea Evolved' => ['slug'=>'paldea-evolved', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
+    'Scarlet & Violet Base Set' => ['slug'=>'scarlet-violet-base-set', 'series'=>'sv-en', 'code'=>'', 'intro'=>''],
+    'Crown Zenith' => ['slug'=>'crown-zenith', 'series'=>'swsh-en', 'code'=>'', 'intro'=>''],
+    'Celebrations' => ['slug'=>'celebrations', 'series'=>'swsh-en', 'code'=>'', 'intro'=>''],
+    'Black Bolt (Japanese)' => ['slug'=>'black-bolt-sv11b', 'series'=>'sv', 'code'=>'SV11B', 'intro'=>''],
+    'White Flare (Japanese)' => ['slug'=>'white-flare-sv11w', 'series'=>'sv', 'code'=>'SV11W', 'intro'=>''],
+    'Battle Partners' => ['slug'=>'battle-partners-sv9', 'series'=>'sv', 'code'=>'SV9', 'intro'=>''],
+    'Super Electric Breaker' => ['slug'=>'super-electric-breaker-sv8', 'series'=>'sv', 'code'=>'SV8', 'intro'=>''],
+    'Paradise Dragona' => ['slug'=>'paradise-dragona-sv7a', 'series'=>'sv', 'code'=>'SV7a', 'intro'=>''],
+    'Stellar Miracle' => ['slug'=>'stellar-miracle-sv7', 'series'=>'sv', 'code'=>'SV7', 'intro'=>''],
+    'Night Wanderer' => ['slug'=>'night-wanderer-sv6a', 'series'=>'sv', 'code'=>'SV6a', 'intro'=>''],
+    'Mask of Change' => ['slug'=>'mask-of-change-sv6', 'series'=>'sv', 'code'=>'SV6', 'intro'=>''],
+    'Crimson Haze' => ['slug'=>'crimson-haze-sv5a', 'series'=>'sv', 'code'=>'SV5a', 'intro'=>''],
+    'Wild Force' => ['slug'=>'wild-force-sv5k', 'series'=>'sv', 'code'=>'SV5K', 'intro'=>''],
+    'Cyber Judge' => ['slug'=>'cyber-judge-sv5m', 'series'=>'sv', 'code'=>'SV5M', 'intro'=>''],
+    'Shiny Treasure ex' => ['slug'=>'shiny-treasure-ex-sv4a', 'series'=>'sv', 'code'=>'SV4a', 'intro'=>''],
+    'Ancient Roar' => ['slug'=>'ancient-roar-sv4k', 'series'=>'sv', 'code'=>'SV4K', 'intro'=>''],
+    'Future Flash' => ['slug'=>'future-flash-sv4m', 'series'=>'sv', 'code'=>'SV4M', 'intro'=>''],
+    'Raging Surf' => ['slug'=>'raging-surf-sv3a', 'series'=>'sv', 'code'=>'SV3a', 'intro'=>''],
+    'Ruler of the Black Flame' => ['slug'=>'ruler-of-the-black-flame-sv3', 'series'=>'sv', 'code'=>'SV3', 'intro'=>''],
+    'Clay Burst' => ['slug'=>'clay-burst-sv2d', 'series'=>'sv', 'code'=>'SV2D', 'intro'=>''],
+    'Snow Hazard' => ['slug'=>'snow-hazard-sv2p', 'series'=>'sv', 'code'=>'SV2P', 'intro'=>''],
+    'Triplet Beat' => ['slug'=>'triplet-beat-sv1a', 'series'=>'sv', 'code'=>'SV1a', 'intro'=>''],
+    'Violet ex' => ['slug'=>'violet-ex-sv1v', 'series'=>'sv', 'code'=>'SV1V', 'intro'=>''],
+    'Scarlet ex' => ['slug'=>'scarlet-ex-sv1s', 'series'=>'sv', 'code'=>'SV1S', 'intro'=>''],
+    'VSTAR Universe' => ['slug'=>'vstar-universe-s12a', 'series'=>'swsh', 'code'=>'S12a', 'intro'=>''],
+    'Lost Abyss' => ['slug'=>'lost-abyss-s11', 'series'=>'swsh', 'code'=>'S11', 'intro'=>''],
+    'Pokémon GO' => ['slug'=>'pokemon-go-s10b', 'series'=>'swsh', 'code'=>'S10b', 'intro'=>''],
+    'Eevee Heroes' => ['slug'=>'eevee-heroes-s6a', 'series'=>'swsh', 'code'=>'S6a', 'intro'=>''],
   ],
 
   /* products are included if their id is listed, or their name contains a match term
@@ -383,6 +474,64 @@ Graded Pokémon cards have been assessed and sealed in a tamper-evident case by 
 
 Our graded Pokémon cards ship in their original PSA slab. For raw cards, see our [rare single cards](category:singles), and learn how grading affects price in [how much Pokémon cards are worth](guide:pokemon-card-values).
 MD],
+    ['slug'=>'pokemon-center-elite-trainer-boxes', 'title'=>'Pokémon Center Elite Trainer Boxes', 'h1'=>'Pokémon Center Elite Trainer Boxes',
+     'match'=>'pokémon center elite trainer', 'ids'=>[], 'cond'=>'',
+     'seo_title'=>'Pokémon Center Elite Trainer Boxes — Every Set (English)',
+     'seo_desc'=>'Pokémon Center exclusive Elite Trainer Boxes for every recent set: Prismatic Evolutions, 151, Delta Reign, Phantasmal Flames and more. Bulk prices, ships worldwide.',
+     'intro'=><<<'MD'
+Pokémon Center Elite Trainer Boxes are the Pokémon Center exclusive edition of each set's ETB: more booster packs than the standard box (11 in most sets, compared with 9) and an exclusive promo card, alongside the usual sleeves, Energy cards and dice. They're sold only through the official Pokémon Center, which makes them the most collected ETBs.
+
+We stock Pokémon Center ETBs from the Mega Evolution and Scarlet & Violet series, plus the Crown Zenith ETB Plus. Prices drop at 4, 6, 10 and 24 boxes. Looking for the standard boxes? See all [Elite Trainer Boxes](category:etb).
+MD],
+    ['slug'=>'pokemon-ultra-premium-collections', 'title'=>'Pokémon Ultra-Premium Collections', 'h1'=>'Pokémon Ultra-Premium Collections (UPC)',
+     'match'=>'ultra-premium,super-premium,upc —', 'ids'=>[], 'cond'=>'',
+     'seo_title'=>'Pokémon Ultra-Premium Collections (UPC) — Sealed, English',
+     'seo_desc'=>'Sealed Pokémon Ultra-Premium Collections: 30th Celebration Day & Night, Mega Charizard X ex, 151, Celebrations, Charizard and Arceus VSTAR UPCs. Ships worldwide.',
+     'intro'=><<<'MD'
+Ultra-Premium Collections (UPCs) are the top tier of Pokémon TCG sealed product: boxes packed with booster packs, foil promo cards and premium collector extras. Collectors buy them to open, and to keep sealed as display pieces, so older UPCs like [Celebrations](set:celebrations) and the Sword & Shield Charizard UPC are some of the most sought-after Pokémon products.
+
+Every UPC we sell is English and factory sealed, with bulk prices on each listing. For a factory-sealed case, see the [30th Celebration UPC case](product:pokemon-30th-celebration-upc-factory-sealed-case-configuration).
+MD],
+    ['slug'=>'english-pokemon-booster-boxes', 'title'=>'English Pokémon booster boxes', 'h1'=>'English Pokémon booster boxes (36 packs)',
+     'match'=>'booster display box,factory-sealed booster case', 'ids'=>[], 'cond'=>'',
+     'seo_title'=>'English Pokémon Booster Boxes — 36-Pack Displays & Cases',
+     'seo_desc'=>'Sealed English Pokémon booster boxes (36-pack booster displays): Delta Reign, Phantasmal Flames, Destined Rivals, Surging Sparks and more, plus sealed cases. Bulk prices.',
+     'intro'=><<<'MD'
+An English Pokémon booster box (booster display box) holds 36 sealed booster packs of 10 cards: the best-value way to open a set, and how card shops sell packs at the counter. We stock booster boxes from the current Mega Evolution sets back through Scarlet & Violet, and factory-sealed cases of 6 boxes for the lowest price per pack.
+
+Want Japanese boxes instead? See our [Japanese Pokémon booster boxes](cards:japanese-pokemon-booster-boxes).
+MD],
+    ['slug'=>'japanese-pokemon-booster-boxes', 'title'=>'Japanese Pokémon booster boxes', 'h1'=>'Japanese Pokémon booster boxes',
+     'match'=>') booster box', 'ids'=>['30th-celebration-m6a-booster-box','storm-emeralda-m6-booster-box','heat-wave-arena-sv9a-booster-box','glory-of-team-rocket-sv10-booster-box','151-booster-box','aura-seeker-booster-box','mega-dream-ex-m2a-booster-box','inferno-x-booster-box','mega-symphonia-booster-box','mega-brave-booster-box','abyss-eye-m5-booster-box','ninja-spinner-m4-booster-box','nihil-zero-booster-box','terastal-festival-booster-box','storm-emeralda-booster-box-case-12-ct'], 'cond'=>'',
+     'seo_title'=>'Japanese Pokémon Booster Boxes — Sealed, Shipped from Japan',
+     'seo_desc'=>'Sealed Japanese Pokémon booster boxes shipped from Japan: Mega Evolution sets, 151, Shiny Treasure ex, VSTAR Universe, Eevee Heroes and more, with bulk prices.',
+     'intro'=><<<'MD'
+Japanese Pokémon booster boxes come straight from Japan in their original shrink wrap. Most hold 30 packs of 5 cards; high-class sets like [Shiny Treasure ex](set:shiny-treasure-ex-sv4a) and [VSTAR Universe](set:vstar-universe-s12a) hold 10 packs of 10. Japanese sets release before their English versions, and collectors prize them for their print quality.
+
+New to Japanese product? Read [Japanese Pokémon cards explained](guide:japanese-pokemon-cards).
+MD],
+    ['slug'=>'pokemon-booster-bundles', 'title'=>'Pokémon booster bundles', 'h1'=>'Pokémon booster bundles (6 packs)',
+     'match'=>'booster bundle', 'ids'=>[], 'cond'=>'',
+     'seo_title'=>'Pokémon Booster Bundles — 6 Packs, Every Recent Set',
+     'seo_desc'=>'Sealed English Pokémon booster bundles of 6 packs: Prismatic Evolutions, 151, Destined Rivals, Black Bolt, White Flare, Delta Reign and more. Bulk prices, ships worldwide.',
+     'intro'=><<<'MD'
+A booster bundle holds 6 sealed booster packs from one set: a simple way to open a set without buying a full [booster box](cards:english-pokemon-booster-boxes), and a steady seller for shops. Prices drop at 4, 6, 10 and 24 bundles.
+MD],
+    ['slug'=>'pokemon-tins', 'title'=>'Pokémon tins & mini tins', 'h1'=>'Pokémon tins & mini tins',
+     'match'=>'tin collection,ex tin,forces tin', 'ids'=>[], 'cond'=>'',
+     'seo_title'=>'Pokémon Tins & Mini Tins — Booster Packs & Promos',
+     'seo_desc'=>'Sealed Pokémon TCG tins and mini tins: Mega Forces tins, 30th Celebration Sylveon ex and Greninja ex tins, and 151 and 30th Celebration mini tins.',
+     'intro'=>"Pokémon tins hold booster packs and a promo or art card in a collectible tin: easy to stack, easy to gift, and a year-round best seller."],
+    ['slug'=>'pokemon-build-and-battle-boxes', 'title'=>'Pokémon Build & Battle Boxes', 'h1'=>'Pokémon Build & Battle Boxes',
+     'match'=>'build & battle', 'ids'=>[], 'cond'=>'',
+     'seo_title'=>'Pokémon Build & Battle Boxes — Prerelease Kits',
+     'seo_desc'=>'Sealed Pokémon Build & Battle Boxes for Delta Reign, Pitch Black, Chaos Rising and Perfect Order: 4 booster packs, a 40-card deck and a foil promo. Bulk prices.',
+     'intro'=>"Build & Battle Boxes are the Pokémon TCG prerelease kit: 4 booster packs, a 40-card deck to build on and a foil promo card. Tournament organizers buy them in bulk for prerelease events."],
+    ['slug'=>'pokemon-booster-packs-and-blisters', 'title'=>'Pokémon booster packs & blisters', 'h1'=>'Pokémon booster packs & blisters',
+     'match'=>'blister,booster pack', 'ids'=>[], 'cond'=>'',
+     'seo_title'=>'Pokémon Booster Packs & Blisters — Sleeved, Loose, 3-Pack',
+     'seo_desc'=>'Sealed Pokémon booster packs and blisters: sleeved and loose booster packs, 3-pack blisters, checklane and premium checklane blisters. Bulk prices from 10 packs.',
+     'intro'=>"Single booster packs and blisters for counters, pegs, pack-opening streams and prize support. Bulk prices start at 10 units."],
   ],
 
   'guides' => [

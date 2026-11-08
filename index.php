@@ -59,6 +59,12 @@ function tiers($p){
   }
   return $out;
 }
+/* new and preorder products first, otherwise in the admin's order */
+function new_first($ps){
+  $rank = fn($p)=>in_array($p['status'], ['new', 'preorder'], true) ? 0 : 1;
+  $i = 0; $keyed = array_map(function($p) use(&$i, $rank){ return [$rank($p), $i++, $p]; }, $ps);
+  sort($keyed); return array_column($keyed, 2);
+}
 /* the next cheaper tier above a quantity, or null at the best price */
 function next_tier($p, $qty){ foreach(tiers($p) as $t){ if($t[0] > $qty) return $t; } return null; }
 
@@ -237,6 +243,30 @@ function sets_all(){
   }
   return $out;
 }
+/* what's in a set: its products' language (Japanese, English or "English & Japanese"), its game, and the
+   product types, for headings and the automatic intro of sets added without one */
+function set_name($s){ return preg_replace('/ \((Japanese|English)\)$/', '', $s['name']); }
+function set_facts($s){
+  $ps = set_products($s['name']);
+  $langs = array_values(array_unique(array_map('product_lang', $ps))); sort($langs);
+  $game = $ps && count(array_filter($ps, fn($p)=>$p['cat'] === 'onepiece')) === count($ps) ? 'One Piece Card Game' : 'Pokémon TCG';
+  $types = [];
+  foreach($ps as $p){
+    foreach(['Pokémon Center Elite Trainer Box'=>'Pokémon Center Elite Trainer Boxes', 'Elite Trainer Box'=>'Elite Trainer Boxes', 'Booster Display Box'=>'booster boxes',
+             'Booster Box'=>'booster boxes', 'Booster Bundle'=>'booster bundles', 'Build & Battle'=>'Build & Battle Boxes', 'Ultra-Premium'=>'Ultra-Premium Collections',
+             'Blister'=>'blisters', 'Booster Pack'=>'booster packs', 'Tin'=>'tins', 'Collection'=>'collections', 'Deck'=>'decks', 'Case'=>'sealed cases'] as $k=>$v)
+      if(stripos($p['name'], $k) !== false){ $types[$v] = true; break; }
+    if($p['cat'] === 'singles') $types['single cards'] = true;
+  }
+  return ['lang'=>count($langs) === 1 ? $langs[0] : implode(' & ', array_reverse($langs)), 'game'=>$game, 'types'=>array_keys($types), 'n'=>count($ps)];
+}
+function set_auto_intro($s){
+  $f = set_facts($s); $t = $f['types'];
+  $list = count($t) > 1 ? implode(', ', array_slice($t, 0, -1)).' and '.end($t) : ($t[0] ?? 'sealed product');
+  return set_name($s).' '.($s['code'] !== '' ? '('.$s['code'].') ' : '').'is '.(preg_match('/^[AEIOU]/', $f['lang']) ? 'an ' : 'a ').$f['lang'].' '.$f['game'].' set. We stock '.$f['n'].' '.set_name($s).' product'.($f['n'] === 1 ? '' : 's').': '
+    .$list.', all factory sealed. Bulk prices are on every listing, and every order ships worldwide from Japan with tracking.';
+}
+
 function set_by_slug($slug){ foreach(sets_all() as $s){ if($s['slug'] === $slug) return $s; } return null; }
 function set_of($name){ $all = sets_all(); return $all[$name] ?? null; }
 function series_by_slug($slug){ global $SERIES; foreach($SERIES as $k=>$s){ if(($s['slug'] ?? '') === $slug) return $s + ['key'=>$k]; } return null; }
@@ -381,6 +411,7 @@ const PAGE_GUIDES = [
   'cat:etb'=>['how-to-play-pokemon-cards','where-to-buy-pokemon-cards','japanese-pokemon-cards','pokemon-card-database','pokemon-card-shops-near-me'],
   'cat:premium'=>['how-to-play-pokemon-cards','how-to-read-a-pokemon-card','coolest-pokemon-cards','japanese-pokemon-cards','mew-mewtwo-arceus-pokemon-cards'],
   'cat:singles'=>['pokemon-card-values','most-expensive-pokemon-cards','rarest-pokemon-cards','how-much-does-it-cost-to-grade-a-pokemon-card','how-to-tell-if-a-pokemon-card-is-fake'],
+  'cat:onepiece'=>[],
   'cat:accessories'=>['pokemon-card-size','pokemon-card-template','how-to-play-pokemon-cards','where-to-sell-pokemon-cards','pokemon-card-scanner'],
   'shop'=>['where-to-buy-pokemon-cards','pokemon-card-price-checker','pokemon-card-database','japanese-pokemon-cards','pokemon-card-shops-near-me','chinese-pokemon-cards'],
   'set'=>['pokemon-card-database','pokemon-card-price-checker','pokemon-card-rarities','japanese-pokemon-cards'],
@@ -778,6 +809,7 @@ if(!isset($CATEGORIES[$cat])) $cat = '';
 $q     = $gs('q');
 /* catalogue filters (prices in the shopper's currency) */
 $f_set = $gs('set'); $f_cond = $gs('cond'); $f_avail = $gs('avail'); $f_sort = $gs('sort');
+$pg_num = max(1, (int)$gs('page'));   /* catalogue page number (48 products a page) */
 $f_min = is_numeric($gs('min')) ? (float)$gs('min') : null;
 $f_max = is_numeric($gs('max')) ? (float)$gs('max') : null;
 $filtered = $f_set !== '' || $f_cond !== '' || $f_avail !== '' || $f_sort !== '' || $f_min !== null || $f_max !== null || $q !== '';
@@ -895,10 +927,11 @@ switch($page){
       $page_desc  = ($cinfo['seo_desc'] ?? '') ?: plain($cinfo['blurb']);
       $h1 = ($cinfo['h1'] ?? '') ?: $cinfo['label'];
     } else {
-      $page_title = 'Shop Japanese Pokémon Cards — All Products';
-      $page_desc  = 'Shop Japanese Pokémon cards: sealed booster boxes, Elite Trainer Boxes, rare singles, PSA graded cards and accessories, shipped from Japan to the USA and worldwide.';
-      $h1 = 'Shop Japanese Pokémon cards';
+      $page_title = 'Shop Pokémon Cards Wholesale — ETBs, Booster Boxes & One Piece';
+      $page_desc  = 'Shop Pokémon cards wholesale: English Elite Trainer Boxes, booster boxes, Ultra-Premium Collections, Japanese booster boxes, singles and One Piece, shipped worldwide.';
+      $h1 = 'Shop Pokémon & One Piece cards';
     }
+    if($pg_num > 1) $page_title .= ' — Page '.$pg_num;
     if($q !== '') $h1 = 'Results for “'.$q.'”';
     elseif(!$cinfo && $f_set !== '') $h1 = $f_set;
     break;
@@ -916,8 +949,8 @@ switch($page){
     break;
   case 'sets':
     $crumbs[] = ['Sets', '', []];
-    $page_title = 'Pokémon Card Sets — Mega Evolution & Scarlet & Violet';
-    $page_desc  = 'Every Japanese Pokémon card set we stock, from the Mega Evolution series back to Scarlet & Violet favourites like 151 and Terastal Festival ex.';
+    $page_title = 'Pokémon Card Sets — English & Japanese, Mega Evolution to Sword & Shield';
+    $page_desc  = 'Every Pokémon card set we stock, English and Japanese: Mega Evolution, Scarlet & Violet and Sword & Shield sets, from Delta Reign and 151 to Eevee Heroes.';
     $h1 = 'Pokémon card sets';
     break;
   case 'series':
@@ -931,10 +964,13 @@ switch($page){
     $crumbs[] = ['Sets', 'sets', []];
     if($sser) $crumbs[] = [$sser['name'], 'series', ['s'=>$sser['slug']]];
     $crumbs[] = [$set['name'], '', []];
-    $label = $set['name'].($set['code'] !== '' ? ' ('.$set['code'].')' : '');
-    $page_title = $set['seo_title'] ?: $label.' Japanese Booster Boxes & Cards';
-    $page_desc  = $set['seo_desc'] ?: (plain($set['intro']) ?: 'Japanese '.$set['name'].' booster boxes and cards, shipped from Japan to the USA and worldwide.');
-    $h1 = $label.' — Japanese Pokémon cards';
+    $label = set_name($set).($set['code'] !== '' ? ' ('.$set['code'].')' : '');
+    $sf = set_facts($set);
+    if(trim($set['intro']) === '') $set['intro'] = set_auto_intro($set);
+    $page_title = $set['seo_title'] ?: ($sf['lang'] === 'Japanese' ? 'Japanese '.$label.' Booster Boxes & Cards'
+      : ($sf['game'] !== 'Pokémon TCG' ? $label.' — '.$sf['game'] : $label.' Pokémon Cards — '.($sf['lang'] === 'English' ? 'ETBs, Booster Boxes & More' : $sf['lang'])));
+    $page_desc  = $set['seo_desc'] ?: plain($set['intro']);
+    $h1 = $label.' — '.($sf['lang'] === 'Japanese' ? 'Japanese Pokémon cards' : $sf['lang'].' '.$sf['game']);
     break;
   case 'collection':
     $crumbs[] = ['Shop', 'catalog', []]; $crumbs[] = [$coll['title'], '', []];
@@ -987,7 +1023,7 @@ foreach($crumbs as $ci=>$cr) $crumbs[$ci][0] = fill($cr[0]);
 /* one canonical URL per page, without filters, currency or search */
 $canon_args = ['product'=>['id'=>$prod['id'] ?? ''], 'set'=>['s'=>$set['slug'] ?? ''], 'series'=>['s'=>$series['slug'] ?? ''],
                'collection'=>['c'=>$coll['slug'] ?? ''], 'guide'=>['g'=>$guide['slug'] ?? ''], 'page'=>['pg'=>$info['slug'] ?? ''],
-               'catalog'=>$cat ? ['cat'=>$cat] : []];
+               'catalog'=>($cat ? ['cat'=>$cat] : []) + ($pg_num > 1 ? ['page'=>$pg_num] : [])];
 $canonical = in_array($page, ['notfound','pay'], true) ? '' : abs_url($page, $canon_args[$page] ?? []);
 $noindex = in_array($page, ['cart','checkout','received','pay','track','notfound'], true) || ($page === 'catalog' && $filtered);
 
@@ -1068,7 +1104,7 @@ if($prod){
     'image'=>array_map($abs_img, photos($prod['id'])) ?: null,
     'description'=>plain($prod['desc'], 2000),'category'=>$CATEGORIES[$prod['cat']]['label'],
     'additionalProperty'=>[['@type'=>'PropertyValue','name'=>'Language','value'=>product_lang($prod)]],
-    'brand'=>['@type'=>'Brand','name'=>'Pokémon'],'offers'=>$offer]);
+    'brand'=>['@type'=>'Brand','name'=>$prod['cat'] === 'onepiece' ? 'One Piece Card Game' : 'Pokémon'],'offers'=>$offer]);
 }
 if($guide){
   $graph[] = ['@type'=>'Article','headline'=>fill($guide['title']),'description'=>$page_desc,'url'=>$canonical,
@@ -1194,6 +1230,8 @@ section{padding:60px 0}
 .sechead>a:hover{text-decoration:underline}
 .sechead .count{color:var(--muted);font-size:14px}
 section.top{padding-top:24px}
+section.rail{padding:34px 0}
+section.rail+section.rail{border-top:1px solid var(--hair)}
 .sub2{font-size:clamp(20px,2.4vw,27px);margin:40px 0 16px}
 
 /* hero */
@@ -1308,6 +1346,10 @@ h1{font-size:clamp(32px,4.4vw,52px);margin-bottom:18px}
 .flashbar .btn{padding:8px 16px;font-size:14px;color:#fff;text-decoration:none}.flashbar .btn.g{color:var(--ink)}
 
 /* catalogue filters */
+.pager{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:26px 0 0}
+.pager a{min-width:40px;text-align:center;padding:8px 12px;border:1px solid var(--line);border-radius:9px;text-decoration:none;font-size:14px;font-weight:600;color:var(--ink2);background:#fff}
+.pager a:hover{border-color:var(--indigo);color:var(--indigo)}
+.pager a[aria-current]{background:var(--indigo);border-color:var(--indigo);color:#fff}
 .filters{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:22px}
 .filters label{display:flex;flex-direction:column;gap:5px;font-size:11.5px;font-weight:700;letter-spacing:.03em;color:var(--muted);flex:1 1 150px;min-width:0;text-transform:uppercase}
 .filters select,.filters input{background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-size:14px;font-weight:400;color:var(--ink);width:100%;text-transform:none;letter-spacing:0}
@@ -1762,6 +1804,33 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
   </div></section>
   <?php endif; ?>
 
+  <?php /* the featured ranges: each row links to its full page */
+  $coll_ = fn($slug)=>($c_ = collection_by_slug($slug)) ? collection_products($c_) : [];
+  $s30_ = set_by_slug('30th-celebration'); $sdr_ = set_by_slug('delta-reign');
+  $rails = [
+    ['New: Pokémon 30th Celebration', 'Ultra-Premium Collections Day & Night, the Pokémon Center ETB, figure collections, tins and booster packs.',
+      $s30_ ? new_first(array_values(array_filter(set_products($s30_['name']), fn($p)=>product_lang($p) === 'English' && can_order($p)))) : [], 'All 30th Celebration', $s30_ ? url('set', ['s'=>$s30_['slug']]) : ''],
+    ['Mega Evolution: Delta Reign', 'Elite Trainer Boxes, booster boxes, bundles, blisters and factory-sealed cases.',
+      $sdr_ ? set_products($sdr_['name']) : [], 'All Delta Reign', $sdr_ ? url('set', ['s'=>$sdr_['slug']]) : ''],
+    ['Pokémon Center Elite Trainer Boxes', 'The Pokémon Center exclusive ETB for every recent set: extra packs and an exclusive promo.',
+      $coll_('pokemon-center-elite-trainer-boxes'), 'All Pokémon Center ETBs', url('collection', ['c'=>'pokemon-center-elite-trainer-boxes'])],
+    ['Ultra-Premium Collections', 'The top tier of Pokémon sealed product, from 30th Celebration to Celebrations and Charizard.',
+      $coll_('pokemon-ultra-premium-collections'), 'All UPCs', url('collection', ['c'=>'pokemon-ultra-premium-collections'])],
+    ['Preorders', 'Secure upcoming releases at today’s bulk prices. Invoiced when stock is allocated.',
+      array_values(array_filter($PRODUCTS, fn($p)=>$p['status'] === 'preorder')), 'All preorders', url('catalog', ['avail'=>'preorder'])],
+    ['One Piece Card Game', 'English booster boxes from OP-01 Romance Dawn to OP-19, extra boosters and starter decks.',
+      isset($CATEGORIES['onepiece']) ? array_values(array_filter($PRODUCTS, fn($p)=>$p['cat'] === 'onepiece')) : [], 'All One Piece', isset($CATEGORIES['onepiece']) ? url('catalog', ['cat'=>'onepiece']) : ''],
+    ['Japanese booster boxes', 'Sealed Japanese boxes shipped straight from Japan, from Eevee Heroes to the latest Mega Evolution sets.',
+      $coll_('japanese-pokemon-booster-boxes'), 'All Japanese boxes', url('collection', ['c'=>'japanese-pokemon-booster-boxes'])],
+  ];
+  foreach($rails as [$rt, $rs, $rp, $rl, $ru]): if(count($rp) < 2) continue; ?>
+  <section class="rail"><div class="wrap">
+    <div class="sechead"><div><h2><?= h($rt) ?></h2><p><?= h($rs) ?></p></div>
+      <?php if($ru !== ''): ?><a href="<?= h($ru) ?>"><?= h($rl) ?> (<?= count($rp) ?>) →</a><?php endif; ?></div>
+    <div class="grid"><?php foreach(array_slice($rp, 0, 4) as $p) include_card($p); ?></div>
+  </div></section>
+  <?php endforeach; ?>
+
   <section>
     <div class="wrap">
       <div class="sechead"><div><h2>In stock now</h2>
@@ -1901,7 +1970,15 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
       <div class="fbtns"><button class="btn" type="submit">Apply</button><?php if($filtered || $cat): ?><a class="btn g" href="<?= url('catalog') ?>">Clear</a><?php endif; ?></div>
     </form>
     <?php if($list): ?>
-      <div class="grid"><?php foreach($list as $p) include_card($p); ?></div>
+      <?php $per = 48; $pages_n = (int)ceil(count($list) / $per); $pg_now = min(max(1, $pg_num), max(1, $pages_n)); ?>
+      <div class="grid"><?php foreach(array_slice(array_values($list), ($pg_now - 1) * $per, $per) as $p) include_card($p); ?></div>
+      <?php if($pages_n > 1): $pargs = array_filter(['cat'=>$cat, 'q'=>$q, 'set'=>$f_set, 'cond'=>$f_cond, 'avail'=>$f_avail, 'sort'=>$f_sort], fn($v)=>$v !== ''); ?>
+        <nav class="pager" aria-label="Pages">
+          <?php if($pg_now > 1): ?><a rel="prev" href="<?= h(url('catalog', $pargs + ($pg_now > 2 ? ['page'=>$pg_now - 1] : []))) ?>">← Previous</a><?php endif; ?>
+          <?php for($i = 1; $i <= $pages_n; $i++): ?><a href="<?= h(url('catalog', $pargs + ($i > 1 ? ['page'=>$i] : []))) ?>"<?= $i === $pg_now ? ' aria-current="page"' : '' ?>><?= $i ?></a><?php endfor; ?>
+          <?php if($pg_now < $pages_n): ?><a rel="next" href="<?= h(url('catalog', $pargs + ['page'=>$pg_now + 1])) ?>">Next →</a><?php endif; ?>
+        </nav>
+      <?php endif; ?>
     <?php else: ?>
       <p class="empty">Nothing matches that. Try a set name, a card name or an SKU — or <a href="<?= url('catalog') ?>">browse everything</a>.</p>
     <?php endif; ?>
@@ -1917,7 +1994,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
   <div class="wrap pdp">
     <div>
       <div class="gal-main">
-        <?php if($ph): ?><?= str_replace('<img ', '<img id="galMain" ', img_tag($ph[0], $prod['name'].' — '.product_lang($prod).' Pokémon TCG', '(max-width:900px) 100vw, 620px', true)) ?>
+        <?php if($ph): ?><?= str_replace('<img ', '<img id="galMain" ', img_tag($ph[0], $prod['name'].' — '.product_lang($prod).($prod['cat'] === 'onepiece' ? ' One Piece Card Game' : ' Pokémon TCG'), '(max-width:900px) 100vw, 620px', true)) ?>
         <?php else: ?><div class="ph"><span><?= h($CONFIG['kanji']) ?></span><span><?= h($prod['set'] ?: $CATEGORIES[$prod['cat']]['label']) ?></span></div><?php endif; ?>
       </div>
       <?php if(count($ph)>1): ?>
@@ -2631,7 +2708,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
 <?php elseif($page==='sets'): ?>
   <section class="top"><div class="wrap">
     <div class="sechead"><div><h1><?= h($h1) ?></h1>
-      <p>Every Japanese Pokémon card set we stock. Japanese sets release before their English versions, so these are the newest cards in the hobby.</p></div></div>
+      <p>Every Pokémon card set we stock, English and Japanese, grouped by series. Each set page has its Elite Trainer Boxes, booster boxes and collections in one place.</p></div></div>
     <?php $shown = [];
     foreach($SERIES as $k=>$sr): $ss = series_sets($k); if(!$ss) continue; $shown += $ss; ?>
       <div class="sechead" style="margin:30px 0 14px"><div><h2><?= h($sr['name']) ?></h2></div>
@@ -2770,7 +2847,7 @@ footer .bl{font-size:14px;color:var(--muted);margin-top:14px;max-width:44ch}
   if($pop_): ?><nav class="popular" aria-label="Popular"><b>Popular:</b> <?php foreach($pop_ as $i_=>[$t_, $u_]) echo ($i_ ? ' · ' : '').'<a href="'.h($u_).'">'.h($t_).'</a>'; ?></nav><?php endif; ?>
   <div class="legal">
     <div>Shipped from Japan — import duties and taxes are the buyer's responsibility.</div>
-    <div><?= h($CONFIG['legal_name']) ?> is an independent reseller of genuine product. We are not affiliated with, endorsed by or licensed by The Pokémon Company, Nintendo, Creatures Inc. or GAME FREAK Inc. All product names and trademarks are the property of their respective owners.</div>
+    <div><?= h($CONFIG['legal_name']) ?> is an independent reseller of genuine product. We are not affiliated with, endorsed by or licensed by The Pokémon Company, Nintendo, Creatures Inc., GAME FREAK Inc., Bandai or the owners of One Piece. All product names and trademarks are the property of their respective owners.</div>
     <div>© <?= date('Y') ?> <?= h($CONFIG['legal_name']) ?>.</div>
   </div>
 </div></footer>
@@ -2942,9 +3019,9 @@ function include_card($p){
     <a class="art" href="<?= url('product',['id'=>$p['id']]) ?>" style="display:block">
       <span class="flag <?= $flag[0] ?>"><?= $flag[1] ?></span>
       <?php if($ph): ?>
-        <?= img_tag($ph[0], $p['name'].' — '.product_lang($p).' Pokémon TCG') ?>
+        <?= img_tag($ph[0], $p['name'].' — '.product_lang($p).($p['cat'] === 'onepiece' ? ' One Piece Card Game' : ' Pokémon TCG')) ?>
       <?php else: ?>
-        <div class="ph"><span><?= h($CONFIG['kanji']) ?></span><span><?= h($p['set']) ?></span></div>
+        <div class="ph"><span><?= h($CONFIG['kanji']) ?></span><span><?= h($p['set'] !== '' ? preg_replace('/ \((Japanese|English)\)$/', '', $p['set']) : $CATEGORIES[$p['cat']]['label']) ?></span></div>
       <?php endif; ?>
     </a>
     <div class="in">
@@ -3094,6 +3171,7 @@ function tier_chips($p, $buttons=true){
   $tt = tiers($p); if(count($tt) < 2 && $buttons) return;
   echo '<div class="tiers">';
   foreach($tt as $i=>[$q, $price, $off]){
+    if($buttons && $i === 0) continue;   /* the first tier is the price already shown on the card */
     $inner = '<b>'.(int)$q.'+</b> '.money($price).($off > 0 ? ' <i>−'.(int)$off.'%</i>' : '');
     echo $buttons ? '<button type="submit" name="tier" value="'.(int)$q.'" title="Add '.(int)$q.' at '.h(money($price)).' each">'.$inner.'</button>'
                   : '<span>'.$inner.'</span>';
@@ -3112,7 +3190,7 @@ function stepper($p, $name, $value, $min){ ?>
 function set_tiles($sets){ ?>
   <div class="tiles"><?php foreach($sets as $st): $n = count(set_products($st['name'])); ?>
     <a href="<?= h(url('set', ['s'=>$st['slug']])) ?>"><?php if($st['code'] !== ''): ?><span class="n"><?= h($st['code']) ?></span><?php endif; ?>
-      <b><?= h($st['name']) ?></b><span class="n"><?= $n ?> product<?= $n===1?'':'s' ?></span></a>
+      <b><?= h(set_name($st)) ?></b><span class="n"><?= $n ?> product<?= $n===1?'':'s' ?></span></a>
   <?php endforeach; ?></div>
 <?php }
 
