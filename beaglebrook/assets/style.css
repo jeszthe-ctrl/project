@@ -374,3 +374,123 @@ tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
   .sign-lines p{margin:22px 0}
   a{color:inherit;text-decoration:none}
 }
+
+/* ======================================================================
+   Depth and motion: layered shadows, 3D tilt cards, a floating hero stack,
+   raised buttons and scroll reveals. Everything degrades to a calm, flat
+   layout without JavaScript, on touch screens and with reduced motion.
+   ====================================================================== */
+:root{
+  --d1:0 1px 1px rgba(60,35,15,.05),0 2px 4px rgba(60,35,15,.06),0 8px 18px rgba(60,35,15,.07);
+  --d2:0 2px 2px rgba(60,35,15,.05),0 8px 16px rgba(60,35,15,.08),0 22px 44px rgba(60,35,15,.12);
+  --d3:0 4px 6px rgba(60,35,15,.06),0 18px 34px rgba(60,35,15,.14),0 40px 80px rgba(60,35,15,.16);
+  --ease:cubic-bezier(.2,.75,.25,1);
+}
+body{background:radial-gradient(1400px 700px at 100% 0,#f6e7d3 0,transparent 55%),radial-gradient(1000px 600px at 0 30%,#eef6f2 0,transparent 55%),var(--bg);background-attachment:fixed}
+
+/* raised, pressable buttons */
+.btn{background:linear-gradient(180deg,#8c5726,var(--brand));border:0;box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 0 var(--brand-d),0 10px 22px rgba(94,56,20,.28);transform:translateY(0);transition:transform .15s var(--ease),box-shadow .15s var(--ease),background .15s}
+.btn:hover{background:linear-gradient(180deg,#96602b,#7f4d1f);transform:translateY(-2px);box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 6px 0 var(--brand-d),0 16px 30px rgba(94,56,20,.32)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 1px 0 var(--brand-d),0 4px 10px rgba(94,56,20,.25)}
+.btn-ghost{background:rgba(255,255,255,.75);color:var(--brand-d);box-shadow:0 0 0 1.5px rgba(122,74,30,.35) inset,0 3px 0 rgba(122,74,30,.18),0 8px 18px rgba(60,35,15,.08);backdrop-filter:blur(6px)}
+.btn-ghost:hover{background:#fff;color:var(--brand-d);box-shadow:0 0 0 1.5px var(--brand) inset,0 5px 0 rgba(122,74,30,.22),0 14px 26px rgba(60,35,15,.12)}
+.btn-light{background:#fff;color:var(--brand-d);box-shadow:0 3px 0 rgba(0,0,0,.18),0 10px 22px rgba(0,0,0,.15)}
+.btn-light:hover{background:#fff8ef;color:var(--brand-d)}
+.site-h{background:rgba(251,247,240,.82);backdrop-filter:saturate(1.4) blur(12px);box-shadow:0 1px 0 rgba(122,74,30,.08),0 8px 24px rgba(60,35,15,.05)}
+
+/* hero: a stack of photo cards in 3D, floating badges and soft light */
+.hero{position:relative;overflow:hidden;background:linear-gradient(180deg,#fbf1e3 0,rgba(251,247,240,0) 100%);border-bottom:0}
+.hero-glow{position:absolute;inset:-20% -10% auto auto;width:70%;height:120%;background:radial-gradient(closest-side,rgba(192,129,55,.28),transparent 70%),radial-gradient(closest-side at 30% 70%,rgba(47,111,98,.18),transparent 70%);filter:blur(10px);pointer-events:none}
+.hero h1{font-size:clamp(2.3rem,5.2vw,3.8rem);letter-spacing:-.02em;text-shadow:0 1px 0 #fff}
+.hero-m{display:flex;justify-content:center;padding:10px 0 30px}
+.stage{--sx:5deg;--sy:-9deg;position:relative;width:min(100%,500px);aspect-ratio:4/3.2;transform-style:preserve-3d;transform:perspective(1100px) rotateX(var(--sx)) rotateY(var(--sy));transition:transform .5s var(--ease)}
+.card3d{position:absolute;inset:0;border-radius:26px;overflow:hidden;background:#e9d6bd;box-shadow:var(--d3);border:6px solid #fff;transform-style:preserve-3d}
+.card3d img{width:100%;height:100%;object-fit:cover;display:block}
+.card3d.c0{transform:translateZ(60px)}
+.card3d.c1{transform:translate3d(7%,-6%,0) rotate(5deg);filter:saturate(.9) brightness(.97)}
+.card3d.c2{transform:translate3d(-6%,-10%,-50px) rotate(-6deg);filter:saturate(.8) brightness(.94)}
+.card3d.ghost{background:linear-gradient(135deg,#f3e3cc,#e6cfb0)}
+.card3d.ghost.c2{background:linear-gradient(135deg,#dbece5,#c6e0d6)}
+.chip3d{position:absolute;display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:999px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);font:700 .88rem var(--sans);color:var(--ink);box-shadow:var(--d2);transform-style:preserve-3d;white-space:nowrap}
+.chip3d .ic{color:var(--brook)}
+.chip3d.k1{left:-6%;top:12%;transform:translateZ(120px)}
+.chip3d.k2{right:-5%;top:46%;transform:translateZ(150px)}
+.chip3d.k3{left:8%;bottom:-6%;transform:translateZ(100px)}
+@media(max-width:600px){.chip3d{font-size:.78rem;padding:7px 11px}.chip3d.k1{left:0}.chip3d.k2{right:0}.stage{width:88%}}
+@media (prefers-reduced-motion:no-preference){
+  .chip3d.k1{animation:bob 6s ease-in-out infinite}
+  .chip3d.k2{animation:bob 7s ease-in-out -2s infinite}
+  .chip3d.k3{animation:bob 6.5s ease-in-out -4s infinite}
+  @keyframes bob{0%,100%{translate:0 0}50%{translate:0 -8px}}
+}
+
+/* cards that tilt toward the pointer (set by the page script), with a glint where it points */
+.tilt{--rx:0deg;--ry:0deg;--mx:50%;--my:50%;position:relative;transform:perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));transform-style:preserve-3d;transition:transform .45s var(--ease),box-shadow .3s var(--ease)}
+.tilt.tilting{transition:transform .08s linear,box-shadow .3s var(--ease)}
+.tilt::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(420px circle at var(--mx) var(--my),rgba(255,255,255,.35),transparent 45%);opacity:0;transition:opacity .3s}
+.tilt.tilting::after{opacity:1}
+
+/* puppy cards */
+.pcard{border:0;border-radius:22px;box-shadow:var(--d1);background:linear-gradient(180deg,#fff,#fffaf3)}
+.pcard:hover,.pcard.tilting{box-shadow:var(--d3)}
+.pcard:hover{transform:perspective(900px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(-4px)}
+.pcard-ph{overflow:hidden;border-radius:22px 22px 0 0}
+.pcard-ph img{transition:transform .6s var(--ease)}
+.pcard:hover .pcard-ph img{transform:scale(1.06)}
+.pcard-ph .badge{transform:translateZ(30px);box-shadow:var(--d1)}
+.pcard-f .btn-sm{padding:.5em 1.05em}
+
+/* guarantee cards with raised icon tiles */
+.gcard{border:0;border-radius:20px;background:linear-gradient(180deg,#fff,#fffbf5);box-shadow:var(--d1);padding:22px 20px 12px}
+.gcard:hover,.gcard.tilting{box-shadow:var(--d2)}
+.gcard .ic-lg{width:52px;height:52px;padding:12px;border-radius:16px;color:#fff;stroke-width:2;background:linear-gradient(145deg,#3d8a7a,var(--brook));box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 6px 0 #22544a,0 12px 20px rgba(47,111,98,.3);transform:translateZ(36px)}
+.gcard:nth-child(3n+2) .ic-lg{background:linear-gradient(145deg,#cf9348,var(--tan));box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 6px 0 #8e5c22,0 12px 20px rgba(192,129,55,.3)}
+.gcard:nth-child(3n) .ic-lg{background:linear-gradient(145deg,#94612f,var(--brand));box-shadow:0 1px 0 rgba(255,255,255,.3) inset,0 6px 0 #4a2c10,0 12px 20px rgba(122,74,30,.3)}
+.gcard h3{margin-top:.9em}
+
+/* steps, included, trust row, articles: soft raised surfaces */
+.step-n{background:linear-gradient(145deg,#94612f,var(--brand));box-shadow:0 1px 0 rgba(255,255,255,.3) inset,0 4px 0 var(--brand-d),0 8px 14px rgba(94,56,20,.25)}
+.steps li{border-bottom:1px dashed var(--line)}
+.included li,.trustrow div,.acard a,.litter,.toc,.review,.parent-mini,.empty{border:0;box-shadow:var(--d1);border-radius:18px}
+.included li{background:linear-gradient(180deg,#fff,#fffaf3)}
+.included .ic-lg,.trustrow .ic-lg{padding:9px;width:44px;height:44px;border-radius:13px;background:var(--brook-l);box-shadow:0 3px 0 #c6e0d6}
+.acard a{transition:transform .35s var(--ease),box-shadow .35s var(--ease)}
+.acard a:hover{transform:translateY(-5px);box-shadow:var(--d2)}
+.review:hover,.review.tilting{box-shadow:var(--d2)}
+.parent-mini{transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
+.parent-mini:hover{transform:translateY(-3px);box-shadow:var(--d2)}
+.verify{border:0;background:linear-gradient(160deg,#eaf5f0,#d9ece5);box-shadow:var(--d2);border-radius:22px}
+.band{background:linear-gradient(180deg,rgba(244,236,223,.85),rgba(244,236,223,.55));border:0;box-shadow:0 1px 0 rgba(122,74,30,.06) inset,0 -1px 0 rgba(122,74,30,.06) inset}
+.pricebox{border:0;border-radius:22px;box-shadow:var(--d2);background:linear-gradient(180deg,#fff,#fffaf3)}
+.gal-main img,.gal-main .ph{border-radius:22px;box-shadow:var(--d3)}
+.gal-main.tilt{border-radius:22px}
+.gal-thumbs button{box-shadow:var(--d1);transition:transform .2s var(--ease)}
+.gal-thumbs button:hover{transform:translateY(-3px)}
+
+/* the one-minute inquiry */
+.inq-sec{position:relative}
+.form{border:0;border-radius:24px;box-shadow:var(--d3);background:linear-gradient(180deg,#fff,#fffbf6)}
+.qform .f-dog select{font-weight:600;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a4a1e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/18px;appearance:none;-webkit-appearance:none;padding-right:40px;border-color:#d6c8b4;box-shadow:0 2px 0 rgba(122,74,30,.08)}
+.f input,.f select,.f textarea{border-radius:12px;transition:border-color .15s,box-shadow .15s}
+.f input:focus,.f select:focus,.f textarea:focus{box-shadow:0 0 0 4px rgba(192,129,55,.18)}
+.mini-steps{list-style:none;padding:0;margin:18px 0}
+.mini-steps li{display:flex;gap:12px;align-items:center;margin-bottom:10px;font-weight:550}
+.mini-steps span{flex:none;width:30px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;background:linear-gradient(145deg,#3d8a7a,var(--brook));box-shadow:0 3px 0 #22544a}
+.inq-call{display:flex;flex-wrap:wrap;gap:10px}
+.eyebrow .ic{width:1.05em;height:1.05em}
+
+/* reveal on scroll (only when the page script runs and motion is welcome) */
+@media (prefers-reduced-motion:no-preference){
+  .js .rv{opacity:0;translate:0 26px;transition:opacity .7s var(--ease),translate .7s var(--ease)}
+  .js .rv.in{opacity:1;translate:0 0}
+  .pgrid .rv:nth-child(2),.cards .rv:nth-child(2),.agrid .rv:nth-child(2){transition-delay:.06s}
+  .pgrid .rv:nth-child(3),.cards .rv:nth-child(3),.agrid .rv:nth-child(3){transition-delay:.12s}
+  .pgrid .rv:nth-child(4),.cards .rv:nth-child(4),.agrid .rv:nth-child(4){transition-delay:.18s}
+}
+@media (prefers-reduced-motion:reduce){
+  .stage{transform:none}.tilt{transform:none!important}
+  .btn,.pcard-ph img,.acard a,.parent-mini{transition:none}
+}
+@media print{.hero-glow,.chip3d{display:none}body{background:#fff}}
+@media(max-width:759px){.inq-sec .mini-steps,.inq-sec .inq-call{display:none}.inq{gap:16px}}
+.pcard-ph,.pcard-ph:hover{text-decoration:none}

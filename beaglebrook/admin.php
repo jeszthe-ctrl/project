@@ -367,7 +367,7 @@ if($act === 'send_agreement'){
   if(empty($q['agreement']['accepted'])){ unset($q['deal']); $q['deal'] = deal_of($q); }   /* not accepted yet: send today's details */
   $q['agreement']['sent'] = date('c');
   $d = deal_of($q); $t = deal_totals($q);
-  $body = "Hi ".(strtok($q['name'], ' ') ?: $q['name']).",\n\nHere is your sales agreement for {$d['puppy']}. Please read it and accept it online — it takes a minute:\n".agreement_link($q['ref'])
+  $body = "Hi ".(strtok(trim($q['name']), ' ') ?: 'there').",\n\nHere is your sales agreement for {$d['puppy']}. Please read it and accept it online — it takes a minute:\n".agreement_link($q['ref'])
     ."\n\nSummary\n- Puppy: {$d['puppy']}, ".money($d['price'])."\n".($d['delivery'] !== '' ? "- Delivery: {$d['delivery']}, ".($d['delivery_fee'] !== null ? money($d['delivery_fee']) : 'to be confirmed')."\n" : '')
     ."- Total: ".money($t['total'])."\n- Deposit to reserve: ".money($d['deposit'])."\n- Due at delivery: ".money($t['at_delivery'])
     ."\n\nThe agreement includes our health guarantee, deposit and refund terms and delivery details. You can print it from the same page.";
@@ -390,7 +390,7 @@ if($act === 'record_payment'){
   note('Payment of '.money($amount).' recorded.');
   if(in_bool('send')){
     $d = deal_of($q); $t = deal_totals($q);
-    $body = "Hi ".(strtok($q['name'], ' ') ?: $q['name']).",\n\nThank you — we’ve received your payment of ".money($amount)." for {$d['puppy']}.\n\nReceipt {$q['ref']}-{$n}\n- Amount: ".money($amount)."\n- Method: {$pay['method']}\n- Date: ".nice_date($pay['date'])
+    $body = "Hi ".(strtok(trim($q['name']), ' ') ?: 'there').",\n\nThank you — we’ve received your payment of ".money($amount)." for {$d['puppy']}.\n\nReceipt {$q['ref']}-{$n}\n- Amount: ".money($amount)."\n- Method: {$pay['method']}\n- Date: ".nice_date($pay['date'])
       ."\n\nTotal: ".money($t['total'])."\nPaid so far: ".money($t['paid'])."\nStill to pay: ".money($t['due'])."\n\nYour receipt online (you can print it): ".receipt_link($q['ref']);
     mail_result(email_buyer($q, 'receipt', 'Receipt for your payment of '.money($amount).' — '.$d['puppy'], $body), 'Receipt emailed to '.$q['email'].'.');
   }
@@ -523,6 +523,27 @@ if($act === 'save_inquiry'){
   }
   go('inquiry', ['ref'=>$ref]);
 }
+if($act === 'save_inquiry_details'){
+  $q = inquiry_load(in_line('ref', 20));
+  if(!$q) go('inquiries');
+  $p = find_by($SITE['puppies'], 'id', in_line('puppy', 20));
+  $q = array_merge($q, ['name'=>in_line('name', 120), 'email'=>in_line('email', 160) ?: $q['email'], 'phone'=>in_line('phone', 40),
+    'address1'=>in_line('address1', 160), 'address2'=>in_line('address2', 120), 'city'=>in_line('city', 80),
+    'state'=>isset(US_STATES[strtoupper(in_line('state', 2))]) ? strtoupper(in_line('state', 2)) : '', 'zip'=>in_line('zip', 10),
+    'puppy_id'=>$p['id'] ?? '', 'puppy_name'=>$p['name'] ?? '', 'puppy_price'=>$p['price'] ?? '']);
+  $pay = find_by($SITE['payments'], 'key', in_line('payment', 40));
+  $q['payment'] = $pay['key'] ?? ''; $q['payment_name'] = $pay['name'] ?? '';
+  $opt = find_by($SITE['delivery']['methods'], 'key', in_line('delivery', 20));
+  if($opt){
+    $fee = $q['state'] !== '' ? delivery_fee($q['state'], $opt['key']) : delivery_base_fee($opt['key']);
+    $q['delivery'] = $opt['key']; $q['delivery_label'] = $opt['label']; $q['delivery_days'] = $opt['days'];
+    $q['delivery_name'] = $opt['label'].' ('.$opt['days'].')'; $q['delivery_fee'] = $fee === null ? '' : (string)$fee;
+  } else foreach(['delivery', 'delivery_label', 'delivery_days', 'delivery_name', 'delivery_fee'] as $k) unset($q[$k]);
+  if(empty($q['agreement']['accepted'])) unset($q['deal']);   /* the next agreement sent uses these details */
+  inquiry_save($q);
+  note('Details saved.'.(!empty($q['agreement']['accepted']) ? ' The accepted agreement keeps the details it was accepted with.' : ''));
+  go('inquiry', ['ref'=>$q['ref']]);
+}
 if($act === 'delete_inquiry'){
   $ref = in_line('ref', 20);
   if(valid_ref($ref)) @unlink(data_file('inquiries/'.$ref));
@@ -545,14 +566,93 @@ if($act === 'waitlist_remove'){
   go('waitlist');
 }
 
+/* ---- puppies from a spreadsheet (CSV): one row per puppy, matched to existing puppies by name ---- */
+const PUPPY_CSV = ['name', 'sex', 'color', 'dob', 'ready', 'price', 'status', 'size', 'weight', 'registry', 'reg_no', 'chip_no', 'dam', 'sire', 'vet_date', 'vaccines', 'tagline', 'description', 'video'];
+/* other column names people use, so most spreadsheets import without renaming anything */
+const PUPPY_CSV_ALIASES = ['puppy'=>'name', 'puppy name'=>'name', 'dog'=>'name', 'dog name'=>'name', 'call name'=>'name', 'gender'=>'sex',
+  'colour'=>'color', 'color/markings'=>'color', 'markings'=>'color', 'date of birth'=>'dob', 'birthday'=>'dob', 'born'=>'dob', 'birth date'=>'dob',
+  'ready date'=>'ready', 'go home'=>'ready', 'go home date'=>'ready', 'ready to go'=>'ready', 'price ($)'=>'price', 'price usd'=>'price', 'cost'=>'price',
+  'availability'=>'status', 'adult size'=>'size', 'expected size'=>'size', 'registration'=>'reg_no', 'registration number'=>'reg_no', 'reg #'=>'reg_no',
+  'akc'=>'reg_no', 'litter number'=>'reg_no', 'microchip'=>'chip_no', 'microchip number'=>'chip_no', 'chip'=>'chip_no', 'mother'=>'dam', 'mom'=>'dam',
+  'father'=>'sire', 'dad'=>'sire', 'vet check'=>'vet_date', 'vet check date'=>'vet_date', 'shots'=>'vaccines', 'vaccinations'=>'vaccines',
+  'summary'=>'tagline', 'about'=>'description', 'notes'=>'description', 'video link'=>'video', 'youtube'=>'video'];
+function csv_date($v){
+  $v = trim((string)$v);
+  if($v === '') return '';
+  if(preg_match('#^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})$#', $v, $m)){ $y = strlen($m[3]) === 2 ? 2000 + (int)$m[3] : (int)$m[3]; return checkdate((int)$m[1], (int)$m[2], $y) ? sprintf('%04d-%02d-%02d', $y, $m[1], $m[2]) : ''; }
+  $t = strtotime($v);
+  return $t ? date('Y-m-d', $t) : '';
+}
+function csv_rows($file){
+  $raw = (string)@file_get_contents($file);
+  $raw = preg_replace('/^\xEF\xBB\xBF/', '', $raw);
+  if(!mb_check_encoding($raw, 'UTF-8')) $raw = mb_convert_encoding($raw, 'UTF-8', 'Windows-1252');   /* Excel's own format */
+  $first = strtok($raw, "\n");
+  $sep = substr_count($first, ';') > substr_count($first, ',') ? ';' : (substr_count($first, "\t") > substr_count($first, ',') ? "\t" : ',');
+  $fp = fopen('php://temp', 'r+'); fwrite($fp, $raw); rewind($fp);
+  $rows = [];
+  while(($r = fgetcsv($fp, 0, $sep, '"', '')) !== false) if(array_filter($r, fn($c)=>trim((string)$c) !== '')) $rows[] = $r;
+  fclose($fp);
+  return $rows;
+}
+
+if($act === 'import_puppies'){
+  $f = $_FILES['csv'] ?? null;
+  if(!$f || ($f['error'] ?? 1) !== UPLOAD_ERR_OK){ note('Choose a CSV file to import.', 'err'); go('puppy_import'); }
+  $rows = csv_rows($f['tmp_name']);
+  if(count($rows) < 2){ note('The file has no puppies in it: it needs a header row and at least one puppy row.', 'err'); go('puppy_import'); }
+  $cols = [];
+  foreach(array_shift($rows) as $i=>$hd){
+    $k = strtolower(trim(preg_replace('/\s+/', ' ', (string)$hd)));
+    $k = PUPPY_CSV_ALIASES[$k] ?? str_replace(' ', '_', $k);
+    if(in_array($k, PUPPY_CSV, true) && !isset($cols[$k])) $cols[$k] = $i;
+  }
+  if(!isset($cols['name'])){ note('The file needs a “name” column (the puppy’s name). Download the template to see the columns.', 'err'); go('puppy_import'); }
+  $parent_id = function($name) use(&$SITE){ $name = strtolower(trim($name)); if($name === '') return ''; foreach($SITE['parents'] as $p) if(strtolower($p['name']) === $name || strtolower($p['registered_name'] ?? '') === $name) return $p['id']; return null; };
+  $added = $updated = 0; $issues = [];
+  foreach($rows as $n=>$r){
+    $get = fn($k)=>isset($cols[$k]) ? trim((string)($r[$cols[$k]] ?? '')) : null;
+    $name = $get('name');
+    if($name === ''){ $issues[] = 'Row '.($n + 2).': no name, skipped.'; continue; }
+    $i = null; foreach($SITE['puppies'] as $k=>$p) if(strcasecmp($p['name'], $name) === 0){ $i = $k; break; }
+    $p = $i !== null ? $SITE['puppies'][$i] : ['id'=>new_id(), 'created'=>date('c'), 'photos'=>[], 'status'=>'available', 'sex'=>'male', 'color'=>'', 'price'=>'', 'dob'=>'', 'microchip'=>true, 'hidden'=>false];
+    $p['name'] = mb_substr($name, 0, 60);
+    $set = function($k, $v) use(&$p){ if($v !== null) $p[$k] = $v; };
+    if(($v = $get('sex')) !== null && $v !== '') $p['sex'] = preg_match('/^(f|female|girl|she|bitch)/i', $v) ? 'female' : 'male';
+    $set('color', $get('color') !== null ? mb_substr($get('color'), 0, 60) : null);
+    foreach(['dob', 'ready', 'vet_date'] as $k) if(($v = $get($k)) !== null){ $p[$k] = csv_date($v); if($v !== '' && $p[$k] === '') $issues[] = "$name: couldn’t read the $k “{$v}” (use e.g. 2026-08-28 or 8/28/2026)."; }
+    if(($v = $get('price')) !== null){ $num = str_replace(['$', ',', ' ', 'USD', 'usd'], '', $v); if($v === '' || is_numeric($num)) $p['price'] = $v === '' ? '' : (string)round((float)$num, 2); else $issues[] = "$name: couldn’t read the price “{$v}”."; }
+    if(($v = $get('status')) !== null && $v !== '') $p['status'] = preg_match('/sold|home|adopted/i', $v) ? 'sold' : (preg_match('/reserv|hold|pending|deposit/i', $v) ? 'reserved' : 'available');
+    if(($v = $get('size')) !== null) $p['size'] = preg_match('/13/', $v) ? '13' : (preg_match('/15/', $v) ? '15' : '');
+    foreach(['weight'=>40, 'registry'=>40, 'reg_no'=>80, 'chip_no'=>40, 'tagline'=>200, 'video'=>300] as $k=>$max) $set($k, $get($k) !== null ? mb_substr($get($k), 0, $max) : null);
+    foreach(['vaccines'=>1000, 'description'=>20000] as $k=>$max) $set($k, $get($k) !== null ? mb_substr(str_replace(['\n', ' | '], "\n", $get($k)), 0, $max) : null);
+    foreach(['dam', 'sire'] as $k) if(($v = $get($k)) !== null){ $id = $parent_id($v); if($id === null){ $issues[] = "$name: no parent called “{$v}” — add them under Parents first, then import again."; } else $p[$k] = $id; }
+    if(($p['chip_no'] ?? '') !== '') $p['microchip'] = true;
+    if(empty($p['slug'])) $p['slug'] = unique_slug($p['name'].' '.($p['color'] ?? '').' '.$p['sex'], $SITE['puppies'], $p['id']);
+    $p['updated'] = date('c');
+    if($i === null){ $SITE['puppies'][] = $p; $added++; } else { $SITE['puppies'][$i] = $p; $updated++; }
+  }
+  save("Imported: $added new ".($added === 1 ? 'puppy' : 'puppies').", $updated updated. Add their photos under Puppies.");
+  foreach(array_slice($issues, 0, 15) as $m) note($m, 'err');
+  go('puppies');
+}
+
 /* CSV downloads */
 if($v === 'export'){
   $what = $_GET['what'] ?? '';
   header('Content-Type: text/csv; charset=utf-8');
-  header('Content-Disposition: attachment; filename="beaglebrook-'.($what === 'waitlist' ? 'waitlist' : 'inquiries').'-'.date('Y-m-d').'.csv"');
+  header('Content-Disposition: attachment; filename="beaglebrook-'.(['waitlist'=>'waitlist', 'puppies'=>'puppies', 'puppy_template'=>'puppies-template'][$what] ?? 'inquiries').($what === 'puppy_template' ? '' : '-'.date('Y-m-d')).'.csv"');
   $out = fopen('php://output', 'w');
   fwrite($out, "\xEF\xBB\xBF");
   $safe = fn($row)=>array_map(fn($c)=>preg_match('/^[=+\-@\t\r]/', (string)$c) ? "'".$c : $c, $row);   /* no spreadsheet formulas from form text */
+  if($what === 'puppy_template' || $what === 'puppies'){
+    fputcsv($out, PUPPY_CSV);
+    if($what === 'puppy_template') fputcsv($out, ['Daisy', 'Female', 'Lemon & White', '2026-08-28', '2026-10-23', '1500', 'Available', '13', '4.2 lb', 'AKC', 'Litter HL5551234', '', 'Maple', 'Duke', '2026-10-20', 'DHPP #1 — 6 weeks | DHPP #2 — 9 weeks', 'Gentle, cuddly lemon girl who loves kids', 'Daisy is the calm one of the litter.', '']);
+    else { $pn = fn($id)=>($x = find_by($GLOBALS['SITE']['parents'], 'id', (string)$id)) ? $x['name'] : '';
+      foreach($GLOBALS['SITE']['puppies'] as $p) fputcsv($out, $safe([$p['name'], ucfirst($p['sex']), $p['color'], $p['dob'] ?? '', $p['ready'] ?? '', $p['price'] ?? '', PUPPY_STATUSES[$p['status']] ?? $p['status'], $p['size'] ?? '', $p['weight'] ?? '',
+        $p['registry'] ?? '', $p['reg_no'] ?? '', $p['chip_no'] ?? '', $pn($p['dam'] ?? ''), $pn($p['sire'] ?? ''), $p['vet_date'] ?? '', str_replace("\n", ' | ', $p['vaccines'] ?? ''), $p['tagline'] ?? '', $p['description'] ?? '', $p['video'] ?? ''])); }
+    exit;
+  }
   if($what === 'waitlist'){
     fputcsv($out, ['Joined', 'Name', 'Email', 'Phone', 'State', 'Sex', 'Color', 'Timing', 'Notes']);
     foreach(waitlist() as $w) fputcsv($out, $safe([$w['time'], $w['name'], $w['email'], $w['phone'], $w['state'], $w['sex'], $w['color'], $w['timing'], $w['notes']]));
@@ -567,7 +667,7 @@ if($v === 'export'){
 /* ---------------- views ---------------- */
 $VIEWS = ['dashboard'=>'Dashboard', 'puppies'=>'Puppies', 'parents'=>'Parents', 'litters'=>'Litters', 'inquiries'=>'Inquiries', 'waitlist'=>'Waitlist',
           'reviews'=>'Reviews', 'articles'=>'Guides & blog', 'pages'=>'Pages', 'promises'=>'Guarantees', 'delivery'=>'Delivery', 'payments'=>'Payments', 'templates'=>'Email templates', 'redirects'=>'Redirects', 'settings'=>'Settings', 'account'=>'Sign-in'];
-$SUB = ['puppy'=>'puppies', 'parent'=>'parents', 'inquiry'=>'inquiries', 'review'=>'reviews', 'article'=>'articles', 'page'=>'pages'];
+$SUB = ['puppy_import'=>'puppies', 'puppy'=>'puppies', 'parent'=>'parents', 'inquiry'=>'inquiries', 'review'=>'reviews', 'article'=>'articles', 'page'=>'pages'];
 if(!isset($VIEWS[$v]) && !isset($SUB[$v])) $v = 'dashboard';
 layout_start($VIEWS[$v] ?? $VIEWS[$SUB[$v]]);
 ('view_'.$v)();
@@ -688,7 +788,7 @@ function view_dashboard(){
   <div class="grid g2">
     <div class="card"><h2 style="margin-top:0">Latest inquiries</h2>
       <?php if(!$inq): ?><p class="mut">None yet. They appear here and are emailed to <?= h($CFG['email']) ?>.</p><?php endif; ?>
-      <table><?php foreach(array_slice($inq, 0, 8) as $q): ?><tr><td><a href="<?= h(self_url('inquiry', ['ref'=>$q['ref']])) ?>"><?= h($q['name']) ?></a><br><span class="mut"><?= h($q['puppy_name'] ?: 'Message') ?> · <?= h(date('M j, g:ia', strtotime($q['time']))) ?></span></td><td><?= badge($q['status'], INQUIRY_STATUSES) ?></td></tr><?php endforeach; ?></table></div>
+      <table><?php foreach(array_slice($inq, 0, 8) as $q): ?><tr><td><a href="<?= h(self_url('inquiry', ['ref'=>$q['ref']])) ?>"><?= h($q['name'] !== '' ? $q['name'] : $q['email']) ?></a><br><span class="mut"><?= h($q['puppy_name'] ?: 'Message') ?> · <?= h(date('M j, g:ia', strtotime($q['time']))) ?></span></td><td><?= badge($q['status'], INQUIRY_STATUSES) ?></td></tr><?php endforeach; ?></table></div>
     <div class="card"><h2 style="margin-top:0">Launch checklist</h2><ul class="chk">
       <?php foreach($checks as [$ok, $label, $view, $tab]): ?><li class="<?= $ok ? 'done' : 'todo' ?>"><?= $ok ? '✓' : '○' ?> <?= $ok ? h($label) : '<a href="'.h(self_url($view, $tab ? ['tab'=>$tab] : [])).'">'.h($label).'</a>' ?></li><?php endforeach; ?>
     </ul><p class="mut">Sitemap for Google: <a href="<?= h(site_url('sitemap.xml')) ?>" target="_blank"><?= h(rtrim($CFG['domain'], '/')) ?>/sitemap.xml</a></p></div>
@@ -698,13 +798,13 @@ function view_dashboard(){
 
 function view_puppies(){
   global $SITE;
-  ?><div class="row"><h1>Puppies</h1><a class="btn right" href="<?= h(self_url('puppy')) ?>">+ Add a puppy</a></div>
+  ?><div class="row"><h1>Puppies</h1><a class="btn btn-g right" href="<?= h(self_url('puppy_import')) ?>">Import from a spreadsheet</a><a class="btn" href="<?= h(self_url('puppy')) ?>">+ Add a puppy</a></div>
   <p class="mut">Restock by adding new puppies here. Mark them Reserved when a deposit arrives and Sold after delivery — sold puppies stay on the site as “gone to loving homes”, which builds trust.</p>
   <div class="tw"><table><tr><th></th><th>Puppy</th><th>Price</th><th>Born</th><th>Status</th><th>Quick change</th></tr>
   <?php foreach($SITE['puppies'] as $p): ?><tr>
     <td style="width:76px"><?php if(!empty($p['photos'][0])): ?><img src="<?= h(thumb($p['photos'][0], 160)) ?>" alt="" style="width:64px;height:50px;object-fit:cover;border-radius:6px"><?php endif; ?></td>
     <td><a href="<?= h(self_url('puppy', ['id'=>$p['id']])) ?>"><strong><?= h($p['name']) ?></strong></a> <?= !empty($p['hidden']) ? '<span class="badge">Hidden</span>' : '' ?><br><span class="mut"><?= h($p['color'].' · '.ucfirst($p['sex'])) ?></span></td>
-    <td><?= $p['price'] !== '' ? h(money($p['price'])) : '—' ?></td><td><?= h($p['dob'] ? date('M j, Y', strtotime($p['dob'])) : '—') ?></td><td><?= badge($p['status'], PUPPY_STATUSES) ?></td>
+    <td><?= ($p['price'] ?? '') !== '' ? h(money($p['price'])) : '—' ?></td><td><?= h($p['dob'] ? date('M j, Y', strtotime($p['dob'])) : '—') ?></td><td><?= badge($p['status'], PUPPY_STATUSES) ?></td>
     <td><?= form_start('puppy_status') ?><input type="hidden" name="id" value="<?= h($p['id']) ?>"><select name="status" onchange="this.form.submit()" style="width:auto"><?php foreach(PUPPY_STATUSES as $k=>$l): ?><option value="<?= $k ?>"<?= $p['status'] === $k ? ' selected' : '' ?>><?= h($l) ?></option><?php endforeach; ?></select></form></td>
   </tr><?php endforeach; ?>
   <?php if(!$SITE['puppies']): ?><tr><td colspan="6" class="mut">No puppies yet. <a href="<?= h(self_url('puppy')) ?>">Add your first puppy</a>.</td></tr><?php endif; ?>
@@ -758,6 +858,25 @@ function view_puppy(){
   <?php if(waitlist()): ?><label class="cb"><input type="checkbox" name="notify" value="1"> Email this puppy to the <?= count(waitlist()) ?> people on the waitlist when I save</label><?php endif; ?>
   <button class="btn"><?= $new ? 'Add puppy' : 'Save puppy' ?></button></div></form>
   <?php if(!$new) echo '<p>'.del_button('delete_puppy', ['id'=>$p['id']], 'Delete puppy', 'Delete '.$p['name'].' and their photos? To keep them as “gone home”, mark them Sold instead.').'</p>';
+}
+
+function view_puppy_import(){
+  ?><h1>Import puppies from a spreadsheet</h1>
+  <div class="card"><ol>
+    <li><a href="<?= h(self_url('export', ['what'=>'puppy_template'])) ?>">Download the template</a> and open it in Excel, Numbers or Google Sheets (or use your own spreadsheet with similar column names).</li>
+    <li>One row per puppy. Only <b>name</b> is required; fill in what you know.</li>
+    <li>Save it as <b>CSV</b> (File → Save As / Download → CSV) and upload it below.</li>
+    <li>Then open each puppy under Puppies and add their photos.</li></ol>
+  <?= form_start('import_puppies', true) ?><label>CSV file<input type="file" name="csv" accept=".csv,text/csv,text/plain" required></label><button class="btn">Import puppies</button></form></div>
+  <div class="card"><h2 style="margin-top:0">Columns</h2><table>
+    <tr><td><b>name</b></td><td>The puppy’s name. A puppy with the same name is <b>updated</b>; a new name adds a puppy.</td></tr>
+    <tr><td>sex</td><td>Male or Female</td></tr><tr><td>color</td><td>e.g. Tricolor, Lemon &amp; White</td></tr>
+    <tr><td>dob, ready, vet_date</td><td>Dates: 2026-08-28 or 8/28/2026. “ready” is when they can go home.</td></tr>
+    <tr><td>price</td><td>e.g. 1500</td></tr><tr><td>status</td><td>Available, Reserved or Sold</td></tr><tr><td>size</td><td>13 or 15 (inches, expected adult size)</td></tr>
+    <tr><td>weight, registry, reg_no</td><td>e.g. 4.2 lb · AKC · Litter HL5551234</td></tr><tr><td>chip_no</td><td>Microchip number (private: only on the sales agreement)</td></tr>
+    <tr><td>dam, sire</td><td>The parents’ names, exactly as under Parents (add the parents first)</td></tr>
+    <tr><td>vaccines</td><td>Separate several with “ | ”</td></tr><tr><td>tagline, description, video</td><td>One-line summary, the full description, a YouTube link</td></tr>
+  </table><p class="mut">Common column names like “Puppy name”, “Gender”, “Date of birth”, “Mother”, “Father” or “Microchip” are recognized too. <a href="<?= h(self_url('export', ['what'=>'puppies'])) ?>">Download all puppies as CSV</a></p></div><?php
 }
 
 function view_parents(){
@@ -827,7 +946,7 @@ function view_inquiries(){
   <div class="tabs"><a class="<?= $f === '' ? 'on' : '' ?>" href="<?= h(self_url('inquiries')) ?>">All (<?= count($all) ?>)</a><?php foreach(INQUIRY_STATUSES as $k=>$l): $n = count(array_filter($all, fn($q)=>$q['status'] === $k)); ?><a class="<?= $f === $k ? 'on' : '' ?>" href="<?= h(self_url('inquiries', ['status'=>$k])) ?>"><?= h($l) ?> (<?= $n ?>)</a><?php endforeach; ?></div>
   <div class="tw"><table><tr><th>Received</th><th>From</th><th>Puppy</th><th>Delivery to</th><th>Status</th></tr>
   <?php foreach($list as $q): ?><tr><td><?= h(date('M j, g:ia', strtotime($q['time']))) ?><br><span class="mut"><?= h($q['ref']) ?></span></td>
-    <td><a href="<?= h(self_url('inquiry', ['ref'=>$q['ref']])) ?>"><strong><?= h($q['name']) ?></strong></a><br><span class="mut"><?= h($q['phone'] ?: $q['email']) ?></span></td>
+    <td><a href="<?= h(self_url('inquiry', ['ref'=>$q['ref']])) ?>"><strong><?= h($q['name'] !== '' ? $q['name'] : $q['email']) ?></strong></a><br><span class="mut"><?= h($q['phone'] ?: $q['email']) ?></span></td>
     <td><?= h($q['puppy_name'] ?: '— message —') ?></td><td><?= h(trim(($q['city'] ?? '').', '.($q['state'] ?? ''), ', ')) ?></td><td><?= badge($q['status'], INQUIRY_STATUSES) ?></td></tr><?php endforeach; ?>
   <?php if(!$list): ?><tr><td colspan="5" class="mut">Nothing here yet.</td></tr><?php endif; ?></table></div><?php
 }
@@ -839,19 +958,28 @@ function view_inquiry(){
   if(!$q){ echo '<p>Inquiry not found. <a href="'.h(self_url('inquiries')).'">Back</a></p>'; return; }
   $p = $q['puppy_id'] ? find_by($SITE['puppies'], 'id', $q['puppy_id']) : null;
   $tel = preg_replace('/[^\d+]/', '', $q['phone']);
-  ?><div class="row"><h1><?= h($q['name']) ?></h1><span class="right"><?= badge($q['status'], INQUIRY_STATUSES) ?></span></div>
+  ?><div class="row"><h1><?= h($q['name'] !== '' ? $q['name'] : $q['email']) ?></h1><span class="right"><?= badge($q['status'], INQUIRY_STATUSES) ?></span></div>
   <p class="mut"><?= h($q['kind'] === 'inquiry' ? 'Puppy inquiry' : 'Contact message') ?> · <?= h($q['ref']) ?> · <?= h(date('l, F j, Y \a\t g:ia', strtotime($q['time']))) ?></p>
-  <?php if($q['kind'] === 'inquiry') inquiry_actions($q); ?>
+  <?php if(($q['puppy_id'] ?? '') !== '') inquiry_actions($q); else echo '<div class="card"><p class="mut" style="margin:0">They haven’t chosen a puppy yet. Call or text them, then choose their puppy under <b>Edit details</b> to unlock the one-click emails, the sales agreement and payments.</p></div>'; ?>
   <div class="grid g2"><div class="card">
     <h2 style="margin-top:0">Contact</h2>
     <p><a href="mailto:<?= h($q['email']) ?>?subject=<?= rawurlencode(($q['puppy_name'] ? 'Your inquiry for '.$q['puppy_name'] : 'Your message').' — '.$CFG['brand']) ?>"><?= h($q['email']) ?></a><br>
       <?php if($q['phone'] !== ''): ?><a href="tel:<?= h($tel) ?>"><?= h($q['phone']) ?></a> · <a href="sms:<?= h($tel) ?>">Text</a><?php endif; ?></p>
-    <?php if($q['kind'] === 'inquiry'): ?>
-      <p><strong>Delivery address</strong><br><?= h($q['address1']) ?><?= $q['address2'] !== '' ? '<br>'.h($q['address2']) : '' ?><br><?= h($q['city'].', '.$q['state'].' '.$q['zip']) ?></p>
-      <?php if(($q['delivery_name'] ?? '') !== ''): ?><p><strong>Delivery:</strong> <?= h($q['delivery_name']) ?> — <?= $q['delivery_fee'] !== '' ? h(money($q['delivery_fee'])) : 'to be quoted' ?></p><?php endif; ?>
-      <p><strong>Preferred payment:</strong> <?= h($q['payment_name']) ?><br><strong>Delivery timing:</strong> <?= h($q['timing'] ?: '—') ?><br><strong>Best way to reach them:</strong> <?= h($q['contact_pref'] ?: 'Any') ?></p>
-    <?php endif; ?>
-    <?php if($q['notes'] !== ''): ?><h2><?= $q['kind'] === 'inquiry' ? 'Their notes' : 'Message' ?></h2><p style="white-space:pre-wrap"><?= h($q['notes']) ?></p><?php endif; ?>
+    <?php if($q['notes'] !== ''): ?><h2>Their note</h2><p style="white-space:pre-wrap"><?= h($q['notes']) ?></p><?php endif; ?>
+    <?php if(($q['address1'] ?? '') !== ''): ?><p><strong>Delivery address</strong><br><?= h($q['address1']) ?><?= ($q['address2'] ?? '') !== '' ? '<br>'.h($q['address2']) : '' ?><br><?= h(trim($q['city'].', '.$q['state'].' '.$q['zip'], ', ')) ?></p><?php endif; ?>
+    <?php if(($q['delivery_name'] ?? '') !== ''): ?><p><strong>Delivery:</strong> <?= h($q['delivery_name']) ?> — <?= $q['delivery_fee'] !== '' ? h(money($q['delivery_fee'])) : 'to be quoted' ?></p><?php endif; ?>
+    <?php if(($q['payment_name'] ?? '') !== ''): ?><p><strong>Payment:</strong> <?= h($q['payment_name']) ?></p><?php endif; ?>
+    <details<?= ($q['address1'] ?? '') === '' && ($q['puppy_id'] ?? '') !== '' ? ' open' : '' ?>><summary>Edit details: puppy, delivery address, delivery and payment</summary>
+      <p class="mut">Fill these in once you’ve talked. They go into the sales agreement and the emails.</p>
+      <?= form_start('save_inquiry_details') ?><input type="hidden" name="ref" value="<?= h($q['ref']) ?>">
+      <label>Puppy<select name="puppy"><option value="">Not chosen yet</option><?php foreach($SITE['puppies'] as $pp): ?><option value="<?= h($pp['id']) ?>"<?= $pp['id'] === ($q['puppy_id'] ?? '') ? ' selected' : '' ?>><?= h($pp['name'].' — '.$pp['color'].' '.$pp['sex'].' ('.(PUPPY_STATUSES[$pp['status']] ?? $pp['status']).')') ?></option><?php endforeach; ?></select></label>
+      <div class="grid g3"><label>Name<input type="text" name="name" value="<?= h($q['name']) ?>"></label><label>Phone<input type="tel" name="phone" value="<?= h($q['phone']) ?>"></label><label>Email<input type="email" name="email" value="<?= h($q['email']) ?>"></label></div>
+      <label>Street address<input type="text" name="address1" value="<?= h($q['address1'] ?? '') ?>"></label>
+      <div class="grid g4"><label>Apt / suite<input type="text" name="address2" value="<?= h($q['address2'] ?? '') ?>"></label><label>City<input type="text" name="city" value="<?= h($q['city'] ?? '') ?>"></label>
+        <label>State<select name="state"><option value="">—</option><?php foreach(US_STATES as $k=>$v): ?><option value="<?= $k ?>"<?= ($q['state'] ?? '') === $k ? ' selected' : '' ?>><?= h($v) ?></option><?php endforeach; ?></select></label><label>ZIP<input type="text" name="zip" value="<?= h($q['zip'] ?? '') ?>"></label></div>
+      <div class="grid g2"><label>Delivery<select name="delivery"><option value="">Not chosen yet</option><?php foreach($SITE['delivery']['methods'] as $m): ?><option value="<?= h($m['key']) ?>"<?= ($q['delivery'] ?? '') === $m['key'] ? ' selected' : '' ?>><?= h($m['label'].' ('.$m['days'].')') ?></option><?php endforeach; ?></select></label>
+        <label>Payment method<select name="payment"><option value="">Not chosen yet</option><?php foreach($SITE['payments'] as $pm): ?><option value="<?= h($pm['key']) ?>"<?= ($q['payment'] ?? '') === $pm['key'] ? ' selected' : '' ?>><?= h($pm['name']) ?></option><?php endforeach; ?></select></label></div>
+      <button class="btn btn-s">Save details</button></form></details>
   </div><div>
     <?php if($p): ?><div class="card"><h2 style="margin-top:0">Puppy: <a href="<?= h(self_url('puppy', ['id'=>$p['id']])) ?>"><?= h($p['name']) ?></a></h2>
       <p><?= badge($p['status'], PUPPY_STATUSES) ?> · <?= $p['price'] !== '' ? h(money($p['price'])).' · deposit '.h(money(round((float)$p['price'] * (int)$CFG['deposit_pct'] / 100, 2))) : '' ?></p>
@@ -860,7 +988,7 @@ function view_inquiry(){
     <?php elseif($q['puppy_name']): ?><div class="card"><p>Puppy: <?= h($q['puppy_name']) ?> (no longer listed)</p></div><?php endif; ?>
     <div class="card"><?= form_start('save_inquiry') ?><input type="hidden" name="ref" value="<?= h($q['ref']) ?>">
       <label>Status<select name="status"><?php foreach(INQUIRY_STATUSES as $k=>$l): ?><option value="<?= $k ?>"<?= $q['status'] === $k ? ' selected' : '' ?>><?= h($l) ?></option><?php endforeach; ?></select></label>
-      <label>Your private notes<small>Deposit received, video call date, delivery plans…</small><textarea name="admin_notes" rows="6"><?= h($q['admin_notes'] ?? '') ?></textarea></label>
+      <label>Your private notes<small>Deposit received, delivery plans…</small><textarea name="admin_notes" rows="6"><?= h($q['admin_notes'] ?? '') ?></textarea></label>
       <button class="btn">Save</button></form></div>
     <?php if(!empty($q['emails'])): ?><div class="card"><h2 style="margin-top:0">Emails sent</h2><table><?php foreach(array_reverse($q['emails']) as $e): ?><tr><td class="mut" style="white-space:nowrap"><?= h(date('M j, g:ia', strtotime($e['time']))) ?></td><td><?= h($e['subject']) ?><?= empty($e['ok']) ? ' <span class="badge b-reserved">Failed</span>' : '' ?></td></tr><?php endforeach; ?></table></div><?php endif; ?>
     <p><?= del_button('delete_inquiry', ['ref'=>$q['ref']], 'Delete inquiry') ?></p>
@@ -895,7 +1023,7 @@ function inquiry_actions($q){
   <div class="tot-row"><span>Puppy <b><?= h(money($d['price'])) ?></b></span><span>Delivery <b><?= $d['delivery_fee'] !== null ? h(money($d['delivery_fee'])) : '—' ?></b></span><span>Total <b><?= h(money($t['total'])) ?></b></span>
     <span>Deposit <b><?= h(money($d['deposit'])) ?></b></span><span>Paid <b><?= h(money($t['paid'])) ?></b></span><span>Still to pay <b><?= h(money($t['due'])) ?></b></span></div>
   <div class="acts">
-    <?php $tpl_box('video', 'Thanks them and asks for a time for a live video call with '.$d['puppy'].'.'); ?>
+    <?php $tpl_box('welcome', 'Thanks them for their inquiry about '.$d['puppy'].', with the price, delivery options and a link to the puppy’s page.'); ?>
     <div class="act"><div class="row"><strong>Sales agreement</strong><span class="mut right"><?= !empty($ag['accepted']) ? '✓ Accepted' : (!empty($ag['sent']) ? 'Sent '.h(date('M j, g:ia', strtotime($ag['sent']))) : '') ?></span></div>
       <p class="mut"><?= !empty($ag['accepted']) ? 'Accepted online by “'.h($ag['accepted_name']).'” on '.h(date('M j, Y \a\t g:ia', strtotime($ag['accepted']))).'.' : 'Emails a link to their agreement: puppy, price, deposit, delivery, guarantees. They read it, accept it by typing their name, and can print it.' ?></p>
       <div class="row"><?= form_start('send_agreement') ?><input type="hidden" name="ref" value="<?= h($q['ref']) ?>"><button class="btn btn-s" onclick="return confirm('Email the sales agreement to <?= h($q['email']) ?>?')"><?= empty($ag['sent']) ? 'Send agreement' : (empty($ag['accepted']) ? 'Send updated agreement' : 'Resend link') ?></button></form>

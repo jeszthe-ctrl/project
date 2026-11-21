@@ -71,7 +71,7 @@ After the first year, most owners spend around **$1,000 to $2,500 a year** on fo
 Puppy scams often use beagles. Walk away if a seller:
 
 - advertises beagle puppies for a fraction of normal prices
-- won't do a live video call before you pay
+- won't answer questions or send recent photos before you pay
 - asks for gift cards, cryptocurrency or wire services like Western Union
 - adds surprise fees for "shipping insurance", "special crates" or "vaccination certificates"
 - pressures you to pay today
@@ -117,7 +117,7 @@ Choosing the right breeder is the most important decision you'll make about your
 
 ## Questions to ask a beagle breeder
 
-1. Can I see the puppy live on a video call (or in person)?
+1. Can you send recent photos of the puppy and both parents?
 2. Can I see both parents, and what are their registered names and numbers?
 3. What health testing have the parents had?
 4. How big are the parents? (This is the best guide to adult size.)
@@ -153,7 +153,7 @@ You'll find our adult dogs' details on [our beagles](/our-beagles) page.
 
 Puppy scams are common, especially online. Walk away from any seller who:
 
-- won't do a live video call with the puppy
+- won't send recent photos or answer basic questions about the puppy
 - only communicates by text or social media, with no real name or business
 - asks for **gift cards, cryptocurrency, Western Union or MoneyGram**
 - demands extra fees after you've paid ("insurance", "crate", "customs", "vaccines")
@@ -169,7 +169,7 @@ If you're open to an adult dog, adoption is a wonderful option too — see [beag
 
 ## How Beagle Brook measures up
 
-We're a beagle-only breeder in {city}, {state}. Every puppy is vet checked, vaccinated for their age, microchipped and sold with full papers, a written health guarantee and a lifetime take-back promise. Every family sees their puppy on a live video call before paying anything. [Here's how to verify us](/is-beagle-brook-legit).
+We're a beagle-only breeder in {city}, {state}. Every puppy is vet checked, vaccinated for their age, microchipped and sold with full papers, a written health guarantee and a lifetime take-back promise. Every family gets answers, photos and a written agreement before paying anything. [Here's how to verify us](/is-beagle-brook-legit).
 
 ## Questions
 
@@ -177,10 +177,10 @@ We're a beagle-only breeder in {city}, {state}. Every puppy is vet checked, vacc
 Search for breeders in your state, check national breed club listings, and ask local vets. Then use the questions above to check each one — including breeders who deliver from further away.
 
 ### Is it safe to buy a beagle puppy online?
-It can be, with a breeder you've verified: live video call, real registration details, a written agreement and safe payment arrangements. Never pay a seller you can't verify.
+It can be, with a breeder you've verified: recent photos, real registration details, a written agreement and safe payment arrangements. Never pay a seller you can't verify.
 
 ### Should a breeder let me visit?
-Many do. Delivery-only breeders should offer live video calls showing the puppy, the parents and where puppies are raised.
+Many do. Delivery-only breeders should answer every question and share recent photos of the puppy and both parents.
 
 ### What's the difference between full and limited registration?
 Full registration allows a dog's puppies to be registered; limited registration doesn't. Every Beagle Brook puppy comes with full registration papers.

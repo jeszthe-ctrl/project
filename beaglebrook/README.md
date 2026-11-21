@@ -7,7 +7,7 @@ The website for Beagle Brook, a beagle breeder in Cincinnati, Ohio. It's written
 **For buyers**
 - **Home page** with available puppies, guarantees, how it works, what's included, the parents, reviews and the delivery promise.
 - **Beagle Puppies for Sale** (`/beagle-puppies-for-sale`): the category page. Puppies can be filtered by sex and color, and sold puppies are shown as "gone to loving homes".
-- **A page for every puppy** (`/beagle-puppies-for-sale/daisy-lemon-and-white-female`). It shows the photo gallery, video, price and the 50% deposit amount, age, ready date, expected size, registration, microchip, vet check, shots, both parents, what's included and the guarantees. At the bottom is the **inquiry form**: full name, email, phone (required), delivery address (required), preferred payment method, delivery timing, best way to reach them, personal notes, and a checkbox confirming they understand the deposit. No payment is taken on the site.
+- **A page for every puppy** (`/beagle-puppies-for-sale/daisy-lemon-and-white-female`). It shows the photo gallery, video, price, delivery prices, age, ready date, expected size, registration, microchip, vet check, shots, both parents, what's included and the guarantees. The **one-minute inquiry form** (choose your dog, phone and email required, optional note) is on every puppy page, the puppies page, the home page and the contact page. No payment is taken on the site.
 - **Our beagles** (the parents, with registration and health testing), **Upcoming litters and waitlist**, **Reviews** (empty until you add some), **Contact**.
 - **Trust pages:**
   - How it works
@@ -29,16 +29,18 @@ The website for Beagle Brook, a beagle breeder in Cincinnati, Ohio. It's written
 - The customer gets a confirmation email: their reference, what happens next, and a reminder that payment details only ever come from your address.
 - You get a **text message** too, if you turn on text alerts (Settings → Email & alerts).
 
-**From an inquiry to delivery day, in one click each** (Admin → Inquiries → open an inquiry → Next steps)
-- **Video call invite.** Thanks the buyer and asks for a time for a live video call.
-- **Sales agreement.** Emails a link to their agreement: both parties, the puppy (with registration, parents and the private microchip number), price, delivery, deposit and balance, refunds, delivery terms and the full guarantees. The buyer accepts it online by typing their name and ticking a box. You're emailed and texted, and the date, name and IP address are recorded. It prints cleanly or saves as a PDF, with signature lines.
-- **Payment instructions.** Their exact deposit and your private details for the method they chose (add these under Admin → Payments; they never appear on the website).
-- **Record a payment.** The amount, method and date. It emails a numbered receipt, marks the puppy Reserved and moves the inquiry to "Deposit received". The buyer's receipt page lists every payment and what's still owed.
+**From an inquiry to delivery day, in one click each** (Admin → Inquiries → open an inquiry)
+- **The inquiry form is the same on every page and takes a minute:** the buyer picks a dog (or "not sure yet"), gives a phone number and email (both required) and adds an optional note.
+- **Edit details:** after you've talked, add their puppy, delivery address, delivery option and payment method. These go into the agreement and emails.
+- **Reply to inquiry:** thanks them, with the puppy's price, delivery options and a link to the puppy's page.
+- **Sales agreement:** emails a link to their agreement, which they accept online by typing their name. You're emailed and texted, and it prints cleanly with signature lines.
+- **Payment instructions:** their exact deposit and your private details for their payment method (add these under Admin → Payments).
+- **Record a payment:** emails a numbered receipt, marks the puppy Reserved and moves the inquiry to "Deposit received".
 - **Reservation confirmed**, **Delivery scheduled** (pick the departure date) and a **friendly follow-up**.
-- Every email can be previewed and edited before sending, and the wording lives in **Admin → Email templates**. Each inquiry keeps a history of the emails sent.
+- Every email can be previewed and edited before sending, and the wording lives in **Admin → Email templates**.
 
 **Admin (`/admin.php`)**
-- **Puppies:** add a puppy with all its details (name, sex, color, DOB, ready date, price, size, registry and number, parents, microchip, vet check date, shots, description, video and up to 12 photos). Change its status to Available, Reserved or Sold with one click. Tick "Email this puppy to the waitlist" to announce a new puppy.
+- **Puppies:** **import them all from a spreadsheet (CSV)** — there's a template, and common column names like "Puppy name", "Gender", "Date of birth" and "Mother" are recognized — or add a puppy with all its details (name, sex, color, DOB, ready date, price, size, registry and number, parents, microchip, vet check date, shots, description, video and up to 12 photos). Change its status to Available, Reserved or Sold with one click. Tick "Email this puppy to the waitlist" to announce a new puppy.
 - **Parents, Litters, Reviews** (add reviews your customers send you).
 - **Waitlist:** email everyone, with an unsubscribe link added to each email automatically, and download a CSV.
 - **Guides & blog and Pages:** edit any text or write new posts.

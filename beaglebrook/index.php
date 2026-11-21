@@ -80,43 +80,22 @@ function new_ref(){
 $errors = []; $old = [];
 $action = $_SERVER['REQUEST_METHOD'] === 'POST' ? (string)($_POST['action'] ?? '') : '';
 
+/* the inquiry form, the same on every page: a puppy (or "not sure yet"), a note, and the
+   phone number and email we reply to (both required); the name is optional */
 if($action === 'inquiry' || $action === 'contact'){
   $old = $_POST;
-  $puppy = $action === 'inquiry' ? find_by(public_puppies(), 'id', (string)($_POST['puppy'] ?? '')) : null;
-  $f = ['name'=>one_line(post('name', 120)), 'email'=>one_line(post('email', 160)), 'phone'=>one_line(post('phone', 40)), 'notes'=>post('notes', 3000)];
-  if($f['name'] === '') $errors['name'] = 'Please enter your full name.';
+  $puppy = find_by(public_puppies(), 'id', (string)($_POST['puppy'] ?? ''));
+  $f = ['name'=>one_line(post('name', 120)), 'email'=>one_line(post('email', 160)), 'phone'=>one_line(post('phone', 40)), 'notes'=>post('notes', 3000),
+        'address1'=>'', 'address2'=>'', 'city'=>'', 'state'=>'', 'zip'=>'', 'payment'=>'', 'timing'=>'', 'contact_pref'=>''];
+  if(strlen(preg_replace('/\D/', '', $f['phone'])) < 10) $errors['phone'] = 'Please enter a phone number we can call or text, with area code.';
   if(!filter_var($f['email'], FILTER_VALIDATE_EMAIL)) $errors['email'] = 'Please enter a valid email address.';
-  if($action === 'inquiry'){
-    $f += ['address1'=>one_line(post('address1', 160)), 'address2'=>one_line(post('address2', 120)), 'city'=>one_line(post('city', 80)),
-           'state'=>post('state', 2), 'zip'=>one_line(post('zip', 10)), 'payment'=>post('payment', 40), 'timing'=>one_line(post('timing', 60)),
-           'contact_pref'=>one_line(post('contact_pref', 20)), 'delivery'=>post('delivery', 20)];
-    if(strlen(preg_replace('/\D/', '', $f['phone'])) < 10) $errors['phone'] = 'Please enter a phone number we can call or text, with area code.';
-    if($f['address1'] === '') $errors['address1'] = 'Please enter the delivery street address.';
-    if($f['city'] === '') $errors['city'] = 'Please enter the city.';
-    if(!isset(US_STATES[$f['state']])) $errors['state'] = 'Please choose the state.';
-    if(!preg_match('/^\d{5}(-\d{4})?$/', $f['zip'])) $errors['zip'] = 'Please enter a 5-digit ZIP code.';
-    $dopt = delivery_options() ? find_by(delivery_options(), 'key', $f['delivery']) : null;
-    if(delivery_options() && !$dopt) $errors['delivery'] = 'Please choose Standard or Express delivery.';
-    $pay = find_by(payments_on(), 'key', $f['payment']);
-    if(!$pay) $errors['payment'] = 'Please choose how you would like to pay.';
-    if(empty($_POST['agree'])) $errors['agree'] = 'Please confirm you’ve read how the deposit works.';
-    if(!$puppy) $errors['puppy'] = 'This puppy is no longer listed. Please choose another puppy.';
-  } else {
-    if($f['notes'] === '') $errors['notes'] = 'Please write your message.';
-  }
   if(!$errors && !form_ok()) $errors['form'] = 'Something went wrong sending the form. Please wait a moment and send it again.';
   if(!$errors && !throttle_ok()) $errors['form'] = 'You’ve sent several forms in a short time. Please email us at '.$CFG['email'].' instead.';
   if(!$errors){
     $ref = new_ref();
-    $inq = ['ref'=>$ref, 'kind'=>$action, 'time'=>date('c'), 'status'=>'new'] + $f + [
+    $inq = ['ref'=>$ref, 'kind'=>'inquiry', 'time'=>date('c'), 'status'=>'new'] + $f + [
       'puppy_id'=>$puppy['id'] ?? '', 'puppy_name'=>$puppy['name'] ?? '', 'puppy_price'=>$puppy['price'] ?? '',
-      'payment_name'=>isset($pay) && $pay ? $pay['name'] : '', 'page'=>one_line(post('page', 300)), 'admin_notes'=>''];
-    if(!empty($dopt)){
-      $fee = delivery_fee($f['state'], $dopt['key']);
-      $inq['delivery_name'] = $dopt['label'].' ('.$dopt['days'].')';
-      $inq['delivery_label'] = $dopt['label']; $inq['delivery_days'] = $dopt['days'];
-      $inq['delivery_fee'] = $fee === null ? '' : (string)$fee;
-    }
+      'payment_name'=>'', 'page'=>one_line(post('page', 300)), 'admin_notes'=>''];
     data_write('inquiries/'.$ref, $inq);
     send_inquiry_mail($inq, $puppy);
     $_SESSION['last_inquiry'] = $ref;
@@ -149,41 +128,23 @@ function admin_link($ref){ global $CFG; return rtrim($CFG['domain'], '/').'/admi
 function send_inquiry_mail($q, $puppy){
   global $CFG;
   $brand = $CFG['brand'];
-  $lines = ["Name: {$q['name']}", "Email: {$q['email']}", 'Phone: '.($q['phone'] ?: '—')];
-  if($q['kind'] === 'inquiry'){
-    $lines[] = 'Delivery address: '.$q['address1'].($q['address2'] ? ', '.$q['address2'] : '').", {$q['city']}, {$q['state']} {$q['zip']}";
-    if(($q['delivery_name'] ?? '') !== '') $lines[] = 'Delivery: '.$q['delivery_name'].', '.($q['delivery_fee'] !== '' ? money($q['delivery_fee']) : 'price to be quoted');
-    if($puppy && ($puppy['price'] ?? '') !== '' && ($q['delivery_fee'] ?? '') !== '') $lines[] = 'Total: '.money((float)$puppy['price'] + (float)$q['delivery_fee']).' ('.fill('{deposit}').' deposit '.money(deposit_amount($puppy['price'])).', then '.money((float)$puppy['price'] - deposit_amount($puppy['price']) + (float)$q['delivery_fee']).' at delivery)';
-    $lines[] = "Preferred payment: {$q['payment_name']}";
-    if($q['timing'] !== '') $lines[] = "Delivery timing: {$q['timing']}";
-    if($q['contact_pref'] !== '') $lines[] = "Best way to reach them: {$q['contact_pref']}";
-  }
-  $notes = $q['notes'] !== '' ? "\n".($q['kind'] === 'inquiry' ? 'Their notes' : 'Message').":\n{$q['notes']}\n" : '';
-  if($puppy){
-    $head = "New inquiry for {$puppy['name']} ({$puppy['color']} ".strtolower(sex_label($puppy['sex'])).', '.money($puppy['price']).")\nReference: {$q['ref']}";
-    $subject = "New inquiry: {$puppy['name']} — {$q['name']}, {$q['city']} {$q['state']}";
-  } else {
-    $head = "New message from the contact form\nReference: {$q['ref']}";
-    $subject = "Website message from {$q['name']}";
-  }
-  site_mail($CFG['email'], $subject, $head."\n\n".implode("\n", $lines)."\n".$notes."\nOpen in the admin: ".admin_link($q['ref'])."\n\nReply to this email to answer them directly.", $q['email']);
-  send_alert_text($puppy
-    ? "{$brand}: new inquiry for {$puppy['name']} from {$q['name']}, {$q['phone']}, {$q['city']} {$q['state']}. Ref {$q['ref']}"
-    : "{$brand}: new website message from {$q['name']} ({$q['email']}). Ref {$q['ref']}");
+  $who = $q['name'] !== '' ? $q['name'] : $q['email'];
+  $lines = array_values(array_filter([
+    $q['name'] !== '' ? "Name: {$q['name']}" : '', "Phone: {$q['phone']}", "Email: {$q['email']}",
+    $puppy ? "Puppy: {$puppy['name']}, ".trim($puppy['color'].' '.strtolower(sex_label($puppy['sex']))).(($puppy['price'] ?? '') !== '' ? ', '.money($puppy['price']) : '') : 'Puppy: not sure yet',
+  ]));
+  $notes = $q['notes'] !== '' ? "\nTheir note:\n{$q['notes']}\n" : '';
+  $subject = $puppy ? "New inquiry: {$puppy['name']} — $who" : "New inquiry from $who";
+  site_mail($CFG['email'], $subject, "New inquiry · reference {$q['ref']}\n\n".implode("\n", $lines)."\n".$notes."\nOpen in the admin: ".admin_link($q['ref'])."\n\nCall or text them, or reply to this email to answer them directly.", $q['email']);
+  send_alert_text("{$brand}: new inquiry".($puppy ? " for {$puppy['name']}" : '')." from $who, {$q['phone']}. Ref {$q['ref']}");
 
   /* the customer's copy */
-  $what = $puppy ? "your inquiry for {$puppy['name']}" : 'your message';
-  $body = "Hi ".strtok($q['name'], ' ').",\n\nThank you for $what. We’ve received it and will reply ".fill('{reply_time}')." by ".($q['contact_pref'] !== '' && ($q['contact_pref'] ?? '') !== 'Email' ? strtolower($q['contact_pref']).' or email' : 'phone, text or email').".\n\nYour reference: {$q['ref']}\n";
-  if($puppy){
-    $body .= "\nWhat happens next\n"
-      ."1. We get in touch to answer your questions and arrange a live video call with {$puppy['name']}.\n"
-      ."2. If you’d like to go ahead, a ".fill('{deposit}')." deposit reserves {$puppy['name']}. You receive a written sales agreement and receipt.\n"
-      ."3. We agree the departure date. The remaining ".fill('{balance}')." and the delivery fee are due at delivery.\n"
-      ."\nWhat you sent us\n".implode("\n", $lines)."\n".$notes;
-  }
-  $body .= "\nStaying safe: we only send payment details from {$CFG['email']}, after we’ve spoken with you. We never ask for gift cards or cryptocurrency. If anyone else contacts you claiming to be {$brand}, please let us know.\n"
+  $first = strtok(trim($q['name']), ' ') ?: 'there';
+  $body = "Hi $first,\n\nThank you for your inquiry".($puppy ? " about {$puppy['name']}" : '').". We’ve received it and will call, text or email you ".fill('{reply_time}').".\n\nYour reference: {$q['ref']}\n"
+    ."\nWhat you sent us\n".implode("\n", $lines)."\n".($q['notes'] !== '' ? "\nYour note:\n{$q['notes']}\n" : '')
+    ."\nStaying safe: we only send payment details from {$CFG['email']}, after we’ve spoken with you. We never ask for gift cards or cryptocurrency. If anyone else contacts you claiming to be {$brand}, please let us know.\n"
     ."\nOur health guarantee: ".abs_url('health-guarantee')."\nHow it works: ".abs_url('how-it-works')."\n\n— {$brand}\n{$CFG['city']}, {$CFG['state']} · {$CFG['email']}".($CFG['phone'] ? ' · '.$CFG['phone'] : '')."\n".$CFG['domain'];
-  site_mail($q['email'], $puppy ? "We received your inquiry for {$puppy['name']} — {$brand}" : "We received your message — {$brand}", $body, $CFG['email']);
+  site_mail($q['email'], $puppy ? "We received your inquiry about {$puppy['name']} — {$brand}" : "We received your inquiry — {$brand}", $body, $CFG['email']);
 }
 
 function unsubscribe_url($email){ return abs_url('unsubscribe', ['e'=>$email, 'k'=>sign('unsub|'.strtolower($email))]); }
@@ -295,7 +256,7 @@ if($page === 'agreement' && $action === 'accept_agreement' && empty($doc['agreem
     $d = deal_of($doc);
     site_mail($CFG['email'], "Agreement accepted: {$d['puppy']} — {$doc['name']}", "{$doc['name']} accepted the sales agreement for {$d['puppy']}, signing as “{$signed}”, on ".date('F j, Y \a\t g:ia').".\n\nOpen in the admin: ".admin_link($doc['ref']), $doc['email']);
     send_alert_text("{$CFG['brand']}: {$doc['name']} accepted the agreement for {$d['puppy']}. Ref {$doc['ref']}");
-    site_mail($doc['email'], "Your accepted sales agreement for {$d['puppy']} — {$CFG['brand']}", "Hi ".(strtok($doc['name'], ' ') ?: $doc['name']).",\n\nThank you — you accepted the sales agreement for {$d['puppy']} on ".date('F j, Y').". Keep this email: your agreement is always here, and you can print it from the same page:\n".agreement_link($doc['ref'])."\n\n— {$CFG['brand']}\n{$CFG['email']}", $CFG['email']);
+    site_mail($doc['email'], "Your accepted sales agreement for {$d['puppy']} — {$CFG['brand']}", "Hi ".(strtok(trim($doc['name']), ' ') ?: 'there').",\n\nThank you — you accepted the sales agreement for {$d['puppy']} on ".date('F j, Y').". Keep this email: your agreement is always here, and you can print it from the same page:\n".agreement_link($doc['ref'])."\n\n— {$CFG['brand']}\n{$CFG['email']}", $CFG['email']);
     $_SESSION['flash'] = 'Thank you! You’ve accepted the agreement. We’ve emailed you a copy of the link.';
     go_to('agreement', ['ref'=>$doc['ref'], 'k'=>sign('agreement|'.$doc['ref'])], '#accept');
   }

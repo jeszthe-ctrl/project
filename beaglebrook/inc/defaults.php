@@ -37,8 +37,8 @@ return [
     'puppies_title'   => 'Beagle Puppies for Sale',
     'puppies_seo_title'=> 'Beagle Puppies for Sale Near You | Available Now | Beagle Brook',
     'puppies_seo_desc'=> 'See every beagle puppy available now at Beagle Brook: photos, price, age, color and parents. Vet checked, microchipped, full papers, delivered from Cincinnati, Ohio.',
-    'puppies_intro'   => "Every beagle puppy we have available right now is listed here, with real photos, price, date of birth and both parents. Each one has been raised in our home in {city}, {state}, examined by our veterinarian and is ready for a family that will love them.\n\nFound the one? Open their page and send an inquiry: it takes two minutes, there is no payment at this stage, and we reply {reply_time}. A {deposit} deposit reserves your puppy once we've talked and you've seen them on a live video call.",
-    'parents_intro'   => "Good puppies start with good parents. These are the adult beagles behind our litters: their registration, health testing, size and temperament. Ask us about any of them on your video call.",
+    'puppies_intro'   => "Every beagle puppy we have available right now is listed here, with real photos, price, date of birth and both parents. Each one has been raised in our home in {city}, {state}, examined by our veterinarian and is ready for a family that will love them.\n\nFound the one? Choose them in the inquiry form, leave your phone number and email, and add a note. It takes a minute, there's no payment, and we reply {reply_time}.",
+    'parents_intro'   => "Good puppies start with good parents. These are the adult beagles behind our litters: their registration, health testing, size and temperament. Ask us about any of them.",
     'litters_intro'   => "Our beagles have litters a few times a year, and the best puppies often go to families who are already on our waitlist. Join it below and we'll email you the moment a new litter is born, before the puppies are posted publicly.",
     'reviews_intro'   => "What families say after their Beagle Brook puppy comes home. Every review here is from a real buyer and is published with their permission.",
     'contact_intro'   => "Questions about a puppy, delivery or the breed? Send us a message and we'll reply {reply_time}. To ask about a specific puppy, use the inquiry form on that puppy's page.",
@@ -75,7 +75,7 @@ return [
   'guarantees' => [
     ['title'=>'{vet_check_hour} vet check guarantee', 'text'=>'Take your puppy to your own vet within {vet_check_hours} of delivery. If they find a serious illness that was present when we delivered, you get a replacement puppy or your money back.'],
     ['title'=>'{genetic_year} genetic health guarantee', 'text'=>'Covers life-threatening hereditary and congenital conditions diagnosed by a licensed vet within {genetic_years} of delivery.'],
-    ['title'=>'Real puppy guarantee', 'text'=>'You see your puppy live on a video call before you pay a deposit. The puppy on that call is the puppy we deliver.'],
+    ['title'=>'Right puppy guarantee', 'text'=>'The puppy you choose is the puppy we deliver, matched by the microchip number on your sales agreement and health record.'],
     ['title'=>'Safe delivery guarantee', 'text'=>'If your puppy can’t travel safely on the agreed day, we reschedule at no extra cost, or refund every dollar you’ve paid.'],
     ['title'=>'Full papers guarantee', 'text'=>'Every puppy comes with full registration papers — never limited registration, and never an extra charge.'],
     ['title'=>'Deposit protection', 'text'=>'If we cancel, or can’t deliver your puppy healthy, your {deposit} deposit is refunded in full.'],
@@ -94,8 +94,8 @@ return [
   ],
 
   'steps' => [
-    ['title'=>'Choose your puppy and send an inquiry', 'text'=>'Every puppy’s page has a short inquiry form. Tell us where you live and a little about your home. No payment at this stage.'],
-    ['title'=>'Talk to us and meet your puppy on video', 'text'=>'We reply {reply_time} by phone, text or email, answer your questions and set up a live video call so you can see your puppy and ask anything.'],
+    ['title'=>'Choose your puppy and send an inquiry', 'text'=>'Pick your puppy, leave your phone number and email, and add a note if you like. It takes a minute, and there’s no payment.'],
+    ['title'=>'We call, text or email you', 'text'=>'We reply {reply_time}, answer every question and tell you all about your puppy, with more photos if you’d like them.'],
     ['title'=>'Reserve with a {deposit} deposit', 'text'=>'Pay the deposit by {payment_methods}. You get a written receipt and sales agreement, and your puppy is marked Reserved on our site.'],
     ['title'=>'We plan your delivery', 'text'=>'You choose Standard (2–5 days) or Express (within 24 hours) delivery, and we agree the departure date with you. The delivery fee is in your written agreement.'],
     ['title'=>'Delivery day', 'text'=>'Your puppy arrives with their health record, microchip details, starter food and papers. The remaining {balance} and the delivery fee are due at delivery.'],
@@ -108,8 +108,8 @@ return [
      {payment_details} {agreement_link} {receipt_link} {delivery_date} {note} {phone_or_email}
      {care_guide_link} {waitlist_link}. */
   'templates' => [
-    'video' => ['name'=>'Video call invite', 'status'=>'contacted', 'subject'=>'{puppy} — let’s set up your video call',
-      'body'=>"Hi {first_name},\n\nThank you for your inquiry about {puppy}! We’d love to introduce you on a live video call, so you can see {puppy}, meet the parents and ask us anything.\n\n{note}\n\nJust reply with a day and time that suits you, and whether you prefer FaceTime, WhatsApp or Google Meet, and we’ll confirm.\n\nYour details so far:\n- Puppy: {puppy}, {price}\n- Delivery: {delivery_option} ({delivery_time}), {delivery_fee}\n- Total: {total}\n\nThere’s no payment at this stage. When you’re ready, a {deposit} deposit ({deposit_amount}) reserves {puppy}."],
+    'welcome' => ['name'=>'Reply to inquiry', 'status'=>'contacted', 'subject'=>'Your inquiry for {puppy} — {brand}',
+      'body'=>"Hi {first_name},\n\nThank you for your inquiry about {puppy}! {puppy} is a wonderful puppy, and we’re happy to answer any questions — just reply to this email, or call or text us at {phone_or_email}.\n\n{note}\n\nYou can see {puppy}’s photos and details here: {puppy_link}\n\n- Price: {price}, including the vet check, shots, microchip, starter food and full papers\n- Delivery to your door: {delivery_options}\n\nThere’s no payment at this stage. When you’re ready, a {deposit} deposit ({deposit_amount}) reserves {puppy}, and the rest is due at delivery."],
     'payment' => ['name'=>'Payment instructions', 'status'=>'contacted', 'subject'=>'How to reserve {puppy}: {deposit} deposit of {deposit_amount}',
       'body'=>"Hi {first_name},\n\nWe’re so happy {puppy} is the one! Here’s how to reserve {puppy}:\n\n1. Read and accept your sales agreement:\n{agreement_link}\n\n2. Pay the {deposit} deposit of {deposit_amount} by {payment_method}:\n\n{payment_details}\n\nPlease write “{ref} {puppy}” as the payment note.\n\n3. We’ll email your receipt and mark {puppy} as Reserved on our website.\n\nThe remaining {due_at_delivery} (the rest of the price plus {delivery_option}) is due at delivery.\n\n{note}\n\nStaying safe: payment details only ever come from {email}. If anything looks different, call or text us at {phone_or_email} before paying. We never ask for gift cards or cryptocurrency."],
     'reserved' => ['name'=>'Reservation confirmed', 'status'=>'deposit', 'reserve'=>true, 'subject'=>'{puppy} is reserved for you!',
@@ -117,7 +117,7 @@ return [
     'delivery' => ['name'=>'Delivery scheduled', 'status'=>'', 'needs_date'=>true, 'subject'=>'{puppy}’s delivery is scheduled: {delivery_date}',
       'body'=>"Hi {first_name},\n\nIt’s nearly time! {puppy} leaves us in {city} on {delivery_date} by {delivery_option}, arriving {delivery_time}. We’ll keep you updated on the way.\n\nOn delivery day:\n- Please pay the remaining {balance_due} by {payment_method} before the handover.\n- You’ll receive {puppy}’s health record, microchip number, starter food and registration papers.\n\nPlease have ready: a crate, food and water bowls, a collar or harness and leash, and a vet appointment booked within {vet_check_hours} of delivery.\n\n{note}\n\nOur puppy care guide covers the first weeks at home: {care_guide_link}"],
     'followup' => ['name'=>'Friendly follow-up', 'status'=>'contacted', 'subject'=>'Still thinking about {puppy}?',
-      'body'=>"Hi {first_name},\n\nJust checking in about {puppy}. We’re happy to answer any questions or set up a live video call whenever suits you.\n\n{note}\n\nIf the timing isn’t right, you can join our waitlist and we’ll email you when new puppies are born: {waitlist_link}"],
+      'body'=>"Hi {first_name},\n\nJust checking in about {puppy}. We’re happy to answer any questions or send you more photos of {puppy}.\n\n{note}\n\nIf the timing isn’t right, you can join our waitlist and we’ll email you when new puppies are born: {waitlist_link}"],
   ],
   'redirects' => [],
 
@@ -131,7 +131,7 @@ return [
     [
       'slug'=>'how-it-works', 'menu'=>'How it works', 'title'=>'How to buy a beagle puppy from Beagle Brook',
       'seo_title'=>'How Buying a Beagle Puppy Works | Beagle Brook',
-      'seo_desc'=>'How buying a beagle puppy from Beagle Brook works: inquiry, live video call, {deposit} deposit, delivery to your door and lifetime support.',
+      'seo_desc'=>'How buying a beagle puppy from Beagle Brook works: a one-minute inquiry, a {deposit} deposit, delivery to your door and lifetime support.',
       'body'=><<<'TXT'
 Bringing a puppy home should feel exciting, not risky. Here is exactly what happens from the moment you find a puppy you love to the day they arrive at your door — no surprises, no pressure and no payment until you've spoken to us and seen your puppy live.
 
@@ -245,7 +245,7 @@ A deposit is a big step, so we keep the rules short, clear and in writing.
 
 - A **{deposit} deposit** reserves the puppy you choose. It is part of the puppy's price.
 - The remaining **{balance}** of the price, plus the delivery fee, is due **at delivery**.
-- You only pay a deposit after we've spoken with you and you've seen your puppy on a live video call.
+- You only pay a deposit after we've spoken with you and answered your questions.
 - Before you pay, you receive a written sales agreement with the puppy's name, date of birth, price, deposit, delivery fee and our guarantees.
 - Once your deposit arrives, we send a written receipt and mark your puppy **Reserved** on our website, usually within a few hours.
 
@@ -358,13 +358,13 @@ TXT
     [
       'slug'=>'is-beagle-brook-legit', 'menu'=>'Verify us', 'title'=>'Is Beagle Brook legit? How to verify us before you pay',
       'seo_title'=>'Is Beagle Brook Legit? How to Verify Us Before You Pay',
-      'seo_desc'=>'How to check that Beagle Brook is a real beagle breeder before you pay: video calls, registration lookups, written agreements and the warning signs of puppy scams.',
+      'seo_desc'=>'How to check that Beagle Brook is a real beagle breeder before you pay: registration lookups, written agreements, one email address for payments and the warning signs of puppy scams.',
       'body'=><<<'TXT'
 Puppy scams are real, and beagles are one of the breeds scammers copy most. You should check any breeder before you send money — including us. Here is exactly how to verify Beagle Brook, and the warning signs to watch for anywhere else.
 
 ## How to verify Beagle Brook
 
-1. **See your puppy live on video before paying.** We'll set up a live video call with the exact puppy you want. Ask us to hold up a note with your name and today's date, or to pick up the puppy and show you their markings. Recorded videos and photos can be stolen; a live call can't.
+1. **Ask for recent photos.** We're happy to send new photos of your puppy and both parents. Check any puppy photo with a reverse image search (such as Google Lens): photos copied from other websites show up there.
 2. **Ask for the parents' registration numbers.** Every puppy page lists both parents. Ask for their registered names and numbers and look them up with the registry yourself.
 3. **Check our email address.** We only email from **{email}**. Payment details only ever come from that address, after you've spoken to us.
 4. **Get it in writing.** You receive a written sales agreement with your puppy's details, price, deposit, delivery fee and our guarantees before paying anything, and a written receipt for every payment.
@@ -378,7 +378,7 @@ Puppy scams are real, and beagles are one of the breeds scammers copy most. You 
 
 Walk away from any seller — anywhere — who:
 
-- won't do a live video call, or always has an excuse
+- won't answer questions or send recent photos, or always has an excuse
 - asks for payment by gift card, cryptocurrency, Western Union or MoneyGram
 - asks for surprise extra payments for "shipping insurance", a "climate-controlled crate", "vaccination certificates" or customs
 - prices puppies far below everyone else, or pressures you to pay today
@@ -392,13 +392,13 @@ If anyone contacts you claiming to be Beagle Brook from another email address, p
 ## Questions
 
 ### Can I visit before buying?
-We are a delivery-only breeder, which is why we do live video calls with every family before any payment. On the call you can see your puppy, the parents and where they're raised, and ask anything.
+We are a delivery-only breeder. Before you pay anything, ask us all your questions: we'll send recent photos of your puppy and the parents, and every detail in writing.
 
 ### Are you licensed?
 Our license and registration details, where they apply, are listed on this page.
 
 ### How do I know the puppy delivered is the one I chose?
-The puppy you meet on your live video call is the puppy we deliver — it's our real puppy guarantee. Your health record and microchip number also match the puppy named on your sales agreement.
+The microchip number on your sales agreement and health record matches the puppy we deliver — it's our right puppy guarantee.
 TXT
     ],
     [
@@ -440,7 +440,7 @@ Everything families usually ask before reserving a Beagle Brook puppy. Can't fin
 ## Questions
 
 ### How do I reserve a puppy?
-Open the puppy's page and send the inquiry form at the bottom. We'll reply {reply_time}, answer your questions and set up a live video call with your puppy. When you're ready, a {deposit} deposit reserves them. See [how it works](/how-it-works).
+Open the puppy's page and send the inquiry form at the bottom. We'll reply {reply_time} and answer your questions. When you're ready, a {deposit} deposit reserves them. See [how it works](/how-it-works).
 
 ### How much is the deposit?
 {deposit} of the puppy's price. It is part of the price, not an extra fee.
@@ -473,10 +473,10 @@ A {vet_check_hour} vet check guarantee and a {genetic_year} genetic health guara
 At least {go_home_weeks} old, and only when our veterinarian is happy they're ready.
 
 ### Can I see my puppy before I pay?
-Yes. Every family sees their puppy on a live video call before paying a deposit.
+Yes. Ask us for recent photos of your puppy and both parents before you pay anything.
 
 ### Can I meet the parents?
-Both parents are listed on every puppy's page with their registration and health details, and you can see them on your video call. Meet [our beagles](/our-beagles).
+Both parents are listed on every puppy's page with their registration and health details, and we're happy to send more photos. Meet [our beagles](/our-beagles).
 
 ### Are beagles good with children?
 Beagles are famously gentle, patient and playful, which makes them a popular family dog. Like any puppy, they need supervision with small children and gentle, consistent training.
@@ -488,7 +488,7 @@ Beagles come in two size varieties: up to 13 inches at the shoulder (usually und
 Yes. [Join the waitlist](/upcoming-litters) and we'll email you as soon as a new litter is born, before puppies are posted publicly.
 
 ### How do I know you're a real breeder?
-See [how to verify us](/is-beagle-brook-legit): live video calls, registration numbers you can look up, written agreements and a single email address for payments.
+See [how to verify us](/is-beagle-brook-legit): registration numbers you can look up, written agreements and a single email address for payments.
 
 ### What if I can't keep my beagle one day?
 Contact us first. We will take them back or help rehome them, at any age.

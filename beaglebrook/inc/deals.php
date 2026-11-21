@@ -61,7 +61,7 @@ function agreement_sections($q){
   $s = [];
   $s[] = ['The parties', [
     'Seller: '.$d['seller'].($d['seller_name'] !== '' && $d['seller_name'] !== $d['seller'] ? ' ('.$d['seller_name'].')' : '').', '.$d['seller_place'].' · '.$d['seller_email'].($d['seller_phone'] !== '' ? ' · '.$d['seller_phone'] : ''),
-    'Buyer: '.$q['name'].', '.trim($q['address1'].($q['address2'] !== '' ? ', '.$q['address2'] : '').', '.$q['city'].', '.$q['state'].' '.$q['zip']).' · '.$q['email'].' · '.$q['phone'],
+    'Buyer: '.implode(', ', array_filter([trim($q['name']), trim(($q['address1'] ?? '').(($q['address2'] ?? '') !== '' ? ', '.$q['address2'] : '')), trim(($q['city'] ?? '').(($q['state'] ?? '') !== '' ? ', '.$q['state'] : '').' '.($q['zip'] ?? ''))])).' · '.$q['email'].' · '.$q['phone'],
     'Reference: '.$q['ref'].' · Date: '.nice_date($d['date']),
   ], []];
   $s[] = ['The puppy', [], array_values(array_filter([
@@ -87,7 +87,7 @@ function agreement_sections($q){
     'If the buyer changes their mind, the deposit is not refunded, but it can be transferred once to another puppy from a current or upcoming litter within 12 months.',
   ], []];
   $s[] = ['Delivery', [
-    'The puppy is delivered to the buyer’s address above, no earlier than '.$d['go_home_weeks'].' weeks old, after an examination by the seller’s veterinarian. Puppies traveling to another state travel with a veterinary health certificate. Delivery times count from when the puppy leaves the seller.',
+    'The puppy is delivered to the buyer’s address, no earlier than '.$d['go_home_weeks'].' weeks old, after an examination by the seller’s veterinarian. Puppies traveling to another state travel with a veterinary health certificate. Delivery times count from when the puppy leaves the seller.',
     'If it is not safe for the puppy to travel on the agreed day, because of illness, weather or anything else, the delivery is rescheduled at no extra cost.',
   ], []];
   $s[] = ['Health guarantee', [
@@ -125,7 +125,7 @@ function template_vars($q, $extra=[]){
   $pays = $q['payments'] ?? []; $last = $pays ? end($pays) : null;
   $p = ($q['puppy_id'] ?? '') !== '' ? find_by($S['puppies'], 'id', $q['puppy_id']) : null;
   return [
-    '{first_name}'=>strtok(trim($q['name']), ' ') ?: $q['name'], '{name}'=>$q['name'], '{ref}'=>$q['ref'],
+    '{first_name}'=>strtok(trim($q['name']), ' ') ?: 'there', '{name}'=>$q['name'], '{ref}'=>$q['ref'],
     '{puppy}'=>$d['puppy'] ?: 'your puppy', '{puppy_link}'=>$p ? site_link('beagle-puppies-for-sale/'.$p['slug']) : site_link('beagle-puppies-for-sale'),
     '{price}'=>money($d['price']), '{deposit_amount}'=>money($d['deposit']), '{total}'=>money($t['total']),
     '{delivery_option}'=>($d['delivery_label'] ?? '') !== '' ? $d['delivery_label'] : 'delivery', '{delivery_time}'=>$d['delivery_days'] ?? '', '{delivery_fee}'=>$d['delivery_fee'] !== null ? money($d['delivery_fee']) : 'to be confirmed',

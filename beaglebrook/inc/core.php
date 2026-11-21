@@ -73,6 +73,7 @@ function site_load(){
   $s += $d;                                         // sections added by later versions
   $s['settings'] += $d['settings'];
   $s['templates'] += $d['templates'];     /* email templates added by a later version */
+  unset($s['templates']['video']);        /* replaced by "Reply to inquiry" */
   /* guides, blog posts and pages added by a later version appear without touching edited ones */
   foreach(['articles', 'pages'] as $k){
     $have = array_column($s[$k], 'slug');
