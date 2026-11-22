@@ -137,6 +137,27 @@ function site_upgrade($s, $d, $version){
     foreach(['pages', 'articles'] as $g) foreach($s[$g] as $i=>$item) $s[$g][$i]['body'] = str_replace('(/beagle-price-cost)', '(/beagle-puppies-for-sale)', $item['body']);
     foreach($s['settings'] as $k=>$v) if(is_string($v)) $s['settings'][$k] = str_replace('(/beagle-price-cost)', '(/beagle-puppies-for-sale)', $v);
   }
+  if($version < 5){
+    /* the available puppies arrive with the site: each one is added once, with its parents,
+       unless the site already has it (same name page or same puppy) */
+    $seed = require BB_ROOT.'/inc/seed_puppies.php';
+    $have = [];
+    foreach($s['puppies'] as $p) foreach(['id', 'slug', 'old_slug'] as $k) if(($p[$k] ?? '') !== '') $have[$k.':'.$p[$k]] = true;
+    $par_id = [];
+    foreach($seed['parents'] as $par){
+      $match = null;
+      foreach($s['parents'] as $x) if($x['id'] === $par['id'] || (strcasecmp(trim($x['name']), $par['name']) === 0 && $x['role'] === $par['role'])){ $match = $x; break; }
+      $par_id[$par['id']] = $match ? $match['id'] : $par['id'];
+      if(!$match) $par_add[] = $par;
+    }
+    $used = [];
+    foreach($seed['puppies'] as $p){
+      if(isset($have['id:'.$p['id']]) || isset($have['slug:'.$p['slug']]) || isset($have['old_slug:'.$p['old_slug']])) continue;
+      foreach(['dam', 'sire'] as $k) if(($p[$k] ?? '') !== ''){ $p[$k] = $par_id[$p[$k]] ?? ''; $used[$p[$k]] = true; }
+      $s['puppies'][] = $p;
+    }
+    foreach($par_add ?? [] as $par) if(isset($used[$par['id']]) && !find_by($s['parents'], 'slug', $par['slug'])) $s['parents'][] = $par;
+  }
   $s['settings']['content_version'] = (int)$d['settings']['content_version'];
   return $s;
 }
@@ -319,7 +340,16 @@ function thumb($rel, $w=640){
 
 /* <img> with a small copy for phones and grids and fixed dimensions so nothing jumps while loading.
    $lcp = the page's main image (load it first). */
+/* a still from a puppy's Cloudflare Stream video, used as its photo until photos are uploaded */
+function stream_thumb($video){
+  return preg_match('#^(https://customer-[a-z0-9]+\.cloudflarestream\.com/[a-f0-9]{32})/iframe$#', (string)$video, $m) ? $m[1].'/thumbnails/thumbnail.jpg?time=3s&height=720' : '';
+}
+function is_stream_img($f){ return (bool)preg_match('#^https://customer-[a-z0-9]+\.cloudflarestream\.com/[a-f0-9]{32}/thumbnails/#', (string)$f); }
+/* an image's full address, for Google and social previews */
+function abs_img($f){ return preg_match('#^https?://#', (string)$f) ? $f : rtrim($GLOBALS['SITE']['settings']['domain'], '/').'/'.$f; }
+
 function img_tag($rel, $alt, $sizes='(max-width:600px) 100vw, (max-width:1100px) 50vw, 360px', $lcp=false, $class=''){
+  if(is_stream_img($rel)) return '<img'.($class ? ' class="'.h($class).'"' : '').' src="'.h($rel).'" width="960" height="720" alt="'.h($alt).'"'.($lcp ? ' fetchpriority="high">' : ' loading="lazy" decoding="async">');
   if(!is_file(BB_ROOT.'/'.$rel)) return '';
   $small = thumb($rel);
   $full = @getimagesize(BB_ROOT.'/'.$rel) ?: [1200, 900];

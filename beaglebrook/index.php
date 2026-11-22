@@ -62,6 +62,7 @@ function public_puppies(){
     foreach($SITE['puppies'] as $p){
       if(!empty($p['hidden'])) continue;
       $p['photos'] = array_values(array_filter($p['photos'] ?? [], fn($f)=>is_string($f) && $f !== '' && is_file(BB_ROOT.'/'.$f)));
+      if(!$p['photos'] && ($still = stream_thumb($p['video'] ?? '')) !== '') $p['photos'] = [$still];
       $memo[] = $p;
     }
   }
@@ -250,7 +251,7 @@ if($page === 'robots.txt'){
   exit;
 }
 if($page === 'sitemap.xml'){
-  $abs_img = fn($f)=>rtrim($CFG['domain'], '/').'/'.$f;
+  $abs_img = 'abs_img';
   $mod = gmdate('Y-m-d', @filemtime(data_file('site')) ?: time());
   $urls = [[abs_url(), $mod, []], [abs_url(PUPPIES_PATH), $mod, []]];
   foreach(locations_on() as $c=>$l) $urls[] = [abs_url(PUPPIES_PATH.'/'.state_slug($c)), $mod, []];

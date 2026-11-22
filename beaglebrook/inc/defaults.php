@@ -50,7 +50,7 @@ return [
     'smtp_host'       => '', 'smtp_port' => '', 'smtp_secure' => 'tls', 'smtp_user' => '', 'smtp_pass' => '',
     'alert_phone'     => '', 'alert_sms_email' => '', 'twilio_sid' => '', 'twilio_token' => '', 'twilio_from' => '',
     'pretty_urls'     => false, 'pretty_auto' => false,
-    'content_version' => 4,   /* see site_load(): changes applied once to sites installed earlier */
+    'content_version' => 5,   /* see site_load(): changes applied once to sites installed earlier */
   ],
 
   /* delivery options and prices (Admin → Delivery). Times count from when the puppy leaves us. */
@@ -142,8 +142,9 @@ TXT
     'TN'=>['on'=>true, 'notes'=>''], 'GA'=>['on'=>true, 'notes'=>''], 'TX'=>['on'=>true, 'notes'=>''],
   ],
 
-  'puppies' => [],
-  'parents' => [],
+  /* the available puppies and their parents, ready the moment the site is installed */
+  'puppies' => (require BB_ROOT.'/inc/seed_puppies.php')['puppies'],
+  'parents' => (require BB_ROOT.'/inc/seed_puppies.php')['parents'],
   'litters' => [],
   'reviews' => [],
   'removed' => ['articles'=>[], 'pages'=>[]],

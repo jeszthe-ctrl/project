@@ -328,7 +328,7 @@ function structured_data(){
     $g[] = ['@type'=>'BreadcrumbList', 'itemListElement'=>$items];
   }
   if($page === 'article'){
-    $img = $og_image !== '' ? rtrim($CFG['domain'], '/').'/'.$og_image : rtrim($CFG['domain'], '/').'/'.share_image();
+    $img = abs_img($og_image !== '' ? $og_image : share_image());
     $g[] = ['@type'=>$art['type'] === 'blog' ? 'BlogPosting' : 'Article', 'headline'=>mb_substr($h1, 0, 110), 'description'=>$desc, 'image'=>$img,
       'datePublished'=>$art['date'], 'dateModified'=>$art['updated'] ?? $art['date'], 'inLanguage'=>$art['lang'] ?? 'en',
       'author'=>['@type'=>'Organization', 'name'=>$CFG['brand'], 'url'=>rtrim($CFG['domain'], '/').'/'], 'publisher'=>['@id'=>rtrim($CFG['domain'], '/').'/#org'],
@@ -359,7 +359,7 @@ function puppy_product_ld($p){
       'transitTime'=>['@type'=>'QuantitativeValue', 'minValue'=>1, 'maxValue'=>5, 'unitCode'=>'DAY']]];
   return array_filter(['@type'=>'Product', 'name'=>puppy_heading($p), 'description'=>puppy_meta_desc($p), 'sku'=>$p['id'], 'category'=>'Beagle puppy',
     'brand'=>['@type'=>'Brand', 'name'=>$CFG['brand']], 'color'=>$p['color'] ?: null,
-    'image'=>array_map(fn($f)=>$base.$f, array_slice($p['photos'] ?? [], 0, 4)) ?: null, 'offers'=>$offer]);
+    'image'=>array_map('abs_img', array_slice($p['photos'] ?? [], 0, 4)) ?: null, 'offers'=>$offer]);
 }
 /* all available puppies as one offer range, on the puppies, state and price pages */
 function puppies_offer_ld($state=''){
@@ -386,7 +386,7 @@ function nav_items(){
 function render_page(){
   global $SITE, $CFG, $page, $title, $desc, $canonical, $noindex, $og_type, $og_image, $crumbs, $h1, $lang, $BASE, $PATH;
   $css_v = @filemtime(BB_ROOT.'/assets/style.css');
-  $img = rtrim($CFG['domain'], '/').'/'.($og_image !== '' ? $og_image : share_image());
+  $img = abs_img($og_image !== '' ? $og_image : share_image());
   header('Content-Type: text/html; charset=utf-8');
   ?><!doctype html>
 <html lang="<?= h($lang) ?>">
@@ -549,7 +549,7 @@ function view_home(){
   /* the hero: an uploaded photo, else the newest puppies' photos, else the starter photo */
   $shots = [];
   if($CFG['hero_photo'] !== '') $shots[] = [$CFG['hero_photo'], 'Beagle puppies at '.$CFG['brand']];
-  foreach($avail as $p) if(!empty($p['photos'][0]) && count($shots) < 3) $shots[] = [$p['photos'][0], $p['name'].', '.strtolower(puppy_kind($p))];
+  foreach($avail as $p) if(!empty($p['photos'][0]) && !is_stream_img($p['photos'][0]) && count($shots) < 3) $shots[] = [$p['photos'][0], $p['name'].', '.strtolower(puppy_kind($p))];
   if(!$shots) $shots[] = [SITE_HERO, 'Tricolor beagle puppy at '.$CFG['brand']];
   ?>
   <section class="hero"><div class="wrap hero-in">
@@ -715,7 +715,7 @@ function view_puppies(){
 function view_puppy(){
   global $puppy, $CFG, $errors, $SITE;
   $p = $puppy;
-  $photos = array_values(array_filter($p['photos'] ?? [], fn($f)=>is_file(BB_ROOT.'/'.$f)));
+  $photos = array_values(array_filter($p['photos'] ?? [], fn($f)=>is_stream_img($f) || is_file(BB_ROOT.'/'.$f)));
   $sire = parent_by_id($p['sire'] ?? ''); $dam = parent_by_id($p['dam'] ?? '');
   $age = age_text($p['dob'] ?? '');
   $open = $p['status'] === 'available';
