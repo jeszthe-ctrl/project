@@ -96,7 +96,7 @@ TXT
   'slug'=>'best-dog-food-for-beagles', 'type'=>'guide', 'group'=>'care', 'date'=>'2026-10-29',
   'title'=>'Best Dog Food for Beagles: A Feeding Guide by Age',
   'seo_title'=>'Best Dog Food for Beagles: What & How Much to Feed by Age',
-  'seo_desc'=>'How to choose the best dog food for your beagle, how much to feed puppies and adults, breed-specific foods like Royal Canin Beagle, treats, and foods that are dangerous for beagles.',
+  'seo_desc'=>'How to choose the best dog food for your beagle, how much to feed puppies and adults, breed-specific foods like Royal Canin Beagle, treats.',
   'excerpt'=>'How to choose a good food for your beagle, how much to feed at each age, breed-specific formulas, and the foods beagles must never eat.',
   'body'=><<<'TXT'
 The best dog food for a beagle is a **complete and balanced food that suits their life stage**, fed in carefully measured portions. Beagles aren't fussy eaters — they'll eat almost anything — so the real challenge isn't finding a food they like. It's keeping them at a healthy weight. Here's how to choose a food and how much to feed.
@@ -178,7 +178,7 @@ TXT
   'slug'=>'fat-beagle', 'type'=>'guide', 'group'=>'care', 'date'=>'2026-10-29',
   'title'=>'Fat Beagle? How to Tell If Your Beagle Is Overweight and Help Them Slim Down',
   'seo_title'=>'Fat Beagle? Healthy Beagle Weight & How to Help Them Slim Down',
-  'seo_desc'=>'Is your beagle fat? Healthy beagle weight for 13-inch and 15-inch beagles, how to check body condition, the health risks of obesity and a safe plan to help your beagle lose weight.',
+  'seo_desc'=>'Is your beagle fat? Healthy beagle weight for 13-inch and 15-inch beagles, how to check body condition.',
   'excerpt'=>'Beagles are one of the breeds most prone to obesity. How to tell if yours is overweight, and a safe, simple plan to help them slim down.',
   'body'=><<<'TXT'
 Beagles are one of the breeds most likely to become overweight. They're bred to be food-driven, they're experts at begging, and they'll eat anything they find. A "fat beagle" can look cute, but extra weight shortens lives and causes real pain. The good news is that it's one of the easiest health problems to fix.
@@ -248,7 +248,7 @@ TXT
   'slug'=>'hunting-with-a-beagle', 'type'=>'guide', 'group'=>'care', 'date'=>'2026-10-29',
   'title'=>'Hunting With a Beagle: Rabbit Hunting, Training and Choosing a Hunting Beagle',
   'seo_title'=>'Hunting With a Beagle: Rabbit Hunting, Training & Tips',
-  'seo_desc'=>'Beagles were bred to hunt rabbits and hares. How beagles hunt, how to start a beagle puppy on rabbits, field lines vs. show lines, beagle field trials and safety tips.',
+  'seo_desc'=>'Beagles were bred to hunt rabbits and hares. How beagles hunt, how to start a beagle puppy on rabbits, field lines vs. show lines.',
   'excerpt'=>'Beagles were bred to hunt rabbits by scent. How they hunt, how to start a puppy, field vs. show lines, and field trials.',
   'body'=><<<'TXT'
 The beagle was bred for one job: **hunting rabbits and hares by scent**, usually in a pack, with hunters following on foot. That job shaped everything about the breed — the nose, the stamina, the friendly pack temperament and the famous baying voice. Plenty of beagles still hunt today, and many family beagles still have a powerful hunting instinct.

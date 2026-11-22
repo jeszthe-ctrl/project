@@ -8,7 +8,7 @@ return [
   'slug'=>'13-inch-vs-15-inch-beagle', 'type'=>'guide', 'group'=>'breed', 'date'=>'2026-10-30',
   'title'=>'13-Inch vs. 15-Inch Beagle: Size, Weight and Which to Choose',
   'seo_title'=>'13-Inch vs 15-Inch Beagle: Size, Weight & Which to Choose',
-  'seo_desc'=>'The two beagle sizes compared: height, weight, temperament, exercise and cost of 13-inch and 15-inch beagles, how to predict a puppy’s adult size, and which suits your home.',
+  'seo_desc'=>'The two beagle sizes compared: height, weight, temperament, exercise and cost of 13-inch and 15-inch beagles, how to predict a puppy’s adult size.',
   'excerpt'=>'Beagles come in two recognized sizes. How they differ, how to predict a puppy’s adult size, and which one suits your home.',
   'body'=><<<'TXT'
 Beagles come in **two recognized size varieties**, measured at the shoulder: **13 inches and under**, and **over 13 up to 15 inches**. They're the same breed with the same personality — the only real difference is size. Here's how they compare and how to choose.
@@ -60,7 +60,7 @@ Dogs sold as pocket or miniature beagles are bred smaller than the two recognize
 No. The 13-inch beagle is one of the two recognized varieties of the breed. "Miniature" or "pocket" beagles are bred smaller than the standard.
 
 ### Do 15-inch beagles cost more?
-Not usually. Size variety rarely changes the price. See [how much a beagle costs](/guides/beagle-price).
+Not usually. Size variety rarely changes the price. See [how much a beagle costs](/beagle-price-cost).
 
 ### Can a 13-inch beagle grow taller than 13 inches?
 Yes, it can happen. Size is predicted, not guaranteed, which is why the parents' sizes are the best guide.
@@ -75,7 +75,7 @@ TXT
   'slug'=>'beagle-growth-chart', 'type'=>'guide', 'group'=>'breed', 'date'=>'2026-10-30',
   'title'=>'Beagle Growth Chart: Weight by Age and When a Beagle Is Full Grown',
   'seo_title'=>'Beagle Growth Chart: Weight by Age & When Beagles Stop Growing',
-  'seo_desc'=>'A beagle puppy growth chart with typical weights by age for 13-inch and 15-inch beagles, when beagles stop growing, and how to tell whether your puppy is on track.',
+  'seo_desc'=>'A beagle puppy growth chart with typical weights by age for 13-inch and 15-inch beagles, when beagles stop growing.',
   'excerpt'=>'Typical beagle weights from 8 weeks to adulthood, when beagles stop growing, and how to tell if your puppy is on track.',
   'body'=><<<'TXT'
 Most beagles reach **their adult height by about 12 months** and **fill out to their adult weight by around 18 months**. The chart below shows typical weights by age for both beagle sizes. Every puppy grows at their own pace, so treat these as rough ranges, not targets.
@@ -145,7 +145,7 @@ TXT
   'slug'=>'are-beagles-good-apartment-dogs', 'type'=>'guide', 'group'=>'care', 'date'=>'2026-10-30',
   'title'=>'Are Beagles Good Apartment Dogs? What to Know Before You Decide',
   'seo_title'=>'Are Beagles Good Apartment Dogs? Honest Pros, Cons & Tips',
-  'seo_desc'=>'Can a beagle live happily in an apartment? Size, barking, exercise, alone time and neighbors — an honest look at beagles in apartments, with tips that make it work.',
+  'seo_desc'=>'Can a beagle live happily in an apartment? Size, barking, exercise, alone time and neighbors — an honest look at beagles in apartments.',
   'excerpt'=>'Beagles are small and adaptable, but they’re also loud and need daily exercise. An honest look at apartment life with a beagle.',
   'body'=><<<'TXT'
 **Beagles can live happily in apartments — but they aren't automatically good apartment dogs.** Their size is perfect, and they adapt well to small spaces. The challenges are noise, exercise and time alone. If you can meet those needs, a beagle can thrive in an apartment; if you can't, your neighbors will let you know.
@@ -218,7 +218,7 @@ TXT
   'slug'=>'are-beagles-good-with-cats', 'type'=>'guide', 'group'=>'care', 'date'=>'2026-10-30',
   'title'=>'Are Beagles Good With Cats and Other Pets?',
   'seo_title'=>'Are Beagles Good With Cats, Dogs & Other Pets?',
-  'seo_desc'=>'How beagles get along with cats, other dogs, rabbits and small pets — what to expect from a scent hound, and how to introduce a beagle puppy to the pets you already have.',
+  'seo_desc'=>'How beagles get along with cats, other dogs, rabbits and small pets — what to expect from a scent hound.',
   'excerpt'=>'Beagles love company, but they were bred to chase rabbits. How beagles get on with cats, dogs and small pets, and how to introduce them.',
   'body'=><<<'TXT'
 Beagles are pack hounds, so **most beagles get along very well with other dogs** and many live happily with cats — especially when they grow up together. **Small pets like rabbits, guinea pigs and hamsters are a different story**: beagles were bred to hunt rabbits, and that instinct is strong.

@@ -7,7 +7,7 @@ return [
   'slug'=>'are-beagles-good-family-dogs', 'type'=>'blog', 'group'=>'buying', 'date'=>'2026-10-29',
   'title'=>'Are Beagles Good Family Dogs? An Honest Breeder’s Answer',
   'seo_title'=>'Are Beagles Good Family Dogs? Pros, Cons & Who They Suit',
-  'seo_desc'=>'Are beagles good family dogs? A breeder’s honest look at beagles with kids, other pets and busy households — the pros, the challenges and who a beagle suits best.',
+  'seo_desc'=>'Are beagles good family dogs? A breeder’s honest look at beagles with kids, other pets and busy homes: the pros and the challenges.',
   'excerpt'=>'Beagles are one of the best-loved family breeds. A breeder’s honest look at the pros, the challenges, and the families they suit best.',
   'body'=><<<'TXT'
 We get asked this more than anything else, and our honest answer is: **yes, for most families — if you know what you're signing up for.** Beagles are gentle, playful and endlessly cheerful, and they adore children. They also howl, steal food and follow their nose anywhere. Here's the full picture.
@@ -103,60 +103,10 @@ Rather than starting with sex, think about energy level and personality. Tell us
 TXT
 ],
 [
-  'slug'=>'snoopy-beagle', 'type'=>'blog', 'group'=>'culture', 'date'=>'2026-10-29',
-  'title'=>'Is Snoopy a Beagle? Snoopy, the Easter Beagle and Other Famous Beagles',
-  'seo_title'=>'Is Snoopy a Beagle? Snoopy, the Easter Beagle & Famous Beagles',
-  'seo_desc'=>'Yes, Snoopy is a beagle. The story of the world’s most famous beagle, the Flying Ace and It’s the Easter Beagle, Charlie Brown — plus famous beagles from history and TV.',
-  'excerpt'=>'Snoopy is the world’s most famous beagle. His story, the Flying Ace, the Easter Beagle — and other famous beagles from history and pop culture.',
-  'body'=><<<'TXT'
-**Yes — Snoopy is a beagle.** Charles M. Schulz's *Peanuts* introduced him in 1950, and he has been the world's most famous beagle ever since. Here's Snoopy's story, his most famous moments, and other beagles who've made history.
-
-## Snoopy: the world's most famous beagle
-
-Snoopy first appeared in *Peanuts* in October 1950, just days after the strip began. In the story, Charlie Brown got him from the **Daisy Hill Puppy Farm**, and Snoopy has a big beagle family, including his siblings Spike, Belle, Marbles, Olaf, Andy and Rerun.
-
-Early Snoopy looked more like a real puppy. Over the years he began walking on two legs, sleeping on top of his doghouse and living a rich imaginary life — as a writer, a tennis star, "Joe Cool" and, most famously, a World War I flying ace.
-
-## The flying beagle: Snoopy the Flying Ace
-
-From the mid-1960s, Snoopy took to the skies. Sitting on his doghouse — which he imagines is a Sopwith Camel fighter plane — the **Flying Ace** battles his arch-enemy, the Red Baron. The "flying beagle" became one of the most loved images in comics. Snoopy also flew higher than any cartoon dog: NASA named the Apollo 10 lunar module "Snoopy" in 1969 (the command module was "Charlie Brown"), and Snoopy has long been a NASA safety mascot.
-
-## It's the Easter Beagle, Charlie Brown
-
-*It's the Easter Beagle, Charlie Brown* is the 1974 Peanuts TV special in which Linus insists the Easter Beagle will bring eggs to all the good children — and Snoopy, of course, saves the day. It remains a springtime favorite for families.
-
-## Is Snoopy really a beagle?
-
-Schulz always described Snoopy as a beagle, even though cartoon Snoopy — white with a black ear — doesn't look much like a real tricolor beagle. Real beagles come in many colors; see our [beagle colors guide](/guides/beagle-colors).
-
-## Other famous beagles
-
-- **Queen Elizabeth I's glove beagles:** tiny hunting beagles small enough to sit in a glove. Read about [pocket beagles](/guides/pocket-beagle).
-- **Him and Her:** President Lyndon B. Johnson's beagles, famous for a 1964 photo of the President lifting Him by the ears.
-- **Uno:** in 2008 he became the first beagle to win Best in Show at the Westminster Kennel Club Dog Show.
-- **Shiloh:** the beagle in Phyllis Reynolds Naylor's Newbery Medal–winning novel *Shiloh* (1991).
-- **Porthos:** Captain Archer's beagle in *Star Trek: Enterprise*.
-- **Gromit:** of *Wallace & Gromit*, usually described by his creator as a beagle.
-- **The Beagle Brigade:** the USDA's real-life detector beagles who sniff out banned foods at airports.
-
-## Beagles in name only
-
-Some famous "beagles" aren't dogs at all:
-
-- **HMS Beagle**, the ship that carried Charles Darwin around the world — see our page on [HMS Beagle](/guides/hms-beagle).
-- **The Beagle Boys**, the masked gang of crooks who keep trying to rob Scrooge McDuck in Disney comics and *DuckTales*.
-- **The Regal Beagle**, the neighborhood bar in the sitcom *Three's Company* (and the name of several real bars and restaurants).
-
-## Want your own Snoopy?
-
-Every beagle has a little Snoopy in them: imaginative, food-loving and convinced they're the star of the show. See our [beagle puppies for sale](/beagle-puppies-for-sale).
-TXT
-],
-[
   'slug'=>'puppy-delivery-day', 'type'=>'blog', 'group'=>'buying', 'date'=>'2026-10-29',
   'title'=>'Puppy Delivery Day: What to Expect When Your Beagle Arrives',
   'seo_title'=>'Puppy Delivery Day: What to Expect When Your Beagle Arrives',
-  'seo_desc'=>'What happens on delivery day when your Beagle Brook puppy arrives: the timeline, what to check, the paperwork you receive and how to help your puppy settle in.',
+  'seo_desc'=>'What happens on delivery day when your Beagle Brook puppy arrives: the timeline, what to check.',
   'excerpt'=>'The timeline, the paperwork, what to check and how to help your new beagle settle in on their first day home.',
   'body'=><<<'TXT'
 Delivery day is one of the best days of the year — for you and for us. Here's what to expect when your Beagle Brook puppy arrives, so you can relax and enjoy it.

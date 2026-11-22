@@ -50,6 +50,7 @@ return [
     'smtp_host'       => '', 'smtp_port' => '', 'smtp_secure' => 'tls', 'smtp_user' => '', 'smtp_pass' => '',
     'alert_phone'     => '', 'alert_sms_email' => '', 'twilio_sid' => '', 'twilio_token' => '', 'twilio_from' => '',
     'pretty_urls'     => false, 'pretty_auto' => false,
+    'content_version' => 2,   /* see site_load(): changes applied once to sites installed earlier */
   ],
 
   /* delivery options and prices (Admin → Delivery). Times count from when the puppy leaves us. */
@@ -120,6 +121,27 @@ return [
       'body'=>"Hi {first_name},\n\nJust checking in about {puppy}. We’re happy to answer any questions or send you more photos of {puppy}.\n\n{note}\n\nIf the timing isn’t right, you can join our waitlist and we’ll email you when new puppies are born: {waitlist_link}"],
   ],
   'redirects' => [],
+
+  /* states with their own delivery page at /beagle-puppies-for-sale/{state} (Admin → Locations).
+     Each page has the state's own details; "notes" adds your local knowledge, stories and reviews. */
+  'locations' => [
+    'OH'=>['on'=>true, 'notes'=><<<'TXT'
+## Why choose an Ohio beagle breeder?
+
+- **Shorter, easier journeys.** For Ohio families, delivery is a short trip, which is easier on a young puppy.
+- **Same time zone, same seasons.** Easy to talk to us, and your puppy is already used to Ohio weather.
+- **Lifetime local support.** We're a phone call or text away for advice, for your beagle's whole life.
+
+## Owning a beagle in Ohio
+
+- **Dog license.** Ohio requires dogs older than three months to be registered with the county auditor each year. Your puppy's microchip doesn't replace it.
+- **Vaccinations.** Ohio requires rabies vaccination for dogs; your vet will give it once your puppy is old enough. Their health record shows what they've had so far.
+- **Fenced yards.** A beagle's nose can lead them a long way. A secure fence and a leash in unfenced places keep them safe.
+TXT
+    ],
+    'KY'=>['on'=>true, 'notes'=>''], 'IN'=>['on'=>true, 'notes'=>''], 'MI'=>['on'=>true, 'notes'=>''], 'PA'=>['on'=>true, 'notes'=>''],
+    'TN'=>['on'=>true, 'notes'=>''], 'GA'=>['on'=>true, 'notes'=>''], 'TX'=>['on'=>true, 'notes'=>''],
+  ],
 
   'puppies' => [],
   'parents' => [],
@@ -356,6 +378,91 @@ See the full [health guarantee](/health-guarantee), or browse [beagle puppies fo
 TXT
     ],
     [
+      'slug'=>'beagle-price-cost', 'menu'=>'Beagle price', 'title'=>'Beagle price: how much does a beagle puppy cost?',
+      'seo_title'=>'Beagle Price: How Much Does a Beagle Puppy Cost? (2026)',
+      'seo_desc'=>'Beagle puppy prices in 2026: breeder vs. show lines, pocket beagles and rare colors, our live puppy prices, first-year costs and the lifetime cost of a beagle.',
+      'answer'=>'A purebred beagle puppy from a reputable US breeder usually costs about $800 to $2,500 in 2026; show-line puppies often cost more, and adopting from a rescue costs about $100 to $500. Expect around $1,500 to $4,000 in first-year costs on top, then roughly $1,000 to $2,500 a year.',
+      'body'=><<<'TXT'
+## Beagle puppy prices at a glance
+
+| Type of beagle | Typical price | What to know |
+|---|---|---|
+| Pet-quality purebred from a breeder | About $800 to $2,500 | Vet checked, vaccinated and registered; the right choice for most families |
+| Show or champion lines | Often $2,000 and up | Bred to the breed standard for showing; price reflects the parents' titles |
+| "Pocket" or "mini" beagle | Often advertised above standard beagles | Not a recognized size; higher health risks. See [pocket beagles](/guides/pocket-beagle) |
+| Lemon, bluetick or other "rare" colors | Should be the same as other colors | Some sellers add a premium; color doesn't change health or temperament. See [beagle colors](/guides/beagle-colors) |
+| Rescue or shelter adoption | About $100 to $500 | Usually an adult dog; see [adoption vs. breeder](/guides/beagle-adoption-vs-breeder) |
+| "Too good to be true" listing | A few hundred dollars | A common scam pattern; see [how to verify a breeder](/is-beagle-brook-legit) |
+
+Typical ranges across US breeders; prices vary by region and change over time.
+
+{price_cta}
+
+## Our beagle puppy prices right now
+
+{our_prices}
+
+Every Beagle Brook puppy's price includes a veterinarian health check, age-appropriate shots, a microchip, starter food and full registration papers. Delivery to your door is separate: {delivery_options}.
+
+## What affects a beagle puppy's price?
+
+- **The parents' health testing.** Hip and eye exams and DNA tests cost money — and protect your puppy.
+- **Vet care before going home.** Exams, vaccinations and deworming.
+- **Registration.** Full registration usually costs more than limited registration. Ours always come with full papers.
+- **Bloodlines.** Show and field champion parents raise the price.
+- **What's included.** Microchip, food, health guarantee — compare like for like.
+- **Delivery.** Whether it's included, and how far.
+- **Demand.** Prices are often higher in spring and in big cities.
+
+## First-year cost of a beagle
+
+| Item | Typical first-year cost |
+|---|---|
+| Crate, bed, bowls, leash, harness, toys | $150 to $400 |
+| Remaining puppy vaccinations and checkups | $200 to $600 |
+| Spay or neuter | $200 to $800 |
+| Food | $300 to $700 |
+| Flea, tick and heartworm prevention | $200 to $500 |
+| Puppy training classes | $150 to $400 |
+| Pet insurance (optional) | $300 to $700 |
+| **Total, besides the puppy** | **About $1,500 to $4,000** |
+
+## Yearly and lifetime cost
+
+After the first year, most owners spend about **$1,000 to $2,500 a year** on food, routine vet care, parasite prevention, toys and insurance. Beagles usually live 12 to 15 years, so the lifetime cost of a beagle — including the puppy — is commonly somewhere around **$15,000 to $35,000**, more if your beagle needs major vet care. Read [how long beagles live](/guides/beagle-lifespan).
+
+## How to save money without cutting corners
+
+- Choose a puppy whose price already includes vet care, a microchip and papers.
+- Keep your beagle lean: obesity drives many vet bills. See [best dog food for beagles](/guides/best-dog-food-for-beagles).
+- Budget for preventive care — vaccines, parasite prevention and dental care cost less than treatment.
+- Consider pet insurance while your puppy is young and healthy.
+
+## Price red flags
+
+Walk away from any seller who prices beagle puppies far below the norm, asks for gift cards, cryptocurrency or wire transfers, adds surprise fees for "shipping insurance" or "special crates", or won't put anything in writing. Read [how to find a reputable beagle breeder](/guides/how-to-find-a-beagle-breeder).
+
+{price_cta}
+
+## Questions
+
+### How much is a beagle puppy?
+From a reputable US breeder, usually about $800 to $2,500. Show-line puppies often cost more; rescue adoption is about $100 to $500.
+
+### Why are some beagles so cheap?
+Very low prices usually mean little vet care, no health testing — or no real puppy at all. Raising a healthy litter properly costs money.
+
+### Do lemon or bluetick beagles cost more?
+They shouldn't. Coat color doesn't affect health or temperament, so be cautious of big "rare color" premiums.
+
+### How much does a beagle cost per year?
+Usually about $1,000 to $2,500 a year after the first year, which costs more because of vaccinations, spay or neuter and supplies.
+
+### Is a 13-inch beagle cheaper than a 15-inch?
+Not usually. Size rarely changes the price from reputable breeders. See [13-inch vs. 15-inch beagles](/guides/13-inch-vs-15-inch-beagle).
+TXT
+    ],
+    [
       'slug'=>'is-beagle-brook-legit', 'menu'=>'Verify us', 'title'=>'Is Beagle Brook legit? How to verify us before you pay',
       'seo_title'=>'Is Beagle Brook Legit? How to Verify Us Before You Pay',
       'seo_desc'=>'How to check that Beagle Brook is a real beagle breeder before you pay: registration lookups, written agreements, one email address for payments and the warning signs of puppy scams.',
@@ -492,50 +599,6 @@ See [how to verify us](/is-beagle-brook-legit): registration numbers you can loo
 
 ### What if I can't keep my beagle one day?
 Contact us first. We will take them back or help rehome them, at any age.
-TXT
-    ],
-    [
-      'slug'=>'beagle-puppies-for-sale-ohio', 'menu'=>'Beagle puppies in Ohio', 'title'=>'Beagle puppies for sale in Ohio',
-      'seo_title'=>'Beagle Puppies for Sale in Ohio | Beagle Brook, Cincinnati',
-      'seo_desc'=>'Looking for beagle puppies for sale near you in Ohio? Beagle Brook raises purebred beagles in Cincinnati and delivers across Ohio and beyond. See available puppies.',
-      'body'=><<<'TXT'
-Beagle Brook is a beagle breeder based in **{city}, {state}**. Our puppies are raised in our home and delivered to families across Ohio — Cincinnati, Dayton, Columbus, Cleveland, Toledo, Akron and everywhere in between — as well as to every other state.
-
-## Available beagle puppies
-
-{puppies}
-
-## Why choose an Ohio beagle breeder?
-
-- **Shorter, easier journeys.** For Ohio families, delivery is a short trip, which is easier on a young puppy.
-- **Same time zone, same seasons.** Easy to talk to us, and your puppy is already used to Ohio weather.
-- **Lifetime local support.** We're a phone call or text away for advice, for your beagle's whole life.
-
-## What every puppy comes with
-
-{included}
-
-## Owning a beagle in Ohio
-
-- **Dog license.** Ohio requires dogs older than three months to be registered with the county auditor each year. Your puppy's microchip doesn't replace it.
-- **Vaccinations.** Ohio requires rabies vaccination for dogs; your vet will give it once your puppy is old enough. Their health record shows what they've had so far.
-- **Weather.** Beagles cope well with Ohio winters with a dry, warm place to sleep, and they need shade and water in summer.
-- **Fenced yards.** A beagle's nose can lead them a long way. A secure fence and a leash in unfenced places keep them safe.
-
-## How buying from us works
-
-{steps}
-
-## Questions
-
-### Are your beagles bred in Ohio?
-Yes. Every Beagle Brook puppy is born and raised in our home in {city}, {state}.
-
-### Do you deliver outside Ohio?
-Yes, to every state: {delivery_options}.
-
-### Can I find beagle puppies for sale near me in Ohio?
-Our available puppies are listed above and on our [beagle puppies for sale](/beagle-puppies-for-sale) page. If none suit you right now, [join our waitlist](/upcoming-litters).
 TXT
     ],
     [

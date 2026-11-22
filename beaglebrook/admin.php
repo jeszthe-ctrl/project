@@ -31,7 +31,7 @@ function site_url($path=''){
 function path_url($p){ return site_url($p); }
 
 /* ---------------- helpers ---------------- */
-const ARTICLE_GROUPS = ['buying'=>'Buying a beagle puppy', 'breed'=>'The beagle breed', 'care'=>'Care, food and training', 'mixes'=>'Beagle mixes', 'culture'=>'History and news'];
+const ARTICLE_GROUPS = ['buying'=>'Buying a beagle puppy', 'breed'=>'The beagle breed', 'care'=>'Care, food and training', 'mixes'=>'Beagle mixes', 'culture'=>'Rescue and more'];
 const FORMAT_HELP = 'Formatting: blank line = new paragraph · "## " heading, "### " subheading · "- " bullet, "1. " numbered · **bold**, *italic* · [link text](/health-guarantee) or [text](https://…) · "> " highlighted note · tables as | a | b | lines · a photo on its own line: ![description](assets/uploads/…) (use “Insert” under Photos inside the text). {deposit} {balance} {vet_check_hours} ({vet_check_hour}) {genetic_years} ({genetic_year}) {go_home_weeks} {email} {city} {state} {payment_methods} {registry} {reply_time} {delivery_options} fill in your settings. A line with only {guarantees}, {steps}, {included}, {payments}, {delivery_rates}, {puppies}, {licenses}, {payee}, {breeder} or {contact} shows that block. Questions under "## Questions" written as "### Question" become FAQs for Google.';
 function self_url($v='dashboard', $extra=[]){ return 'admin.php?'.http_build_query(['v'=>$v] + $extra); }
 function go($v='dashboard', $extra=[]){ header('Location: '.self_url($v, $extra), true, 303); exit; }
@@ -75,6 +75,9 @@ function unique_slug($base, $list, $self_id, $key='id'){
   while(array_filter($list, fn($x)=>($x['slug'] ?? '') === $slug && ($x[$key] ?? '') !== $self_id)) $slug = $base.'-'.$n++;
   return $slug;
 }
+
+function states(){ static $s = null; return $s ?? ($s = require BB_ROOT.'/inc/states.php'); }
+function state_slugs(){ return array_map(fn($st)=>slugify($st[0]), array_values(states())); }
 
 /* old address → new address (both without the leading /), so links and rankings follow a moved page */
 function add_redirect($from, $to){
@@ -190,6 +193,7 @@ if($act === 'save_puppy'){
   $want = in_line('slug', 80) !== '' ? in_line('slug', 80) : $name.' '.$p['color'].' '.$p['sex'];
   $old_slug = $p['slug'] ?? '';
   if($i === null || in_line('slug', 80) !== $old_slug) $p['slug'] = unique_slug($want, $SITE['puppies'], $p['id']);
+  if(in_array($p['slug'], state_slugs(), true)) $p['slug'] = unique_slug($p['slug'].'-puppy', $SITE['puppies'], $p['id']);
   if($i !== null && $old_slug !== '' && $old_slug !== $p['slug']) add_redirect('beagle-puppies-for-sale/'.$old_slug, 'beagle-puppies-for-sale/'.$p['slug']);
   $p['photos'] = handle_photos($p['photos'] ?? [], 'puppy-'.$p['slug']);
   if($i === null) array_unshift($SITE['puppies'], $p); else $SITE['puppies'][$i] = $p;
@@ -253,10 +257,16 @@ if($act === 'save_review'){
   $r = $i !== null ? $SITE['reviews'][$i] : ['id'=>new_id(), 'photo'=>''];
   $r = array_merge($r, ['name'=>in_line('name', 80), 'location'=>in_line('location', 80), 'date'=>in_date('date'), 'puppy'=>in_line('puppy', 60),
     'rating'=>max(1, min(5, (int)in_line('rating', 1) ?: 5)), 'text'=>in_str('text', 5000), 'hidden'=>in_bool('hidden')]);
+  unset($r['pending']);   /* saving a review that a family sent in also approves it */
   if($r['name'] === '' || $r['text'] === ''){ note('A review needs the family’s name and their words.', 'err'); go('review', $id ? ['id'=>$id] : []); }
   $r['photo'] = handle_one_photo('photo', $r['photo'] ?? '', 'review-'.$r['name']);
   if($i === null) array_unshift($SITE['reviews'], $r); else $SITE['reviews'][$i] = $r;
   save('Review saved.');
+  go('reviews');
+}
+if($act === 'approve_review'){
+  $i = $find_index($SITE['reviews'], in_line('id', 20));
+  if($i !== null){ unset($SITE['reviews'][$i]['pending']); $SITE['reviews'][$i]['hidden'] = false; save('Review approved: it’s on the Reviews page now.'); }
   go('reviews');
 }
 if($act === 'delete_review'){
@@ -275,7 +285,7 @@ if($act === 'save_article'){
   $slug = in_line('slug', 120) !== '' ? in_line('slug', 120) : $title;
   $slug = unique_slug($slug, array_map(fn($x)=>$x + ['sid'=>$x['slug']], $SITE['articles']), $orig, 'sid');
   $a = array_merge($a, ['slug'=>$slug, 'type'=>$type, 'group'=>in_line('group', 20) ?: 'buying', 'title'=>$title, 'seo_title'=>in_line('seo_title', 120),
-    'seo_desc'=>in_line('seo_desc', 300), 'excerpt'=>in_line('excerpt', 300), 'body'=>in_str('body', 200000), 'draft'=>in_bool('draft'),
+    'seo_desc'=>in_line('seo_desc', 300), 'answer'=>in_line('answer', 600), 'excerpt'=>in_line('excerpt', 300), 'body'=>in_str('body', 200000), 'draft'=>in_bool('draft'),
     'date'=>in_date('date') ?: ($a['date'] ?? date('Y-m-d'))]);
   if($changed && $idx !== null) $a['updated'] = date('Y-m-d');
   if($idx !== null && $slug !== $orig){
@@ -302,7 +312,7 @@ if($act === 'save_page'){
   $orig = in_line('orig', 120);
   $idx = null; foreach($SITE['pages'] as $k=>$pg){ if($pg['slug'] === $orig && $orig !== ''){ $idx = $k; break; } }
   $pg = ['slug'=>$idx !== null ? $orig : unique_slug(in_line('slug', 120) ?: in_line('title', 120), array_map(fn($x)=>$x + ['sid'=>$x['slug']], $SITE['pages']), '', 'sid'),
-         'menu'=>in_line('menu', 60), 'title'=>in_line('title', 200), 'seo_title'=>in_line('seo_title', 120), 'seo_desc'=>in_line('seo_desc', 300), 'body'=>in_str('body', 100000)];
+         'menu'=>in_line('menu', 60), 'answer'=>in_line('answer', 600), 'title'=>in_line('title', 200), 'seo_title'=>in_line('seo_title', 120), 'seo_desc'=>in_line('seo_desc', 300), 'body'=>in_str('body', 100000)];
   if(in_array($pg['slug'], ['beagle-puppies-for-sale', 'our-beagles', 'upcoming-litters', 'reviews', 'contact', 'guides', 'blog', 'thank-you', 'unsubscribe', 'admin', 'assets', 'data', 'inc'], true)){ note('That address is used by the site already. Choose another.', 'err'); go('page'); }
   if($pg['title'] === ''){ note('A page needs a title.', 'err'); go('page', $orig ? ['slug'=>$orig] : []); }
   if($idx === null) $SITE['pages'][] = $pg; else $SITE['pages'][$idx] = $pg;
@@ -426,6 +436,24 @@ if($act === 'add_redirect'){
 if($act === 'delete_redirect'){
   unset($SITE['redirects'][in_line('from', 300)]); save('Redirect removed.');
   go('redirects');
+}
+
+if($act === 'save_locations'){
+  $on = array_map('strtoupper', (array)($_POST['on'] ?? []));
+  foreach(states() as $c=>$st){
+    $cur = $SITE['locations'][$c] ?? ['on'=>false, 'notes'=>''];
+    $was = !empty($cur['on']); $cur['on'] = in_array($c, $on, true);
+    if($was && !$cur['on']) add_redirect('beagle-puppies-for-sale/'.slugify($st[0]), 'beagle-puppies-for-sale');   /* a page that existed keeps its visitors */
+    if($cur['on'] && isset($SITE['redirects']['beagle-puppies-for-sale/'.slugify($st[0])])) unset($SITE['redirects']['beagle-puppies-for-sale/'.slugify($st[0])]);
+    if($cur['on'] || $cur['notes'] !== '') $SITE['locations'][$c] = $cur; else unset($SITE['locations'][$c]);
+  }
+  save('Delivery pages saved: '.count(array_filter($SITE['locations'], fn($l)=>!empty($l['on']))).' states.');
+  go('locations');
+}
+if($act === 'save_location_notes'){
+  $c = strtoupper(in_line('state', 2));
+  if(isset(states()[$c])){ $SITE['locations'][$c] = ['on'=>!empty($SITE['locations'][$c]['on']), 'notes'=>in_str('notes', 20000)]; save(states()[$c][0].' notes saved.'); }
+  go('locations', ['s'=>$c]);
 }
 
 if($act === 'save_delivery'){
@@ -629,6 +657,7 @@ if($act === 'import_puppies'){
     foreach(['dam', 'sire'] as $k) if(($v = $get($k)) !== null){ $id = $parent_id($v); if($id === null){ $issues[] = "$name: no parent called “{$v}” — add them under Parents first, then import again."; } else $p[$k] = $id; }
     if(($p['chip_no'] ?? '') !== '') $p['microchip'] = true;
     if(empty($p['slug'])) $p['slug'] = unique_slug($p['name'].' '.($p['color'] ?? '').' '.$p['sex'], $SITE['puppies'], $p['id']);
+    if(in_array($p['slug'], state_slugs(), true)) $p['slug'] = unique_slug($p['slug'].'-puppy', $SITE['puppies'], $p['id']);
     $p['updated'] = date('c');
     if($i === null){ $SITE['puppies'][] = $p; $added++; } else { $SITE['puppies'][$i] = $p; $updated++; }
   }
@@ -665,8 +694,10 @@ if($v === 'export'){
 }
 
 /* ---------------- views ---------------- */
-$VIEWS = ['dashboard'=>'Dashboard', 'puppies'=>'Puppies', 'parents'=>'Parents', 'litters'=>'Litters', 'inquiries'=>'Inquiries', 'waitlist'=>'Waitlist',
-          'reviews'=>'Reviews', 'articles'=>'Guides & blog', 'pages'=>'Pages', 'promises'=>'Guarantees', 'delivery'=>'Delivery', 'payments'=>'Payments', 'templates'=>'Email templates', 'redirects'=>'Redirects', 'settings'=>'Settings', 'account'=>'Sign-in'];
+$VIEWS = ['dashboard'=>'Dashboard', 'inquiries'=>'Inquiries', 'puppies'=>'Puppies', 'parents'=>'Parents', 'reviews'=>'Reviews', 'articles'=>'Guides & blog', 'settings'=>'Settings',
+          'litters'=>'Litters', 'waitlist'=>'Waitlist', 'pages'=>'Pages', 'locations'=>'Locations', 'promises'=>'Guarantees', 'delivery'=>'Delivery', 'payments'=>'Payments',
+          'templates'=>'Email templates', 'redirects'=>'Redirects', 'account'=>'Sign-in'];
+const MAIN_MENU = ['dashboard', 'inquiries', 'puppies', 'parents', 'reviews', 'articles', 'settings'];
 $SUB = ['puppy_import'=>'puppies', 'puppy'=>'puppies', 'parent'=>'parents', 'inquiry'=>'inquiries', 'review'=>'reviews', 'article'=>'articles', 'page'=>'pages'];
 if(!isset($VIEWS[$v]) && !isset($SUB[$v])) $v = 'dashboard';
 layout_start($VIEWS[$v] ?? $VIEWS[$SUB[$v]]);
@@ -702,6 +733,7 @@ table{width:100%;border-collapse:collapse;background:#fff}th,td{text-align:left;
 .photos{display:flex;flex-wrap:wrap;gap:10px}.photos figure{margin:0;width:130px;font-size:.8rem}.photos img{width:130px;height:100px;object-fit:cover;border-radius:8px}
 .mut{color:var(--mut)}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.stat{font:700 2rem Georgia,serif}.right{margin-left:auto}
 .chk{list-style:none;padding-left:0}.chk li{margin-bottom:6px}.chk .done{color:var(--ok)}.chk .todo{color:var(--err)}
+.more{position:relative}.more summary{list-style:none;cursor:pointer;padding:7px 11px;border-radius:8px;font-weight:550}.more summary::-webkit-details-marker{display:none}.more summary::after{content:' ▾'}.more.on summary{background:var(--br);color:#fff}.more>div{position:absolute;z-index:5;top:110%;left:0;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.12);padding:6px;display:grid;min-width:200px}.more>div a{padding:8px 10px}
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}.tabs a{padding:6px 12px;border-radius:999px;border:1px solid var(--line);text-decoration:none;color:var(--ink);background:#fff}.tabs a.on{background:var(--br);color:#fff;border-color:var(--br)}
 details summary{cursor:pointer;font-weight:600;margin-bottom:8px}
 .acts{display:grid;gap:12px}@media(min-width:900px){.acts{grid-template-columns:1fr 1fr}}.act{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fffdf9}.act p{margin:6px 0 10px}.act form{margin:0}.act details{margin-top:8px}.act table{margin:6px 0}
@@ -711,7 +743,9 @@ details summary{cursor:pointer;font-weight:600;margin-bottom:8px}
 </style></head><body>
 <?php if(is_admin()): ?>
 <div class="top"><strong><?= h($CFG['brand']) ?> admin</strong><a href="<?= h(site_url()) ?>" target="_blank">View website ↗</a><a href="<?= h(self_url('logout')) ?>">Sign out</a></div>
-<nav class="side"><?php foreach($VIEWS as $k=>$label): $on = $v === $k || ($SUB[$v] ?? '') === $k; ?><a class="<?= $on ? 'on' : '' ?>" href="<?= h(self_url($k)) ?>"><?= h($label) ?><?= $k === 'inquiries' && $new ? '<span class="pill">'.$new.'</span>' : '' ?></a><?php endforeach; ?></nav>
+<?php $waiting = count(array_filter($GLOBALS['SITE']['reviews'], fn($r)=>!empty($r['pending']))); $cur = $SUB[$v] ?? $v; ?>
+<nav class="side"><?php foreach(MAIN_MENU as $k): ?><a class="<?= $cur === $k ? 'on' : '' ?>" href="<?= h(self_url($k)) ?>"><?= h($VIEWS[$k]) ?><?= $k === 'inquiries' && $new ? '<span class="pill">'.$new.'</span>' : '' ?><?= $k === 'reviews' && $waiting ? '<span class="pill">'.$waiting.'</span>' : '' ?></a><?php endforeach; ?>
+  <details class="more<?= in_array($cur, MAIN_MENU, true) ? '' : ' on' ?>"><summary>More<?= in_array($cur, MAIN_MENU, true) ? '' : ': '.h($VIEWS[$cur] ?? '') ?></summary><div><?php foreach($VIEWS as $k=>$label) if(!in_array($k, MAIN_MENU, true)): ?><a class="<?= $cur === $k ? 'on' : '' ?>" href="<?= h(self_url($k)) ?>"><?= h($label) ?></a><?php endif; ?></div></details></nav>
 <?php endif; ?>
 <main><?php foreach($_SESSION['admin_flash'] ?? [] as [$t, $m]): ?><div class="flash <?= h($t) ?>"><?= h($m) ?></div><?php endforeach; unset($_SESSION['admin_flash']);
 }
@@ -783,7 +817,7 @@ function view_dashboard(){
     <div class="card"><div class="stat"><?= count($new) ?></div>new inquiries · <a href="<?= h(self_url('inquiries')) ?>">open</a></div>
     <div class="card"><div class="stat"><?= count($avail) ?></div>puppies available · <a href="<?= h(self_url('puppy')) ?>">add a puppy</a></div>
     <div class="card"><div class="stat"><?= count(waitlist()) ?></div>on the waitlist · <a href="<?= h(self_url('waitlist')) ?>">email them</a></div>
-    <div class="card"><div class="stat"><?= count($SITE['reviews']) ?></div>reviews · <a href="<?= h(self_url('review')) ?>">add a review</a></div>
+    <div class="card"><div class="stat"><?= count(array_filter($SITE['reviews'], fn($r)=>empty($r['pending']))) ?></div>reviews · <a href="<?= h(self_url('review')) ?>">add a review</a></div>
   </div>
   <div class="grid g2">
     <div class="card"><h2 style="margin-top:0">Latest inquiries</h2>
@@ -1069,10 +1103,15 @@ function view_waitlist(){
 
 function view_reviews(){
   global $SITE;
+  $pending = array_values(array_filter($SITE['reviews'], fn($r)=>!empty($r['pending'])));
   ?><div class="row"><h1>Reviews</h1><a class="btn right" href="<?= h(self_url('review')) ?>">+ Add a review</a></div>
-  <p class="mut">Add reviews your customers send you, word for word and with their permission. Never write or edit reviews yourself: fake reviews break FTC rules and Google’s policies, and buyers can tell.</p>
+  <p class="mut">Add the reviews your customers give you — word for word, with their permission, and only from real buyers. Made-up reviews break FTC rules and Google’s policies.</p>
+  <?php if($pending): ?><div class="card"><h2 style="margin-top:0">Waiting for your approval (<?= count($pending) ?>)</h2>
+    <?php foreach($pending as $r): ?><div class="act" style="margin-bottom:10px"><div class="row"><strong><?= h($r['name']) ?></strong><span class="mut"><?= h(trim(($r['location'] ?? '').' · '.($r['puppy'] ?? ''), ' ·')) ?></span><span class="right"><?= str_repeat('★', (int)$r['rating']) ?></span></div>
+      <p style="white-space:pre-wrap"><?= h($r['text']) ?></p><?php if(($r['photo'] ?? '') !== ''): ?><p><img src="<?= h(thumb($r['photo'], 320)) ?>" alt="" style="max-width:200px;border-radius:8px"></p><?php endif; ?>
+      <div class="row"><?= form_start('approve_review') ?><input type="hidden" name="id" value="<?= h($r['id']) ?>"><button class="btn btn-s">Approve</button></form><a class="btn btn-g btn-s" href="<?= h(self_url('review', ['id'=>$r['id']])) ?>">Edit</a><?= del_button('delete_review', ['id'=>$r['id']], 'Delete', 'Delete this review?') ?></div></div><?php endforeach; ?></div><?php endif; ?>
   <div class="tw"><table><tr><th>Family</th><th>Puppy</th><th>Date</th><th>Stars</th><th></th></tr>
-  <?php foreach($SITE['reviews'] as $r): ?><tr><td><a href="<?= h(self_url('review', ['id'=>$r['id']])) ?>"><strong><?= h($r['name']) ?></strong></a><br><span class="mut"><?= h($r['location']) ?></span></td><td><?= h($r['puppy']) ?></td><td><?= h($r['date']) ?></td><td><?= str_repeat('★', (int)$r['rating']) ?></td><td><?= !empty($r['hidden']) ? '<span class="badge">Hidden</span>' : '' ?></td></tr><?php endforeach; ?>
+  <?php foreach($SITE['reviews'] as $r): ?><tr><td><a href="<?= h(self_url('review', ['id'=>$r['id']])) ?>"><strong><?= h($r['name']) ?></strong></a><br><span class="mut"><?= h($r['location']) ?></span></td><td><?= h($r['puppy']) ?></td><td><?= h($r['date']) ?></td><td><?= str_repeat('★', (int)$r['rating']) ?></td><td><?= !empty($r['pending']) ? '<span class="badge b-new">Waiting</span>' : (!empty($r['hidden']) ? '<span class="badge">Hidden</span>' : '') ?></td></tr><?php endforeach; ?>
   <?php if(!$SITE['reviews']): ?><tr><td colspan="5" class="mut">No reviews yet. The Reviews page shows a friendly message until you add the first one.</td></tr><?php endif; ?></table></div><?php
 }
 
@@ -1115,6 +1154,7 @@ function view_article(){
   <div class="grid g3"><label>Type<select name="type"><option value="guide"<?= $a['type'] === 'guide' ? ' selected' : '' ?>>Guide</option><option value="blog"<?= $a['type'] === 'blog' ? ' selected' : '' ?>>Blog post</option></select></label>
     <label>Group<small>Decides which guides link to each other</small><select name="group"><?php foreach(ARTICLE_GROUPS as $k=>$l): ?><option value="<?= $k ?>"<?= $a['group'] === $k ? ' selected' : '' ?>><?= h($l) ?></option><?php endforeach; ?></select></label>
     <label>Published<input type="date" name="date" value="<?= h($a['date']) ?>"></label></div>
+  <label>Quick answer<small>40–60 words that answer the title’s question directly. Shown in a box under the heading, and the text Google is most likely to quote.</small><textarea name="answer" rows="3"><?= h($a['answer'] ?? '') ?></textarea></label>
   <label>Text *<small><?= h(FORMAT_HELP) ?></small><textarea class="big" name="body" required><?= h($a['body']) ?></textarea></label>
   <?= one_photo_editor('image', $a['image'] ?? '', 'Main photo', 'Shown at the top and when shared. Your own beagle photos are best.') ?>
   <h2>Photos inside the text</h2>
@@ -1148,6 +1188,7 @@ function view_page(){
   <?= form_start('save_page') ?><input type="hidden" name="orig" value="<?= h($pg['slug']) ?>"><div class="card">
   <div class="grid g2"><label>Main heading *<input type="text" name="title" value="<?= h($pg['title']) ?>" required></label><label>Short name for menus and breadcrumbs<input type="text" name="menu" value="<?= h($pg['menu']) ?>"></label></div>
   <?php if($new): ?><label>Address<small>e.g. beagle-puppies-for-sale-kentucky</small><input type="text" name="slug" value=""></label><?php endif; ?>
+  <label>Quick answer <small>Optional: 40–60 words shown in a box under the heading</small><textarea name="answer" rows="3"><?= h($pg['answer'] ?? '') ?></textarea></label>
   <label>Text<small><?= h(FORMAT_HELP) ?></small><textarea class="big" name="body"><?= h($pg['body']) ?></textarea></label>
   <div class="grid g2"><label>Title for Google<input type="text" name="seo_title" value="<?= h($pg['seo_title']) ?>"></label><label>Description for Google<input type="text" name="seo_desc" value="<?= h($pg['seo_desc']) ?>"></label></div>
   <button class="btn">Save page</button></div></form>
@@ -1165,6 +1206,27 @@ function view_promises(){
     <div class="card"><label>How it works (steps)<textarea class="big" name="steps"><?= h($txt('steps')) ?></textarea></label></div>
     <div class="card"><label>What comes with every puppy<textarea class="big" name="included"><?= h($txt('included')) ?></textarea></label></div>
   </div><button class="btn">Save</button></form><?php
+}
+
+function view_locations(){
+  global $SITE, $CFG;
+  $edit = strtoupper((string)($_GET['s'] ?? ''));
+  if(isset(states()[$edit])){
+    $st = states()[$edit]; $l = $SITE['locations'][$edit] ?? ['on'=>false, 'notes'=>''];
+    ?><div class="row"><h1><?= h($st[0]) ?> delivery page</h1><?php if(!empty($l['on'])): ?><a class="btn btn-g right" target="_blank" href="<?= h(site_url('beagle-puppies-for-sale/'.slugify($st[0]))) ?>">View on site ↗</a><?php endif; ?></div>
+    <p class="mut">The page already shows the puppies available, delivery prices to <?= h($st[0]) ?>, the distance from <?= h($CFG['city']) ?>, the main cities, a weather tip and local questions. Your notes make it truly local, which is what Google rewards: stories of families you’ve delivered to there, their reviews, local dog rules you know, delivery days you usually drive.</p>
+    <div class="card"><?= form_start('save_location_notes') ?><input type="hidden" name="state" value="<?= h($edit) ?>">
+      <label>Local notes for <?= h($st[0]) ?><small><?= h(FORMAT_HELP) ?></small><textarea class="big" name="notes"><?= h($l['notes']) ?></textarea></label>
+      <button class="btn">Save notes</button> <a href="<?= h(self_url('locations')) ?>">Back to all states</a></form></div><?php
+    return;
+  }
+  ?><h1>Locations</h1>
+  <p class="mut">Each state you tick gets its own page at /beagle-puppies-for-sale/<i>state</i>, for people who search “beagle puppies for sale in Texas” and similar. Every page says clearly that puppies are raised in <?= h($CFG['city']) ?> and delivered.</p>
+  <p class="help">Tick the states you really deliver to and add your own notes to each (stories, reviews, local knowledge). A few genuinely useful state pages do better on Google than dozens of near-identical ones, which Google can treat as spam.</p>
+  <?= form_start('save_locations') ?><div class="tw"><table><tr><th>Page</th><th>State</th><th>Main cities</th><th>Notes</th></tr>
+  <?php foreach(states() as $c=>$st): $l = $SITE['locations'][$c] ?? ['on'=>false, 'notes'=>'']; ?><tr><td><input type="checkbox" name="on[]" value="<?= h($c) ?>"<?= !empty($l['on']) ? ' checked' : '' ?>></td><td><strong><?= h($st[0]) ?></strong></td><td class="mut"><?= h(implode(', ', array_slice($st[1], 0, 3))) ?></td>
+    <td><a href="<?= h(self_url('locations', ['s'=>$c])) ?>"><?= trim($l['notes']) !== '' ? 'Edit notes ✓' : 'Add notes' ?></a></td></tr><?php endforeach; ?></table></div>
+  <button class="btn">Save states</button></form><?php
 }
 
 function view_delivery(){

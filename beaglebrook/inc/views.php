@@ -154,8 +154,33 @@ function contact_block(){
 }
 function tel($p){ $d = preg_replace('/[^\d+]/', '', (string)$p); return strlen($d) === 10 ? '+1'.$d : $d; }
 
+/* our live prices, from the puppies listed right now */
+function our_prices_block(){
+  $list = array_values(array_filter(puppies_with('available'), fn($p)=>($p['price'] ?? '') !== ''));
+  if(!$list) return '<div class="callout"><p>All our puppies have found homes for now. Each puppy’s price is shown on their page; <a href="'.h(url('upcoming-litters')).'#waitlist">join the waitlist</a> to hear about the next litter first.</p></div>';
+  $prices = array_map(fn($p)=>(float)$p['price'], $list);
+  $o = '<div class="stats"><div><b>'.count($list).'</b><span>'.(count($list) === 1 ? 'puppy' : 'puppies').' available now</span></div><div><b>'.h(money(min($prices))).'</b><span>lowest price</span></div>'
+     .'<div><b>'.h(money(max($prices))).'</b><span>highest price</span></div><div><b>'.h(money(round(array_sum($prices) / count($prices)))).'</b><span>average</span></div></div>';
+  $o .= '<div class="table-wrap"><table><thead><tr><th scope="col">Puppy</th><th scope="col">Color</th><th scope="col">Age</th><th scope="col">Price</th></tr></thead><tbody>';
+  foreach(array_slice($list, 0, 8) as $p) $o .= '<tr><th scope="row"><a href="'.h(puppy_url($p)).'">'.h($p['name']).'</a></th><td>'.h(trim($p['color'].' '.strtolower(sex_label($p['sex'])))).'</td><td>'.h(age_text($p['dob'] ?? '') ?: '—').'</td><td><strong>'.h(money($p['price'])).'</strong></td></tr>';
+  return $o.'</tbody></table></div><p class="muted">Updated automatically from the puppies listed on our site.</p>';
+}
+/* the call to action placed right under the price tables and at the end of every guide */
+function price_cta_block(){
+  return '<div class="cta-card tilt"><div><p class="eyebrow">'.icon('paw').'Ready to choose?</p><p class="cta-t">See our beagle puppies for sale, with real photos, prices and both parents.</p></div>'
+    .'<div class="cta-row"><a class="btn btn-lg" href="'.h(url(PUPPIES_PATH)).'">See available puppies '.icon('arrow').'</a><a class="btn btn-lg btn-ghost" href="'.h(url(PUPPIES_PATH)).'#inquire">Ask about a puppy</a></div></div>';
+}
+/* "We deliver to …" links to the state pages */
+function states_links($title='We deliver beagle puppies to'){
+  $on = locations_on();
+  if(!$on) return '';
+  $o = '<div class="states"><p class="eyebrow">'.icon('truck').h($title).'</p><ul>';
+  foreach($on as $c=>$l) $o .= '<li><a href="'.h(location_url($c)).'">'.h(states()[$c][0]).'</a></li>';
+  return $o.'</ul><p class="muted">…and every other state: '.h(fill('{delivery_options}')).'.</p></div>';
+}
+
 function page_blocks(){
-  return ['{guarantees}'=>guarantees_block(), '{steps}'=>steps_block(), '{included}'=>included_block(), '{payments}'=>payments_block(), '{delivery_rates}'=>delivery_rates_block(),
+  return ['{guarantees}'=>guarantees_block(), '{steps}'=>steps_block(), '{included}'=>included_block(), '{payments}'=>payments_block(), '{our_prices}'=>our_prices_block(), '{price_cta}'=>price_cta_block(), '{states}'=>states_links(), '{delivery_rates}'=>delivery_rates_block(),
           '{puppies}'=>puppies_block(), '{licenses}'=>licenses_block(), '{payee}'=>payee_block(), '{breeder}'=>breeder_block(), '{contact}'=>contact_block()];
 }
 
@@ -195,7 +220,7 @@ function related_articles($a, $n=4){
   return array_slice(array_values($pool), 0, $n);
 }
 function guide_links($slugs, $title='Helpful guides'){
-  $list = array_filter(array_map(fn($s)=>article($s, 'guide') ?? article($s, 'blog'), $slugs));
+  $list = array_filter(array_map(fn($s)=>article($s, 'guide') ?? article($s, 'blog') ?? (($pg = info_page($s)) ? ['type'=>'page', 'slug'=>$s, 'title'=>fill($pg['title']), 'excerpt'=>$pg['answer'] ?? plain($pg['body'], 140), 'body'=>$pg['body']] : null), $slugs));
   if(!$list) return '';
   $o = '<section class="sec"><h2>'.h($title).'</h2><div class="agrid">';
   foreach($list as $a) $o .= article_card($a);
@@ -288,18 +313,53 @@ function structured_data(){
       'author'=>['@type'=>'Organization', 'name'=>$CFG['brand'], 'url'=>rtrim($CFG['domain'], '/').'/'], 'publisher'=>['@id'=>rtrim($CFG['domain'], '/').'/#org'],
       'mainEntityOfPage'=>$canonical];
   }
+  global $puppy, $loc;
+  $extra_faqs = $page === 'location' ? location_faqs($loc) : [];
+  if($page === 'puppy' && ($puppy['price'] ?? '') !== '') $g[] = puppy_product_ld($puppy);
+  if(in_array($page, ['puppies', 'location'], true) || ($page === 'info' && $info['slug'] === 'beagle-price-cost')) if($agg = puppies_offer_ld($page === 'location' ? $loc : '')) $g[] = $agg;
+  if(!empty($extra_faqs)) $g[] = ['@type'=>'FAQPage', 'mainEntity'=>array_map(fn($q)=>['@type'=>'Question', 'name'=>$q[0], 'acceptedAnswer'=>['@type'=>'Answer', 'text'=>$q[1]]], $extra_faqs)];
   $faq_text = $page === 'article' ? $art['body'] : ($page === 'info' ? $info['body'] : '');
   if($faq_text !== '' && ($faqs = text_faqs($faq_text))){
     $g[] = ['@type'=>'FAQPage', 'mainEntity'=>array_map(fn($q)=>['@type'=>'Question', 'name'=>$q[0], 'acceptedAnswer'=>['@type'=>'Answer', 'text'=>$q[1]]], $faqs)];
   }
   return '<script type="application/ld+json">'.json_encode(['@context'=>'https://schema.org', '@graph'=>$g], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_HEX_TAG).'</script>';
 }
+/* a puppy as a product with its offer: price, availability, delivery from Cincinnati */
+function puppy_product_ld($p){
+  global $CFG;
+  $base = rtrim($CFG['domain'], '/').'/';
+  $avail = ['available'=>'InStock', 'reserved'=>'OutOfStock', 'sold'=>'SoldOut'][$p['status']] ?? 'InStock';
+  $offer = ['@type'=>'Offer', 'price'=>number_format((float)$p['price'], 2, '.', ''), 'priceCurrency'=>'USD', 'availability'=>'https://schema.org/'.$avail,
+    'itemCondition'=>'https://schema.org/NewCondition', 'url'=>abs_url(PUPPIES_PATH.'/'.$p['slug']), 'seller'=>['@id'=>$base.'#org']];
+  if(($fee = delivery_base_fee('standard')) !== null) $offer['shippingDetails'] = ['@type'=>'OfferShippingDetails',
+    'shippingRate'=>['@type'=>'MonetaryAmount', 'value'=>number_format($fee, 2, '.', ''), 'currency'=>'USD'],
+    'shippingDestination'=>['@type'=>'DefinedRegion', 'addressCountry'=>'US'],
+    'deliveryTime'=>['@type'=>'ShippingDeliveryTime', 'handlingTime'=>['@type'=>'QuantitativeValue', 'minValue'=>0, 'maxValue'=>2, 'unitCode'=>'DAY'],
+      'transitTime'=>['@type'=>'QuantitativeValue', 'minValue'=>1, 'maxValue'=>5, 'unitCode'=>'DAY']]];
+  return array_filter(['@type'=>'Product', 'name'=>puppy_heading($p), 'description'=>puppy_meta_desc($p), 'sku'=>$p['id'], 'category'=>'Beagle puppy',
+    'brand'=>['@type'=>'Brand', 'name'=>$CFG['brand']], 'color'=>$p['color'] ?: null,
+    'image'=>array_map(fn($f)=>$base.$f, array_slice($p['photos'] ?? [], 0, 4)) ?: null, 'offers'=>$offer]);
+}
+/* all available puppies as one offer range, on the puppies, state and price pages */
+function puppies_offer_ld($state=''){
+  global $CFG;
+  $list = array_values(array_filter(puppies_with('available'), fn($p)=>($p['price'] ?? '') !== ''));
+  if(!$list) return null;
+  $prices = array_map(fn($p)=>(float)$p['price'], $list);
+  $offer = ['@type'=>'AggregateOffer', 'lowPrice'=>number_format(min($prices), 2, '.', ''), 'highPrice'=>number_format(max($prices), 2, '.', ''), 'priceCurrency'=>'USD',
+    'offerCount'=>count($list), 'availability'=>'https://schema.org/InStock', 'seller'=>['@id'=>rtrim($CFG['domain'], '/').'/#org']];
+  if($state !== '') $offer['eligibleRegion'] = ['@type'=>'State', 'name'=>states()[$state][0]];
+  return ['@type'=>'Product', 'name'=>'Beagle puppies'.($state !== '' ? ' for sale in '.states()[$state][0] : ''), 'category'=>'Beagle puppy',
+    'brand'=>['@type'=>'Brand', 'name'=>$CFG['brand']], 'description'=>'Purebred beagle puppies, vet checked, microchipped and sold with full papers, delivered from '.$CFG['city'].', Ohio.',
+    'image'=>rtrim($CFG['domain'], '/').'/'.share_image(), 'offers'=>$offer];
+}
+
 function share_image(){ global $CFG; return $CFG['share_photo'] !== '' && is_file(BB_ROOT.'/'.$CFG['share_photo']) ? $CFG['share_photo'] : 'assets/share.jpg'; }
 
 /* ---------------- layout ---------------- */
 function nav_items(){
-  return [[PUPPIES_PATH, 'Puppies for sale'], ['upcoming-litters', 'Upcoming litters'], ['our-beagles', 'Our beagles'], ['how-it-works', 'How it works'],
-          ['health-guarantee', 'Guarantee'], ['guides', 'Guides'], ['reviews', 'Reviews'], ['contact', 'Contact']];
+  return [[PUPPIES_PATH, 'Puppies for sale'], ['our-beagles', 'Our beagles'], ['beagle-price-cost', 'Beagle price'], ['how-it-works', 'How it works'],
+          ['guides', 'Guides'], ['reviews', 'Reviews'], ['contact', 'Contact']];
 }
 
 function render_page(){
@@ -419,7 +479,8 @@ function footer(){
       <li><a href="<?= h(url(PUPPIES_PATH)) ?>">Beagle puppies for sale</a></li>
       <li><a href="<?= h(url('upcoming-litters')) ?>">Upcoming litters &amp; waitlist</a></li>
       <li><a href="<?= h(url('our-beagles')) ?>">Meet the parents</a></li>
-      <li><a href="<?= h(url('beagle-puppies-for-sale-ohio')) ?>">Beagle puppies in Ohio</a></li>
+      <li><a href="<?= h(url('beagle-price-cost')) ?>">Beagle price &amp; cost</a></li>
+      <?php foreach(array_slice(locations_on(), 0, 8, true) as $c=>$l): ?><li><a href="<?= h(location_url($c)) ?>">Beagle puppies in <?= h(states()[$c][0]) ?></a></li><?php endforeach; ?>
       <li><a href="<?= h(url('reviews')) ?>">Reviews</a></li>
     </ul></div>
     <div class="fcol"><h2>Buying with confidence</h2><ul>
@@ -530,13 +591,13 @@ function view_home(){
   <section class="sec wrap split split-c">
     <div class="rv"><h2>Delivered from <?= h($CFG['city']) ?>, <?= h($CFG['state_name']) ?> to your door</h2>
       <p><?= h(fill($CFG['delivery_note'])) ?> Puppies travel no earlier than <?= h(fill('{go_home_weeks}')) ?> old, after a check by our veterinarian.</p>
-      <p class="cta-row"><a class="btn btn-ghost" href="<?= h(url('puppy-delivery')) ?>">How delivery works</a> <a class="btn btn-ghost" href="<?= h(url('beagle-puppies-for-sale-ohio')) ?>">Beagle puppies in Ohio</a></p></div>
+      <p class="cta-row"><a class="btn btn-ghost" href="<?= h(url('puppy-delivery')) ?>">How delivery works</a> <a class="btn btn-ghost" href="<?= h(url(PUPPIES_PATH.'/ohio')) ?>">Beagle puppies in Ohio</a></p></div>
     <div class="verify tilt rv"><h2><?= icon('shield', 'ic ic-lg') ?>Buy with confidence</h2>
       <ul><li>Recent photos of your puppy and both parents, whenever you ask</li><li>A <strong>written sales agreement</strong> and receipt for every payment</li><li>Payment details only from <strong><?= h($CFG['email']) ?></strong></li><li>We <strong>never</strong> ask for gift cards or crypto</li></ul>
       <p><a href="<?= h(url('is-beagle-brook-legit')) ?>">How to verify us before you pay <?= icon('arrow') ?></a></p></div>
   </section>
 
-  <?= guide_links(['beagle-price', 'beagle-dog-breed', 'how-to-find-a-beagle-breeder', 'beagle-puppy-care', 'lemon-beagle', 'beagle-lifespan'], 'Thinking about a beagle? Start here') ?>
+  <?= guide_links(['beagle-price-cost', 'beagle-dog-breed', 'how-to-find-a-beagle-breeder', 'beagle-puppy-care', 'lemon-beagle', 'beagle-lifespan'], 'Thinking about a beagle? Start here') ?>
 
   <section class="sec band" id="waitlist-cta"><div class="wrap waitcta rv">
     <div><h2>Don’t see your puppy yet?</h2><p>New litters go to our waitlist first. Join free and we’ll email you the moment puppies are born.</p></div>
@@ -574,6 +635,7 @@ function view_puppies(){
     <div><?= icon('chat', 'ic ic-lg') ?><strong>We reply <?= h(fill('{reply_time}')) ?></strong><a href="#inquire">Ask about a puppy</a></div>
     <div><?= icon('truck', 'ic ic-lg') ?><strong>Express 24-hour or Standard 2–5 day delivery</strong><a href="<?= h(url('puppy-delivery')) ?>">Delivery options</a></div>
   </div></section>
+  <section class="wrap"><?= states_links() ?></section>
   <?= inquiry_section() ?>
   <?php if($sold): ?>
   <section class="sec wrap"><h2>Recently gone to loving homes</h2><div class="pgrid pgrid-sm"><?php foreach($sold as $p) echo puppy_card($p); ?></div></section>
@@ -582,7 +644,7 @@ function view_puppies(){
     <h2>Buying a beagle puppy from Beagle Brook</h2>
     <p>Every puppy listed here was born and raised in our home in <?= h($CFG['city']) ?>, <?= h($CFG['state_name']) ?>. Before they go home, each one is examined by a licensed veterinarian, given age-appropriate vaccinations and microchipped, and they travel with starter food and full registration papers. Every puppy page shows both parents, so you can see the size, color and temperament your puppy comes from.</p>
     <p>When you find the right puppy, choose them in the inquiry form and leave your phone number and email. We’ll call, text or email you <?= h(fill('{reply_time}')) ?> and answer every question. We accept <?= h(fill('{payment_methods}')) ?>.</p>
-    <p>New to beagles? Read <a href="<?= h(url('guides/beagle-price')) ?>">how much a beagle costs</a>, our <a href="<?= h(url('guides/beagle-dog-breed')) ?>">beagle breed guide</a> and <a href="<?= h(url('guides/how-to-find-a-beagle-breeder')) ?>">how to choose a beagle breeder</a>.</p>
+    <p>New to beagles? Read <a href="<?= h(url('beagle-price-cost')) ?>">how much a beagle costs</a>, our <a href="<?= h(url('guides/beagle-dog-breed')) ?>">beagle breed guide</a> and <a href="<?= h(url('guides/how-to-find-a-beagle-breeder')) ?>">how to choose a beagle breeder</a>.</p>
   </div></section>
   <?php
 }
@@ -649,10 +711,83 @@ function view_puppy(){
   <?php $others = array_values(array_filter(puppies_with('available'), fn($x)=>$x['id'] !== $p['id'])); if($others): ?>
   <section class="sec wrap"><div class="sec-h"><h2>More beagle puppies available</h2><a href="<?= h(url(PUPPIES_PATH)) ?>">See all <?= icon('arrow') ?></a></div><?= puppies_block($others, 4) ?></section>
   <?php endif; ?>
-  <div class="wrap"><?= guide_links(['beagle-puppy-care', 'beagle-price', 'beagle-training', 'best-dog-food-for-beagles'], 'Getting ready for your puppy') ?></div>
+  <div class="wrap"><?= guide_links(['beagle-puppy-care', 'beagle-price-cost', 'beagle-training', 'best-dog-food-for-beagles'], 'Getting ready for your puppy') ?></div>
   <?php
 }
 function youtube_id($u){ return preg_match('#(?:youtube(?:-nocookie)?\.com/(?:watch\?v=|embed/|shorts/)|youtu\.be/)([\w-]{11})#', (string)$u, $m) ? $m[1] : ''; }
+
+/* A state's delivery page: its own delivery price, distance, cities, climate tip and questions,
+   the puppies available now, and the owner's local notes from Admin → Locations. */
+/* a state page's own questions and answers (shown on the page and given to Google as FAQs) */
+function location_faqs($loc){
+  global $CFG;
+  [$name, $cities] = states()[$loc];
+  $home = $loc === 'OH'; $miles = miles_from_home($loc); $first = $cities[0];
+  $listed = implode(', ', array_slice($cities, 0, -1)).' and '.end($cities);
+  $fee_text = implode(' or ', array_map(fn($m)=>$m['label'].' ('.$m['days'].(($f = delivery_fee($loc, $m['key'])) !== null ? ', '.money($f) : '').')', delivery_options()));
+  return [
+    ['Do you deliver beagle puppies to '.$first.', '.$name.'?', 'Yes. We deliver across '.$name.', including '.$listed.': '.$fee_text.'. Delivery times count from when your puppy leaves us in '.$CFG['city'].'.'],
+    ['How much is beagle puppy delivery to '.$name.'?', 'Delivery to '.$name.' is '.$fee_text.'. Puppy prices are shown on each puppy’s page and include the vet check, shots, microchip, starter food and full papers.'],
+    ['Where are your beagle puppies raised?', $home ? 'In our home in '.$CFG['city'].', Ohio. Ohio families get a short, easy journey for their puppy.' : 'In our home in '.$CFG['city'].', Ohio, about '.number_format($miles).' miles from '.$first.' by road. We are not based in '.$name.'; we deliver to your door.'],
+    ['Do puppies traveling to '.$name.' need a health certificate?', $home ? 'Puppies staying in Ohio are examined by our veterinarian before delivery and come with their health record.' : 'Puppies crossing state lines travel with a health certificate from our veterinarian, issued after a check shortly before departure.'],
+  ];
+}
+
+function view_location(){
+  global $loc, $SITE, $CFG, $h1, $extra_faqs;
+  [$name, $cities, , , $climate] = states()[$loc];
+  $home = $loc === 'OH';
+  $miles = miles_from_home($loc);
+  $first = $cities[0];
+  $listed = implode(', ', array_slice($cities, 0, -1)).' and '.end($cities);
+  $fees = []; foreach(delivery_options() as $m) $fees[] = [$m, delivery_fee($loc, $m['key'])];
+  $fee_text = implode(' or ', array_map(fn($x)=>$x[0]['label'].' ('.$x[0]['days'].($x[1] !== null ? ', '.money($x[1]) : '').')', $fees));
+  $avail = array_merge(puppies_with('available'), puppies_with('reserved'));
+  $note = $SITE['locations'][$loc]['notes'] ?? '';
+  $tip = ['hot'=>'Beagles handle '.$name.' summers well with shade, plenty of water and walks in the cooler morning and evening. Never leave a beagle in a parked car.',
+          'cold'=>'Beagles cope with '.$name.' winters with a warm, dry place to sleep and shorter walks on the coldest days. Check paws for ice and road salt.',
+          'mild'=>''.$name.'’s climate suits beagles well. Keep fresh water out on warm days and a dry bed in wet weather.',
+          'seasons'=>'Beagles do well through '.$name.'’s four seasons: a warm, dry bed in winter, and shade and water in summer.'][$climate];
+  $extra_faqs = location_faqs($loc);
+  ?>
+  <header class="phead wrap"><p class="eyebrow"><?= icon('truck') ?>Delivered to <?= h($name) ?> from <?= h($CFG['city']) ?>, Ohio</p><h1><?= h($h1) ?></h1></header>
+  <div class="wrap"><div class="answer answer-page"><p><?= h($home
+    ? 'Beagle Brook raises purebred beagle puppies in '.$CFG['city'].' and delivers them across Ohio, including '.$listed.'. Every puppy is vet checked, microchipped and sent home with shots, starter food and full papers. Delivery: '.$fee_text.'.'
+    : 'Yes — Beagle Brook delivers purebred beagle puppies across '.$name.', including '.$listed.'. Our puppies are raised in '.$CFG['city'].', Ohio, vet checked, microchipped and sent with shots, starter food and full papers. Delivery: '.$fee_text.'.') ?></p></div></div>
+
+  <section class="sec wrap"><div class="sec-h rv"><h2>Beagle puppies available for <?= h($name) ?> families</h2><a href="<?= h(url(PUPPIES_PATH)) ?>">All puppies <?= icon('arrow') ?></a></div><?= puppies_block($avail, 6) ?></section>
+
+  <section class="sec band"><div class="wrap split">
+    <div class="rv"><h2>Delivery to <?= h($name) ?></h2>
+      <div class="table-wrap"><table><thead><tr><th scope="col">Option</th><th scope="col">Arrives</th><th scope="col">Price to <?= h($name) ?></th></tr></thead><tbody>
+      <?php foreach($fees as [$m, $fee]): ?><tr><th scope="row"><?= h($m['label']) ?></th><td><?= h($m['days']) ?></td><td><strong><?= $fee !== null ? h(money($fee)) : 'Quoted on request' ?></strong></td></tr><?php endforeach; ?>
+      </tbody></table></div>
+      <p><?= $home ? 'We’re right here in '.h($CFG['city']).', so Ohio deliveries are short trips.' : h($first).' is about '.number_format($miles).' miles from '.h($CFG['city']).' by road. Delivery times count from when your puppy leaves us.' ?> Puppies travel no earlier than <?= h(fill('{go_home_weeks}')) ?> old, after a check by our veterinarian. <a href="<?= h(url('puppy-delivery')) ?>">How delivery works</a></p></div>
+    <div class="rv"><h2>Bringing your beagle home in <?= h($name) ?></h2>
+      <ul class="included">
+        <li><?= icon('home', 'ic ic-lg') ?><div><strong>Cities we deliver to</strong><span><?= h($listed) ?>, and every town in between.</span></div></li>
+        <li><?= icon('shield', 'ic ic-lg') ?><div><strong>Your local vet</strong><span>Book a check-up within <?= h(fill('{vet_check_hours}')) ?> of delivery to keep our health guarantee. Bring the health record we send.</span></div></li>
+        <li><?= icon('doc', 'ic ic-lg') ?><div><strong>Local rules</strong><span>Check your city or county’s dog license and rabies vaccination rules; your vet can help.</span></div></li>
+        <li><?= icon('heart', 'ic ic-lg') ?><div><strong>Weather</strong><span><?= h($tip) ?></span></div></li>
+      </ul></div>
+  </div></section>
+
+  <?php if(trim($note) !== ''): ?><section class="sec wrap"><div class="prose"><?= rich($note, page_blocks()) ?></div></section><?php endif; ?>
+
+  <section class="sec wrap"><div class="prose"><h2>Every puppy comes with</h2><?= included_block() ?>
+    <h2>Questions from <?= h($name) ?> families</h2>
+    <?php foreach($extra_faqs as [$q, $a]): ?><h3><?= h($q) ?></h3><p><?= h($a) ?></p><?php endforeach; ?>
+    <p>See <a href="<?= h(url('beagle-price-cost')) ?>">what a beagle puppy costs</a>, our <a href="<?= h(url('health-guarantee')) ?>">health guarantee</a> and <a href="<?= h(url('how-it-works')) ?>">how buying from us works</a>.</p>
+  </div></section>
+
+  <?= inquiry_section(null, 'Ask about a puppy for your '.$name.' home') ?>
+
+  <?php
+  /* the nearest other states, for people searching across a border */
+  $others = array_keys(array_diff_key(locations_on(), [$loc=>1]));
+  usort($others, fn($a, $b)=>miles_from_home($a) <=> miles_from_home($b));
+  if($others): ?><section class="sec wrap"><div class="states"><p class="eyebrow"><?= icon('truck') ?>We also deliver to</p><ul><?php foreach(array_slice($others, 0, 10) as $c): ?><li><a href="<?= h(location_url($c)) ?>"><?= h(states()[$c][0]) ?></a></li><?php endforeach; ?><li><a href="<?= h(url(PUPPIES_PATH)) ?>">All puppies</a></li></ul></div></section><?php endif;
+}
 
 function view_our_beagles(){
   global $SITE, $CFG;
@@ -729,7 +864,7 @@ function view_reviews(){
     <?php else: ?><div class="empty"><p><strong>Reviews from our families will appear here.</strong> We publish every review with the family’s permission, exactly as they wrote it.</p></div><?php endif; ?>
     <div class="review-cta">
       <h2>Brought home a Beagle Brook puppy?</h2>
-      <p>We’d love to hear how they’re doing. Email your review and a photo to <a href="mailto:<?= h($CFG['email']) ?>?subject=<?= rawurlencode('My review of '.$CFG['brand']) ?>"><?= h($CFG['email']) ?></a><?= $CFG['google_reviews_url'] !== '' ? ', or <a href="'.h($CFG['google_reviews_url']).'" rel="noopener" target="_blank">review us on Google</a>' : '' ?>.</p>
+      <p>We’d love to hear how they’re doing. Send your review and a photo to <a href="mailto:<?= h($CFG['email']) ?>?subject=<?= rawurlencode('My review of '.$CFG['brand']) ?>"><?= h($CFG['email']) ?></a><?= $CFG['google_reviews_url'] !== '' ? ', or <a href="'.h($CFG['google_reviews_url']).'" rel="noopener" target="_blank">review us on Google</a>' : '' ?>.</p>
     </div>
   </section>
   <?php
@@ -747,7 +882,7 @@ function view_contact(){
   <?php
 }
 
-const GUIDE_GROUPS = ['buying'=>'Buying a beagle puppy', 'breed'=>'The beagle breed', 'care'=>'Care, food and training', 'mixes'=>'Beagle mixes', 'culture'=>'Beagles in history and the news'];
+const GUIDE_GROUPS = ['buying'=>'Buying a beagle puppy', 'breed'=>'The beagle breed', 'care'=>'Care, food and training', 'mixes'=>'Beagle mixes', 'culture'=>'Rescue and more'];
 function view_guides(){
   page_head('Honest, practical guides from a beagle-only breeder: what beagles are really like, what they cost, how to care for them and how to buy a puppy safely.');
   $all = articles_of('guide');
@@ -785,9 +920,11 @@ function view_article(){
       <h1><?= h($h1) ?></h1>
       <p class="meta">By <?= h($CFG['brand']) ?>, beagle breeder in <?= h($CFG['city'].', '.$CFG['state']) ?> · <?= ($art['updated'] ?? '') !== '' && $art['updated'] !== $art['date'] ? 'Updated <time datetime="'.h($art['updated']).'">'.h(nice_date($art['updated'])).'</time>' : '<time datetime="'.h($art['date']).'">'.h(nice_date($art['date'])).'</time>' ?><?= !$zh && $words > 300 ? ' · '.max(1, (int)round($words / 230)).' min read' : '' ?></p>
     </header>
+    <?php if(($art['answer'] ?? '') !== ''): ?><div class="answer"><p><?= h(fill($art['answer'])) ?></p></div><?php endif; ?>
+    <?php if(!$zh): ?><p class="funnel"><?= icon('paw') ?><span>Looking for a puppy? See our <a href="<?= h(url(PUPPIES_PATH)) ?>">beagle puppies for sale</a> or find out <a href="<?= h(url('beagle-price-cost')) ?>">how much a beagle puppy costs</a>.</span></p><?php endif; ?>
     <?php if(($art['image'] ?? '') !== ''): ?><div class="art-img"><?= img_tag($art['image'], $art['image_alt'] ?? $art['title'], '(max-width:900px) 100vw, 860px', true) ?></div><?php endif; ?>
     <div class="art-grid">
-      <div class="prose"><?= rich($art['body'], page_blocks()) ?></div>
+      <div class="prose"><?= rich($art['body'], page_blocks()) ?><?php if(!$zh) echo price_cta_block(); ?></div>
       <aside class="art-side">
         <?php if(count($toc) > 3): ?><nav class="toc" aria-label="On this page"><p><strong><?= $zh ? '目录' : 'On this page' ?></strong></p><ol><?php foreach($toc as [$id, $t]): ?><li><a href="<?= h(url(article_path($art))) ?>#<?= h($id) ?>"><?= h($t) ?></a></li><?php endforeach; ?></ol></nav><?php endif; ?>
         <div class="side-cta"><?= logo_svg('side-logo') ?><p><strong>Looking for a beagle puppy?</strong></p><p>Vet checked, microchipped, full papers and a written health guarantee — delivered from <?= h($CFG['city']) ?>, <?= h($CFG['state']) ?>.</p><a class="btn btn-block" href="<?= h(url(PUPPIES_PATH)) ?>">See available puppies</a><a class="btn btn-block btn-ghost" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a></div>
@@ -800,10 +937,13 @@ function view_article(){
 
 function view_info(){
   global $info;
-  $wide = in_array($info['slug'], ['beagle-puppies-for-sale-ohio'], true);
+  $wide = false;
   page_head('');
+  if(($info['answer'] ?? '') !== '') echo '<div class="wrap"><div class="answer answer-page"><p>'.h(fill($info['answer'])).'</p></div></div>';
   echo '<div class="wrap"><div class="prose'.($wide ? ' prose-wide' : '').'">'.rich($info['body'], page_blocks()).'</div></div>';
-  if($info['slug'] === 'faq' || $info['slug'] === 'health-guarantee') echo '<div class="wrap">'.guide_links(['beagle-price', 'how-to-find-a-beagle-breeder', 'beagle-puppy-care'], 'Helpful guides').'</div>';
+  if($info['slug'] === 'beagle-price-cost') echo inquiry_section(null, 'Ask about a puppy and its price');
+  if($info['slug'] === 'puppy-delivery') echo '<div class="wrap">'.states_links('Delivery pages by state').'</div>';
+  if($info['slug'] === 'faq' || $info['slug'] === 'health-guarantee') echo '<div class="wrap">'.guide_links(['beagle-price-cost', 'how-to-find-a-beagle-breeder', 'beagle-puppy-care'], 'Helpful guides').'</div>';
 }
 
 function view_thank_you(){

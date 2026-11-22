@@ -4,102 +4,10 @@ if(!defined('BB_ROOT')){ http_response_code(404); exit; }
 
 return [
 [
-  'slug'=>'beagle-price', 'type'=>'guide', 'group'=>'buying', 'date'=>'2026-10-29',
-  'title'=>'How Much Does a Beagle Cost? Beagle Puppy Price and Lifetime Costs',
-  'seo_title'=>'How Much Does a Beagle Cost? Beagle Puppy Price (2026)',
-  'seo_desc'=>'Beagle puppy prices from breeders, what affects the price, first-year costs and the yearly cost of owning a beagle — plus the price red flags that signal a scam.',
-  'excerpt'=>'What a beagle puppy costs from a breeder, what you should get for the price, first-year and yearly costs, and price red flags to avoid.',
-  'body'=><<<'TXT'
-In 2026, a purebred beagle puppy from a reputable US breeder usually costs **roughly $800 to $2,500**, with puppies from show or champion lines sometimes priced higher. Adopting a beagle from a rescue typically costs $100 to $500. After the purchase, plan on around **$1,000 to $2,500 a year** for food, vet care and everything else. Here's what drives those numbers — and what you should expect to get for the price.
-
-## Beagle price at a glance
-
-| Where | Typical price |
-|---|---|
-| Reputable breeder (pet home) | About $800 to $2,500 |
-| Show or champion lines | Often $2,000 and up |
-| Rescue or shelter adoption | About $100 to $500 |
-| "Too good to be true" listings | Under a few hundred dollars — be very careful |
-
-These are typical ranges; prices vary by region and change over time. Every Beagle Brook puppy's price is shown on [their page](/beagle-puppies-for-sale).
-
-## What affects a beagle puppy's price?
-
-- **Health testing of the parents.** Hip and eye exams and DNA tests for breed conditions cost money — and are worth paying for.
-- **Veterinary care.** Vet checks, vaccinations and deworming before a puppy leaves.
-- **Registration.** Full registration (breeding rights) usually costs more than limited registration. Every Beagle Brook puppy comes with full papers at no extra charge.
-- **Microchip, food and supplies** included with the puppy.
-- **Bloodlines** — show and field champion lines command higher prices.
-- **Delivery** — whether delivery is included or extra, and how far.
-- **Demand and region.** Prices are often higher in big cities and in spring.
-
-Coat color shouldn't change the price much. Be cautious of big premiums for "rare" colors or for so-called [pocket beagles](/guides/pocket-beagle).
-
-## What should be included in the price?
-
-From a good breeder, the puppy price should include, at minimum:
-
-- a veterinarian health check, with a written record
-- age-appropriate vaccinations
-- a microchip
-- registration papers
-- a written sales agreement and health guarantee
-- ongoing advice
-
-See exactly [what comes with a Beagle Brook puppy](/whats-included).
-
-## First-year costs of owning a beagle
-
-Beyond the purchase price, a typical first year includes (estimates):
-
-| Item | Typical cost |
-|---|---|
-| Crate, bed, bowls, leash, harness, toys | $150 to $400 |
-| Remaining puppy vaccinations and checkups | $200 to $600 |
-| Spay or neuter | $200 to $800 |
-| Food | $300 to $700 |
-| Flea, tick and heartworm prevention | $200 to $500 |
-| Puppy training classes | $150 to $400 |
-| Pet insurance (optional) | $300 to $700 |
-
-## Yearly cost of a beagle
-
-After the first year, most owners spend around **$1,000 to $2,500 a year** on food, routine vet care, parasite prevention, treats, toys, grooming supplies and insurance. Emergencies and dental cleanings can add more, which is why many owners choose pet insurance or keep an emergency fund.
-
-## Price red flags
-
-Puppy scams often use beagles. Walk away if a seller:
-
-- advertises beagle puppies for a fraction of normal prices
-- won't answer questions or send recent photos before you pay
-- asks for gift cards, cryptocurrency or wire services like Western Union
-- adds surprise fees for "shipping insurance", "special crates" or "vaccination certificates"
-- pressures you to pay today
-
-Read our guide on [how to find a reputable beagle breeder](/guides/how-to-find-a-beagle-breeder) and [how to verify us](/is-beagle-brook-legit).
-
-## Questions
-
-### Why are some beagles so cheap?
-Very low prices usually mean no health testing, little vet care — or no puppy at all. A well-bred beagle costs money to raise properly.
-
-### Are male or female beagles more expensive?
-Usually not by much. Some breeders charge slightly more for females.
-
-### Is a 13-inch beagle more expensive than a 15-inch?
-Not normally. Size variety rarely affects price from reputable breeders.
-
-### How much is a beagle deposit?
-Deposits vary by breeder. At Beagle Brook a {deposit} deposit reserves your puppy and is part of the price; the rest is due at delivery. See our [deposit policy](/deposit-refund-policy).
-
-Ready to look? See our [beagle puppies for sale](/beagle-puppies-for-sale).
-TXT
-],
-[
   'slug'=>'how-to-find-a-beagle-breeder', 'type'=>'guide', 'group'=>'buying', 'date'=>'2026-10-29',
   'title'=>'How to Find a Reputable Beagle Breeder (and Avoid Puppy Scams)',
   'seo_title'=>'How to Find a Good Beagle Breeder & Avoid Puppy Scams',
-  'seo_desc'=>'How to find a reputable beagle breeder: the questions to ask, health testing to look for, what a good contract includes, and the red flags of beagle puppy scams.',
+  'seo_desc'=>'How to find a reputable beagle breeder: the questions to ask, health testing to look for, what a good contract includes.',
   'excerpt'=>'The questions to ask, the health testing to look for, what belongs in a contract — and the red flags that mean you should walk away.',
   'body'=><<<'TXT'
 Choosing the right breeder is the most important decision you'll make about your beagle. A good breeder gives you a healthy, well-socialized puppy, honest advice and support for life. A bad one — or a scammer — can cost you money and heartache. Here's how to tell the difference when you search for beagle breeders or "beagles for sale near me".
@@ -190,7 +98,7 @@ TXT
   'slug'=>'beagle-adoption-vs-breeder', 'type'=>'guide', 'group'=>'buying', 'date'=>'2026-10-29',
   'title'=>'Beagles for Adoption vs. Buying a Beagle Puppy From a Breeder',
   'seo_title'=>'Beagles for Adoption vs. Breeder: Which Is Right for You?',
-  'seo_desc'=>'Thinking about adopting a beagle or buying a puppy? How beagle rescue works, where rescued beagles come from, costs, and how to decide between adoption and a breeder.',
+  'seo_desc'=>'Thinking about adopting a beagle or buying a puppy? How beagle rescue works, where rescued beagles come from, costs.',
   'excerpt'=>'Both are good choices for the right family. How beagle adoption works, where rescued beagles come from, and how to decide.',
   'body'=><<<'TXT'
 There are two good ways to bring a beagle into your family: **adopting** one from a shelter or rescue, or **buying a puppy** from a responsible breeder. Both can give you a wonderful dog. The right choice depends on whether you want a puppy or an adult, how much you need to know about the dog's background, and what your home is like. Here's an honest comparison.
@@ -272,7 +180,7 @@ TXT
   'image'=>'assets/site/tricolor-beagle-puppy-4x3.jpg', 'image_alt'=>'A young tricolor baby beagle puppy resting on a soft white blanket',
   'title'=>'Beagle Puppy Care: Your First 30 Days With a Baby Beagle',
   'seo_title'=>'Beagle Puppy Care Guide: The First 30 Days at Home',
-  'seo_desc'=>'Bringing home a beagle puppy? A week-by-week guide to the first 30 days: supplies, feeding schedule, potty and crate training, vet visits, socialization and sleep.',
+  'seo_desc'=>'Bringing home a beagle puppy? A week-by-week guide to the first 30 days: supplies, feeding schedule, potty and crate training, vet visits.',
   'excerpt'=>'Supplies, feeding, potty and crate training, vet visits and socialization: a practical guide to your baby beagle’s first month at home.',
   'body'=><<<'TXT'
 The first month with a beagle puppy sets the tone for the rest of their life. It's also a lot of work, and a lot of fun. This guide walks you through what to buy, how to set up your home, and what to focus on week by week, so your baby beagle settles in happily.

@@ -70,15 +70,57 @@ function site_load(){
   $d = site_defaults();
   $s = data_read('site');
   if(!$s){ $s = $d; data_write('site', $s); }      // first run: start from the defaults
+  $version = (int)($s['settings']['content_version'] ?? 1);
   $s += $d;                                         // sections added by later versions
   $s['settings'] += $d['settings'];
   $s['templates'] += $d['templates'];     /* email templates added by a later version */
   unset($s['templates']['video']);        /* replaced by "Reply to inquiry" */
+  if($version < (int)$d['settings']['content_version']){ $s = site_upgrade($s, $d, $version); site_save($s); }
   /* guides, blog posts and pages added by a later version appear without touching edited ones */
   foreach(['articles', 'pages'] as $k){
     $have = array_column($s[$k], 'slug');
     foreach($d[$k] as $item) if(!in_array($item['slug'], $have, true) && !in_array($item['slug'], $s['removed'][$k] ?? [], true)) $s[$k][] = $item;
   }
+  /* quick answers added by a later version, for guides that don't have one yet */
+  $answers = array_column($d['articles'], 'answer', 'slug');
+  foreach($s['articles'] as $i=>$a) if(!isset($a['answer']) && isset($answers[$a['slug']])) $s['articles'][$i]['answer'] = $answers[$a['slug']];
+  return $s;
+}
+
+/* Brings a site installed by an earlier version up to date, once. Default wording the owner hasn't
+   edited (it still matches an earlier version's fingerprint in inc/upgrades.php) is replaced by this
+   version's; anything edited is kept. */
+function site_upgrade($s, $d, $version){
+  $known = require BB_ROOT.'/inc/upgrades.php';
+  $h = fn($x)=>md5(json_encode($x));
+  $untouched = fn($group, $key, $item)=>in_array($h($item), $known[$group][$key] ?? [], true);
+  foreach(['pages', 'articles'] as $g){
+    $new = array_column($d[$g], null, 'slug');
+    foreach($s[$g] as $i=>$item) if(isset($new[$item['slug']]) && $untouched($g, $item['slug'], $item)) $s[$g][$i] = $new[$item['slug']];
+  }
+  foreach($s['templates'] as $k=>$t) if(isset($d['templates'][$k]) && $untouched('templates', $k, $t)) $s['templates'][$k] = $d['templates'][$k];
+  foreach(['guarantees', 'steps', 'included'] as $k) if(in_array($h($s[$k]), $known[$k] ?? [], true)) $s[$k] = $d[$k];
+  foreach($s['settings'] as $k=>$v) if(is_string($v) && isset($d['settings'][$k]) && in_array(md5($v), $known['settings'][$k] ?? [], true)) $s['settings'][$k] = $d['settings'][$k];
+
+  if($version < 2){
+    /* only dog topics: HMS Beagle and Snoopy go; the price guide becomes /beagle-price-cost; the Ohio page
+       becomes /beagle-puppies-for-sale/ohio. Their old addresses lead to the new ones. */
+    $gone = ['articles'=>['hms-beagle', 'snoopy-beagle', 'beagle-price'], 'pages'=>['beagle-puppies-for-sale-ohio']];
+    foreach($gone as $g=>$slugs){
+      $s[$g] = array_values(array_filter($s[$g], fn($x)=>!in_array($x['slug'], $slugs, true)));
+      $s['removed'][$g] = array_values(array_unique(array_merge($s['removed'][$g] ?? [], $slugs)));
+    }
+    $s['redirects'] += ['guides/hms-beagle'=>'guides', 'blog/snoopy-beagle'=>'blog', 'guides/beagle-price'=>'beagle-price-cost',
+                        'beagle-puppies-for-sale-ohio'=>'beagle-puppies-for-sale/ohio'];
+    $relink = function($t){
+      $t = str_replace(['(/guides/beagle-price)', '(/beagle-puppies-for-sale-ohio)', ' Read more in [famous beagles](/blog/famous-beagles-snoopy).'],
+                       ['(/beagle-price-cost)', '(/beagle-puppies-for-sale/ohio)', ''], $t);
+      return preg_replace('#\[([^\]]+)\]\(/(?:guides/hms-beagle|blog/snoopy-beagle|blog/famous-beagles-snoopy)\)#', '$1', $t);
+    };
+    foreach(['pages', 'articles'] as $g) foreach($s[$g] as $i=>$item) $s[$g][$i]['body'] = $relink($item['body']);
+    foreach($s['settings'] as $k=>$v) if(is_string($v)) $s['settings'][$k] = $relink($v);
+  }
+  $s['settings']['content_version'] = (int)$d['settings']['content_version'];
   return $s;
 }
 
@@ -181,7 +223,21 @@ function save_upload($f, $prefix){
   upload_dir();
   if(!@move_uploaded_file($f['tmp_name'], BB_ROOT.'/'.$rel)) return '!Couldn’t save the photo: the assets/uploads folder isn’t writable.';
   shrink_image(BB_ROOT.'/'.$rel, 1600, true);
-  return $rel;
+  return to_webp($rel);
+}
+
+/* JPEG and PNG photos become WebP (smaller, faster pages) when the host's GD can write it */
+function to_webp($rel){
+  if(!function_exists('imagewebp') || preg_match('/\.webp$/', $rel)) return $rel;
+  $file = BB_ROOT.'/'.$rel;
+  $i = @getimagesize($file);
+  $load = [IMAGETYPE_JPEG=>'imagecreatefromjpeg', IMAGETYPE_PNG=>'imagecreatefrompng'][$i[2] ?? 0] ?? '';
+  if(!$load || !function_exists($load) || !($img = @$load($file))) return $rel;
+  if($i[2] === IMAGETYPE_PNG){ imagepalettetotruecolor($img); imagealphablending($img, false); imagesavealpha($img, true); }
+  $new = preg_replace('/\.(jpe?g|png)$/', '.webp', $rel);
+  if(!@imagewebp($img, BB_ROOT.'/'.$new, 82) || !filesize(BB_ROOT.'/'.$new)){ @unlink(BB_ROOT.'/'.$new); return $rel; }
+  @unlink($file);
+  return $new;
 }
 
 /* every file of a multi-file input as single $_FILES entries */
@@ -389,7 +445,7 @@ function rich_inline($s){
 }
 
 /* links in admin text: a full https:// or mailto: address, or a page of the site written as
-   /path (e.g. /health-guarantee, /guides/beagle-price, /beagle-puppies-for-sale) */
+   /path (e.g. /health-guarantee, /beagle-price-cost, /beagle-puppies-for-sale) */
 function link_target($t){
   if(preg_match('#^(https?://|mailto:|tel:|sms:)#i', $t)) return $t;
   if(preg_match('#^/([a-z0-9/_-]*)(\#[\w-]+)?$#', $t, $m)) return function_exists('path_url') ? path_url($m[1]).($m[2] ?? '') : $t;

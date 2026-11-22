@@ -7,7 +7,7 @@ return [
   'slug'=>'beagle-mix-breeds', 'type'=>'guide', 'group'=>'mixes', 'date'=>'2026-10-29',
   'title'=>'Beagle Mix Breeds: 12 Popular Beagle Mixes and What They’re Like',
   'seo_title'=>'Beagle Mix Breeds: 12 Popular Beagle Mixes Explained',
-  'seo_desc'=>'Beagle mixes compared: Lab, Dachshund, Chihuahua, Basset Hound, Poodle, Boxer, Pug, Corgi, Jack Russell, terrier and Golden Retriever mixes — size, temperament and care.',
+  'seo_desc'=>'Beagle mixes compared: Lab, Dachshund, Chihuahua, Basset, Poodle, Boxer, Pug, Corgi, Jack Russell and Golden mixes, with size and temperament.',
   'excerpt'=>'Lab, Dachshund, Chihuahua, Basset, Poodle, Boxer, Pug, Corgi, terrier and more: what the most popular beagle mixes are like, and what to know first.',
   'body'=><<<'TXT'
 Beagle mixes combine the beagle's friendly, curious personality with the traits of another breed. Some are deliberate crosses with catchy names — the Puggle, the Beagador, the Doxle — and many more are wonderful shelter dogs listed simply as "beagle mix" or "beagle/terrier". This guide explains the most popular beagle mixes, how big they get, and what they're like to live with.
@@ -54,7 +54,7 @@ Poogles are bright and trainable, with coats ranging from short and smooth to cu
 
 ## Beagle Boxer mix (Bogle)
 
-Bogles are playful, muscular and energetic, often with a boxer's clownish personality and a beagle's nose. They need lots of exercise and early training, and are usually good with families.
+Bogles are playful, muscular and energetic, often with a boxer's clownish personality and a beagle's nose. They need lots of exercise and early training, and are usually good with families. Read the full [beagle Boxer mix guide](/guides/beagle-boxer-mix).
 
 ## Beagle Pug mix (Puggle)
 
@@ -62,7 +62,7 @@ The Puggle became one of the best-known "designer" dogs in the 2000s. Puggles ar
 
 ## Beagle Corgi mix (Beagi)
 
-Beagis are usually long-bodied, short-legged and full of energy, with a herding dog's alertness and a beagle's nose. Like Doxles, they need their backs protected.
+Beagis are usually long-bodied, short-legged and full of energy, with a herding dog's alertness and a beagle's nose. Like Doxles, they need their backs protected. Read the full [Corgi beagle mix guide](/guides/corgi-beagle-mix).
 
 ## Beagle Jack Russell mix (Jack-A-Bee) and beagle terrier mixes
 
@@ -97,7 +97,7 @@ TXT
   'slug'=>'beagle-lab-mix', 'type'=>'guide', 'group'=>'mixes', 'date'=>'2026-10-29',
   'title'=>'Beagle Lab Mix (Beagador): Size, Temperament and Care',
   'seo_title'=>'Beagle Lab Mix (Beagador): Size, Temperament, Lifespan & Care',
-  'seo_desc'=>'The beagle Lab mix, or Beagador: how big they get, temperament, exercise, training, shedding, health, lifespan and whether a Lab beagle mix is right for your family.',
+  'seo_desc'=>'The beagle Lab mix, or Beagador: how big they get, temperament, exercise, training, shedding, health.',
   'excerpt'=>'Friendly, food-loving and full of energy: everything about the Labrador beagle mix, from size and temperament to training and care.',
   'body'=><<<'TXT'
 The **beagle Lab mix**, often called a **Beagador**, is a cross between a beagle and a Labrador Retriever. Take two of America's friendliest breeds and you get a sociable, playful, people-loving dog that's usually medium-sized, athletic and very food-motivated. Here's what to expect from a Lab beagle mix.
@@ -164,7 +164,7 @@ TXT
   'slug'=>'dachshund-beagle-mix', 'type'=>'guide', 'group'=>'mixes', 'date'=>'2026-10-29',
   'title'=>'Dachshund Beagle Mix (Doxle): Size, Personality and Care',
   'seo_title'=>'Dachshund Beagle Mix (Doxle): Size, Temperament & Care',
-  'seo_desc'=>'The beagle dachshund mix, or Doxle (the “wiener dog beagle mix”): size, temperament, back health, training, grooming, lifespan and whether one suits your home.',
+  'seo_desc'=>'The beagle dachshund mix, or Doxle (the “wiener dog beagle mix”): size, temperament, back health, training, grooming.',
   'excerpt'=>'Two scent hounds in one small, brave, vocal package. What to know about the Doxle, from size and back health to training.',
   'body'=><<<'TXT'
 The **Dachshund beagle mix** — also called a **Doxle**, a beagle dachshund mix or a "wiener dog beagle mix" — crosses two scent hounds. The result is a small, brave, curious and often very vocal dog with a big personality and a nose that never switches off.
@@ -230,7 +230,7 @@ TXT
   'slug'=>'beagle-chihuahua-mix', 'type'=>'guide', 'group'=>'mixes', 'date'=>'2026-10-29',
   'title'=>'Beagle Chihuahua Mix (Cheagle): Size, Temperament and Care',
   'seo_title'=>'Beagle Chihuahua Mix (Cheagle): Size, Temperament & Care',
-  'seo_desc'=>'Everything about the beagle Chihuahua mix, or Cheagle: how big they get, personality, training, barking, health, lifespan and whether a Chihuahua beagle mix suits you.',
+  'seo_desc'=>'Everything about the beagle Chihuahua mix, or Cheagle: how big they get, personality, training, barking, health.',
   'excerpt'=>'Small, loyal and full of opinions: the Chihuahua beagle mix explained, from size and temperament to training and health.',
   'body'=><<<'TXT'
 The **beagle Chihuahua mix**, known as the **Cheagle**, crosses a beagle with a Chihuahua. It's a small, lively, loyal dog that combines the beagle's curious nose with the Chihuahua's big attitude. Cheagles are sometimes sold as "mini" or "pocket" beagles, so it's worth knowing exactly what you're getting.
@@ -342,6 +342,124 @@ Usually, yes. Both the beagle and the Basset are known for baying.
 
 ### Do you breed Bagle Hounds?
 No. Beagle Brook raises purebred beagles only. See our [beagle puppies for sale](/beagle-puppies-for-sale), or compare other [beagle mix breeds](/guides/beagle-mix-breeds).
+TXT
+],
+[
+  'slug'=>'beagle-boxer-mix', 'type'=>'guide', 'group'=>'mixes', 'date'=>'2026-11-21',
+  'title'=>'Beagle Boxer Mix (Bogle): Size, Temperament and Care',
+  'seo_title'=>'Beagle Boxer Mix (Bogle): Size, Temperament & Care',
+  'seo_desc'=>'The beagle Boxer mix, or Bogle: how big they get, temperament, exercise, training, health, lifespan and whether a Boxer beagle mix suits your family.',
+  'excerpt'=>'Playful, loyal and full of energy: what to expect from a beagle Boxer mix, from size and temperament to health and training.',
+  'body'=><<<'TXT'
+The **beagle Boxer mix**, often called a **Bogle**, crosses a beagle with a Boxer. Bogles tend to be playful, affectionate and energetic, often with a Boxer's clownish sense of fun and a beagle's nose. They're usually larger and more muscular than a beagle, and they need plenty of exercise and early training.
+
+## Beagle Boxer mix at a glance
+
+| Trait | Bogle |
+|---|---|
+| Parent breeds | Beagle × Boxer |
+| Height | About 15 to 23 inches |
+| Weight | About 30 to 60 pounds |
+| Lifespan | About 10 to 13 years |
+| Coat | Short and smooth; fawn, brindle or beagle tricolor patterns |
+| Shedding | Moderate |
+| Temperament | Playful, loyal, energetic, protective of family |
+| Exercise | At least an hour a day |
+
+## Size and appearance
+
+Boxers weigh about 50 to 80 pounds and beagles about 20 to 30, so Bogles vary a lot. Most land between 30 and 60 pounds, with a sturdy, athletic build, a broad chest and a muzzle somewhere between a beagle's and a Boxer's. Their short coat may be fawn, brindle, tricolor or a mix, often with white markings.
+
+## Temperament
+
+Bogles are usually people-loving and playful, and many keep a puppyish bounce for years. From the Boxer they often get loyalty and a watchful streak; from the beagle, curiosity, a love of food and a strong nose. Most are good with children, though their size and energy mean young kids need supervision during play.
+
+## Training
+
+Bogles are smart but can be headstrong. Short, upbeat, reward-based sessions work best. Start early with leash manners — a strong Bogle pulling after a scent is hard to hold — and with calm greetings, since many jump up in excitement. Read our [beagle training guide](/guides/beagle-training) for techniques that work with hounds.
+
+## Exercise
+
+Plan on at least an hour a day of walks, play and fetch, plus sniffing time. Like Boxers, many Bogles are sensitive to heat, especially if they inherit a shorter muzzle, so exercise in the cooler parts of hot days and bring water. See [how much exercise does a beagle need?](/guides/how-much-exercise-does-a-beagle-need)
+
+## Health
+
+Bogles can inherit conditions from either parent. Boxers are known for heart conditions, some cancers and breathing and heat sensitivity linked to their shorter muzzle; beagles for ear infections, back problems and weight gain. Health-tested parents, a lean body and regular vet checks matter most.
+
+## Is a Bogle right for you?
+
+A Bogle suits an active family with time for exercise and training, a secure yard and room for a medium-to-large dog. They're less suited to small apartments or homes where the dog would be alone most of the day.
+
+## Questions
+
+### How big does a beagle Boxer mix get?
+Usually about 30 to 60 pounds and 15 to 23 inches tall, depending on the parents.
+
+### Are Bogles good family dogs?
+Usually yes — they're affectionate and playful. Supervise them with small children because of their size and energy.
+
+### Do beagle Boxer mixes bark a lot?
+Some do. They may inherit the beagle's baying or the Boxer's watchdog bark.
+
+### Do you breed Bogles?
+No. Beagle Brook raises purebred beagles only. If you love the beagle side, see our [beagle puppies for sale](/beagle-puppies-for-sale) or compare [beagle prices](/beagle-price-cost). More mixes: [beagle mix breeds](/guides/beagle-mix-breeds).
+TXT
+],
+[
+  'slug'=>'corgi-beagle-mix', 'type'=>'guide', 'group'=>'mixes', 'date'=>'2026-11-21',
+  'title'=>'Corgi Beagle Mix (Beagi): Size, Temperament and Care',
+  'seo_title'=>'Corgi Beagle Mix (Beagi): Size, Temperament, Shedding & Care',
+  'seo_desc'=>'The Corgi beagle mix, or Beagi: size, temperament, shedding, back health, training, lifespan and whether a beagle Corgi mix is right for your home.',
+  'excerpt'=>'Long, low and full of personality: the Corgi beagle mix explained, from size and shedding to back care and training.',
+  'body'=><<<'TXT'
+The **Corgi beagle mix**, or **Beagi**, crosses a beagle with a Pembroke or Cardigan Welsh Corgi. Beagis are usually long-bodied and short-legged, smart, alert and energetic, with a herding dog's watchfulness and a beagle's nose. They're friendly family dogs that need daily exercise, training and some extra care for their backs.
+
+## Corgi beagle mix at a glance
+
+| Trait | Beagi |
+|---|---|
+| Parent breeds | Beagle × Corgi |
+| Height | About 10 to 15 inches |
+| Weight | About 20 to 35 pounds |
+| Lifespan | About 12 to 15 years |
+| Coat | Short to medium double coat; red, sable, tricolor and more |
+| Shedding | Moderate to heavy |
+| Temperament | Smart, alert, playful, sometimes bossy |
+| Exercise | About an hour a day |
+
+## Appearance
+
+Most Beagis have a Corgi's long body and short legs with a beagle's head, though some look more like a short-legged beagle. Ears may be upright like a Corgi's, floppy like a beagle's, or somewhere in between.
+
+## Temperament
+
+Beagis are usually cheerful, affectionate and clever. From the Corgi they can inherit a herding instinct — circling, barking at movement or nipping at heels, especially with running children — and from the beagle a powerful nose and a love of food. Both parents can be vocal, so expect barking.
+
+## Shedding and grooming
+
+Corgis shed a lot, so many Beagis shed more than a purebred beagle, with heavy seasonal shedding in spring and fall. Brush two or three times a week, daily in shedding season. See [do beagles shed?](/guides/do-beagles-shed)
+
+## Back care
+
+Both parent breeds are prone to intervertebral disc disease (IVDD), and a long back adds to the risk. Keep your Beagi lean, use ramps or steps for furniture and cars, use a harness rather than a collar, and support the chest and hindquarters when you pick them up.
+
+## Training
+
+Beagis learn quickly with treats and short sessions. Redirect herding nips early with toys and calm play, and practice recall on a long line. Our [beagle training guide](/guides/beagle-training) covers hound-friendly methods.
+
+## Questions
+
+### How big does a Corgi beagle mix get?
+Usually about 20 to 35 pounds and 10 to 15 inches tall.
+
+### Do Beagis shed a lot?
+Often, yes — more than many beagles, because Corgis shed heavily.
+
+### Are Beagis good with kids?
+Generally yes, but some herd and nip at running children, so teach gentle play and supervise.
+
+### Do you breed Beagis?
+No. Beagle Brook raises purebred beagles only. See our [beagle puppies for sale](/beagle-puppies-for-sale), what a beagle [costs](/beagle-price-cost), or more [beagle mix breeds](/guides/beagle-mix-breeds).
 TXT
 ],
 ];

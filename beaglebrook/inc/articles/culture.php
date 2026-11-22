@@ -1,5 +1,5 @@
 <?php
-/* Wider beagle searches: rescued laboratory beagles, HMS Beagle, and a Chinese-language guide (比格犬). */
+/* Wider beagle searches: rescued laboratory beagles and a Chinese-language guide (比格犬). */
 if(!defined('BB_ROOT')){ http_response_code(404); exit; }
 
 return [
@@ -7,7 +7,7 @@ return [
   'slug'=>'rescued-beagles', 'type'=>'guide', 'group'=>'culture', 'date'=>'2026-10-29',
   'title'=>'Rescued Beagles: Ridglan Farms, Envigo and Adopting a Laboratory Beagle',
   'seo_title'=>'Rescued Beagles: Ridglan Farms, Envigo & How to Adopt One',
-  'seo_desc'=>'Why so many beagles are rescued from research facilities: the 2026 release of about 1,500 Ridglan Farms beagles, the 2022 Envigo rescue, the groups involved and how to adopt.',
+  'seo_desc'=>'Why so many beagles are rescued from research facilities: the 2026 release of about 1,500 Ridglan Farms beagles, the 2022 Envigo rescue.',
   'excerpt'=>'Why beagles are the breed most used in research, the Ridglan Farms and Envigo rescues, the groups involved, and what to know about adopting a lab beagle.',
   'body'=><<<'TXT'
 Beagles are the dog breed most often used in laboratory research, and in recent years thousands of them have been rescued from breeding and research facilities and adopted into homes. If you've seen headlines about **1,500 beagles rescued** or **Ridglan Farms beagles**, this guide explains what happened, who was involved and what it's like to adopt a former laboratory beagle.
@@ -62,73 +62,6 @@ Many become loving, happy family dogs. They usually need extra patience and time
 
 ### Why are beagles used in testing?
 Mainly because of their gentle, cooperative temperament and convenient size — the same reasons they are such popular pets.
-TXT
-],
-[
-  'slug'=>'hms-beagle', 'type'=>'guide', 'group'=>'culture', 'date'=>'2026-10-29',
-  'title'=>'HMS Beagle: The Ship That Carried Darwin, Named After a Hound',
-  'seo_title'=>'HMS Beagle: Darwin’s Ship, Its Voyages & Its Name',
-  'seo_desc'=>'The story of HMS Beagle, the Royal Navy ship that carried Charles Darwin around the world from 1831 to 1836: its voyages, the Galápagos, what happened to it and the name it shared with the beagle.',
-  'excerpt'=>'The Royal Navy survey ship that carried Charles Darwin around the world — its voyages, its legacy, and the dog breed it shared a name with.',
-  'body'=><<<'TXT'
-**HMS Beagle** was a small Royal Navy ship best known for carrying the young naturalist **Charles Darwin** around the world between 1831 and 1836 — the voyage that set him on the path to his theory of evolution. The ship shared its name with the beagle, the English hunting hound, and its name now lives on in places, missions and even a Mars lander.
-
-## HMS Beagle at a glance
-
-| | HMS Beagle |
-|---|---|
-| Type | Cherokee-class brig-sloop, later rebuilt as a survey ship |
-| Launched | 1820, at Woolwich Dockyard on the River Thames |
-| Most famous captain | Robert FitzRoy |
-| Most famous passenger | Charles Darwin |
-| Famous voyage | 1831 to 1836, around the world |
-| Fate | Coastguard watch vessel in Essex; sold in 1870 |
-
-## Why was it called the Beagle?
-
-Royal Navy ships were often named after animals, and the *Beagle* is generally thought to have been named after the hunting hound — fittingly, perhaps, for a ship that would spend years searching coastlines with persistence. There's no famous story behind the choice; it was simply one of many navy ships with animal names.
-
-## The voyages of HMS Beagle
-
-### First voyage (1826 to 1830)
-The *Beagle* was refitted as a survey ship and sent to chart the coasts of Patagonia and Tierra del Fuego in South America. When its captain died during the voyage, a young officer, **Robert FitzRoy**, took command. The **Beagle Channel** at the tip of South America is named after the ship.
-
-### Second voyage with Darwin (1831 to 1836)
-FitzRoy wanted a gentleman naturalist on board for company and science, and 22-year-old Charles Darwin got the place. The *Beagle* sailed from Plymouth in December 1831 to continue surveying South America, then crossed the Pacific and returned via Australia, the Indian Ocean and the Atlantic, arriving back in England in October 1836.
-
-Darwin spent much of the voyage on land, collecting fossils, plants, animals and rocks. His observations — including the wildlife of the **Galápagos Islands** in 1835 — fed into the ideas he later published in *On the Origin of Species* (1859). His travel book, now known as *The Voyage of the Beagle*, became a bestseller.
-
-### Third voyage (1837 to 1843)
-The *Beagle* surveyed large parts of the Australian coast. Its crew named a harbor Port Darwin after their former shipmate; the city of **Darwin**, in Australia's Northern Territory, takes its name from it.
-
-## What happened to HMS Beagle?
-
-In 1845 the *Beagle* became a stationary coastguard watch vessel in the marshes of Essex, England, helping to stop smugglers. It was sold in 1870 and broken up. Researchers believe remains of the ship lie in the mud of the River Roach in Essex.
-
-## The Beagle's legacy
-
-- the **Beagle Channel** in South America
-- the city of **Darwin**, Australia
-- **Beagle 2**, the British Mars lander of 2003, named after the ship; it was located on the Martian surface in 2015
-- generations of scientists inspired by Darwin's voyage
-
-## From ship to hound
-
-The ship borrowed its name from a dog breed that is still one of the world's most popular. If you're curious about the beagle itself — the merry, nose-led hound bred in England to hunt hares — read our [beagle breed guide](/guides/beagle-dog-breed), or meet some famous beagles in [Is Snoopy a beagle?](/blog/snoopy-beagle)
-
-## Questions
-
-### What was HMS Beagle?
-A Royal Navy brig-sloop, launched in 1820, that became a survey ship and carried Charles Darwin around the world from 1831 to 1836.
-
-### How long was Darwin on HMS Beagle?
-Almost five years, from December 1831 to October 1836.
-
-### Was HMS Beagle named after the dog?
-It's generally believed so. The Royal Navy often named ships after animals, and "beagle" was the name of the English hunting hound.
-
-### Where is HMS Beagle now?
-The ship was sold in 1870 and broken up. Its remains are believed to lie in the mud of the River Roach in Essex, England.
 TXT
 ],
 [

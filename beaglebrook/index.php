@@ -20,7 +20,7 @@ $CFG  = $SITE['settings'];
 $BASE = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/index.php')), '/').'/';
 
 /* ---------------- URLS ----------------
-   Clean addresses (/beagle-puppies-for-sale/daisy…, /guides/beagle-price) need the .htaccess rules
+   Clean addresses (/beagle-puppies-for-sale/daisy…, /guides/beagle-lifespan) need the .htaccess rules
    (Apache or LiteSpeed); they switch themselves on the first time /rewrite-check answers.
    Otherwise every page is index.php?path=…  Links are relative to <base href>, so a subfolder works too. */
 function url($path='', $q=[]){
@@ -38,7 +38,20 @@ const PUPPIES_PATH = 'beagle-puppies-for-sale';
 
 function puppy_url($p){ return url(PUPPIES_PATH.'/'.$p['slug']); }
 function parent_url($p){ return url('our-beagles').'#'.$p['slug']; }
-function article_path($a){ return ($a['type'] === 'blog' ? 'blog/' : 'guides/').$a['slug']; }
+function article_path($a){ return $a['type'] === 'page' ? $a['slug'] : ($a['type'] === 'blog' ? 'blog/' : 'guides/').$a['slug']; }
+
+/* ---------------- delivery pages for each state (Admin → Locations) ---------------- */
+function states(){ static $s = null; return $s ?? ($s = require BB_ROOT.'/inc/states.php'); }
+function state_slug($code){ return slugify(states()[$code][0] ?? $code); }
+function locations_on(){ global $SITE; $o = []; foreach($SITE['locations'] ?? [] as $c=>$l) if(!empty($l['on']) && isset(states()[$c])) $o[$c] = $l; return $o; }
+function location_by_slug($slug){ foreach(locations_on() as $c=>$l) if(state_slug($c) === $slug) return $c; return null; }
+function location_url($code){ return url(PUPPIES_PATH.'/'.state_slug($code)); }
+/* rough road distance from Cincinnati to the state's first city: straight-line distance × 1.2, to the nearest 10 miles */
+function miles_from_home($code){
+  [$lat1, $lon1] = [39.10, -84.51]; [, , $lat2, $lon2] = states()[$code];
+  $r = 3959 * 2 * asin(sqrt(sin(deg2rad($lat2 - $lat1) / 2) ** 2 + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin(deg2rad($lon2 - $lon1) / 2) ** 2));
+  return (int)(round($r * 1.2 / 10) * 10);
+}
 
 function public_puppies(){ global $SITE; return array_values(array_filter($SITE['puppies'], fn($p)=>empty($p['hidden']))); }
 function puppies_with($status){ return array_values(array_filter(public_puppies(), fn($p)=>$p['status'] === $status)); }
@@ -195,6 +208,7 @@ if(in_array($PATH, ['admin', 'login', 'wp-admin'], true)){ header('Location: '.$
 
 if($PATH === '') $page = 'home';
 elseif($PATH === PUPPIES_PATH || $PATH === 'puppies') $page = 'puppies';
+elseif(count($seg) === 2 && $seg[0] === PUPPIES_PATH && ($loc = location_by_slug($seg[1]))) $page = 'location';
 elseif(count($seg) === 2 && $seg[0] === PUPPIES_PATH){ $puppy = find_by(public_puppies(), 'slug', $seg[1]); if($puppy) $page = 'puppy'; }
 elseif(in_array($PATH, ['our-beagles', 'upcoming-litters', 'reviews', 'contact', 'guides', 'blog', 'thank-you', 'unsubscribe', 'sitemap.xml', 'robots.txt', 'agreement', 'receipt'], true)) $page = $PATH;
 elseif(count($seg) === 2 && $seg[0] === 'guides'){ $art = article($seg[1], 'guide'); if($art) $page = 'article'; }
@@ -222,6 +236,7 @@ if($page === 'sitemap.xml'){
   $abs_img = fn($f)=>rtrim($CFG['domain'], '/').'/'.$f;
   $mod = gmdate('Y-m-d', @filemtime(data_file('site')) ?: time());
   $urls = [[abs_url(), $mod, []], [abs_url(PUPPIES_PATH), $mod, []]];
+  foreach(locations_on() as $c=>$l) $urls[] = [abs_url(PUPPIES_PATH.'/'.state_slug($c)), $mod, []];
   foreach(public_puppies() as $p) if($p['status'] !== 'sold') $urls[] = [abs_url(PUPPIES_PATH.'/'.$p['slug']), substr($p['updated'] ?? $mod, 0, 10), array_map($abs_img, $p['photos'] ?? [])];
   foreach(['our-beagles', 'upcoming-litters', 'reviews', 'contact', 'guides', 'blog'] as $pg) $urls[] = [abs_url($pg), $mod, []];
   foreach($SITE['pages'] as $pg) $urls[] = [abs_url($pg['slug']), $mod, []];
@@ -289,6 +304,12 @@ switch($page){
     $title = fill($CFG['puppies_seo_title']); $desc = fill($CFG['puppies_seo_desc']); $h1 = fill($CFG['puppies_title']);
     $crumbs[] = [$h1, PUPPIES_PATH]; $canonical = abs_url(PUPPIES_PATH);
     if($filters['sex'] !== '' || $filters['color'] !== '') $noindex = true;
+    break;
+  case 'location':
+    [$sname, $scities] = states()[$loc];
+    $h1 = 'Beagle puppies for sale in '.$sname; $title = 'Beagle Puppies for Sale in '.$sname.' | '.$brand;
+    $desc = 'Purebred beagle puppies delivered to '.implode(', ', array_slice($scities, 0, 3)).' and all of '.$sname.' from our home in '.$CFG['city'].', Ohio. Vet checked, microchipped, full papers, health guarantee.';
+    $crumbs[] = [fill($CFG['puppies_title']), PUPPIES_PATH]; $crumbs[] = [$sname, PUPPIES_PATH.'/'.state_slug($loc)];
     break;
   case 'puppy':
     $h1 = puppy_heading($puppy);

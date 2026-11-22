@@ -86,7 +86,7 @@ Responsible breeders health-check their adult dogs and can tell you exactly what
 
 ## A short history of the beagle
 
-Small hounds that hunted hare by scent were kept in England for centuries. Queen Elizabeth I famously kept tiny "glove beagles" small enough to sit in a gloved hand. The modern beagle took shape in the 19th century, when English breeders developed packs of steady, even-sized rabbit hounds with excellent noses. Beagles came to the United States in the second half of the 1800s, and the American Kennel Club recognized the breed in 1885. They have been one of America's most popular breeds ever since — and the world's most famous beagle, Snoopy, has kept them in the spotlight since 1950. Read more in [famous beagles](/blog/famous-beagles-snoopy).
+Small hounds that hunted hare by scent were kept in England for centuries. Queen Elizabeth I famously kept tiny "glove beagles" small enough to sit in a gloved hand. The modern beagle took shape in the 19th century, when English breeders developed packs of steady, even-sized rabbit hounds with excellent noses. Beagles came to the United States in the second half of the 1800s, and the American Kennel Club recognized the breed in 1885. They have been one of America's most popular breeds ever since — and the world's most famous beagle, Snoopy, has kept them in the spotlight since 1950.
 
 Nobody is certain where the name comes from. Popular theories trace it to the French *begueule* ("open throat", for their baying voice), or to old words meaning "small".
 
@@ -198,8 +198,8 @@ TXT
 [
   'slug'=>'beagle-colors', 'type'=>'guide', 'group'=>'breed', 'date'=>'2026-10-29',
   'title'=>'Beagle Colors and Markings: Tricolor, Lemon, Blue Tick, Black and White and More',
-  'seo_title'=>'Beagle Colors: Tricolor, Lemon, Blue Tick, Black & White & More',
-  'seo_desc'=>'A guide to every beagle color and marking: classic tricolor, lemon, red and white, chocolate, blue tick, black and white and more — with photos to look for and how colors change.',
+  'seo_title'=>'Beagle Colors: Tricolor, Lemon, Blue Tick, Black & White',
+  'seo_desc'=>'A guide to every beagle color and marking: classic tricolor, lemon, red and white, chocolate, blue tick, black and white and more.',
   'excerpt'=>'Tricolor, lemon, red, chocolate, blue tick, black and white: every beagle color and marking explained, and why puppies change color as they grow.',
   'body'=><<<'TXT'
 Beagles come in more colors than most people realize. The breed standard simply asks for "any true hound color", so you'll see everything from the classic black, tan and white tricolor to pale lemon, rich red, chocolate and ticked "bluetick" coats. Color has no effect on temperament or health in beagles — it is purely a matter of taste.
@@ -248,7 +248,7 @@ Yes — a lot. Tan spreads, black saddles can fade or "open", lemons darken from
 
 ## Does color affect price or health?
 
-It shouldn't affect either. Be cautious of anyone charging much more for "rare" colors: color says nothing about a puppy's health, temperament or breeding. What matters is healthy, well-tested parents and a good start in life. See [how much does a beagle cost?](/guides/beagle-price)
+It shouldn't affect either. Be cautious of anyone charging much more for "rare" colors: color says nothing about a puppy's health, temperament or breeding. What matters is healthy, well-tested parents and a good start in life. See [how much does a beagle cost?](/beagle-price-cost)
 
 ## Questions
 
@@ -305,7 +305,7 @@ Lemon is **less common** than tricolor or red and white, but it's a well-known b
 
 ## Lemon beagle price
 
-A lemon beagle should cost about the same as any other well-bred beagle puppy. Price should reflect health testing, care, registration and what comes with the puppy — not coat color. Read [how much does a beagle cost?](/guides/beagle-price)
+A lemon beagle should cost about the same as any other well-bred beagle puppy. Price should reflect health testing, care, registration and what comes with the puppy — not coat color. Read [how much does a beagle cost?](/beagle-price-cost)
 
 ## Lemon beagle temperament and care
 
@@ -337,7 +337,7 @@ TXT
   'slug'=>'pocket-beagle', 'type'=>'guide', 'group'=>'breed', 'date'=>'2026-10-29',
   'title'=>'Pocket Beagle and Mini Beagle: The Truth About Miniature Beagles',
   'seo_title'=>'Pocket Beagle & Mini Beagle: The Truth About Miniature Beagles',
-  'seo_desc'=>'Are pocket beagles and mini beagles real? The history of Queen Elizabeth I’s glove beagles, how “miniature beagles” are bred today, health risks, size and price.',
+  'seo_desc'=>'Are pocket beagles and mini beagles real? The history of Queen Elizabeth I’s glove beagles, how “miniature beagles” are bred today, health risks.',
   'excerpt'=>'Pocket beagles have a royal history, but today’s “mini beagles” are not a recognized breed. What they are, the health risks, and the small beagle to choose instead.',
   'body'=><<<'TXT'
 A **pocket beagle** or **mini beagle** is a beagle bred to be smaller than the breed standard — often advertised at 7 to 12 inches tall. The name has a romantic history, but today pocket beagles are **not a recognized breed or variety**, and how they're produced matters a great deal for their health. If you want a small beagle, there's a healthier option. Here's the full story.
@@ -368,7 +368,7 @@ None of this is certain for any one puppy, but the risk is why reputable beagle 
 
 ## Pocket beagle size and price
 
-Pocket beagles are usually advertised at 7 to 12 inches tall and 7 to 15 pounds, often at a higher price than standard beagles. Paying more for a size the breed doesn't recognize — with higher health risks — is rarely a good deal. See [how much does a beagle cost?](/guides/beagle-price)
+Pocket beagles are usually advertised at 7 to 12 inches tall and 7 to 15 pounds, often at a higher price than standard beagles. Paying more for a size the breed doesn't recognize — with higher health risks — is rarely a good deal. See [how much does a beagle cost?](/beagle-price-cost)
 
 ## The better choice: a 13-inch beagle
 
@@ -401,7 +401,7 @@ TXT
   'slug'=>'do-beagles-shed', 'type'=>'guide', 'group'=>'breed', 'date'=>'2026-10-29',
   'title'=>'Do Beagles Shed? Beagle Coat Care and Grooming Guide',
   'seo_title'=>'Do Beagles Shed? How Much & How to Manage It',
-  'seo_desc'=>'Yes, beagles shed moderately all year and more in spring and fall. How much beagles shed, whether they’re hypoallergenic, and the easy grooming routine that keeps hair under control.',
+  'seo_desc'=>'Yes, beagles shed moderately all year and more in spring and fall. How much beagles shed, whether they’re hypoallergenic.',
   'excerpt'=>'Beagles shed a moderate amount all year, with heavier seasons in spring and fall. How much to expect and a simple routine that keeps it under control.',
   'body'=><<<'TXT'
 **Yes, beagles shed.** Their short, dense double coat sheds a moderate amount all year, with heavier shedding in spring and fall as they change coats for the season. The good news: beagle hair is short, and a five-minute brush once or twice a week keeps it well under control. Beagles are not hypoallergenic.
