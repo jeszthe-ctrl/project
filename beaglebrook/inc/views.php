@@ -189,10 +189,29 @@ function puppy_card($p){
   $age = age_text($p['dob'] ?? '');
   $o = '<article class="pcard tilt rv"><a class="pcard-ph" href="'.h(puppy_url($p)).'" tabindex="-1" aria-hidden="true">'.photo_or_placeholder($p['photos'][0] ?? '', $p['name'].', '.strtolower(puppy_kind($p))).status_badge($p).'</a>';
   $o .= '<div class="pcard-b"><h3><a href="'.h(puppy_url($p)).'">'.h($p['name']).'</a></h3>';
-  $o .= '<p class="pcard-kind">'.h(trim(($p['color'] ?? '').' · '.sex_label($p['sex'] ?? ''), ' ·')).'</p>';
+  $o .= '<p class="pcard-kind">'.h(trim(($p['color'] ?? '').' · '.sex_label($p['sex'] ?? ''), ' ·')).(!empty($p['champion']) ? ' <span class="champ">'.icon('star').'Champion bloodline</span>' : '').'</p>';
   $o .= '<ul class="pcard-facts">'.($age ? '<li>'.icon('calendar').h($age).' old</li>' : '').(($p['ready'] ?? '') !== '' && strtotime($p['ready']) > time() ? '<li>'.icon('home').'Ready '.h(date('M j', strtotime($p['ready']))).'</li>' : (($p['status'] ?? '') === 'available' ? '<li>'.icon('home').'Ready now</li>' : '')).'</ul>';
-  $o .= '<div class="pcard-f"><span class="price">'.(($p['price'] ?? '') !== '' ? h(money($p['price'])) : '').'</span><a class="btn btn-sm" href="'.h(puppy_url($p)).'">'.(($p['status'] ?? '') === 'sold' ? 'See '.h($p['name']) : 'Meet '.h($p['name'])).'</a></div>';
-  return $o.'</div></article>';
+  if($par = parents_line($p)) $o .= '<p class="pcard-par">'.h($par).'</p>';
+  $o .= '<div class="pcard-f"><span class="price">'.(($p['price'] ?? '') !== '' ? h(money($p['price'])) : '').'</span>';
+  if(($p['status'] ?? '') === 'sold') $o .= '<a class="btn btn-sm btn-ghost" href="'.h(puppy_url($p)).'">See '.h($p['name']).'</a>';
+  else $o .= '<span class="pcard-btns"><a class="btn btn-sm btn-ghost" href="'.h(puppy_url($p)).'" aria-label="Details about '.h($p['name']).'">Details</a>'
+            .'<a class="btn btn-sm" href="'.h(puppy_url($p)).'#inquire" data-pick="'.h($p['id']).'" aria-label="Proceed now with '.h($p['name']).'">Proceed now</a></span>';
+  return $o.'</div></div></article>';
+}
+/* "Mom Felicity · Dad Topper", from the linked parents or the parent text from a spreadsheet */
+function parents_line($p){
+  $name = function($id, $text){
+    if($par = parent_by_id($id ?? '')) return $par['name'];
+    $t = trim(preg_replace('/\s*\([^)]*\)/', '', (string)$text));
+    return strcasecmp($t, 'beagle') === 0 ? '' : $t;
+  };
+  $mom = $name($p['dam'] ?? '', $p['dam_text'] ?? ''); $dad = $name($p['sire'] ?? '', $p['sire_text'] ?? '');
+  return implode(' · ', array_filter([$mom !== '' ? 'Mom '.$mom : '', $dad !== '' ? 'Dad '.$dad : '']));
+}
+/* the facts about a puppy shown when it's chosen in the inquiry form */
+function pick_info($p){
+  $ready = ($p['ready'] ?? '') !== '' && strtotime($p['ready']) > time() ? 'Ready '.date('M j', strtotime($p['ready'])) : (($p['status'] ?? '') === 'available' ? 'Ready now' : 'Reserved');
+  return implode(' · ', array_filter([trim(($p['color'] ?? '').' '.strtolower(sex_label($p['sex'] ?? ''))), $ready, ($p['price'] ?? '') !== '' ? money($p['price']) : '', parents_line($p)]));
 }
 function article_card($a){
   $o = '<article class="acard rv"><a href="'.h(url(article_path($a))).'">';
@@ -256,13 +275,15 @@ function inquiry_form($sel=null){
   ob_start(); ?>
   <form class="form qform" method="post" action="<?= h(url($PATH)) ?>#inquire" novalidate>
     <input type="hidden" name="action" value="inquiry"><input type="hidden" name="page" value="<?= h($PATH) ?>"><?= spam_fields() ?><?= form_error() ?>
-    <label class="f f-dog"><span>Your dog</span><select name="puppy">
+    <label class="f f-dog"><span>Your dog</span><select name="puppy" data-pickbox>
       <option value="">Not sure yet — help me choose</option>
-      <?php foreach($list as $p): ?><option value="<?= h($p['id']) ?>"<?= $chosen === $p['id'] ? ' selected' : '' ?>><?= h($p['name'].' · '.trim($p['color'].' '.strtolower(sex_label($p['sex']))).(($p['price'] ?? '') !== '' ? ' · '.money($p['price']) : '').($p['status'] === 'reserved' ? ' · reserved' : '')) ?></option><?php endforeach; ?>
+      <?php foreach($list as $p): ?><option value="<?= h($p['id']) ?>"<?= $chosen === $p['id'] ? ' selected' : '' ?> data-info="<?= h(pick_info($p)) ?>" data-url="<?= h(puppy_url($p)) ?>" data-img="<?= h(!empty($p['photos'][0]) ? thumb($p['photos'][0], 320) : '') ?>"><?= h($p['name'].' · '.trim($p['color'].' '.strtolower(sex_label($p['sex']))).(($p['price'] ?? '') !== '' ? ' · '.money($p['price']) : '').($p['status'] === 'reserved' ? ' · reserved' : '')) ?></option><?php endforeach; ?>
     </select></label>
+    <?php $cp = $chosen !== '' ? find_by($list, 'id', $chosen) : null; ?>
+    <div class="pickbox"<?= $cp ? '' : ' hidden' ?> aria-live="polite"><span class="pickbox-ph"><?php if($cp && !empty($cp['photos'][0])): ?><img src="<?= h(thumb($cp['photos'][0], 320)) ?>" alt="" width="64" height="64"><?php endif; ?></span><span><strong><?= $cp ? h($cp['name']) : '' ?></strong><small><?= $cp ? h(pick_info($cp)) : '' ?></small><a href="<?= $cp ? h(puppy_url($cp)) : '#' ?>">See photos &amp; details</a></span></div>
     <div class="frow frow-2"><?= field('phone', 'Phone', 'tel', true, 'autocomplete="tel" inputmode="tel" placeholder="(555) 555-0123"') ?><?= field('email', 'Email', 'email', true, 'autocomplete="email" placeholder="you@example.com"') ?></div>
     <label class="f"><span>Your note <i>(optional)</i></span><textarea name="notes" rows="3" maxlength="3000" placeholder="Your name, questions, when you’d like your puppy…"><?= val('notes') ?></textarea></label>
-    <button class="btn btn-lg btn-block" type="submit">Send inquiry <?= icon('arrow') ?></button>
+    <button class="btn btn-lg btn-block" type="submit">Proceed now <?= icon('arrow') ?></button>
     <p class="fnote"><?= icon('lock') ?> No payment. We reply <?= h(fill('{reply_time}')) ?> by call, text or email. <a href="<?= h(url('privacy-policy')) ?>">Privacy</a></p>
   </form>
   <?php return ob_get_clean();
@@ -314,7 +335,7 @@ function structured_data(){
       'mainEntityOfPage'=>$canonical];
   }
   global $puppy, $loc;
-  $extra_faqs = $page === 'location' ? location_faqs($loc) : [];
+  $extra_faqs = $page === 'location' ? location_faqs($loc) : ($page === 'home' ? home_faqs() : []);
   if($page === 'puppy' && ($puppy['price'] ?? '') !== '') $g[] = puppy_product_ld($puppy);
   if(in_array($page, ['puppies', 'location'], true) || ($page === 'info' && $info['slug'] === 'beagle-price-cost')) if($agg = puppies_offer_ld($page === 'location' ? $loc : '')) $g[] = $agg;
   if(!empty($extra_faqs)) $g[] = ['@type'=>'FAQPage', 'mainEntity'=>array_map(fn($q)=>['@type'=>'Question', 'name'=>$q[0], 'acceptedAnswer'=>['@type'=>'Answer', 'text'=>$q[1]]], $extra_faqs)];
@@ -410,7 +431,7 @@ function render_page(){
     <nav id="nav" class="nav" aria-label="Main">
       <?php foreach(nav_items() as [$path, $label]): ?><a href="<?= h(url($path)) ?>"<?= $PATH === $path || ($path === PUPPIES_PATH && $page === 'puppy') || ($path === 'guides' && $page === 'article') ? ' aria-current="page"' : '' ?>><?= h($label) ?></a><?php endforeach; ?>
     </nav>
-    <a class="btn btn-sm hcta" href="<?= h(url(PUPPIES_PATH)) ?>">See puppies</a>
+    <a class="btn btn-sm hcta" href="<?= h(url(PUPPIES_PATH)) ?>">Find your puppy</a>
   </div>
 </header>
 <?php if($crumbs && count($crumbs) > 1): ?>
@@ -423,10 +444,13 @@ function render_page(){
 ?>
 </main>
 <?php footer(); ?>
+<?php /* the phone bar: on a puppy's page its main button goes straight to that puppy's inquiry form */
+  global $puppy;
+  $main = $page === 'puppy' && ($puppy['status'] ?? '') !== 'sold' ? ['#inquire', 'arrow', 'Proceed now'] : ($page === 'home' ? ['#puppies', 'paw', 'Choose a puppy'] : [url(PUPPIES_PATH), 'paw', 'See puppies']); ?>
 <?php if($CFG['phone'] !== ''): ?>
-<div class="mbar"><a href="sms:<?= h(tel($CFG['phone'])) ?>"><?= icon('chat') ?>Text us</a><a href="tel:<?= h(tel($CFG['phone'])) ?>"><?= icon('phone') ?>Call</a><a class="mbar-main" href="<?= h(url(PUPPIES_PATH)) ?>"><?= icon('paw') ?>Puppies</a></div>
+<div class="mbar"><a href="sms:<?= h(tel($CFG['phone'])) ?>"><?= icon('chat') ?>Text us</a><a href="tel:<?= h(tel($CFG['phone'])) ?>"><?= icon('phone') ?>Call</a><a class="mbar-main" href="<?= h($main[0]) ?>"><?= icon($main[1]) ?><?= h($main[2]) ?></a></div>
 <?php else: ?>
-<div class="mbar"><a href="mailto:<?= h($CFG['email']) ?>"><?= icon('mail') ?>Email us</a><a class="mbar-main" href="<?= h(url(PUPPIES_PATH)) ?>"><?= icon('paw') ?>See puppies</a></div>
+<div class="mbar"><a href="mailto:<?= h($CFG['email']) ?>"><?= icon('mail') ?>Email us</a><a class="mbar-main" href="<?= h($main[0]) ?>"><?= icon($main[1]) ?><?= h($main[2]) ?></a></div>
 <?php endif; ?>
 <script>
 (function(){
@@ -435,6 +459,14 @@ if(b)b.addEventListener('click',function(){var o=n.classList.toggle('open');b.se
 d.querySelectorAll('[data-gal]').forEach(function(t){t.addEventListener('click',function(){var m=d.getElementById('gal-main');if(!m)return;m.innerHTML=t.querySelector('template').innerHTML;d.querySelectorAll('[data-gal]').forEach(function(x){x.removeAttribute('aria-current')});t.setAttribute('aria-current','true')})});
 d.querySelectorAll('form.form').forEach(function(f){f.addEventListener('submit',function(){var s=f.querySelector('[type=submit]');setTimeout(function(){s.disabled=true;s.textContent='Sending…'},10)})});
 var bad=d.querySelector('.f-bad input,.f-bad select,.f-bad textarea');if(bad)bad.focus();
+/* choosing a dog: the form shows the chosen puppy; "Inquire" on a card picks it in this page's form */
+var sel=d.querySelector('select[data-pickbox]');
+function showPick(){var box=sel.form.querySelector('.pickbox'),o=sel.options[sel.selectedIndex];if(!box)return;if(!o||!o.value){box.hidden=true;return}
+var ph=box.querySelector('.pickbox-ph'),im=o.getAttribute('data-img');ph.innerHTML='';if(im){var i=new Image(64,64);i.src=im;i.alt='';ph.appendChild(i)}
+box.querySelector('strong').textContent=o.text.split(' · ')[0];box.querySelector('small').textContent=o.getAttribute('data-info');box.querySelector('a').href=o.getAttribute('data-url');box.hidden=false}
+if(sel){sel.addEventListener('change',showPick);
+d.querySelectorAll('[data-pick]').forEach(function(a){a.addEventListener('click',function(e){var v=a.getAttribute('data-pick');if(!sel.querySelector('option[value="'+v+'"]'))return;e.preventDefault();sel.value=v;showPick();
+var t=d.getElementById('inquire');t.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});setTimeout(function(){var p=sel.form.querySelector('[name=phone]');if(p&&!p.value)p.focus({preventScroll:true})},450)})})}
 var calm=window.matchMedia('(prefers-reduced-motion: reduce)').matches,fine=window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 /* reveal sections as they scroll into view */
 if(!calm&&'IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -8% 0px'});
@@ -484,7 +516,7 @@ function footer(){
       <li><a href="<?= h(url('reviews')) ?>">Reviews</a></li>
     </ul></div>
     <div class="fcol"><h2>Buying with confidence</h2><ul>
-      <?php foreach(['how-it-works', 'health-guarantee', 'whats-included', 'puppy-delivery', 'deposit-refund-policy', 'is-beagle-brook-legit', 'faq', 'about'] as $s): $pg = info_page($s); if($pg): ?>
+      <?php foreach(['how-it-works', 'health-guarantee', 'whats-included', 'puppy-delivery', 'is-beagle-brook-legit', 'faq', 'about'] as $s): $pg = info_page($s); if($pg): ?>
       <li><a href="<?= h(url($s)) ?>"><?= h($pg['menu'] ?: $pg['title']) ?></a></li>
       <?php endif; endforeach; ?>
     </ul></div>
@@ -541,7 +573,7 @@ function view_home(){
       <p class="eyebrow"><?= icon('paw') ?><?= h($CFG['brand']) ?> · <?= h($CFG['city'].', '.$CFG['state_name']) ?></p>
       <h1><?= h(fill($CFG['hero_title'])) ?></h1>
       <p class="lede"><?= h(fill($CFG['hero_lede'])) ?></p>
-      <div class="cta-row"><a class="btn btn-lg" href="<?= h(url(PUPPIES_PATH)) ?>">See available puppies <?= icon('arrow') ?></a><a class="btn btn-lg btn-ghost" href="#inquire">Ask about a puppy</a></div>
+      <div class="cta-row"><a class="btn btn-lg" href="#puppies">Choose your puppy <?= icon('arrow') ?></a><a class="btn btn-lg btn-ghost" href="#inquire">Proceed now</a></div>
       <ul class="ticks"><li><?= icon('check') ?>Vet checked</li><li><?= icon('check') ?>Shots &amp; microchip</li><li><?= icon('check') ?>Full papers</li><li><?= icon('check') ?>Written health guarantee</li><li><?= icon('check') ?>Delivered to your door</li></ul>
     </div>
     <div class="hero-m">
@@ -557,9 +589,17 @@ function view_home(){
     </div>
   </div></section>
 
+  <section class="wrap easy3" aria-label="How to get your puppy">
+    <a class="e3 tilt" href="#puppies"><span class="e3-n">1</span><span><strong>Choose your puppy</strong><small>Real photos, price, age and both parents</small></span></a>
+    <a class="e3 tilt" href="#inquire"><span class="e3-n">2</span><span><strong>Proceed now, in one minute</strong><small>Phone and email, plus a note. No payment</small></span></a>
+    <a class="e3 tilt" href="<?= h(url('puppy-delivery')) ?>"><span class="e3-n">3</span><span><strong>We call you, then deliver</strong><small>We reply <?= h(fill('{reply_time}')) ?>. Delivered to your door</small></span></a>
+  </section>
+
   <section class="sec wrap" id="puppies">
-    <div class="sec-h rv"><h2>Beagle puppies available now</h2><a href="<?= h(url(PUPPIES_PATH)) ?>">See all puppies <?= icon('arrow') ?></a></div>
-    <?= puppies_block($avail, 6) ?>
+    <div class="sec-h rv"><h2>Beagle puppies available now</h2><a href="<?= h(url(PUPPIES_PATH)) ?>">See all <?= count($avail) ?: '' ?> puppies <?= icon('arrow') ?></a></div>
+    <?php if($avail): ?><p class="muted sec-sub">Tap <strong>Proceed now</strong> on any puppy to choose them, or <strong>Details</strong> for all their photos, papers and parents.</p><?php endif; ?>
+    <?= puppies_block($avail, 9) ?>
+    <?php if(count($avail) > 9): ?><p class="center"><a class="btn btn-lg btn-ghost" href="<?= h(url(PUPPIES_PATH)) ?>">See all <?= count($avail) ?> beagle puppies <?= icon('arrow') ?></a></p><?php endif; ?>
   </section>
 
   <?= inquiry_section() ?>
@@ -570,7 +610,7 @@ function view_home(){
   </div></section>
 
   <section class="sec band"><div class="wrap split">
-    <div class="rv"><h2>How it works</h2><p>From inquiry to delivery day, in six simple steps. No payment until you’ve talked to us and you’re sure.</p><?= steps_block() ?><p><a class="btn" href="<?= h(url('how-it-works')) ?>">How buying from us works</a></p></div>
+    <div class="rv"><h2>How it works</h2><p>From inquiry to delivery day, in a few simple steps. Sending an inquiry is free and you’re never committed until you’ve talked to us and you’re sure.</p><?= steps_block() ?><p><a class="btn" href="<?= h(url('how-it-works')) ?>">How buying from us works</a></p></div>
     <div class="rv"><h2>Every puppy comes with</h2><?= included_block() ?><p class="muted">The price on each puppy’s page includes all of this. <a href="<?= h(url('whats-included')) ?>">What’s included</a></p></div>
   </div></section>
 
@@ -593,9 +633,11 @@ function view_home(){
       <p><?= h(fill($CFG['delivery_note'])) ?> Puppies travel no earlier than <?= h(fill('{go_home_weeks}')) ?> old, after a check by our veterinarian.</p>
       <p class="cta-row"><a class="btn btn-ghost" href="<?= h(url('puppy-delivery')) ?>">How delivery works</a> <a class="btn btn-ghost" href="<?= h(url(PUPPIES_PATH.'/ohio')) ?>">Beagle puppies in Ohio</a></p></div>
     <div class="verify tilt rv"><h2><?= icon('shield', 'ic ic-lg') ?>Buy with confidence</h2>
-      <ul><li>Recent photos of your puppy and both parents, whenever you ask</li><li>A <strong>written sales agreement</strong> and receipt for every payment</li><li>Payment details only from <strong><?= h($CFG['email']) ?></strong></li><li>We <strong>never</strong> ask for gift cards or crypto</li></ul>
-      <p><a href="<?= h(url('is-beagle-brook-legit')) ?>">How to verify us before you pay <?= icon('arrow') ?></a></p></div>
+      <ul><li>Recent photos of your puppy and both parents, whenever you ask</li><li>A <strong>written agreement</strong> for your puppy, with our guarantees</li><li>We only contact you from <strong><?= h($CFG['email']) ?></strong></li><li>Registration numbers you can look up yourself</li></ul>
+      <p><a href="<?= h(url('is-beagle-brook-legit')) ?>">How to verify us <?= icon('arrow') ?></a></p></div>
   </section>
+
+  <?= home_knowledge() ?>
 
   <?= guide_links(['beagle-price-cost', 'beagle-dog-breed', 'how-to-find-a-beagle-breeder', 'beagle-puppy-care', 'lemon-beagle', 'beagle-lifespan'], 'Thinking about a beagle? Start here') ?>
 
@@ -604,6 +646,61 @@ function view_home(){
     <a class="btn btn-lg" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a>
   </div></section>
   <?php
+}
+
+/* The home page's answers for Google: a short answer, the breed at a glance and the questions
+   people ask before buying a beagle puppy (also given to Google as FAQ structured data). */
+function home_price_range(){
+  $prices = array_map(fn($p)=>(float)$p['price'], array_filter(puppies_with('available'), fn($p)=>($p['price'] ?? '') !== ''));
+  if(!$prices) return '';
+  return min($prices) == max($prices) ? money(min($prices)) : money(min($prices)).' to '.money(max($prices));
+}
+function home_faqs(){
+  global $CFG;
+  $range = home_price_range();
+  return [
+    ['How much is a beagle puppy from '.$CFG['brand'].'?', ($range !== '' ? 'Our beagle puppies available now are '.$range.'. ' : 'Each puppy’s price is shown on their page. ').'The price includes a vet check, age-appropriate shots, a microchip, starter food and full registration papers. Delivery to your door is extra: '.delivery_summary().'.'],
+    ['How do I get a beagle puppy from you?', 'Choose a puppy on our site and send the one-minute inquiry form with your phone number and email. Inquiring is free. We call, text or email you '.fill('{reply_time}').', answer every question, send more photos if you like and arrange delivery to your door.'],
+    ['Do you deliver beagle puppies near me?', 'Yes. We deliver beagle puppies from '.$CFG['city'].', Ohio to your door: '.delivery_summary().'. Delivery times count from when your puppy leaves us, after a final check by our veterinarian.'],
+    ['What comes with a '.$CFG['brand'].' beagle puppy?', 'Every puppy comes with a veterinarian check, age-appropriate shots and deworming, a microchip, a bag of the food they already eat, full registration papers and a written '.fill('{genetic_year}').' genetic health guarantee.'],
+    ['How big do beagles get?', 'Beagles come in two sizes: 13-inch beagles stand up to 13 inches at the shoulder and usually weigh under 20 pounds, and 15-inch beagles stand 13 to 15 inches and weigh about 20 to 30 pounds. Most are fully grown by 12 to 18 months.'],
+    ['How long do beagles live?', 'Most beagles live 12 to 15 years, and the AKC gives a life expectancy of 10 to 15 years. Keeping your beagle lean, active and up to date with vet checkups is the best way to help them live a long life.'],
+    ['Are beagles good family dogs?', 'Yes. Beagles are friendly, gentle and playful, get along well with children and other dogs, and love being part of family life. They need daily walks, a securely fenced yard and patient training, because they follow their nose and can be vocal.'],
+    ['When can a beagle puppy go home?', 'Our puppies go home when they are at least '.fill('{go_home_weeks}').' old, after a veterinarian has examined them. Each puppy’s page shows the date they are ready for delivery.'],
+  ];
+}
+function home_knowledge(){
+  global $CFG;
+  $range = home_price_range();
+  $facts = [
+    ['Size', 'Up to 13 in or 13–15 in at the shoulder', '13-inch-vs-15-inch-beagle'],
+    ['Adult weight', 'Under 20 lb (13-inch) · 20–30 lb (15-inch)', 'beagle-growth-chart'],
+    ['Lifespan', '12–15 years', 'beagle-lifespan'],
+    ['Temperament', 'Friendly, curious, gentle with kids', 'beagle-temperament'],
+    ['Colors', 'Tricolor, red & white, lemon & white and more', 'beagle-colors'],
+    ['Coat & shedding', 'Short, easy to groom, sheds moderately', 'do-beagles-shed'],
+    ['Exercise', 'About an hour a day', 'how-much-exercise-does-a-beagle-need'],
+    ['Price here', $range !== '' ? $range.', with vet check, shots, microchip and papers' : 'Shown on each puppy’s page', 'beagle-price-cost'],
+  ];
+  ob_start(); ?>
+  <section class="sec wrap know" id="beagle-puppies">
+    <div class="know-in">
+      <div class="rv">
+        <h2>Beagle puppies: what to know before you buy</h2>
+        <p class="answer"><?= h('A beagle puppy is a small, friendly scent hound that grows to about 20–30 pounds and lives 12–15 years. At '.$CFG['brand'].', every puppy is raised in our home in '.$CFG['city'].', Ohio, vet checked, vaccinated, microchipped and sold with full papers'.($range !== '' ? ' for '.$range : '').', then delivered to your door.') ?></p>
+        <p>Beagles are one of America’s favorite breeds for good reason: they are cheerful, loving and great with children, small enough for most homes and easy to groom. They are also clever, food-driven hounds that need daily walks, a secure yard and patient, reward-based training. Our <a href="<?= h(url('guides/beagle-dog-breed')) ?>">beagle breed guide</a> covers everything in detail.</p>
+        <h3 class="facts-h">The beagle at a glance</h3><div class="table-wrap"><table class="facts-t"><tbody>
+          <?php foreach($facts as [$k, $v, $slug]): $href = $slug === 'beagle-price-cost' ? url($slug) : url('guides/'.$slug); ?><tr><th scope="row"><?= h($k) ?></th><td><?= h($v) ?> <a href="<?= h($href) ?>" class="more-l" aria-label="More about beagle <?= h(strtolower($k)) ?>">More</a></td></tr><?php endforeach; ?>
+        </tbody></table></div>
+      </div>
+      <div class="rv">
+        <h2>Beagle puppy questions</h2>
+        <div class="faqs"><?php foreach(home_faqs() as $i=>[$q, $a]): ?><details<?= $i === 0 ? ' open' : '' ?>><summary><h3><?= h($q) ?></h3></summary><p><?= h($a) ?></p></details><?php endforeach; ?></div>
+        <p><a href="<?= h(url('faq')) ?>">More questions and answers <?= icon('arrow') ?></a></p>
+      </div>
+    </div>
+  </section>
+  <?php return ob_get_clean();
 }
 
 function view_puppies(){
@@ -643,7 +740,7 @@ function view_puppies(){
   <section class="sec wrap prose-sec"><div class="prose">
     <h2>Buying a beagle puppy from Beagle Brook</h2>
     <p>Every puppy listed here was born and raised in our home in <?= h($CFG['city']) ?>, <?= h($CFG['state_name']) ?>. Before they go home, each one is examined by a licensed veterinarian, given age-appropriate vaccinations and microchipped, and they travel with starter food and full registration papers. Every puppy page shows both parents, so you can see the size, color and temperament your puppy comes from.</p>
-    <p>When you find the right puppy, choose them in the inquiry form and leave your phone number and email. We’ll call, text or email you <?= h(fill('{reply_time}')) ?> and answer every question. We accept <?= h(fill('{payment_methods}')) ?>.</p>
+    <p>When you find the right puppy, choose them in the inquiry form and leave your phone number and email. We’ll call, text or email you <?= h(fill('{reply_time}')) ?> and answer every question.</p>
     <p>New to beagles? Read <a href="<?= h(url('beagle-price-cost')) ?>">how much a beagle costs</a>, our <a href="<?= h(url('guides/beagle-dog-breed')) ?>">beagle breed guide</a> and <a href="<?= h(url('guides/how-to-find-a-beagle-breeder')) ?>">how to choose a beagle breeder</a>.</p>
   </div></section>
   <?php
@@ -664,7 +761,9 @@ function view_puppy(){
       <?php if(count($photos) > 1): ?><div class="gal-thumbs"><?php foreach($photos as $i=>$f): ?>
         <button type="button" data-gal<?= $i === 0 ? ' aria-current="true"' : '' ?> aria-label="Photo <?= $i + 1 ?> of <?= h($p['name']) ?>"><?= str_replace(' loading="lazy"', '', img_tag($f, '', '96px')) ?><template><?= img_tag($f, $p['name'].', '.strtolower(puppy_kind($p)).', photo '.($i + 1), '(max-width:900px) 100vw, 640px') ?></template></button>
       <?php endforeach; ?></div><?php endif; ?>
-      <?php if($yt): ?><div class="video"><iframe src="https://www.youtube-nocookie.com/embed/<?= h($yt) ?>" title="Video of <?= h($p['name']) ?>" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <?php $cfs = preg_match('#^https://customer-[a-z0-9]+\.cloudflarestream\.com/[a-f0-9]{32}/iframe$#', (string)($p['video'] ?? '')) ? $p['video'] : ''; ?>
+      <?php if($cfs): ?><div class="video"><iframe src="<?= h($cfs) ?>" title="Video of <?= h($p['name']) ?>" loading="lazy" allow="accelerometer; gyroscope; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>
+      <?php elseif($yt): ?><div class="video"><iframe src="https://www.youtube-nocookie.com/embed/<?= h($yt) ?>" title="Video of <?= h($p['name']) ?>" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       <?php elseif(($p['video'] ?? '') !== '' && preg_match('#^https://#', $p['video'])): ?><p><a class="btn btn-ghost" href="<?= h($p['video']) ?>" rel="noopener" target="_blank"><?= icon('video') ?>Watch <?= h($p['name']) ?>’s video</a></p><?php endif; ?>
     </div>
     <div class="pinfo">
@@ -675,18 +774,20 @@ function view_puppy(){
         <?php if(($p['price'] ?? '') !== ''): ?><p class="price-lg"><?= h(money($p['price'])) ?></p>
         <p class="muted">Includes vet check, shots, microchip, starter food and full papers.</p><?php endif; ?>
         <?php if(delivery_options()): ?><ul class="dlist"><?php foreach(delivery_options() as $m): $fee = delivery_base_fee($m['key']); ?><li><?= icon('truck') ?><span><strong><?= h($m['label']) ?></strong> <?= h($m['days']) ?></span><b><?= $fee !== null ? (count($SITE['delivery']['zones']) > 1 ? 'from ' : '').h(money($fee)) : 'Quoted' ?></b></li><?php endforeach; ?></ul><?php endif; ?>
-        <?php if($open): ?><a class="btn btn-lg btn-block" href="#inquire">Send an inquiry for <?= h($p['name']) ?></a>
+        <?php if($open): ?><a class="btn btn-lg btn-block" href="#inquire">Proceed now with <?= h($p['name']) ?> <?= icon('arrow') ?></a>
         <?php elseif($p['status'] === 'reserved'): ?><p class="alert"><strong><?= h($p['name']) ?> is reserved.</strong> You can still send an inquiry to be first in line if the reservation falls through, or <a href="<?= h(url('upcoming-litters')) ?>#waitlist">join the waitlist</a>.</p><a class="btn btn-block btn-ghost" href="#inquire">Inquire as a backup</a>
         <?php else: ?><p class="alert"><strong><?= h($p['name']) ?> has found a loving home.</strong> See <a href="<?= h(url(PUPPIES_PATH)) ?>">available puppies</a> or <a href="<?= h(url('upcoming-litters')) ?>#waitlist">join the waitlist</a>.</p><?php endif; ?>
         <?php if($CFG['phone'] !== ''): ?><p class="pb-contact"><a href="sms:<?= h(tel($CFG['phone'])) ?>"><?= icon('chat') ?>Text us about <?= h($p['name']) ?></a><a href="tel:<?= h(tel($CFG['phone'])) ?>"><?= icon('phone') ?>Call</a></p><?php endif; ?>
       </div>
       <dl class="facts">
         <div><dt>Sex</dt><dd><?= h(sex_label($p['sex'])) ?></dd></div>
-        <div><dt>Color</dt><dd><?= h($p['color']) ?></dd></div>
+        <div><dt>Color</dt><dd><?= h($p['color']) ?><?= ($p['markings'] ?? '') !== '' ? ', '.h(strtolower($p['markings'])) : '' ?></dd></div>
         <?php if(($p['dob'] ?? '') !== ''): ?><div><dt>Born</dt><dd><?= h(nice_date($p['dob'])) ?><?= $age ? ' ('.h($age).' old)' : '' ?></dd></div><?php endif; ?>
         <?php if(($p['ready'] ?? '') !== ''): ?><div><dt>Ready for delivery</dt><dd><?= strtotime($p['ready']) > time() ? h(nice_date($p['ready'])) : 'Now' ?></dd></div><?php endif; ?>
         <?php if(size_text($p['size'] ?? '')): ?><div><dt>Expected size</dt><dd><?= h(size_text($p['size'])) ?></dd></div><?php endif; ?>
         <?php if(($p['weight'] ?? '') !== ''): ?><div><dt>Current weight</dt><dd><?= h($p['weight']) ?></dd></div><?php endif; ?>
+        <?php if(($p['adult_weight'] ?? '') !== ''): ?><div><dt>Expected adult weight</dt><dd><?= h($p['adult_weight']) ?></dd></div><?php endif; ?>
+        <?php if(!empty($p['champion'])): ?><div><dt>Bloodline</dt><dd>Champion bloodline</dd></div><?php endif; ?>
         <div><dt>Registration</dt><dd><?= h(trim(($p['registry'] ?? '' ?: $CFG['registry']).' full registration') === 'full registration' ? 'Full registration' : trim(($p['registry'] ?? '' ?: $CFG['registry']).' full registration')) ?><?= ($p['reg_no'] ?? '') !== '' ? ' · '.h($p['reg_no']) : '' ?></dd></div>
         <div><dt>Microchip</dt><dd><?= !isset($p['microchip']) || $p['microchip'] ? 'Yes' : 'Before delivery' ?></dd></div>
         <div><dt>Vet check</dt><dd><?= ($p['vet_date'] ?? '') !== '' ? 'Examined '.h(nice_date($p['vet_date'])) : 'Before delivery' ?></dd></div>
@@ -699,7 +800,7 @@ function view_puppy(){
   <div class="wrap puppy-more">
     <div class="prose">
       <?php if(trim($p['description'] ?? '') !== ''): ?><h2>About <?= h($p['name']) ?></h2><?= rich($p['description']) ?><?php endif; ?>
-      <?php if($sire || $dam): ?><h2><?= h($p['name']) ?>’s parents</h2><div class="parent-row"><?= $dam ? parent_mini($dam) : '' ?><?= $sire ? parent_mini($sire) : '' ?></div>
+      <?php if($sire || $dam || ($p['dam_text'] ?? '') !== '' || ($p['sire_text'] ?? '') !== ''): ?><h2><?= h($p['name']) ?>’s parents</h2><div class="parent-row"><?= $dam ? parent_mini($dam) : (($p['dam_text'] ?? '') !== '' ? '<span class="parent-mini"><span><small>Dam (mom)</small><strong>'.h($p['dam_text']).'</strong></span></span>' : '') ?><?= $sire ? parent_mini($sire) : (($p['sire_text'] ?? '') !== '' ? '<span class="parent-mini"><span><small>Sire (dad)</small><strong>'.h($p['sire_text']).'</strong></span></span>' : '') ?></div>
         <p class="muted">Both parents’ registration and health details are on <a href="<?= h(url('our-beagles')) ?>">our beagles</a> page. Ask us for more photos of them any time.</p><?php endif; ?>
       <h2>What comes with <?= h($p['name']) ?></h2><?= included_block() ?>
       <h2>Our guarantees</h2><?= guarantees_block() ?>
@@ -954,10 +1055,11 @@ function view_thank_you(){
   ?>
   <section class="wrap prose">
     <?php if($mine){ $lead = inquiry_load($ref); echo ga_event('generate_lead', array_filter(['lead_type'=>($lead['kind'] ?? '') === 'contact' ? 'contact' : 'puppy_inquiry', 'item_name'=>$lead['puppy_name'] ?? '', 'value'=>($lead['puppy_price'] ?? '') !== '' ? (float)$lead['puppy_price'] : null, 'currency'=>($lead['puppy_price'] ?? '') !== '' ? 'USD' : null])); } ?>
-    <div class="alert alert-ok" role="status"><p><strong>Thank you!</strong> <?= $mine ? 'Your reference is <strong>'.h($ref).'</strong>. ' : '' ?>We’ve emailed you a copy and will reply <?= h(fill('{reply_time}')) ?>.</p></div>
+    <div class="alert alert-ok" role="status"><p><strong>Thank you!</strong> <?= $mine ? 'Your reference is <strong>'.h($ref).'</strong>. ' : '' ?>We’ve emailed a copy to <?= $mine && !empty($lead['email']) ? '<strong>'.h($lead['email']).'</strong>' : 'you' ?> and will reply <?= h(fill('{reply_time}')) ?>.</p></div>
+    <?php if($mine && $lead): ?><h2>What you sent us</h2><dl class="sent"><?php if(!empty($lead['puppy_name'])): ?><div><dt>Puppy</dt><dd><?= h($lead['puppy_name']) ?><?= ($lead['puppy_price'] ?? '') !== '' ? ' · '.h(money($lead['puppy_price'])) : '' ?></dd></div><?php endif; ?><div><dt>Phone</dt><dd><?= h($lead['phone'] ?? '') ?></dd></div><div><dt>Email</dt><dd><?= h($lead['email'] ?? '') ?></dd></div><?php if(($lead['notes'] ?? '') !== ''): ?><div><dt>Your note</dt><dd><?= nl2br(h($lead['notes'])) ?></dd></div><?php endif; ?></dl><?php endif; ?>
     <h2>What happens next</h2>
     <?= steps_block() ?>
-    <div class="callout"><p><strong>Staying safe:</strong> we only send payment details from <strong><?= h($CFG['email']) ?></strong>, after we’ve spoken with you. We never ask for gift cards or cryptocurrency. Can’t see our email? Check your spam folder and add <?= h($CFG['email']) ?> to your contacts.</p></div>
+    <div class="callout"><p><strong>Good to know:</strong> we only contact you from <strong><?= h($CFG['email']) ?></strong><?= $CFG['phone'] !== '' ? ' or '.h($CFG['phone']) : '' ?>. Can’t see our email? Check your spam folder and add <?= h($CFG['email']) ?> to your contacts.</p></div>
     <p><a class="btn" href="<?= h(url('guides/beagle-puppy-care')) ?>">Read our puppy care guide</a> <a class="btn btn-ghost" href="<?= h(url(PUPPIES_PATH)) ?>">Back to puppies</a></p>
   </section>
   <?php
@@ -983,7 +1085,7 @@ function view_agreement(){
       <section><h2><?= h($hd) ?></h2><?php foreach($paras as $p): ?><p><?= h($p) ?></p><?php endforeach; ?>
       <?php if($items): ?><ul><?php foreach($items as $i): ?><li><?= h($i) ?></li><?php endforeach; ?></ul><?php endif; ?></section>
     <?php endforeach; ?>
-    <p class="muted">Full health guarantee: <?= h(site_link('health-guarantee')) ?> · Deposit and refund policy: <?= h(site_link('deposit-refund-policy')) ?></p>
+    <p class="muted">Full health guarantee: <?= h(site_link('health-guarantee')) ?></p>
     <section id="accept" class="accept">
       <?php if($flash): ?><div class="alert alert-ok" role="status"><?= h($flash) ?></div><?php endif; ?>
       <?php if(!empty($ag['accepted'])): ?>
@@ -994,7 +1096,7 @@ function view_agreement(){
           <input type="hidden" name="action" value="accept_agreement"><input type="hidden" name="ref" value="<?= h($q['ref']) ?>"><input type="hidden" name="k" value="<?= h(sign('agreement|'.$q['ref'])) ?>">
           <?php if(isset($errors['accept'])): ?><div class="alert alert-err" role="alert"><?= h($errors['accept']) ?></div><?php endif; ?>
           <label class="f"><span>Type your full name to sign</span><input type="text" name="signed_name" value="<?= val('signed_name') ?>" autocomplete="name" required></label>
-          <label class="check"><input type="checkbox" name="agree" value="1" required><span>I have read this agreement, including the health guarantee and the deposit and refund terms, and I accept it.</span></label>
+          <label class="check"><input type="checkbox" name="agree" value="1" required><span>I have read this agreement, including the health guarantee, and I accept it.</span></label>
           <button class="btn btn-lg" type="submit">Accept agreement</button>
           <p class="fnote">Questions first? Email <?= h($CFG['email']) ?><?= $CFG['phone'] !== '' ? ' or call '.h($CFG['phone']) : '' ?>.</p>
         </form>

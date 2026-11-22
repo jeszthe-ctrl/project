@@ -123,7 +123,7 @@ Delivery day is one of the best days of the year — for you and for us. Here's 
 
 1. **Meet your puppy.** Take a moment — they've had a big day.
 2. **Check them over.** Bright eyes, clean nose and ears, alert and curious. Check the microchip number matches your paperwork if you'd like.
-3. **Pay the balance.** The remaining {balance} of the price is due at delivery, by {payment_methods}. You'll get a receipt.
+3. **Ask anything.** We'll go through feeding, routine and paperwork with you.
 4. **Receive your puppy pack.**
 
 ## What's in your puppy pack

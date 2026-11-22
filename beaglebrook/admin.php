@@ -188,6 +188,7 @@ if($act === 'save_puppy'){
     'registry'=>in_line('registry', 40), 'reg_no'=>in_line('reg_no', 80), 'sire'=>in_line('sire', 20), 'dam'=>in_line('dam', 20),
     'microchip'=>in_bool('microchip'), 'chip_no'=>in_line('chip_no', 40), 'vet_date'=>in_date('vet_date'), 'vaccines'=>in_str('vaccines', 1000), 'tagline'=>in_line('tagline', 200),
     'description'=>in_str('description', 20000), 'video'=>in_line('video', 300), 'hidden'=>in_bool('hidden'),
+    'markings'=>in_line('markings', 60), 'adult_weight'=>in_line('adult_weight', 40), 'champion'=>in_bool('champion'), 'sire_text'=>in_line('sire_text', 80), 'dam_text'=>in_line('dam_text', 80),
     'seo_title'=>in_line('seo_title', 120), 'seo_desc'=>in_line('seo_desc', 300), 'updated'=>date('c'),
   ]);
   $want = in_line('slug', 80) !== '' ? in_line('slug', 80) : $name.' '.$p['color'].' '.$p['sex'];
@@ -595,7 +596,7 @@ if($act === 'waitlist_remove'){
 }
 
 /* ---- puppies from a spreadsheet (CSV): one row per puppy, matched to existing puppies by name ---- */
-const PUPPY_CSV = ['name', 'sex', 'color', 'dob', 'ready', 'price', 'status', 'size', 'weight', 'registry', 'reg_no', 'chip_no', 'dam', 'sire', 'vet_date', 'vaccines', 'tagline', 'description', 'video'];
+const PUPPY_CSV = ['name', 'sex', 'color', 'markings', 'dob', 'ready', 'price', 'status', 'size', 'adult_weight', 'weight', 'registry', 'reg_no', 'chip_no', 'champion', 'dam', 'sire', 'vet_date', 'vaccines', 'tagline', 'description', 'video', 'photos', 'old_slug'];
 /* other column names people use, so most spreadsheets import without renaming anything */
 const PUPPY_CSV_ALIASES = ['puppy'=>'name', 'puppy name'=>'name', 'dog'=>'name', 'dog name'=>'name', 'call name'=>'name', 'gender'=>'sex',
   'colour'=>'color', 'color/markings'=>'color', 'markings'=>'color', 'date of birth'=>'dob', 'birthday'=>'dob', 'born'=>'dob', 'birth date'=>'dob',
@@ -603,12 +604,16 @@ const PUPPY_CSV_ALIASES = ['puppy'=>'name', 'puppy name'=>'name', 'dog'=>'name',
   'availability'=>'status', 'adult size'=>'size', 'expected size'=>'size', 'registration'=>'reg_no', 'registration number'=>'reg_no', 'reg #'=>'reg_no',
   'akc'=>'reg_no', 'litter number'=>'reg_no', 'microchip'=>'chip_no', 'microchip number'=>'chip_no', 'chip'=>'chip_no', 'mother'=>'dam', 'mom'=>'dam',
   'father'=>'sire', 'dad'=>'sire', 'vet check'=>'vet_date', 'vet check date'=>'vet_date', 'shots'=>'vaccines', 'vaccinations'=>'vaccines',
-  'summary'=>'tagline', 'about'=>'description', 'notes'=>'description', 'video link'=>'video', 'youtube'=>'video'];
+  'summary'=>'tagline', 'about'=>'description', 'notes'=>'description', 'video link'=>'video', 'youtube'=>'video',
+  'ready_date'=>'ready', 'price_usd'=>'price', 'est_adult_weight_lbs'=>'adult_weight', 'adult weight'=>'adult_weight', 'expected adult weight'=>'adult_weight',
+  'champion_bloodline'=>'champion', 'champion bloodline'=>'champion', 'video_embed_url'=>'video', 'dad_info'=>'sire', 'mom_info'=>'dam',
+  'gallery_images'=>'photos', 'gallery'=>'photos', 'images'=>'photos', 'slug'=>'old_slug'];
 function csv_date($v){
   $v = trim((string)$v);
   if($v === '') return '';
   if(preg_match('#^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})$#', $v, $m)){ $y = strlen($m[3]) === 2 ? 2000 + (int)$m[3] : (int)$m[3]; return checkdate((int)$m[1], (int)$m[2], $y) ? sprintf('%04d-%02d-%02d', $y, $m[1], $m[2]) : ''; }
-  $t = strtotime($v);
+  if(preg_match('/\bnow\b/i', $v)) return '';   /* "Ready now" */
+  $t = strtotime(str_replace('.', '', $v));
   return $t ? date('Y-m-d', $t) : '';
 }
 function csv_rows($file){
@@ -636,6 +641,7 @@ if($act === 'import_puppies'){
     if(in_array($k, PUPPY_CSV, true) && !isset($cols[$k])) $cols[$k] = $i;
   }
   if(!isset($cols['name'])){ note('The file needs a “name” column (the puppy’s name). Download the template to see the columns.', 'err'); go('puppy_import'); }
+  $new_parents = [];
   $parent_id = function($name) use(&$SITE){ $name = strtolower(trim($name)); if($name === '') return ''; foreach($SITE['parents'] as $p) if(strtolower($p['name']) === $name || strtolower($p['registered_name'] ?? '') === $name) return $p['id']; return null; };
   $added = $updated = 0; $issues = [];
   foreach($rows as $n=>$r){
@@ -648,20 +654,41 @@ if($act === 'import_puppies'){
     $set = function($k, $v) use(&$p){ if($v !== null) $p[$k] = $v; };
     if(($v = $get('sex')) !== null && $v !== '') $p['sex'] = preg_match('/^(f|female|girl|she|bitch)/i', $v) ? 'female' : 'male';
     $set('color', $get('color') !== null ? mb_substr($get('color'), 0, 60) : null);
-    foreach(['dob', 'ready', 'vet_date'] as $k) if(($v = $get($k)) !== null){ $p[$k] = csv_date($v); if($v !== '' && $p[$k] === '') $issues[] = "$name: couldn’t read the $k “{$v}” (use e.g. 2026-08-28 or 8/28/2026)."; }
+    foreach(['dob', 'ready', 'vet_date'] as $k) if(($v = $get($k)) !== null){ $p[$k] = csv_date($v); if($v !== '' && $p[$k] === '' && !preg_match('/\bnow\b/i', $v)) $issues[] = "$name: couldn’t read the $k “{$v}” (use e.g. 2026-08-28 or 8/28/2026)."; }
     if(($v = $get('price')) !== null){ $num = str_replace(['$', ',', ' ', 'USD', 'usd'], '', $v); if($v === '' || is_numeric($num)) $p['price'] = $v === '' ? '' : (string)round((float)$num, 2); else $issues[] = "$name: couldn’t read the price “{$v}”."; }
     if(($v = $get('status')) !== null && $v !== '') $p['status'] = preg_match('/sold|home|adopted/i', $v) ? 'sold' : (preg_match('/reserv|hold|pending|deposit/i', $v) ? 'reserved' : 'available');
     if(($v = $get('size')) !== null) $p['size'] = preg_match('/13/', $v) ? '13' : (preg_match('/15/', $v) ? '15' : '');
     foreach(['weight'=>40, 'registry'=>40, 'reg_no'=>80, 'chip_no'=>40, 'tagline'=>200, 'video'=>300] as $k=>$max) $set($k, $get($k) !== null ? mb_substr($get($k), 0, $max) : null);
     foreach(['vaccines'=>1000, 'description'=>20000] as $k=>$max) $set($k, $get($k) !== null ? mb_substr(str_replace(['\n', ' | '], "\n", $get($k)), 0, $max) : null);
-    foreach(['dam', 'sire'] as $k) if(($v = $get($k)) !== null){ $id = $parent_id($v); if($id === null){ $issues[] = "$name: no parent called “{$v}” — add them under Parents first, then import again."; } else $p[$k] = $id; }
+    /* parents: "Topper (22-25 lbs)" links to (or creates) the parent Topper; a generic name such as "Beagle" is kept as text */
+    foreach(['dam', 'sire'] as $k) if(($v = $get($k)) !== null){
+      $pname = trim(preg_replace('/\s*\(.*\)\s*$/', '', $v)); $pweight = preg_match('/\(([^)]*)\)/', $v, $m) ? trim($m[1]) : '';
+      $p[$k.'_text'] = '';
+      if($pname === ''){ $p[$k] = ''; continue; }
+      if(in_array(strtolower($pname), ['beagle', 'unknown', 'n/a', '-'], true)){ $p[$k] = ''; $p[$k.'_text'] = $v; continue; }
+      $id = $parent_id($pname);
+      if($id === null){
+        $np = ['id'=>new_id(), 'name'=>mb_substr($pname, 0, 60), 'role'=>$k, 'registered_name'=>'', 'registry'=>'', 'reg_no'=>'', 'dob'=>'', 'color'=>'', 'height'=>'',
+               'weight'=>$pweight, 'health'=>'', 'description'=>'', 'retired'=>false, 'hidden'=>false, 'photos'=>[]];
+        $np['slug'] = unique_slug($np['name'], $SITE['parents'], $np['id']);
+        $SITE['parents'][] = $np; $id = $np['id']; $new_parents[] = $np['name'];
+      }
+      $p[$k] = $id;
+    }
+    if(($v = $get('champion')) !== null) $p['champion'] = (bool)preg_match('/^(y|yes|true|1|champion)/i', $v);
+    foreach(['markings'=>60, 'adult_weight'=>40, 'old_slug'=>80] as $k=>$max) if(($v = $get($k)) !== null) $p[$k] = mb_substr(preg_match('/^no markings?$/i', $v) ? '' : $v, 0, $max);
+    if(($v = $get('photos')) !== null && $v !== ''){
+      /* photo paths on this website (e.g. assets/puppies/babe/babe-01.jpg): they show once those files are uploaded */
+      $paths = array_values(array_filter(array_map(fn($x)=>ltrim(trim($x), '/'), preg_split('/\s*[|,;]\s*/', $v)), fn($x)=>preg_match('#^assets/[\w./-]+\.(jpe?g|png|webp)$#i', $x) && strpos($x, '..') === false));
+      $p['photos'] = array_values(array_unique(array_merge(array_values(array_filter($p['photos'] ?? [], fn($f)=>strpos($f, 'assets/uploads/') === 0)), $paths)));
+    }
     if(($p['chip_no'] ?? '') !== '') $p['microchip'] = true;
     if(empty($p['slug'])) $p['slug'] = unique_slug($p['name'].' '.($p['color'] ?? '').' '.$p['sex'], $SITE['puppies'], $p['id']);
     if(in_array($p['slug'], state_slugs(), true)) $p['slug'] = unique_slug($p['slug'].'-puppy', $SITE['puppies'], $p['id']);
     $p['updated'] = date('c');
     if($i === null){ $SITE['puppies'][] = $p; $added++; } else { $SITE['puppies'][$i] = $p; $updated++; }
   }
-  save("Imported: $added new ".($added === 1 ? 'puppy' : 'puppies').", $updated updated. Add their photos under Puppies.");
+  save("Imported: $added new ".($added === 1 ? 'puppy' : 'puppies').", $updated updated.".($new_parents ? ' New parents added: '.implode(', ', array_unique($new_parents)).'.' : ''));
   foreach(array_slice($issues, 0, 15) as $m) note($m, 'err');
   go('puppies');
 }
@@ -857,12 +884,15 @@ function view_puppy(){
     <label>Name *<input type="text" name="name" value="<?= h($p['name']) ?>" required></label>
     <label>Sex<select name="sex"><option value="male"<?= $p['sex'] === 'male' ? ' selected' : '' ?>>Male</option><option value="female"<?= $p['sex'] === 'female' ? ' selected' : '' ?>>Female</option></select></label>
     <label>Color and markings<small>e.g. Tricolor, Lemon &amp; White, Red &amp; White</small><input type="text" name="color" value="<?= h($p['color']) ?>"></label>
-    <label>Price (USD)<small>Deposit (<?= (int)$CFG['deposit_pct'] ?>%) is worked out from this</small><input type="text" name="price" value="<?= h($p['price']) ?>" inputmode="decimal"></label>
+    <label>Price (USD)<input type="text" name="price" value="<?= h($p['price']) ?>" inputmode="decimal"></label>
     <label>Status<select name="status"><?php foreach(PUPPY_STATUSES as $k=>$l): ?><option value="<?= $k ?>"<?= $p['status'] === $k ? ' selected' : '' ?>><?= h($l) ?></option><?php endforeach; ?></select></label>
     <label>Expected adult size<select name="size"><option value="">Not sure yet</option><option value="13"<?= $p['size'] === '13' ? ' selected' : '' ?>>13-inch (under 20 lb)</option><option value="15"<?= $p['size'] === '15' ? ' selected' : '' ?>>15-inch (20–30 lb)</option></select></label>
     <label>Date of birth<input type="date" name="dob" value="<?= h($p['dob']) ?>"></label>
     <label>Ready for delivery<small>Leave empty if ready now</small><input type="date" name="ready" value="<?= h($p['ready']) ?>"></label>
     <label>Current weight<small>optional, e.g. 4.2 lb at 8 weeks</small><input type="text" name="weight" value="<?= h($p['weight']) ?>"></label>
+    <label>Expected adult weight<small>e.g. 15–35 lbs</small><input type="text" name="adult_weight" value="<?= h($p['adult_weight'] ?? '') ?>"></label>
+    <label>Markings<small>optional</small><input type="text" name="markings" value="<?= h($p['markings'] ?? '') ?>"></label>
+    <label class="cb" style="margin-top:28px"><input type="checkbox" name="champion" value="1"<?= !empty($p['champion']) ? ' checked' : '' ?>> Champion bloodline</label>
   </div>
   <label>One-line summary<small>Shown under the name, e.g. “Gentle, cuddly lemon girl who loves kids”</small><input type="text" name="tagline" value="<?= h($p['tagline']) ?>"></label></div>
 
@@ -870,8 +900,8 @@ function view_puppy(){
     <label>Registry<small>Leave empty to use <?= h($CFG['registry'] ?: 'your registry from Settings') ?></small><input type="text" name="registry" value="<?= h($p['registry']) ?>"></label>
     <label>Registration / litter number<input type="text" name="reg_no" value="<?= h($p['reg_no']) ?>"></label>
     <label>Vet check date<input type="date" name="vet_date" value="<?= h($p['vet_date']) ?>"></label>
-    <label>Dam (mom)<select name="dam"><?= parent_options('dam', $p['dam']) ?></select></label>
-    <label>Sire (dad)<select name="sire"><?= parent_options('sire', $p['sire']) ?></select></label>
+    <label>Dam (mom)<select name="dam"><?= parent_options('dam', $p['dam']) ?></select><small>or describe: </small><input type="text" name="dam_text" value="<?= h($p['dam_text'] ?? '') ?>" placeholder="e.g. Beagle (25-30 lbs)"></label>
+    <label>Sire (dad)<select name="sire"><?= parent_options('sire', $p['sire']) ?></select><small>or describe: </small><input type="text" name="sire_text" value="<?= h($p['sire_text'] ?? '') ?>" placeholder="e.g. Beagle (25-30 lbs)"></label>
     <label class="cb" style="margin-top:28px"><input type="checkbox" name="microchip" value="1"<?= $p['microchip'] ? ' checked' : '' ?>> Microchipped</label>
     <label>Microchip number<small>Private: only on the buyer’s sales agreement</small><input type="text" name="chip_no" value="<?= h($p['chip_no'] ?? '') ?>"></label>
   </div>

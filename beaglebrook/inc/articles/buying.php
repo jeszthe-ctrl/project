@@ -33,7 +33,7 @@ Choosing the right breeder is the most important decision you'll make about your
 6. What vet care has the puppy had, and can I have the records?
 7. What's included in the price?
 8. What does your health guarantee cover, and is it in writing?
-9. How do the deposit and balance work, and when is a deposit refunded?
+9. What exactly is included in the price, and is it all in writing?
 10. What happens if I can't keep my dog in the future?
 
 ## Health testing for beagles
@@ -50,7 +50,7 @@ You'll find our adult dogs' details on [our beagles](/our-beagles) page.
 ## What a good puppy contract includes
 
 - the puppy's name, sex, color, date of birth and microchip number
-- the full price, deposit, balance and when each is due
+- the full price and what it includes
 - delivery date, method and fee
 - registration type (full or limited)
 - the health guarantee — what's covered, for how long and what the remedy is

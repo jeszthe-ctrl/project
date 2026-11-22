@@ -151,6 +151,9 @@ function email_footer(){
 /* sends an email to the inquiry's buyer and records it in the inquiry's history */
 function email_buyer(&$q, $key, $subject, $body){
   $ok = site_mail($q['email'], $subject, $body.email_footer(), $GLOBALS['SITE']['settings']['email']);
+  /* a copy for the owner's inbox, so every confirmation sent is on record there too */
+  $own = $GLOBALS['SITE']['settings']['email'];
+  if($ok && strcasecmp($own, $q['email']) !== 0) site_mail($own, 'Copy: '.$subject.' (sent to '.$q['email'].')', "This is a copy of the email sent to {$q['email']}".(!empty($q['ref']) ? " · reference {$q['ref']}" : '').".\n\n".str_repeat('—', 20)."\n\n".$body.email_footer(), $q['email']);
   $q['emails'][] = ['time'=>date('c'), 'key'=>$key, 'subject'=>$subject, 'ok'=>$ok];
   return $ok;
 }

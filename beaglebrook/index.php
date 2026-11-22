@@ -53,7 +53,20 @@ function miles_from_home($code){
   return (int)(round($r * 1.2 / 10) * 10);
 }
 
-function public_puppies(){ global $SITE; return array_values(array_filter($SITE['puppies'], fn($p)=>empty($p['hidden']))); }
+/* visible puppies; photo paths whose file isn't on the server yet (e.g. imported from a CSV
+   before the photo folder was uploaded) are left out so no page shows a broken image */
+function public_puppies(){
+  global $SITE; static $memo = null;
+  if($memo === null){
+    $memo = [];
+    foreach($SITE['puppies'] as $p){
+      if(!empty($p['hidden'])) continue;
+      $p['photos'] = array_values(array_filter($p['photos'] ?? [], fn($f)=>is_string($f) && $f !== '' && is_file(BB_ROOT.'/'.$f)));
+      $memo[] = $p;
+    }
+  }
+  return $memo;
+}
 function puppies_with($status){ return array_values(array_filter(public_puppies(), fn($p)=>$p['status'] === $status)); }
 function parent_by_id($id){ global $SITE; return $id === '' ? null : find_by($SITE['parents'], 'id', $id); }
 function article($slug, $type){ global $SITE; foreach($SITE['articles'] as $a){ if($a['slug'] === $slug && $a['type'] === $type && empty($a['draft'])) return $a; } return null; }
@@ -145,6 +158,7 @@ function send_inquiry_mail($q, $puppy){
   $lines = array_values(array_filter([
     $q['name'] !== '' ? "Name: {$q['name']}" : '', "Phone: {$q['phone']}", "Email: {$q['email']}",
     $puppy ? "Puppy: {$puppy['name']}, ".trim($puppy['color'].' '.strtolower(sex_label($puppy['sex']))).(($puppy['price'] ?? '') !== '' ? ', '.money($puppy['price']) : '') : 'Puppy: not sure yet',
+    $puppy ? 'Puppy page: '.abs_url(PUPPIES_PATH.'/'.$puppy['slug']) : '',
   ]));
   $notes = $q['notes'] !== '' ? "\nTheir note:\n{$q['notes']}\n" : '';
   $subject = $puppy ? "New inquiry: {$puppy['name']} — $who" : "New inquiry from $who";
@@ -155,7 +169,7 @@ function send_inquiry_mail($q, $puppy){
   $first = strtok(trim($q['name']), ' ') ?: 'there';
   $body = "Hi $first,\n\nThank you for your inquiry".($puppy ? " about {$puppy['name']}" : '').". We’ve received it and will call, text or email you ".fill('{reply_time}').".\n\nYour reference: {$q['ref']}\n"
     ."\nWhat you sent us\n".implode("\n", $lines)."\n".($q['notes'] !== '' ? "\nYour note:\n{$q['notes']}\n" : '')
-    ."\nStaying safe: we only send payment details from {$CFG['email']}, after we’ve spoken with you. We never ask for gift cards or cryptocurrency. If anyone else contacts you claiming to be {$brand}, please let us know.\n"
+    ."\nGood to know: we only contact you from {$CFG['email']}".($CFG['phone'] ? " or {$CFG['phone']}" : '').". If anyone else contacts you claiming to be {$brand}, please let us know.\n"
     ."\nOur health guarantee: ".abs_url('health-guarantee')."\nHow it works: ".abs_url('how-it-works')."\n\n— {$brand}\n{$CFG['city']}, {$CFG['state']} · {$CFG['email']}".($CFG['phone'] ? ' · '.$CFG['phone'] : '')."\n".$CFG['domain'];
   site_mail($q['email'], $puppy ? "We received your inquiry about {$puppy['name']} — {$brand}" : "We received your inquiry — {$brand}", $body, $CFG['email']);
 }
@@ -217,6 +231,7 @@ elseif(count($seg) === 1 && ($info = info_page($PATH))) $page = 'info';
 /* a puppy whose page was removed: send visitors to the list rather than a dead end */
 /* addresses that moved (Admin → Redirects) */
 if($page === 'notfound' && isset($SITE['redirects'][$PATH])){ $u = url($SITE['redirects'][$PATH]); header('Location: '.$BASE.($u === './' ? '' : $u), true, 301); exit; }
+if($page === 'notfound' && count($seg) === 2 && $seg[0] === 'puppies' && ($old = find_by(public_puppies(), 'old_slug', $seg[1]))){ header('Location: '.$BASE.puppy_url($old), true, 301); exit; }
 if($page === 'notfound' && count($seg) === 2 && $seg[0] === PUPPIES_PATH){ header('Location: '.$BASE.url(PUPPIES_PATH), true, 301); exit; }
 
 /* with clean addresses on, old index.php?path=… links move permanently to the clean address */

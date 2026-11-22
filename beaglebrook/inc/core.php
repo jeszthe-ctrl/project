@@ -120,6 +120,14 @@ function site_upgrade($s, $d, $version){
     foreach(['pages', 'articles'] as $g) foreach($s[$g] as $i=>$item) $s[$g][$i]['body'] = $relink($item['body']);
     foreach($s['settings'] as $k=>$v) if(is_string($v)) $s['settings'][$k] = $relink($v);
   }
+  if($version < 3){
+    /* inquiries, not orders: the deposit policy page and the deposit protection card go */
+    $s['pages'] = array_values(array_filter($s['pages'], fn($x)=>$x['slug'] !== 'deposit-refund-policy'));
+    $s['removed']['pages'] = array_values(array_unique(array_merge($s['removed']['pages'] ?? [], ['deposit-refund-policy'])));
+    $s['redirects'] += ['deposit-refund-policy'=>'how-it-works'];
+    $s['guarantees'] = array_values(array_filter($s['guarantees'], fn($g)=>stripos($g['title'], 'deposit') === false));
+    foreach(['pages', 'articles'] as $g) foreach($s[$g] as $i=>$item) $s[$g][$i]['body'] = str_replace('(/deposit-refund-policy)', '(/how-it-works)', $item['body']);
+  }
   $s['settings']['content_version'] = (int)$d['settings']['content_version'];
   return $s;
 }

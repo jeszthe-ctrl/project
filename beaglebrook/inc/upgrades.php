@@ -55,32 +55,42 @@ return array (
     array (
       0 => 'fed5ed74b7e862eedb7324c120357a65',
     ),
+    'beagle-price-cost' => 
+    array (
+      0 => 'b4b78cf6703539233841a5a61868ec0d',
+    ),
   ),
   'articles' => 
   array (
     'beagle-dog-breed' => 
     array (
       0 => '7b58ba7d4049aed4e9468b16ea963443',
+      1 => '41ceaeda250d07a91ef58058b355afdd',
     ),
     'beagle-lifespan' => 
     array (
       0 => 'cc2fb4be8b4d61d83063f9a895f57a7d',
+      1 => '2a3009f5d8592fa0a5e352d4858bcb14',
     ),
     'beagle-colors' => 
     array (
       0 => '3634ca852a5a9f3cb4c804b440d84d19',
+      1 => 'b05910fcaf138bd9ec867f5af3e6576f',
     ),
     'lemon-beagle' => 
     array (
       0 => '25c5318eb9f40f0bf60b58c170c6fa80',
+      1 => 'c74f8b85a04270e208ff596d470542bd',
     ),
     'pocket-beagle' => 
     array (
       0 => '7b0bfc9417cc3e0f0f93f84403aa3808',
+      1 => 'b94a54a1032c0868c29f71328ccf9200',
     ),
     'do-beagles-shed' => 
     array (
       0 => 'fec471ba0132ece2e243438177dbaeaf',
+      1 => 'f5cd1e0c0e8dcbe5225bf637cc0074d5',
     ),
     'beagle-price' => 
     array (
@@ -91,78 +101,97 @@ return array (
     array (
       0 => '7bd6d1af1787aa59833fa11f1fdce95b',
       1 => 'c32df7f5a1d93e5fbdf12d803151141f',
+      2 => 'eeb90ccd6ab8c6110398fa0c7552e7ec',
     ),
     'beagle-adoption-vs-breeder' => 
     array (
       0 => '843f058b63811be580102f6fe73063f2',
+      1 => 'd411c8fb2eb1e2b2f3a2ea42408d5a14',
     ),
     'beagle-puppy-care' => 
     array (
       0 => 'a1b4f2ef31dbc5b613abc73421c2225d',
+      1 => 'f2fa73d9d31b65359ec9098f8905fbfb',
     ),
     'beagle-mix-breeds' => 
     array (
       0 => 'e3c31be9032dfdee2cd9b0296311e58b',
+      1 => '45f34dd0d54aeca5bbf64f234918a7ae',
     ),
     'beagle-lab-mix' => 
     array (
       0 => '584ed2c6065a9b68ab3c48c38aea6067',
+      1 => 'ced5a6fa1750de27031f8178ecf1445b',
     ),
     'dachshund-beagle-mix' => 
     array (
       0 => '4576527f9ca44ccdf385c3a75813d18a',
+      1 => '5961a6fc6638a1151b1c5fb8ada62a65',
     ),
     'beagle-chihuahua-mix' => 
     array (
       0 => 'bb05f54f1eb3dab31e57691e48fed03f',
+      1 => '62bf214378ffe2f8dbe41ad4d0b44567',
     ),
     'beagle-basset-hound-mix' => 
     array (
       0 => 'ef1bd9b43a7e27ebfa7b61ecf4443f69',
+      1 => '48436bbd21eb9fc44c4bd32c302e6d42',
     ),
     'beagle-training' => 
     array (
       0 => '252a821eb1df04287f72cee9a929a6eb',
+      1 => 'f4b079cafd61fa819c4f79db1e0d4808',
     ),
     'best-dog-food-for-beagles' => 
     array (
       0 => '1abd3902bd8f34aeb679cdda78d84767',
+      1 => '9cbe3848e0383d86cc4a95d9f84fd4f0',
     ),
     'fat-beagle' => 
     array (
       0 => '82e3c0c94346f2c1f8bd183b263a9da4',
+      1 => 'c0d81149a0026ca685bf33399fc407c4',
     ),
     'hunting-with-a-beagle' => 
     array (
       0 => 'cd25d406bac79ebe130905ebc4399d13',
+      1 => 'c3e3f79111fa67ef8d8cef54a21cb285',
     ),
     '13-inch-vs-15-inch-beagle' => 
     array (
       0 => '924ff70af2a66dd25d083cc5ec5b4e43',
+      1 => '32bf1fe67644097558e82f237f72c5c4',
     ),
     'beagle-growth-chart' => 
     array (
       0 => 'b8b3dd660387d26691fce2de0b436034',
+      1 => '6394b4d2bf9ade437527966c2ac6fb2e',
     ),
     'are-beagles-good-apartment-dogs' => 
     array (
       0 => '1e8f05ea93223d3032087ce49e7172f1',
+      1 => '8edbf3c220bf6171654a2c9eb28ca994',
     ),
     'are-beagles-good-with-cats' => 
     array (
       0 => '437e552d3aea2f6ce04dbb794a5ee266',
+      1 => 'ff12e452251121ad854ce5d1cf5bee8e',
     ),
     'do-beagles-bark-a-lot' => 
     array (
       0 => 'd4549a486285b2d2eed76a3faec4938e',
+      1 => 'f61b6028e94efe058e32567b487d0f41',
     ),
     'how-much-exercise-does-a-beagle-need' => 
     array (
       0 => '9955e446456766a51c1665ca330bfac5',
+      1 => '8eb6e3b0dfbad25c1ba611a10d9f5b58',
     ),
     'rescued-beagles' => 
     array (
       0 => '7e541c7faa05c575b93c960add7bd106',
+      1 => '7a755b7482b0210368012d279eadf09e',
     ),
     'hms-beagle' => 
     array (
@@ -171,14 +200,17 @@ return array (
     'bi-ge-quan' => 
     array (
       0 => 'ff2a33dc2445862e2888f16e8c105356',
+      1 => 'ab5e327a897a52fefa4989d8332187be',
     ),
     'are-beagles-good-family-dogs' => 
     array (
       0 => '1b74875900b81420c24f361944e1f26b',
+      1 => 'b499e21658570583201ba24b3ff5a178',
     ),
     'male-vs-female-beagle' => 
     array (
       0 => '1988bb8755f2beb1fda1df41d94691ba',
+      1 => '3cf6fdea52ec014df846e67b0d8c2918',
     ),
     'snoopy-beagle' => 
     array (
@@ -187,6 +219,107 @@ return array (
     'puppy-delivery-day' => 
     array (
       0 => '59b3c369876c6f1b3be498138a189fe2',
+      1 => '35393632e10c28a191c2574df29c1dad',
+    ),
+    'beagle-boxer-mix' => 
+    array (
+      0 => '8cd0e814f0bf64e5acdc76fbc4961947',
+    ),
+    'corgi-beagle-mix' => 
+    array (
+      0 => 'adc561b4af1c9fe62d9eac8a53393705',
+    ),
+    'beagle-temperament' => 
+    array (
+      0 => 'd8ae0bd317a4b15048e170e6f949984c',
+    ),
+    'are-beagles-smart' => 
+    array (
+      0 => '232ff7854ab43e033d2c8575bd298bdd',
+    ),
+    'tricolor-beagle' => 
+    array (
+      0 => '120faec83d61814de9b4bedd5d38e969',
+    ),
+    'bluetick-beagle' => 
+    array (
+      0 => '2378f52cf87d12f09972a3fe25eaf163',
+    ),
+    'black-and-white-beagle' => 
+    array (
+      0 => '1287194256db47ccab84623a54222fc6',
+    ),
+    'beagle-vs-basset-hound' => 
+    array (
+      0 => '45ee5f5dd841d7529f79c12270bcbee7',
+    ),
+    'beagle-vs-foxhound' => 
+    array (
+      0 => '8ef2e3d9359abd4cdb51e4178848d5ec',
+    ),
+    'are-beagles-hypoallergenic' => 
+    array (
+      0 => '588a307d1a0d53fbae416b9c6dc96aa4',
+    ),
+    'do-beagles-like-to-cuddle' => 
+    array (
+      0 => 'c0a628628c898ee8666b320f14009b28',
+    ),
+    'how-to-potty-train-a-beagle' => 
+    array (
+      0 => '12b3d690dbf283bc2edea198fdab50f8',
+    ),
+    'how-to-crate-train-a-beagle' => 
+    array (
+      0 => '46cc3bd9030c5ba1a7b5d42bae10c734',
+    ),
+    'beagle-separation-anxiety' => 
+    array (
+      0 => '3adde412da984169fb40a97611c1d3a4',
+    ),
+    'how-long-can-a-beagle-be-left-alone' => 
+    array (
+      0 => '0258eccbfc0ccfdf04476be04092bd73',
+    ),
+    'how-much-to-feed-a-beagle-puppy' => 
+    array (
+      0 => 'debc706e5e94311083e0bd08579cf15b',
+    ),
+    'how-to-groom-a-beagle' => 
+    array (
+      0 => 'c1894d1168f428cdbf3ecf8f7557524e',
+    ),
+    'beagle-ear-infections' => 
+    array (
+      0 => 'fcc78bf3968fefb07a9e76403aa8dd26',
+    ),
+    'beagle-health-problems' => 
+    array (
+      0 => 'a6810d8ba5e9561d1556e574384e3c86',
+    ),
+    'senior-beagle-care' => 
+    array (
+      0 => 'eeec16a519cead60f02bc84d8e093a51',
+    ),
+    'can-beagles-swim' => 
+    array (
+      0 => 'a6593aa80588f8222b256b990e900fbb',
+    ),
+    'how-to-keep-a-beagle-from-running-away' => 
+    array (
+      0 => '006a22ad3590bf50555f5b2a53747341',
+    ),
+    'beagle-toys-and-games' => 
+    array (
+      0 => '5c089f1433986a651b863c0b2c45abfb',
+    ),
+    'beagle-names' => 
+    array (
+      0 => '98ebee9f51fb5d8b66de7f356ddb05ec',
+    ),
+    'beagle-puppy-checklist' => 
+    array (
+      0 => '464a71d0d7f5d598f8423aada17e7347',
     ),
   ),
   'templates' => 
@@ -302,6 +435,134 @@ return array (
     'delivery_note' => 
     array (
       0 => 'cb753338269926aee06b7ebc8b9bac0b',
+    ),
+    'brand' => 
+    array (
+      0 => '127a305c3e46505ae68c6e7a41c56a2a',
+    ),
+    'phone' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'city' => 
+    array (
+      0 => 'cc8d66016f145d18ca43f658cf893ec8',
+    ),
+    'state' => 
+    array (
+      0 => 'ec947a7cc943c84b1ef84958a7df827c',
+    ),
+    'state_name' => 
+    array (
+      0 => '4ec96adb9cc39333f3d2024b28f2503f',
+    ),
+    'registry' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'payee_name' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'license_text' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'reply_time' => 
+    array (
+      0 => 'e3651960910262d9b072ad32bad7f284',
+    ),
+    'breeder_name' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'breeder_story' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'breeder_photo' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'hero_photo' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'share_photo' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'facebook' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'instagram' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'tiktok' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'youtube' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'google_reviews_url' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'gsc_verification' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'bing_verification' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'ga4_id' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'smtp_host' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'smtp_port' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'smtp_secure' => 
+    array (
+      0 => 'a60aeea3d4cdbb5049fc37164644bb34',
+    ),
+    'smtp_user' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'smtp_pass' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'alert_phone' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'alert_sms_email' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'twilio_sid' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'twilio_token' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
+    ),
+    'twilio_from' => 
+    array (
+      0 => 'd41d8cd98f00b204e9800998ecf8427e',
     ),
   ),
 );

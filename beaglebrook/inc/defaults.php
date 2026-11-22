@@ -33,7 +33,7 @@ return [
     'hero_title'      => 'Beagle puppies for sale, delivered to your door',
     'hero_lede'       => 'Healthy, family-raised purebred beagles from Cincinnati, Ohio. Every puppy comes vet checked, with age-appropriate shots, a microchip, starter food and full registration papers, backed by a written health guarantee.',
     'home_seo_title'  => 'Beagle Puppies for Sale | Beagle Brook, Cincinnati, Ohio',
-    'home_seo_desc'   => 'Purebred beagle puppies for sale from Beagle Brook in Cincinnati, Ohio. Vet checked, shots, microchip, full papers and a written health guarantee. Delivered to your door.',
+    'home_seo_desc'   => 'Beagle puppies for sale from Beagle Brook, Cincinnati, Ohio: vet checked, shots, microchip, full papers and a health guarantee. Delivered to your door.',
     'puppies_title'   => 'Beagle Puppies for Sale',
     'puppies_seo_title'=> 'Beagle Puppies for Sale Near You | Available Now | Beagle Brook',
     'puppies_seo_desc'=> 'See every beagle puppy available now at Beagle Brook: photos, price, age, color and parents. Vet checked, microchipped, full papers, delivered from Cincinnati, Ohio.',
@@ -43,14 +43,14 @@ return [
     'reviews_intro'   => "What families say after their Beagle Brook puppy comes home. Every review here is from a real buyer and is published with their permission.",
     'contact_intro'   => "Questions about a puppy, delivery or the breed? Send us a message and we'll reply {reply_time}. To ask about a specific puppy, use the inquiry form on that puppy's page.",
     'footer_blurb'    => 'Purebred beagle puppies raised in Cincinnati, Ohio. Vet checked, microchipped, full papers and a written health guarantee — delivered to your door.',
-    'delivery_note'   => 'Choose {delivery_options}. The price is shown in the inquiry form as soon as you pick your state, so you know your total before you pay anything.',
+    'delivery_note'   => 'Choose {delivery_options}. Delivery times count from when your puppy leaves us, and we confirm the total with you before anything is arranged.',
     'facebook'        => '', 'instagram' => '', 'tiktok' => '', 'youtube' => '',
     'google_reviews_url' => '',
     'gsc_verification'=> '', 'bing_verification' => '', 'ga4_id' => '',
     'smtp_host'       => '', 'smtp_port' => '', 'smtp_secure' => 'tls', 'smtp_user' => '', 'smtp_pass' => '',
     'alert_phone'     => '', 'alert_sms_email' => '', 'twilio_sid' => '', 'twilio_token' => '', 'twilio_from' => '',
     'pretty_urls'     => false, 'pretty_auto' => false,
-    'content_version' => 2,   /* see site_load(): changes applied once to sites installed earlier */
+    'content_version' => 3,   /* see site_load(): changes applied once to sites installed earlier */
   ],
 
   /* delivery options and prices (Admin → Delivery). Times count from when the puppy leaves us. */
@@ -77,9 +77,8 @@ return [
     ['title'=>'{vet_check_hour} vet check guarantee', 'text'=>'Take your puppy to your own vet within {vet_check_hours} of delivery. If they find a serious illness that was present when we delivered, you get a replacement puppy or your money back.'],
     ['title'=>'{genetic_year} genetic health guarantee', 'text'=>'Covers life-threatening hereditary and congenital conditions diagnosed by a licensed vet within {genetic_years} of delivery.'],
     ['title'=>'Right puppy guarantee', 'text'=>'The puppy you choose is the puppy we deliver, matched by the microchip number on your sales agreement and health record.'],
-    ['title'=>'Safe delivery guarantee', 'text'=>'If your puppy can’t travel safely on the agreed day, we reschedule at no extra cost, or refund every dollar you’ve paid.'],
+    ['title'=>'Safe delivery guarantee', 'text'=>'Our vet checks your puppy before travel. If they can’t travel safely on the agreed day, we reschedule at no extra cost.'],
     ['title'=>'Full papers guarantee', 'text'=>'Every puppy comes with full registration papers — never limited registration, and never an extra charge.'],
-    ['title'=>'Deposit protection', 'text'=>'If we cancel, or can’t deliver your puppy healthy, your {deposit} deposit is refunded in full.'],
     ['title'=>'No hidden fees', 'text'=>'The price on each puppy’s page includes the vet check, shots, microchip, starter food and papers. Delivery is shown up front: {delivery_options}.'],
     ['title'=>'Lifetime take-back promise', 'text'=>'If you ever can’t keep your beagle, at any age, we will take them back or help rehome them. They will never go to a shelter.'],
   ],
@@ -97,9 +96,9 @@ return [
   'steps' => [
     ['title'=>'Choose your puppy and send an inquiry', 'text'=>'Pick your puppy, leave your phone number and email, and add a note if you like. It takes a minute, and there’s no payment.'],
     ['title'=>'We call, text or email you', 'text'=>'We reply {reply_time}, answer every question and tell you all about your puppy, with more photos if you’d like them.'],
-    ['title'=>'Reserve with a {deposit} deposit', 'text'=>'Pay the deposit by {payment_methods}. You get a written receipt and sales agreement, and your puppy is marked Reserved on our site.'],
+    ['title'=>'Reserve your puppy', 'text'=>'When you’ve chosen, we confirm your puppy, the price and your delivery in writing, and mark your puppy Reserved on our site.'],
     ['title'=>'We plan your delivery', 'text'=>'You choose Standard (2–5 days) or Express (within 24 hours) delivery, and we agree the departure date with you. The delivery fee is in your written agreement.'],
-    ['title'=>'Delivery day', 'text'=>'Your puppy arrives with their health record, microchip details, starter food and papers. The remaining {balance} and the delivery fee are due at delivery.'],
+    ['title'=>'Delivery day', 'text'=>'Your puppy arrives with their health record, microchip details, starter food and papers. Settle in and enjoy!'],
     ['title'=>'Lifetime support', 'text'=>'Questions about feeding, training or health? Call, text or email us any time, for your beagle’s whole life.'],
   ],
 
@@ -110,7 +109,7 @@ return [
      {care_guide_link} {waitlist_link}. */
   'templates' => [
     'welcome' => ['name'=>'Reply to inquiry', 'status'=>'contacted', 'subject'=>'Your inquiry for {puppy} — {brand}',
-      'body'=>"Hi {first_name},\n\nThank you for your inquiry about {puppy}! {puppy} is a wonderful puppy, and we’re happy to answer any questions — just reply to this email, or call or text us at {phone_or_email}.\n\n{note}\n\nYou can see {puppy}’s photos and details here: {puppy_link}\n\n- Price: {price}, including the vet check, shots, microchip, starter food and full papers\n- Delivery to your door: {delivery_options}\n\nThere’s no payment at this stage. When you’re ready, a {deposit} deposit ({deposit_amount}) reserves {puppy}, and the rest is due at delivery."],
+      'body'=>"Hi {first_name},\n\nThank you for your inquiry about {puppy}! {puppy} is a wonderful puppy, and we’re happy to answer any questions — just reply to this email, or call or text us at {phone_or_email}.\n\n{note}\n\nYou can see {puppy}’s photos and details here: {puppy_link}\n\n- Price: {price}, including the vet check, shots, microchip, starter food and full papers\n- Delivery to your door: {delivery_options}\n\nJust reply with any questions — we’re happy to help."],
     'payment' => ['name'=>'Payment instructions', 'status'=>'contacted', 'subject'=>'How to reserve {puppy}: {deposit} deposit of {deposit_amount}',
       'body'=>"Hi {first_name},\n\nWe’re so happy {puppy} is the one! Here’s how to reserve {puppy}:\n\n1. Read and accept your sales agreement:\n{agreement_link}\n\n2. Pay the {deposit} deposit of {deposit_amount} by {payment_method}:\n\n{payment_details}\n\nPlease write “{ref} {puppy}” as the payment note.\n\n3. We’ll email your receipt and mark {puppy} as Reserved on our website.\n\nThe remaining {due_at_delivery} (the rest of the price plus {delivery_option}) is due at delivery.\n\n{note}\n\nStaying safe: payment details only ever come from {email}. If anything looks different, call or text us at {phone_or_email} before paying. We never ask for gift cards or cryptocurrency."],
     'reserved' => ['name'=>'Reservation confirmed', 'status'=>'deposit', 'reserve'=>true, 'subject'=>'{puppy} is reserved for you!',
@@ -153,9 +152,9 @@ TXT
     [
       'slug'=>'how-it-works', 'menu'=>'How it works', 'title'=>'How to buy a beagle puppy from Beagle Brook',
       'seo_title'=>'How Buying a Beagle Puppy Works | Beagle Brook',
-      'seo_desc'=>'How buying a beagle puppy from Beagle Brook works: a one-minute inquiry, a {deposit} deposit, delivery to your door and lifetime support.',
+      'seo_desc'=>'How getting a beagle puppy from Beagle Brook works: a one-minute inquiry, answers to every question, delivery to your door and lifetime support.',
       'body'=><<<'TXT'
-Bringing a puppy home should feel exciting, not risky. Here is exactly what happens from the moment you find a puppy you love to the day they arrive at your door — no surprises, no pressure and no payment until you've spoken to us and seen your puppy live.
+Bringing a puppy home should feel exciting, not risky. Here is exactly what happens from the moment you find a puppy you love to the day they arrive at your door — no surprises and no pressure.
 
 ## Step by step
 
@@ -165,15 +164,13 @@ Bringing a puppy home should feel exciting, not risky. Here is exactly what happ
 
 {included}
 
-## Deposit and balance
+## Everything in writing
 
-A **{deposit} deposit** reserves your puppy. It is part of the puppy's price, not an extra fee. The remaining **{balance}** is due at delivery. Before you pay anything you'll receive a written sales agreement that lists your puppy, the full price, the deposit, the delivery fee and our guarantees.
-
-We accept {payment_methods}. Payment details are only ever sent from **{email}**, after we've spoken with you. Read our [deposit and refund policy](/deposit-refund-policy) for the details.
+When you've chosen your puppy, you receive a written agreement listing your puppy, the price, your delivery and our guarantees.
 
 ## Delivery only
 
-We deliver every puppy to your door from {city}, {state}: {delivery_options}. You choose the option in the inquiry form and see the price straight away. See [puppy delivery](/puppy-delivery) for how it works.
+We deliver every puppy to your door from {city}, {state}: {delivery_options}. We confirm your option and its price with you. See [puppy delivery](/puppy-delivery) for how it works.
 
 ## Our guarantees
 
@@ -191,7 +188,7 @@ TXT
       'seo_title'=>'Beagle Puppy Health Guarantee | Beagle Brook',
       'seo_desc'=>'Every Beagle Brook puppy comes with a {vet_check_hour} vet check guarantee, a {genetic_year} genetic health guarantee, safe delivery and a lifetime take-back promise.',
       'body'=><<<'TXT'
-We stand behind every beagle we raise. Every Beagle Brook puppy is examined by a licensed veterinarian before delivery and comes with the written guarantees below. They are part of the sales agreement you receive before paying a deposit.
+We stand behind every beagle we raise. Every Beagle Brook puppy is examined by a licensed veterinarian before delivery and comes with the written guarantees below. They are part of the written agreement for your puppy.
 
 {guarantees}
 
@@ -253,54 +250,7 @@ Yes, to keep the vet check guarantee. It is also the best thing you can do for y
 No. Under the {genetic_year} genetic health guarantee we provide a replacement puppy and you keep your beagle.
 
 ### Is the health guarantee in writing?
-Yes. It is part of the sales agreement you receive and sign before paying your deposit.
-TXT
-    ],
-    [
-      'slug'=>'deposit-refund-policy', 'menu'=>'Deposit & refunds', 'title'=>'Deposit and refund policy',
-      'seo_title'=>'Deposit & Refund Policy for Beagle Puppies | Beagle Brook',
-      'seo_desc'=>'How the {deposit} deposit works at Beagle Brook: what it reserves, when the balance is due, which payment methods we accept, and when deposits are refunded.',
-      'body'=><<<'TXT'
-A deposit is a big step, so we keep the rules short, clear and in writing.
-
-## How the deposit works
-
-- A **{deposit} deposit** reserves the puppy you choose. It is part of the puppy's price.
-- The remaining **{balance}** of the price, plus the delivery fee, is due **at delivery**.
-- You only pay a deposit after we've spoken with you and answered your questions.
-- Before you pay, you receive a written sales agreement with the puppy's name, date of birth, price, deposit, delivery fee and our guarantees.
-- Once your deposit arrives, we send a written receipt and mark your puppy **Reserved** on our website, usually within a few hours.
-
-## How to pay
-
-We accept {payment_methods}.
-
-{payments}
-
-Payment details are only ever sent from **{email}**, after we've spoken with you. If you ever receive payment instructions from any other address, phone number or social media account, don't pay — contact us. See [how to verify us](/is-beagle-brook-legit).
-
-## When your deposit is refunded in full
-
-- We cancel the sale for any reason.
-- Your puppy is found to be unwell by our veterinarian before delivery and you don't want a replacement.
-- We can't deliver your puppy healthy within two weeks of the agreed date.
-
-Refunds are sent within 7 days, by the same method you paid with where possible.
-
-## If you change your mind
-
-We hold your puppy for you and turn other families away, so a deposit is not refundable if you change your mind. It is never simply lost, though: you can **transfer it once to another puppy** from a current or upcoming litter within 12 months.
-
-## Questions
-
-### Can I pay the full price up front?
-Yes, if you prefer. The same refund rules apply to everything you've paid.
-
-### Is there anything else to pay?
-Only the delivery fee: {delivery_options}. You see it in the inquiry form before you pay anything. The puppy's price already includes the vet check, shots, microchip, starter food and full registration papers.
-
-### Do you accept gift cards or cryptocurrency?
-No, never. Anyone asking you to pay for a Beagle Brook puppy that way is not us.
+Yes. It is part of the written agreement for your puppy.
 TXT
     ],
     [
@@ -314,13 +264,13 @@ Every Beagle Brook puppy is delivered to your door from our home in {city}, {sta
 
 1. **Choose your delivery option.** Pick Standard or Express in the inquiry form. Once your puppy is reserved, we agree the departure date with you. Puppies travel once they are at least {go_home_weeks} old.
 2. **Vet check before travel.** Our veterinarian examines your puppy shortly before delivery. Puppies traveling to another state travel with a health certificate from our vet.
-3. **Delivery day.** We keep you updated on the journey. When your puppy arrives, you check them over, pay the remaining {balance}, and receive their health record, microchip details, starter food and registration papers.
+3. **Delivery day.** We keep you updated on the journey. When your puppy arrives, you check them over and receive their health record, microchip details, starter food and registration papers.
 
 ## Delivery options and prices
 
 {delivery_rates}
 
-Delivery times count from the moment your puppy leaves us in {city}, {state}. The delivery fee is paid with the balance at delivery, and it's in your written sales agreement — the price you see is the price you pay.
+Delivery times count from the moment your puppy leaves us in {city}, {state}. The delivery price is confirmed in writing — the price you see is the price you pay.
 
 ## Which option should I choose?
 
@@ -465,7 +415,7 @@ TXT
     [
       'slug'=>'is-beagle-brook-legit', 'menu'=>'Verify us', 'title'=>'Is Beagle Brook legit? How to verify us before you pay',
       'seo_title'=>'Is Beagle Brook Legit? How to Verify Us Before You Pay',
-      'seo_desc'=>'How to check that Beagle Brook is a real beagle breeder before you pay: registration lookups, written agreements, one email address for payments and the warning signs of puppy scams.',
+      'seo_desc'=>'How to check that Beagle Brook is a real beagle breeder: recent photos, registration lookups, written agreements and the warning signs of puppy scams.',
       'body'=><<<'TXT'
 Puppy scams are real, and beagles are one of the breeds scammers copy most. You should check any breeder before you send money — including us. Here is exactly how to verify Beagle Brook, and the warning signs to watch for anywhere else.
 
@@ -473,11 +423,8 @@ Puppy scams are real, and beagles are one of the breeds scammers copy most. You 
 
 1. **Ask for recent photos.** We're happy to send new photos of your puppy and both parents. Check any puppy photo with a reverse image search (such as Google Lens): photos copied from other websites show up there.
 2. **Ask for the parents' registration numbers.** Every puppy page lists both parents. Ask for their registered names and numbers and look them up with the registry yourself.
-3. **Check our email address.** We only email from **{email}**. Payment details only ever come from that address, after you've spoken to us.
-4. **Get it in writing.** You receive a written sales agreement with your puppy's details, price, deposit, delivery fee and our guarantees before paying anything, and a written receipt for every payment.
-5. **Check the name on the account.** Our payment accounts are in our business name.
-
-{payee}
+3. **Check our email address.** We only email from **{email}**. If anyone contacts you claiming to be us from another address, phone number or social media account, check with us first.
+4. **Get it in writing.** You receive a written agreement with your puppy's details, price, delivery and our guarantees.
 
 {licenses}
 
@@ -539,27 +486,15 @@ TXT
     ],
     [
       'slug'=>'faq', 'menu'=>'FAQ', 'title'=>'Frequently asked questions',
-      'seo_title'=>'Beagle Puppy FAQ: Deposit, Delivery & Health | Beagle Brook',
-      'seo_desc'=>'Answers to common questions about buying a beagle puppy from Beagle Brook: deposits, payment, delivery, papers, health guarantee and the beagle breed.',
+      'seo_title'=>'Beagle Puppy FAQ: Delivery, Health & Papers | Beagle Brook',
+      'seo_desc'=>'Answers to common questions about buying a beagle puppy from Beagle Brook: delivery, papers, health guarantee and the beagle breed.',
       'body'=><<<'TXT'
 Everything families usually ask before reserving a Beagle Brook puppy. Can't find your answer? [Contact us](/contact) — we reply {reply_time}.
 
 ## Questions
 
 ### How do I reserve a puppy?
-Open the puppy's page and send the inquiry form at the bottom. We'll reply {reply_time} and answer your questions. When you're ready, a {deposit} deposit reserves them. See [how it works](/how-it-works).
-
-### How much is the deposit?
-{deposit} of the puppy's price. It is part of the price, not an extra fee.
-
-### When is the rest due?
-The remaining {balance}, plus the delivery fee, is due at delivery.
-
-### Which payment methods do you accept?
-{payment_methods}. Payment details are only sent from {email} after we've spoken with you. We never accept gift cards or cryptocurrency.
-
-### Is the deposit refundable?
-Yes, in full, if we cancel or can't deliver your puppy healthy. If you change your mind, it can be moved once to another puppy within 12 months. Read the [deposit and refund policy](/deposit-refund-policy).
+Choose your puppy in the inquiry form, leave your phone number and email, and add a note if you like. We'll reply {reply_time}, answer your questions and confirm everything in writing. See [how it works](/how-it-works).
 
 ### Can I pick up my puppy?
 We are delivery-only: every puppy is delivered to your door from {city}, {state}.
@@ -579,8 +514,8 @@ A {vet_check_hour} vet check guarantee and a {genetic_year} genetic health guara
 ### How old are puppies when they go home?
 At least {go_home_weeks} old, and only when our veterinarian is happy they're ready.
 
-### Can I see my puppy before I pay?
-Yes. Ask us for recent photos of your puppy and both parents before you pay anything.
+### Can I see more photos of my puppy?
+Yes. Ask us for recent photos of your puppy and both parents any time.
 
 ### Can I meet the parents?
 Both parents are listed on every puppy's page with their registration and health details, and we're happy to send more photos. Meet [our beagles](/our-beagles).
@@ -595,7 +530,7 @@ Beagles come in two size varieties: up to 13 inches at the shoulder (usually und
 Yes. [Join the waitlist](/upcoming-litters) and we'll email you as soon as a new litter is born, before puppies are posted publicly.
 
 ### How do I know you're a real breeder?
-See [how to verify us](/is-beagle-brook-legit): registration numbers you can look up, written agreements and a single email address for payments.
+See [how to verify us](/is-beagle-brook-legit): registration numbers you can look up, written agreements and a single email address.
 
 ### What if I can't keep my beagle one day?
 Contact us first. We will take them back or help rehome them, at any age.
@@ -604,21 +539,17 @@ TXT
     [
       'slug'=>'terms-of-sale', 'menu'=>'Terms of sale', 'title'=>'Terms of sale',
       'seo_title'=>'Terms of Sale | Beagle Brook',
-      'seo_desc'=>'The terms that apply when you reserve and buy a beagle puppy from Beagle Brook: inquiries, deposits, delivery, papers and guarantees.',
+      'seo_desc'=>'The terms that apply when you reserve and buy a beagle puppy from Beagle Brook: inquiries, prices, delivery, papers and guarantees.',
       'body'=><<<'TXT'
-These terms apply when you reserve and buy a puppy from {brand}, {city}, {state}. Each sale also has its own written sales agreement, which you receive before paying a deposit; if anything in it differs from this page, the sales agreement applies.
+These terms apply when you reserve and buy a puppy from {brand}, {city}, {state}. Each sale also has its own written agreement; if anything in it differs from this page, the agreement applies.
 
 ## Inquiries
 
-Sending an inquiry is free and doesn't commit you to anything. A puppy is only reserved once we've confirmed the sale with you in writing and received your deposit.
+Sending an inquiry is free and doesn't commit you to anything. A puppy is only reserved once we've confirmed the sale with you in writing.
 
 ## Prices
 
 The price shown on each puppy's page is in US dollars and includes the veterinarian health check, age-appropriate shots, microchip, starter food and full registration papers. Delivery is charged separately: {delivery_options}. Delivery times count from when your puppy leaves us.
-
-## Deposit and payment
-
-A {deposit} deposit reserves your puppy. The remaining {balance} and the delivery fee are due at delivery. See our [deposit and refund policy](/deposit-refund-policy).
 
 ## Delivery
 
@@ -646,7 +577,7 @@ This policy explains what information {brand} collects on this website and how w
 
 ## What we collect
 
-- **Puppy inquiries:** your name, email, phone number, delivery address, preferred payment method and any notes you write.
+- **Puppy inquiries:** your name, email, phone number, the puppy you ask about and any notes you write.
 - **Waitlist:** your name, email, phone number (optional) and puppy preferences.
 - **Messages:** what you send through our contact form.
 - **Basic site statistics:** pages visited and the type of device, if analytics are enabled. We don't sell or share this.

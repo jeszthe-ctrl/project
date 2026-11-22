@@ -59,7 +59,8 @@ p,ul,ol,dl{margin:0 0 1em}
 .nav.open{display:flex}
 .nav a{padding:11px 4px;text-decoration:none;color:var(--ink);font-weight:550;border-bottom:1px solid var(--line)}
 .nav a[aria-current]{color:var(--brand)}
-.hcta{display:none}
+.hcta{display:inline-flex;margin-left:8px;padding:.5em 1em;font-size:.9rem}
+@media(max-width:759px){.hcta{display:none}}
 @media(min-width:1080px){
   .navbtn{display:none}
   .nav{display:flex;position:static;flex-direction:row;padding:0;border:0;box-shadow:none;background:none;gap:2px}
@@ -67,7 +68,7 @@ p,ul,ol,dl{margin:0 0 1em}
   .nav a:hover{background:var(--band)}
   .nav a[aria-current]{background:var(--band)}
 }
-@media(min-width:1300px){.hcta{display:inline-flex}}
+@media(min-width:1080px) and (max-width:1299px){.hcta{display:none}}
 @media(min-width:1080px) and (max-width:1240px){.brand-t small{display:none}}
 .crumbs{font-size:.87rem;color:var(--muted);padding-top:14px}
 .crumbs ol{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:4px}
@@ -528,3 +529,48 @@ body{background:radial-gradient(1400px 700px at 100% 0,#f6e7d3 0,transparent 55%
 .star-pick input:checked~label,.star-pick label:hover,.star-pick label:hover~label{color:var(--tan)}
 .star-pick input:focus-visible+label{outline:3px solid var(--tan);border-radius:6px}
 .review-cta.inq{align-items:start}
+
+.champ{display:inline-flex;align-items:center;gap:3px;margin-left:6px;padding:2px 8px;border-radius:999px;background:#fdf0d8;color:#8a5a00;font-size:.78rem;font-weight:700;white-space:nowrap}
+.champ .ic{width:.95em;height:.95em;fill:currentColor}
+
+/* getting a puppy in three steps (home) */
+.easy3{display:grid;gap:12px;margin-top:-18px;position:relative;z-index:2}
+@media(min-width:760px){.easy3{grid-template-columns:repeat(3,1fr);gap:16px}}
+.e3{display:flex;gap:14px;align-items:center;padding:16px 18px;border-radius:20px;background:#fff;box-shadow:var(--d2);text-decoration:none;color:var(--ink);transition:transform .2s var(--ease),box-shadow .2s}
+.e3:hover{color:var(--ink);box-shadow:var(--d3)}
+.e3 strong{display:block;font-size:1.02rem}
+.e3 small{display:block;color:var(--muted);font-size:.88rem;line-height:1.4;margin-top:2px}
+.e3-n{flex:none;width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;color:#fff;font:700 1.1rem var(--sans);background:linear-gradient(145deg,#c99a5b,var(--brand));box-shadow:0 4px 0 var(--brand-d)}
+.sec-sub{margin:-6px 0 18px}
+.center{text-align:center;margin-top:24px}
+/* puppy cards: parents and two clear buttons */
+.pcard-par{margin:-4px 0 10px;font-size:.86rem;color:var(--muted)}
+.pcard-btns{display:flex;gap:6px}
+.pcard-f{flex-wrap:wrap}
+/* the chosen dog, shown in the inquiry form */
+.pickbox{display:flex;gap:12px;align-items:center;margin:-4px 0 14px;padding:10px 12px;border-radius:14px;background:var(--brook-l);border:1px solid #cfe5dc}
+.pickbox[hidden]{display:none}
+.pickbox-ph{flex:none;width:64px;height:64px;border-radius:12px;overflow:hidden;background:#d9e9e2}
+.pickbox-ph img{width:64px;height:64px;object-fit:cover;display:block}
+.pickbox strong{display:block}
+.pickbox small{display:block;color:var(--muted);font-size:.84rem;line-height:1.35}
+.pickbox a{font-size:.86rem;font-weight:600}
+/* beagle facts and questions (home) */
+.know-in{display:grid;gap:28px}
+@media(min-width:980px){.know-in{grid-template-columns:1.1fr .9fr;gap:44px}}
+.facts-t{width:100%}
+.facts-h{font-size:1.15rem;margin:1.2em 0 .6em}
+.facts-t th{width:34%;text-align:left;vertical-align:top}
+.more-l{font-size:.84rem;white-space:nowrap}
+.faqs details{border-bottom:1px solid var(--line);padding:4px 0}
+.faqs summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 0}
+.faqs summary::-webkit-details-marker{display:none}
+.faqs summary::after{content:"+";font:600 1.3rem var(--sans);color:var(--brand);flex:none}
+.faqs details[open] summary::after{content:"–"}
+.faqs summary h3{margin:0;font-size:1.05rem;font-family:var(--sans);font-weight:650}
+.faqs details p{margin:0 0 12px;color:var(--ink)}
+/* thank-you summary */
+.sent{display:grid;gap:8px;margin:0 0 1.4em}
+.sent div{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:10px 14px;border-radius:12px;background:var(--band)}
+.sent dt{font-weight:700}.sent dd{margin:0}
+.mbar-main{flex:1.7!important;text-align:center}
