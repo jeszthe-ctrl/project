@@ -125,7 +125,7 @@ Tricolor puppies are often born almost completely black and white. Over the firs
 
 ## Does color affect a tricolor beagle?
 
-No. Color doesn't change a beagle's temperament, health or size. Tricolor beagles shouldn't cost more or less than other colors. See [beagle price](/beagle-price-cost).
+No. Color doesn't change a beagle's temperament, health or size. Tricolor beagles shouldn't cost more or less than other colors. See our [beagle puppies for sale](/beagle-puppies-for-sale).
 
 ## Other beagle colors
 
@@ -170,7 +170,7 @@ Puppies are usually born with white areas that look clean, and ticking appears o
 
 ## Price and care
 
-Ticking doesn't change a beagle's health, size or temperament, so a bluetick beagle shouldn't cost more than other colors. Care is the same as for any beagle: weekly brushing, weekly ear checks and measured meals. See [beagle price](/beagle-price-cost) and [do beagles shed?](/guides/do-beagles-shed)
+Ticking doesn't change a beagle's health, size or temperament, so a bluetick beagle shouldn't cost more than other colors. Care is the same as for any beagle: weekly brushing, weekly ear checks and measured meals. See our [beagle puppies for sale](/beagle-puppies-for-sale) and [do beagles shed?](/guides/do-beagles-shed)
 
 ## Questions
 
@@ -212,7 +212,7 @@ Many tricolor puppies are born mostly black and white. The tan usually appears o
 
 ## Price
 
-Be cautious of sellers who charge a big premium for "rare" black and white beagles. Color says nothing about health or breeding. See [beagle price](/beagle-price-cost) and all [beagle colors](/guides/beagle-colors).
+Be cautious of sellers who charge a big premium for "rare" black and white beagles. Color says nothing about health or breeding. See our [beagle puppies for sale](/beagle-puppies-for-sale) and all [beagle colors](/guides/beagle-colors).
 
 ## Questions
 

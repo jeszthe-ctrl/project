@@ -128,6 +128,15 @@ function site_upgrade($s, $d, $version){
     $s['guarantees'] = array_values(array_filter($s['guarantees'], fn($g)=>stripos($g['title'], 'deposit') === false));
     foreach(['pages', 'articles'] as $g) foreach($s[$g] as $i=>$item) $s[$g][$i]['body'] = str_replace('(/deposit-refund-policy)', '(/how-it-works)', $item['body']);
   }
+  if($version < 4){
+    /* no separate price page: each puppy's price is listed with the puppy */
+    $s['pages'] = array_values(array_filter($s['pages'], fn($x)=>$x['slug'] !== 'beagle-price-cost'));
+    $s['removed']['pages'] = array_values(array_unique(array_merge($s['removed']['pages'] ?? [], ['beagle-price-cost'])));
+    foreach($s['redirects'] as $from=>$to) if($to === 'beagle-price-cost') $s['redirects'][$from] = 'beagle-puppies-for-sale';
+    $s['redirects'] += ['beagle-price-cost'=>'beagle-puppies-for-sale'];
+    foreach(['pages', 'articles'] as $g) foreach($s[$g] as $i=>$item) $s[$g][$i]['body'] = str_replace('(/beagle-price-cost)', '(/beagle-puppies-for-sale)', $item['body']);
+    foreach($s['settings'] as $k=>$v) if(is_string($v)) $s['settings'][$k] = str_replace('(/beagle-price-cost)', '(/beagle-puppies-for-sale)', $v);
+  }
   $s['settings']['content_version'] = (int)$d['settings']['content_version'];
   return $s;
 }
@@ -453,7 +462,7 @@ function rich_inline($s){
 }
 
 /* links in admin text: a full https:// or mailto: address, or a page of the site written as
-   /path (e.g. /health-guarantee, /beagle-price-cost, /beagle-puppies-for-sale) */
+   /path (e.g. /health-guarantee, /how-it-works, /beagle-puppies-for-sale) */
 function link_target($t){
   if(preg_match('#^(https?://|mailto:|tel:|sms:)#i', $t)) return $t;
   if(preg_match('#^/([a-z0-9/_-]*)(\#[\w-]+)?$#', $t, $m)) return function_exists('path_url') ? path_url($m[1]).($m[2] ?? '') : $t;

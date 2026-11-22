@@ -11,10 +11,12 @@ return array (
     array (
       0 => 'b898cd1f6b675fd62e50071d67eecd56',
       1 => 'a9cedc14fa72bd9bad1e294243c7efd9',
+      2 => '97b3cf1c0d2277372023329901354297',
     ),
     'health-guarantee' => 
     array (
       0 => 'bbeae0f7c32e30b099fceed3f7ff85ce',
+      1 => '4cba9a652525be75145abbfe93324075',
     ),
     'deposit-refund-policy' => 
     array (
@@ -24,6 +26,7 @@ return array (
     'puppy-delivery' => 
     array (
       0 => 'd437b52e5d158b390492decb5aeb9d5e',
+      1 => '2244d5263b3c346fc3f6a5e39d314837',
     ),
     'whats-included' => 
     array (
@@ -33,6 +36,7 @@ return array (
     array (
       0 => 'b412ab3c91fb296ef56a30b425bb538c',
       1 => 'ec966a8367ebb4af925aa643819bfac6',
+      2 => 'c35a2ccd1815dcb97b4c66078d9d596a',
     ),
     'about' => 
     array (
@@ -42,6 +46,7 @@ return array (
     array (
       0 => '1b444b89f839f4e71bb3e48ce6be8dbd',
       1 => 'ac6b302f50d9c66c270c96e511924e76',
+      2 => 'b7bfc618f67496b8ab3938d07281e4f1',
     ),
     'beagle-puppies-for-sale-ohio' => 
     array (
@@ -50,10 +55,12 @@ return array (
     'terms-of-sale' => 
     array (
       0 => '3cea356200be2008180e3eba45ff0b40',
+      1 => '4f4a7ca217e010ff12342296b2ed87b7',
     ),
     'privacy-policy' => 
     array (
       0 => 'fed5ed74b7e862eedb7324c120357a65',
+      1 => 'aabf5c8aebb4378b0249f9fa06410ed1',
     ),
     'beagle-price-cost' => 
     array (
@@ -102,6 +109,7 @@ return array (
       0 => '7bd6d1af1787aa59833fa11f1fdce95b',
       1 => 'c32df7f5a1d93e5fbdf12d803151141f',
       2 => 'eeb90ccd6ab8c6110398fa0c7552e7ec',
+      3 => 'e4465cd4ef397ca986f4adb775654ab8',
     ),
     'beagle-adoption-vs-breeder' => 
     array (
@@ -220,6 +228,7 @@ return array (
     array (
       0 => '59b3c369876c6f1b3be498138a189fe2',
       1 => '35393632e10c28a191c2574df29c1dad',
+      2 => '0f31f763dc7c3dbcf04adccc30cf7a9d',
     ),
     'beagle-boxer-mix' => 
     array (
@@ -348,17 +357,20 @@ return array (
     'welcome' => 
     array (
       0 => '7507841ef8eeea9357c1dd81836870a3',
+      1 => 'ed99a23394aa6487bd6fedb5dc86fc2f',
     ),
   ),
   'guarantees' => 
   array (
     0 => '5d77b569ef685175b6be4d5727772884',
     1 => '39d847e3eefc255d4de4fdf97ac7d79b',
+    2 => 'd7e96df0d00afaf127bc5e76f0aad5a1',
   ),
   'steps' => 
   array (
     0 => 'fb3f6ccb56c1eee7332578b544376579',
     1 => '2aaacf583467a2e13edbb93055fb0c12',
+    2 => '60c383c633db535b32f4f16c2785e214',
   ),
   'included' => 
   array (
@@ -393,6 +405,7 @@ return array (
     'home_seo_desc' => 
     array (
       0 => '113d62c8aec9aeee488f330962873f4a',
+      1 => 'cd2936a8339b8f9228e0826bfcea4a42',
     ),
     'puppies_title' => 
     array (
@@ -435,6 +448,7 @@ return array (
     'delivery_note' => 
     array (
       0 => 'cb753338269926aee06b7ebc8b9bac0b',
+      1 => '86aef9132e7abcf0b25a89870fc92cc0',
     ),
     'brand' => 
     array (

@@ -402,7 +402,7 @@ Usually yes — they're affectionate and playful. Supervise them with small chil
 Some do. They may inherit the beagle's baying or the Boxer's watchdog bark.
 
 ### Do you breed Bogles?
-No. Beagle Brook raises purebred beagles only. If you love the beagle side, see our [beagle puppies for sale](/beagle-puppies-for-sale) or compare [beagle prices](/beagle-price-cost). More mixes: [beagle mix breeds](/guides/beagle-mix-breeds).
+No. Beagle Brook raises purebred beagles only. If you love the beagle side, see our [beagle puppies for sale](/beagle-puppies-for-sale). More mixes: [beagle mix breeds](/guides/beagle-mix-breeds).
 TXT
 ],
 [
@@ -459,7 +459,7 @@ Often, yes — more than many beagles, because Corgis shed heavily.
 Generally yes, but some herd and nip at running children, so teach gentle play and supervise.
 
 ### Do you breed Beagis?
-No. Beagle Brook raises purebred beagles only. See our [beagle puppies for sale](/beagle-puppies-for-sale), what a beagle [costs](/beagle-price-cost), or more [beagle mix breeds](/guides/beagle-mix-breeds).
+No. Beagle Brook raises purebred beagles only. See our [beagle puppies for sale](/beagle-puppies-for-sale), or more [beagle mix breeds](/guides/beagle-mix-breeds).
 TXT
 ],
 ];

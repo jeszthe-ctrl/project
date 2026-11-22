@@ -50,7 +50,7 @@ return [
     'smtp_host'       => '', 'smtp_port' => '', 'smtp_secure' => 'tls', 'smtp_user' => '', 'smtp_pass' => '',
     'alert_phone'     => '', 'alert_sms_email' => '', 'twilio_sid' => '', 'twilio_token' => '', 'twilio_from' => '',
     'pretty_urls'     => false, 'pretty_auto' => false,
-    'content_version' => 3,   /* see site_load(): changes applied once to sites installed earlier */
+    'content_version' => 4,   /* see site_load(): changes applied once to sites installed earlier */
   ],
 
   /* delivery options and prices (Admin → Delivery). Times count from when the puppy leaves us. */
@@ -89,7 +89,7 @@ return [
     ['title'=>'Age-appropriate shots', 'text'=>'Puppy vaccinations given on schedule for their age, recorded in their health record so your vet can continue the series.'],
     ['title'=>'Microchip', 'text'=>'Microchipped before they leave us. We help you register the chip in your name.'],
     ['title'=>'Starter food', 'text'=>'A supply of the food your puppy is already eating, so their tummy has an easy first week.'],
-    ['title'=>'Full registration papers', 'text'=>'Full registration papers in your name, with the registered names and numbers of both parents.'],
+    ['title'=>'All puppy documents, including names', 'text'=>'Full registration papers, vet and vaccination records and microchip details, with your puppy’s name and both parents’ registered names and numbers. Ask to see any of them before delivery.'],
     ['title'=>'Written health guarantee', 'text'=>'A {vet_check_hour} vet check guarantee and a {genetic_year} genetic health guarantee, in writing.'],
   ],
 
@@ -325,91 +325,6 @@ On delivery day you receive:
 {guarantees}
 
 See the full [health guarantee](/health-guarantee), or browse [beagle puppies for sale](/beagle-puppies-for-sale).
-TXT
-    ],
-    [
-      'slug'=>'beagle-price-cost', 'menu'=>'Beagle price', 'title'=>'Beagle price: how much does a beagle puppy cost?',
-      'seo_title'=>'Beagle Price: How Much Does a Beagle Puppy Cost? (2026)',
-      'seo_desc'=>'Beagle puppy prices in 2026: breeder vs. show lines, pocket beagles and rare colors, our live puppy prices, first-year costs and the lifetime cost of a beagle.',
-      'answer'=>'A purebred beagle puppy from a reputable US breeder usually costs about $800 to $2,500 in 2026; show-line puppies often cost more, and adopting from a rescue costs about $100 to $500. Expect around $1,500 to $4,000 in first-year costs on top, then roughly $1,000 to $2,500 a year.',
-      'body'=><<<'TXT'
-## Beagle puppy prices at a glance
-
-| Type of beagle | Typical price | What to know |
-|---|---|---|
-| Pet-quality purebred from a breeder | About $800 to $2,500 | Vet checked, vaccinated and registered; the right choice for most families |
-| Show or champion lines | Often $2,000 and up | Bred to the breed standard for showing; price reflects the parents' titles |
-| "Pocket" or "mini" beagle | Often advertised above standard beagles | Not a recognized size; higher health risks. See [pocket beagles](/guides/pocket-beagle) |
-| Lemon, bluetick or other "rare" colors | Should be the same as other colors | Some sellers add a premium; color doesn't change health or temperament. See [beagle colors](/guides/beagle-colors) |
-| Rescue or shelter adoption | About $100 to $500 | Usually an adult dog; see [adoption vs. breeder](/guides/beagle-adoption-vs-breeder) |
-| "Too good to be true" listing | A few hundred dollars | A common scam pattern; see [how to verify a breeder](/is-beagle-brook-legit) |
-
-Typical ranges across US breeders; prices vary by region and change over time.
-
-{price_cta}
-
-## Our beagle puppy prices right now
-
-{our_prices}
-
-Every Beagle Brook puppy's price includes a veterinarian health check, age-appropriate shots, a microchip, starter food and full registration papers. Delivery to your door is separate: {delivery_options}.
-
-## What affects a beagle puppy's price?
-
-- **The parents' health testing.** Hip and eye exams and DNA tests cost money — and protect your puppy.
-- **Vet care before going home.** Exams, vaccinations and deworming.
-- **Registration.** Full registration usually costs more than limited registration. Ours always come with full papers.
-- **Bloodlines.** Show and field champion parents raise the price.
-- **What's included.** Microchip, food, health guarantee — compare like for like.
-- **Delivery.** Whether it's included, and how far.
-- **Demand.** Prices are often higher in spring and in big cities.
-
-## First-year cost of a beagle
-
-| Item | Typical first-year cost |
-|---|---|
-| Crate, bed, bowls, leash, harness, toys | $150 to $400 |
-| Remaining puppy vaccinations and checkups | $200 to $600 |
-| Spay or neuter | $200 to $800 |
-| Food | $300 to $700 |
-| Flea, tick and heartworm prevention | $200 to $500 |
-| Puppy training classes | $150 to $400 |
-| Pet insurance (optional) | $300 to $700 |
-| **Total, besides the puppy** | **About $1,500 to $4,000** |
-
-## Yearly and lifetime cost
-
-After the first year, most owners spend about **$1,000 to $2,500 a year** on food, routine vet care, parasite prevention, toys and insurance. Beagles usually live 12 to 15 years, so the lifetime cost of a beagle — including the puppy — is commonly somewhere around **$15,000 to $35,000**, more if your beagle needs major vet care. Read [how long beagles live](/guides/beagle-lifespan).
-
-## How to save money without cutting corners
-
-- Choose a puppy whose price already includes vet care, a microchip and papers.
-- Keep your beagle lean: obesity drives many vet bills. See [best dog food for beagles](/guides/best-dog-food-for-beagles).
-- Budget for preventive care — vaccines, parasite prevention and dental care cost less than treatment.
-- Consider pet insurance while your puppy is young and healthy.
-
-## Price red flags
-
-Walk away from any seller who prices beagle puppies far below the norm, asks for gift cards, cryptocurrency or wire transfers, adds surprise fees for "shipping insurance" or "special crates", or won't put anything in writing. Read [how to find a reputable beagle breeder](/guides/how-to-find-a-beagle-breeder).
-
-{price_cta}
-
-## Questions
-
-### How much is a beagle puppy?
-From a reputable US breeder, usually about $800 to $2,500. Show-line puppies often cost more; rescue adoption is about $100 to $500.
-
-### Why are some beagles so cheap?
-Very low prices usually mean little vet care, no health testing — or no real puppy at all. Raising a healthy litter properly costs money.
-
-### Do lemon or bluetick beagles cost more?
-They shouldn't. Coat color doesn't affect health or temperament, so be cautious of big "rare color" premiums.
-
-### How much does a beagle cost per year?
-Usually about $1,000 to $2,500 a year after the first year, which costs more because of vaccinations, spay or neuter and supplies.
-
-### Is a 13-inch beagle cheaper than a 15-inch?
-Not usually. Size rarely changes the price from reputable breeders. See [13-inch vs. 15-inch beagles](/guides/13-inch-vs-15-inch-beagle).
 TXT
     ],
     [

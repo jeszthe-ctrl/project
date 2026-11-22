@@ -662,7 +662,7 @@ Vet check, age-appropriate shots, a microchip, starter food and full papers. See
 About 30 inches for a 13-inch beagle and 30 to 36 inches for a 15-inch beagle.
 
 ### How much does it cost to get ready for a puppy?
-Supplies usually run about $150 to $400. See [beagle price](/beagle-price-cost).
+Supplies usually run about $150 to $400. See our [beagle puppies for sale](/beagle-puppies-for-sale).
 
 ### What should I do on the first day?
 Keep it calm, start a potty routine and let your puppy rest. See [puppy care](/guides/beagle-puppy-care).

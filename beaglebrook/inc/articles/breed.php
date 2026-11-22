@@ -248,7 +248,7 @@ Yes — a lot. Tan spreads, black saddles can fade or "open", lemons darken from
 
 ## Does color affect price or health?
 
-It shouldn't affect either. Be cautious of anyone charging much more for "rare" colors: color says nothing about a puppy's health, temperament or breeding. What matters is healthy, well-tested parents and a good start in life. See [how much does a beagle cost?](/beagle-price-cost)
+It shouldn't affect either. Be cautious of anyone charging much more for "rare" colors: color says nothing about a puppy's health, temperament or breeding. What matters is healthy, well-tested parents and a good start in life. See our [beagle puppies for sale](/beagle-puppies-for-sale), each listed with its price
 
 ## Questions
 
@@ -305,7 +305,7 @@ Lemon is **less common** than tricolor or red and white, but it's a well-known b
 
 ## Lemon beagle price
 
-A lemon beagle should cost about the same as any other well-bred beagle puppy. Price should reflect health testing, care, registration and what comes with the puppy — not coat color. Read [how much does a beagle cost?](/beagle-price-cost)
+A lemon beagle should cost about the same as any other well-bred beagle puppy. Price should reflect health testing, care, registration and what comes with the puppy — not coat color. See our [beagle puppies for sale](/beagle-puppies-for-sale), each listed with its price
 
 ## Lemon beagle temperament and care
 
@@ -368,7 +368,7 @@ None of this is certain for any one puppy, but the risk is why reputable beagle 
 
 ## Pocket beagle size and price
 
-Pocket beagles are usually advertised at 7 to 12 inches tall and 7 to 15 pounds, often at a higher price than standard beagles. Paying more for a size the breed doesn't recognize — with higher health risks — is rarely a good deal. See [how much does a beagle cost?](/beagle-price-cost)
+Pocket beagles are usually advertised at 7 to 12 inches tall and 7 to 15 pounds, often at a higher price than standard beagles. Paying more for a size the breed doesn't recognize — with higher health risks — is rarely a good deal. See our [beagle puppies for sale](/beagle-puppies-for-sale), each listed with its price
 
 ## The better choice: a 13-inch beagle
 

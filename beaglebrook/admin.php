@@ -1303,7 +1303,7 @@ function view_payments(){
   global $SITE;
   $rows = $SITE['payments']; $rows[] = ['key'=>'', 'name'=>'', 'note'=>'', 'on'=>true];
   ?><h1>Payment methods</h1>
-  <p class="mut">Customers choose their preferred method in the inquiry form. Payment details are never shown on the website — you send them by email after you’ve talked, which protects your customers from copycat scammers. Add a short note if you like (e.g. “PayPal Goods &amp; Services”); notes show on the Deposit &amp; refunds page.</p>
+  <p class="mut">Private: nothing here is shown on the website. Payment methods and details are only used in the emails you send from an inquiry, after you’ve talked with the customer.</p>
   <p class="help"><strong>Payment details</strong> (your PayPal email, Zelle phone, bank account…) are private: they’re never on the website, only in the “Payment instructions” email you send from an inquiry.</p>
   <?= form_start('save_payments') ?><div class="tw"><table><tr><th>On</th><th>Name</th><th>Note on the website (optional)</th><th>Payment details (private)</th></tr>
   <?php foreach($rows as $i=>$p): ?><tr><td><input type="hidden" name="pay[<?= $i ?>][key]" value="<?= h($p['key']) ?>"><input type="checkbox" name="pay[<?= $i ?>][on]" value="1"<?= $p['on'] ? ' checked' : '' ?>></td>

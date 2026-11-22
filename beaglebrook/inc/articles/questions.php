@@ -60,7 +60,7 @@ Dogs sold as pocket or miniature beagles are bred smaller than the two recognize
 No. The 13-inch beagle is one of the two recognized varieties of the breed. "Miniature" or "pocket" beagles are bred smaller than the standard.
 
 ### Do 15-inch beagles cost more?
-Not usually. Size variety rarely changes the price. See [how much a beagle costs](/beagle-price-cost).
+Not usually. Size variety rarely changes the price. Each of our [beagle puppies for sale](/beagle-puppies-for-sale) is listed with its price.
 
 ### Can a 13-inch beagle grow taller than 13 inches?
 Yes, it can happen. Size is predicted, not guaranteed, which is why the parents' sizes are the best guide.

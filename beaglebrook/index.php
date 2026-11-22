@@ -231,6 +231,8 @@ elseif(count($seg) === 1 && ($info = info_page($PATH))) $page = 'info';
 /* a puppy whose page was removed: send visitors to the list rather than a dead end */
 /* addresses that moved (Admin → Redirects) */
 if($page === 'notfound' && isset($SITE['redirects'][$PATH])){ $u = url($SITE['redirects'][$PATH]); header('Location: '.$BASE.($u === './' ? '' : $u), true, 301); exit; }
+/* the old price page: prices are listed with each puppy */
+if($page === 'notfound' && ($PATH === 'beagle-price-cost' || $PATH === 'guides/beagle-price')){ header('Location: '.$BASE.url(PUPPIES_PATH), true, 301); exit; }
 if($page === 'notfound' && count($seg) === 2 && $seg[0] === 'puppies' && ($old = find_by(public_puppies(), 'old_slug', $seg[1]))){ header('Location: '.$BASE.puppy_url($old), true, 301); exit; }
 if($page === 'notfound' && count($seg) === 2 && $seg[0] === PUPPIES_PATH){ header('Location: '.$BASE.url(PUPPIES_PATH), true, 301); exit; }
 
