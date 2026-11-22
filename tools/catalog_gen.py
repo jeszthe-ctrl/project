@@ -198,16 +198,41 @@ TYPES = {  # type: (category, weight kg, sku code, label)
  'opstarter': ('onepiece', 0.18, 'OPS', 'starter deck'),
 }
 
-DISCOUNT = 0.92   # prices sit 8% under the market estimates in the list below
+# ---------------------------------------------------------------- pricing (wholesale)
+# Products still in print are priced from their US retail price (MSRP) at wholesale level; out-of-print
+# products have no wholesale channel, so they sit 15% under the market estimates in the list above.
+IN_PRINT_SETS = {'Delta Reign', 'Pitch Black', 'Chaos Rising', 'Perfect Order', 'Phantasmal Flames', 'Mega Evolution', '30th Celebration'}
+IN_PRINT_NAMES = ('Mega Forces Tin', 'Mega Greninja ex League Battle Deck', 'Unova Heavy Hitters', 'Mega Rayquaza ex Premium Tournament',
+                  'Mega Charizard X ex Ultra-Premium', 'Greninja ex Ultra-Premium')
+OP_IN_PRINT = ('OP-13', 'OP14', 'OP15', 'OP-16', 'OP-17', 'OP-18', 'OP-19', 'EB-05', 'EB-06', 'ST-')
+MSRP = {'etb': 49.99, 'pcetb': 59.99, 'display': 161.64, 'bundle': 26.94, 'bb': 21.99, 'sleeved': 4.49, 'loose': 4.49,
+        'blister3': 14.99, 'checklane': 4.99, 'pchecklane': 9.99, 'case_display': 6 * 161.64, 'case_etb': 10 * 49.99,
+        'upc': 119.99, 'figure': 29.99, 'binder': 29.99, 'poster': 19.99, 'minitin': 9.99, 'blister2': 9.99, 'deck': 14.99,
+        'leaguedeck': 29.99, 'tin': 26.99, 'opbox': 24 * 4.49, 'opextra': 24 * 4.49, 'opstarter': 11.99}
+PREMIUM_MSRP = {'Ditto Premium': 39.99, 'Knock Out': 14.99, 'Unova Heavy Hitters': 49.99, 'Premium Tournament': 59.99}
+WHOLESALE = {'display': 0.70, 'case_display': 0.68, 'case_etb': 0.72, 'pcetb': 0.90, 'upc': 0.80, 'opbox': 0.72, 'opextra': 0.72}
+UNDER_MARKET = 0.85
+
+def in_print(p):
+    if p['typ'] in ('opbox', 'opextra', 'opstarter'): return p.get('code', '').startswith(OP_IN_PRINT)
+    if p['typ'] in ('jpbox', 'jpdeckset', 'case_upc'): return False
+    return p['set'] in IN_PRINT_SETS or any(k in p['name'] for k in IN_PRINT_NAMES)
+
+def wholesale_price(p):
+    if in_print(p):
+        msrp = MSRP.get(p['typ'])
+        if p['typ'] == 'premium': msrp = next((v for k, v in PREMIUM_MSRP.items() if k in p['name']), None)
+        if msrp: return nice(msrp * WHOLESALE.get(p['typ'], 0.75)), 'wholesale'
+    return nice(p['price'] * UNDER_MARKET), 'under market'
 
 def nice(x):
     if x < 10: return round(math.floor((x + 0.01) * 10) / 10 - 0.01, 2)   # 6.39, 5.49 …
     return math.floor(x * 2) / 2 - 0.01        # 52.49, 52.99 …
 
-def ladder(p):
-    if p < 15:  tiers = [(1, 1), (10, .93), (36, .87), (100, .82)]
-    elif p < 300: tiers = [(1, 1), (4, .95), (6, .92), (10, .88), (24, .85)]
-    else: tiers = [(1, 1), (2, .96), (4, .93), (6, .90)]
+def ladder(p):   # gentle bulk tiers: prices already sit at wholesale level
+    if p < 15:  tiers = [(1, 1), (10, .95), (36, .92), (100, .88)]
+    elif p < 300: tiers = [(1, 1), (4, .97), (6, .95), (10, .93), (24, .90)]
+    else: tiers = [(1, 1), (2, .98), (4, .96), (6, .94)]
     return [[q, p if f == 1 else nice(p * f)] for q, f in tiers]
 
 def clean_name(n): return n
@@ -367,18 +392,26 @@ for p in P:
     cat, kg, code, _ = TYPES[p['typ']]
     counters[code] = counters.get(code, 0) + 1
     lang = 'Japanese' if p['typ'] in ('jpbox', 'jpdeckset') else 'English'
-    p['price'] = nice(p['price'] * DISCOUNT)
+    p['market'] = p['price']
+    p['price'], p['rule'] = wholesale_price(p)
     lad = ladder(p['price'])
     out.append({'id': pid, 'sku': f"PK-{code}-{counters[code]:03d}", 'name': p['name'], 'set': p['set'], 'cat': cat, 'cond': 'Sealed', 'lang': lang,
                 'moq': 1, 'step': 1, 'status': p.get('status', 'in'), 'release': p.get('release', ''), 'weight': kg, 'hidden': False,
-                'ladder': lad, 'desc': desc(p), 'seo_title': seo_title(p), 'seo_desc': seo_desc(p, p['price']), 'added': '2026-11'})
+                'ladder': lad, 'desc': desc(p), 'seo_title': seo_title(p), 'seo_desc': seo_desc(p, p['price']), 'added': '2026-11',
+                '_rule': p['rule'], '_market': p['market']})
 ids = [o['id'] for o in out]; assert len(ids) == len(set(ids))
 for o in out: assert len(o['seo_desc']) <= 160, (o['id'], len(o['seo_desc']))
 src = ("<?php\n/* The product range added in November 2026: English Pokémon TCG sealed product (30th Celebration, Mega Evolution,\n"
        "   Scarlet & Violet, Sword & Shield), Japanese booster boxes and English One Piece Card Game. New shops get these\n"
        "   with the starting data; shops installed earlier get any that are missing, once (content update 10).\n"
-       "   Prices are set 8% under market estimates, in USD: check them in Admin → Products. */\n"
+       "   Prices are wholesale: in-print products from their US retail price (MSRP), out-of-print ones 15% under market.\n"
+       "   USD; check them in Admin → Products. */\n"
        "if(!defined('FK_ROOT')){ http_response_code(404); exit; }\n\nreturn [\n")
+import csv
+with open('/tmp/claude-0/-home-user-project/2c990d2c-20a8-59ab-9acc-b81f91eb48d0/scratchpad/pricing_report.csv', 'w', newline='') as fh:
+    w = csv.writer(fh); w.writerow(['name', 'rule', 'market estimate', 'new price'])
+    for o in out: w.writerow([o['name'], o['_rule'], o['_market'], o['ladder'][0][1]])
+for o in out: o.pop('_rule'); o.pop('_market')
 src += ',\n'.join('  ' + php(o, 2) for o in out) + '\n];\n'
 open('inc/catalog.php', 'w').write(src)
 print(len(out), 'products;', sum(1 for o in out if o['cat'] == 'onepiece'), 'One Piece;', sum(1 for o in out if o['status'] == 'preorder'), 'preorders')

@@ -83,7 +83,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 14;
+const CONTENT_VERSION = 15;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -258,6 +258,15 @@ function content_upgrade($s, $d, $version){
       'Yes, from Japan with tracking to {countries} countries.'=>'Yes, worldwide from Japan with tracking.'];
     foreach(['settings', 'pages', 'guides', 'faqs', 'categories', 'series', 'sets', 'collections'] as $k)
       if(isset($s[$k]) && is_array($s[$k])) array_walk_recursive($s[$k], function(&$v) use($cut){ if(is_string($v)) $v = strtr($v, $cut); });
+  }
+  if($version < 15){   /* wholesale prices for the November 2026 range: only products whose prices the owner hasn't changed */
+    $was = require FK_ROOT.'/inc/catalog-prices-v14.php';
+    $now = array_column(require FK_ROOT.'/inc/catalog.php', null, 'id');
+    foreach($s['products'] ?? [] as $i=>$p){
+      $id = $p['id'] ?? ''; if(!isset($was[$id], $now[$id])) continue;
+      if(md5(json_encode($p['ladder'] ?? [])) === $was[$id][0]) $s['products'][$i]['ladder'] = $now[$id]['ladder'];
+      if(md5((string)($p['seo_desc'] ?? '')) === $was[$id][1]) $s['products'][$i]['seo_desc'] = $now[$id]['seo_desc'];
+    }
   }
   $s['settings']['content_version'] = CONTENT_VERSION;
   return $s;
