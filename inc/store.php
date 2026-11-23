@@ -81,8 +81,9 @@ function store_load(){
 }
 
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
-   earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
-   replaced item is checked against the exact default text it shipped with. */
+   earlier. It only adds what's missing, and only replaces text and prices the owner hasn't edited: each
+   replaced item is checked against the exact default it shipped with. Orders, reviews, payment methods,
+   photos, stock status, visibility and anything else set in admin are never changed. */
 const CONTENT_VERSION = 19;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
@@ -280,32 +281,27 @@ function content_upgrade($s, $d, $version){
         '- Price per case drops from 6 cases'=>'- Lower price per box than ten loose boxes, and lower again from 2, 4 and 6 cases']);
     }
   }
-  if($version < 17){   /* deeper bulk tiers (5/8/12/15% off), and every product on sale */
+  if($version < 17){   /* deeper bulk tiers (5/8/12/15% off) */
     $was = require FK_ROOT.'/inc/prices-v16.php';
     $now = array_column($d['products'], null, 'id');
     foreach($s['products'] ?? [] as $i=>$p){
       $id = $p['id'] ?? ''; if(!isset($was[$id], $now[$id])) continue;
       if(md5(json_encode($p['ladder'] ?? [])) === $was[$id][0]) $s['products'][$i]['ladder'] = $now[$id]['ladder'];
       if(md5((string)($p['seo_desc'] ?? '')) === $was[$id][1]) $s['products'][$i]['seo_desc'] = $now[$id]['seo_desc'] ?? '';
-      if($id === 'pokemon-30th-celebration-upc-factory-sealed-case-configuration') $s['products'][$i]['hidden'] = false;   /* back on sale */
     }
   }
-  if($version < 18){   /* case contents (the 30th Celebration UPC case: 2 Day + 2 Night), case prices, nothing sold out */
+  if($version < 18){   /* case contents (the 30th Celebration UPC case: 2 Day + 2 Night) and case prices */
     $was = require FK_ROOT.'/inc/prices-v17.php';
     $now = array_column($d['products'], null, 'id');
     foreach($s['products'] ?? [] as $i=>$p){
       $id = $p['id'] ?? '';
-      if(($p['status'] ?? '') === 'soldout') $s['products'][$i]['status'] = 'in';   /* the owner has no sold-out items */
       if(!isset($was[$id], $now[$id])) continue;
       if(md5(json_encode($p['ladder'] ?? [])) === $was[$id][0]) $s['products'][$i]['ladder'] = $now[$id]['ladder'];
       if(md5((string)($p['seo_desc'] ?? '')) === $was[$id][1]) $s['products'][$i]['seo_desc'] = $now[$id]['seo_desc'] ?? '';
       if(md5((string)($p['name'] ?? '')) === $was[$id][2]) $s['products'][$i]['name'] = $now[$id]['name'];
       if(md5((string)($p['desc'] ?? '')) === $was[$id][3]) $s['products'][$i]['desc'] = $now[$id]['desc'];
       if(!empty($now[$id]['pack']) && empty($p['pack'])) $s['products'][$i]['pack'] = $now[$id]['pack'];
-      if($id === 'pokemon-30th-celebration-upc-factory-sealed-case-configuration'){
-        $s['products'][$i]['status'] = 'in'; $s['products'][$i]['hidden'] = false; $s['products'][$i]['weight'] = $now[$id]['weight'];
-        if(md5((string)($p['name'] ?? '')) === $was[$id][2]) $s['products'][$i]['seo_title'] = $now[$id]['seo_title'];
-      }
+      if($id === 'pokemon-30th-celebration-upc-factory-sealed-case-configuration' && md5((string)($p['name'] ?? '')) === $was[$id][2]) $s['products'][$i]['seo_title'] = $now[$id]['seo_title'];
     }
   }
   if($version < 19){   /* distributor-level prices: in print 60% of US retail, the rest 20% under market */
