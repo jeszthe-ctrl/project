@@ -185,6 +185,41 @@ if($act === 'delete_page'){
   if($i !== null){ $slug = $SITE['pages'][$i]['slug']; array_splice($SITE['pages'], $i, 1); $SITE['removed']['pages'][] = $slug; add_redirect($slug, ''); save('Page deleted. Its address now leads to the home page.'); }
   go('pages');
 }
+/* ---- photos: your own schnauzer photos for the gallery and the breed guides ---- */
+function photo_alt($breed, $color){ return trim((GALLERY_COLORS[$color] ?? '').' '.strtolower(GALLERY_BREEDS[$breed] ?? 'schnauzer')); }
+if($act === 'upload_photos'){
+  $breed = isset(GALLERY_BREEDS[in_line('breed')]) ? in_line('breed') : 'miniature';
+  $color = isset(GALLERY_COLORS[in_line('color')]) ? in_line('color') : 'other';
+  $caption = in_line('caption', 200); $n = 0;
+  foreach(upload_list('photos') as $f){
+    $r = save_upload($f, ($color !== 'other' ? $color.'-' : '').$breed.'-schnauzer');
+    if($r === '') continue;
+    if($r[0] === '!'){ note(substr($r, 1), 'err'); continue; }
+    array_unshift($SITE['gallery'], ['id'=>new_id(), 'file'=>$r, 'breed'=>$breed, 'color'=>$color, 'caption'=>$caption, 'alt'=>$caption !== '' ? $caption : ucfirst(photo_alt($breed, $color)), 'date'=>date('Y-m-d')]);
+    $n++;
+  }
+  if($n) save($n === 1 ? 'Photo added.' : $n.' photos added.'); else note('Choose one or more photos to upload.', 'err');
+  go('photos');
+}
+if($act === 'save_photos'){
+  foreach($SITE['gallery'] as $i=>$p){
+    $id = $p['id']; $in = $_POST['p'][$id] ?? null;
+    if(!is_array($in)) continue;
+    $b = (string)($in['breed'] ?? ''); $c = (string)($in['color'] ?? '');
+    $SITE['gallery'][$i]['breed'] = isset(GALLERY_BREEDS[$b]) ? $b : $p['breed'];
+    $SITE['gallery'][$i]['color'] = isset(GALLERY_COLORS[$c]) ? $c : $p['color'];
+    $SITE['gallery'][$i]['caption'] = mb_substr(trim(preg_replace('/\s+/', ' ', (string)($in['caption'] ?? ''))), 0, 200);
+    $alt = mb_substr(trim(preg_replace('/\s+/', ' ', (string)($in['alt'] ?? ''))), 0, 200);
+    $SITE['gallery'][$i]['alt'] = $alt !== '' ? $alt : ucfirst(photo_alt($SITE['gallery'][$i]['breed'], $SITE['gallery'][$i]['color']));
+  }
+  save('Photos saved.');
+  go('photos');
+}
+if($act === 'delete_photo'){
+  foreach($SITE['gallery'] as $i=>$p) if($p['id'] === in_line('id', 20)){ delete_upload($p['file']); array_splice($SITE['gallery'], $i, 1); save('Photo deleted.'); break; }
+  go('photos');
+}
+
 if($act === 'add_redirect'){
   $from = trim(preg_replace('#^https?://[^/]+#i', '', in_line('from', 300)), '/'); $to = trim(preg_replace('#^https?://[^/]+#i', '', in_line('to', 300)), '/');
   if($from === '') note('Enter the old address.', 'err'); else { add_redirect($from, $to); save('Redirect added: /'.$from.' → /'.$to); }
@@ -255,7 +290,7 @@ if($act === 'change_password'){
 }
 
 /* ---------------- views ---------------- */
-$VIEWS = ['dashboard'=>'Dashboard', 'articles'=>'Guides & blog', 'pages'=>'Pages', 'messages'=>'Messages', 'settings'=>'Settings', 'redirects'=>'Redirects', 'account'=>'Sign-in'];
+$VIEWS = ['dashboard'=>'Dashboard', 'articles'=>'Guides & blog', 'photos'=>'Photos', 'pages'=>'Pages', 'messages'=>'Messages', 'settings'=>'Settings', 'redirects'=>'Redirects', 'account'=>'Sign-in'];
 $SUB = ['article'=>'articles', 'page'=>'pages'];
 if(!isset($VIEWS[$v]) && !isset($SUB[$v])) $v = 'dashboard';
 layout_start($VIEWS[$v] ?? $VIEWS[$SUB[$v]]);
@@ -337,7 +372,8 @@ function view_dashboard(){
     [$CFG['email'] !== 'hello@pepperwhisker.com' || $CFG['smtp_host'] !== '', 'Check the site’s email address', 'settings', 'site'],
     [$CFG['smtp_host'] !== '', 'Set up email sending (SMTP) and send a test email', 'settings', 'email'],
     [$CFG['author_name'] !== '' && $CFG['author_bio'] !== '', 'Add the writer’s name, bio and photo (shown on every guide)', 'settings', 'about'],
-    [count(array_filter($SITE['articles'], fn($a)=>($a['image'] ?? '') !== '')) >= 5, 'Add your own schnauzer photos to at least 5 guides', 'articles', ''],
+    [count($SITE['gallery']) >= 8, 'Upload at least 8 of your own schnauzer photos (they show on the pictures page and the breed guides)', 'photos', ''],
+    [count(array_filter($SITE['articles'], fn($a)=>($a['image'] ?? '') !== '')) >= 5, 'Add your own schnauzer photos as the main photo of at least 5 guides', 'articles', ''],
     [$CFG['gsc_verification'] !== '', 'Verify the site in Google Search Console and submit the sitemap', 'settings', 'google'],
     [$CFG['ga4_id'] !== '', 'Add Google Analytics (optional)', 'settings', 'google'],
     [$CFG['adsense_client'] !== '', 'Add your Google AdSense publisher ID once approved (optional)', 'settings', 'google'],
@@ -401,6 +437,32 @@ function view_article(){
   <label class="cb"><input type="checkbox" name="draft" value="1"<?= !empty($a['draft']) ? ' checked' : '' ?>> Draft (not on the website yet)</label>
   <button class="btn">Save</button></div></form>
   <?php if(!$new) echo '<p>'.del_button('delete_article', ['slug'=>$a['slug']], 'Delete', 'Delete this guide? Its address will lead to the guides page.').'</p>';
+}
+
+function view_photos(){
+  global $SITE;
+  $list = $SITE['gallery'];
+  ?><div class="row"><h1>Photos</h1><?php if($list): ?><a class="btn btn-g right" target="_blank" href="<?= h(site_url('schnauzer-pictures')) ?>">View the pictures page ↗</a><?php endif; ?></div>
+  <p class="mut">Your own schnauzer photos. They appear on the <strong>Schnauzer pictures</strong> page (for Google Images searches like “miniature schnauzer pictures”) and on the matching breed and color guides. Photos are resized, turned upright and cleaned of their location data automatically. Only upload photos you took yourself.</p>
+  <div class="card"><h2 style="margin-top:0">Upload photos</h2><?= form_start('upload_photos', true) ?>
+    <label>Photos<small>JPG, PNG or WebP; choose several at once</small><input type="file" name="photos[]" accept="image/jpeg,image/png,image/webp" multiple required></label>
+    <div class="grid g3"><label>Breed<select name="breed"><?php foreach(GALLERY_BREEDS as $k=>$l): ?><option value="<?= $k ?>"><?= h($l) ?></option><?php endforeach; ?></select></label>
+      <label>Color<select name="color"><?php foreach(GALLERY_COLORS as $k=>$l): ?><option value="<?= $k ?>"><?= h($l) ?></option><?php endforeach; ?></select></label>
+      <label>Caption <small>Optional, e.g. “Salt and pepper miniature schnauzer after a schnauzer cut”</small><input type="text" name="caption"></label></div>
+    <button class="btn">Upload</button></form></div>
+  <?php if($list): ?>
+  <?= form_start('save_photos') ?><div class="card"><h2 style="margin-top:0">Your photos (<?= count($list) ?>)</h2>
+    <p class="mut">The description is what Google Images reads: describe what the photo shows, e.g. “Black giant schnauzer standing in snow”.</p>
+    <div class="tw"><table><tr><th>Photo</th><th>Breed and color</th><th>Description and caption</th></tr>
+    <?php foreach($list as $p): $k = 'p['.$p['id'].']'; ?><tr>
+      <td style="width:150px"><img src="<?= h(thumb($p['file'], 320)) ?>" alt="" style="width:140px;height:105px;object-fit:cover;border-radius:8px"></td>
+      <td><select name="<?= $k ?>[breed]"><?php foreach(GALLERY_BREEDS as $b=>$l): ?><option value="<?= $b ?>"<?= $p['breed'] === $b ? ' selected' : '' ?>><?= h($l) ?></option><?php endforeach; ?></select>
+        <select name="<?= $k ?>[color]"><?php foreach(GALLERY_COLORS as $c=>$l): ?><option value="<?= $c ?>"<?= $p['color'] === $c ? ' selected' : '' ?>><?= h($l) ?></option><?php endforeach; ?></select></td>
+      <td><label>Description (alt text)<input type="text" name="<?= $k ?>[alt]" value="<?= h($p['alt']) ?>"></label><label>Caption<input type="text" name="<?= $k ?>[caption]" value="<?= h($p['caption']) ?>"></label></td>
+    </tr><?php endforeach; ?></table></div>
+    <p><button class="btn">Save photos</button></p></div></form>
+  <div class="card"><h2 style="margin-top:0">Delete a photo</h2><div class="photos"><?php foreach($list as $p): ?><figure><img src="<?= h(thumb($p['file'], 320)) ?>" alt=""><?= del_button('delete_photo', ['id'=>$p['id']], 'Delete', 'Delete this photo?') ?></figure><?php endforeach; ?></div></div>
+  <?php endif;
 }
 
 function view_pages(){

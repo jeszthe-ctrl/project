@@ -32,6 +32,21 @@ function data_dir(){
 function data_file($name){ return data_dir().'/'.$name.'.php'; }
 const IMG_EXTS = ['jpg', 'jpeg', 'png', 'webp'];
 
+/* the photo gallery (Admin → Photos): your own schnauzer photos, tagged by breed and color */
+const GALLERY_BREEDS = ['miniature'=>'Miniature schnauzer', 'standard'=>'Standard schnauzer', 'giant'=>'Giant schnauzer', 'mix'=>'Schnauzer mix'];
+const GALLERY_COLORS = ['salt-pepper'=>'Salt and pepper', 'black'=>'Black', 'black-silver'=>'Black and silver', 'white'=>'White', 'other'=>'Other color'];
+/* gallery photos whose file is on the server, newest first, optionally only one breed and/or color */
+function gallery_photos($breed='', $color=''){
+  $out = [];
+  foreach($GLOBALS['SITE']['gallery'] ?? [] as $p){
+    if(!is_file(PW_ROOT.'/'.($p['file'] ?? ''))) continue;
+    if($breed !== '' && $p['breed'] !== $breed) continue;
+    if($color !== '' && $p['color'] !== $color) continue;
+    $out[] = $p;
+  }
+  return $out;
+}
+
 /* the topics guides are grouped under: label, the topic page's address and its introduction */
 const GUIDE_GROUPS = [
   'breeds'   => ['Schnauzer breeds', 'schnauzer-breeds', 'The miniature, standard and giant schnauzer: size, temperament, history and which one suits you.'],

@@ -127,6 +127,10 @@ function structured_data(){
       'image'=>abs_img($og_image !== '' ? $og_image : share_image()), 'datePublished'=>$art['date'], 'dateModified'=>$art['updated'] ?? $art['date'],
       'inLanguage'=>$art['lang'] ?? 'en', 'author'=>author_ld(), 'publisher'=>['@id'=>$base.'#org'], 'mainEntityOfPage'=>$canonical]);
   }
+  if($page === 'schnauzer-pictures' && ($photos = gallery_photos($GLOBALS['gal_breed'] ?? ''))){
+    $g[] = ['@type'=>'ImageGallery', 'name'=>$h1, 'description'=>$desc, 'url'=>$canonical, 'about'=>['@type'=>'Thing', 'name'=>'Schnauzer'],
+      'associatedMedia'=>array_map(fn($p)=>photo_ld($p), array_slice($photos, 0, 100))];
+  }
   if($page === 'topic'){
     $list = topic_articles($topic);
     $g[] = ['@type'=>'CollectionPage', 'name'=>$h1, 'description'=>$desc, 'url'=>$canonical, 'mainEntity'=>['@type'=>'ItemList',
@@ -136,12 +140,20 @@ function structured_data(){
   if($faq_text !== '' && ($faqs = text_faqs($faq_text))) $g[] = faq_ld($faqs);
   return '<script type="application/ld+json">'.json_encode(['@context'=>'https://schema.org', '@graph'=>$g], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_HEX_TAG).'</script>';
 }
+/* one gallery photo for Google Images: who made it and that it belongs to the site */
+function photo_ld($p){
+  global $CFG;
+  return array_filter(['@type'=>'ImageObject', 'contentUrl'=>abs_img($p['file']), 'caption'=>$p['caption'] !== '' ? $p['caption'] : $p['alt'], 'name'=>$p['alt'],
+    'creditText'=>$CFG['brand'], 'creator'=>['@type'=>'Organization', 'name'=>$CFG['brand']], 'copyrightNotice'=>'© '.$CFG['brand'],
+    'acquireLicensePage'=>abs_url('terms-of-use'), 'license'=>abs_url('terms-of-use'), 'uploadDate'=>$p['date'] ?? null]);
+}
 function share_image(){ global $CFG; return $CFG['share_photo'] !== '' && is_file(PW_ROOT.'/'.$CFG['share_photo']) ? $CFG['share_photo'] : 'assets/share.jpg'; }
 
 /* ---------------- layout ---------------- */
 function nav_items(){
   return [['guides/miniature-schnauzer', 'Miniature'], ['guides/standard-schnauzer', 'Standard'], ['guides/giant-schnauzer', 'Giant'],
-          ['schnauzer-grooming', 'Grooming'], ['schnauzer-health', 'Health'], ['schnauzer-mixes', 'Mixes'], ['guides', 'All guides']];
+          ['schnauzer-grooming', 'Grooming'], ['schnauzer-health', 'Health'], ['schnauzer-mixes', 'Mixes']]
+         + (gallery_photos() ? [6=>['schnauzer-pictures', 'Pictures']] : []) + [7=>['guides', 'All guides']];
 }
 
 function render_page(){
@@ -242,6 +254,7 @@ function footer(){
       <?php foreach(['about', 'editorial-policy', 'advertising-disclosure', 'privacy-policy', 'terms-of-use'] as $s): $pg = info_page($s); if($pg): ?>
       <li><a href="<?= h(url($s)) ?>"><?= h($pg['menu'] ?: $pg['title']) ?></a></li>
       <?php endif; endforeach; ?>
+      <?php if(gallery_photos()): ?><li><a href="<?= h(url('schnauzer-pictures')) ?>">Schnauzer pictures</a></li><?php endif; ?>
       <li><a href="<?= h(url('contact')) ?>">Contact</a></li>
     </ul></div>
   </div>
@@ -390,8 +403,49 @@ function view_article(){
       </aside>
     </div>
   </article>
+  <?= gallery_strip($art) ?>
   <?php $rel = related_articles($art); if($rel): ?><section class="sec band"><div class="wrap"><h2><?= $es ? 'Más guías (en inglés)' : 'Keep reading' ?></h2><div class="agrid"><?php foreach($rel as $a) echo article_card($a); ?></div></div></section><?php endif; ?>
   <?php
+}
+
+/* the gallery photos that fit a guide: its breed, or its color */
+const GUIDE_PHOTOS = ['miniature-schnauzer'=>['miniature', ''], 'miniature-schnauzer-temperament'=>['miniature', ''], 'teacup-and-toy-schnauzer'=>['miniature', ''],
+  'standard-schnauzer'=>['standard', ''], 'giant-schnauzer'=>['giant', ''], 'giant-schnauzer-protection-dog'=>['giant', ''], 'schnauzer-mix-breeds'=>['mix', ''],
+  'black-schnauzer'=>['', 'black'], 'white-schnauzer'=>['', 'white'], 'salt-and-pepper-schnauzer'=>['', 'salt-pepper'],
+  'schnauzer-dog-breed'=>['', ''], 'schnauzer-sizes'=>['', ''], 'schnauzer-colors'=>['', ''], 'schnauzer-haircut-styles'=>['', ''], 'schnauzer-puppy'=>['', '']];
+function gallery_strip($art){
+  if(!isset(GUIDE_PHOTOS[$art['slug']])) return '';
+  [$breed, $color] = GUIDE_PHOTOS[$art['slug']];
+  $list = array_slice(gallery_photos($breed, $color), 0, 8);
+  if(count($list) < 2) return '';
+  $o = '<section class="sec"><div class="wrap"><div class="sec-row"><h2 class="sec-h">Photos</h2><a class="btn btn-ghost btn-sm" href="'.h(url('schnauzer-pictures', $breed !== '' ? ['breed'=>$breed] : [])).'">More schnauzer pictures</a></div><div class="pgrid">';
+  foreach($list as $p) $o .= photo_figure($p);
+  return $o.'</div></div></section>';
+}
+function photo_figure($p){
+  return '<figure class="photo"><a href="'.h($p['file']).'" target="_blank" rel="noopener">'.img_tag($p['file'], $p['alt'], '(max-width:600px) 50vw, (max-width:1000px) 33vw, 280px').'</a>'
+    .($p['caption'] !== '' ? '<figcaption>'.h($p['caption']).'</figcaption>' : '').'</figure>';
+}
+
+function view_schnauzer_pictures(){
+  global $CFG, $gal_breed;
+  page_head($CFG['gallery_intro']);
+  echo '<div class="wrap">';
+  $photos = gallery_photos($gal_breed);
+  if(!gallery_photos()){ echo '<p class="mut">Photos are coming soon.</p></div>'; return; }
+  echo '<nav class="chips" aria-label="Breeds"><a href="'.h(url('schnauzer-pictures')).'"'.($gal_breed === '' ? ' aria-current="page"' : '').'>All</a>';
+  foreach(GALLERY_BREEDS as $k=>$l) if(gallery_photos($k)) echo '<a href="'.h(url('schnauzer-pictures', ['breed'=>$k])).'"'.($gal_breed === $k ? ' aria-current="page"' : '').'>'.h($l).'</a>';
+  echo '</nav>';
+  foreach(GALLERY_BREEDS as $k=>$l){
+    if($gal_breed !== '' && $gal_breed !== $k) continue;
+    $list = array_values(array_filter($photos, fn($p)=>$p['breed'] === $k));
+    if(!$list) continue;
+    $guide = ['miniature'=>'miniature-schnauzer', 'standard'=>'standard-schnauzer', 'giant'=>'giant-schnauzer', 'mix'=>'schnauzer-mix-breeds'][$k];
+    echo '<section class="sec"><div class="sec-row"><h2 class="sec-h">'.h($l).' pictures</h2><a class="btn btn-ghost btn-sm" href="'.h(url('guides/'.$guide)).'">Read the '.h(strtolower($l)).' guide</a></div><div class="pgrid">';
+    foreach($list as $p) echo photo_figure($p);
+    echo '</div></section>';
+  }
+  echo '<p class="mut">All photos © '.h($CFG['brand']).'. Please don’t reuse them without permission; you’re welcome to link to this page.</p></div>';
 }
 
 function view_info(){

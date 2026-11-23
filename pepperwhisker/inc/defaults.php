@@ -16,6 +16,7 @@ return [
     'home_seo_desc'   => 'The schnauzer explained: miniature, standard and giant schnauzer size, temperament, colors, haircuts, health, lifespan, mixes and finding a puppy safely.',
     'guides_intro'    => 'Every Pepperwhisker guide, grouped by topic. Start with the breed you are curious about, or jump straight to grooming, health or mixes.',
     'footer_blurb'    => 'Independent guides to giant, standard and miniature schnauzers: breed facts, grooming, health and buying a puppy safely.',
+    'gallery_intro'   => 'Our own photos of miniature, standard and giant schnauzers: salt and pepper, black, black and silver and white coats, puppies and adults, fresh haircuts and scruffy ones. Click any photo to see it full size, or read the guide to each breed.',
     'contact_intro'   => 'Spotted a mistake, have a schnauzer question or want to share your dog’s story? Send us a message and we’ll get back to you by email.',
     'author_name'     => '',               /* the writer shown on guides; the brand is shown until a name is added */
     'author_bio'      => '',
@@ -31,6 +32,7 @@ return [
   ],
 
   'redirects' => [],
+  'gallery'   => [],          /* your own photos (Admin → Photos) */
   'removed'   => ['articles'=>[], 'pages'=>[]],
 
   'articles' => require PW_ROOT.'/inc/articles.php',

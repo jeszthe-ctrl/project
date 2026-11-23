@@ -96,7 +96,7 @@ function request_path(){
 $PATH = request_path();
 $via_path = !isset($_GET['path']);
 $seg = $PATH === '' ? [] : explode('/', $PATH);
-$page = 'notfound'; $art = $info = $topic = null;
+$page = 'notfound'; $art = $info = $topic = null; $gal_breed = '';
 
 if($PATH === 'rewrite-check' && $via_path){
   header('Content-Type: application/json; charset=utf-8'); header('Cache-Control: no-store'); header('X-Robots-Tag: noindex');
@@ -120,7 +120,7 @@ if(!$local && $_SERVER['REQUEST_METHOD'] === 'GET' && $PATH !== 'rewrite-check' 
 if(in_array($PATH, ['admin', 'login', 'wp-admin'], true)){ header('Location: '.$BASE.'admin.php', true, 302); exit; }
 
 if($PATH === '') $page = 'home';
-elseif(in_array($PATH, ['guides', 'blog', 'contact', 'sitemap.xml', 'robots.txt', 'ads.txt'], true)) $page = $PATH;
+elseif(in_array($PATH, ['guides', 'blog', 'contact', 'schnauzer-pictures', 'sitemap.xml', 'robots.txt', 'ads.txt'], true)) $page = $PATH;
 elseif(count($seg) === 2 && $seg[0] === 'guides'){ $art = article($seg[1], 'guide'); if($art) $page = 'article'; }
 elseif(count($seg) === 2 && $seg[0] === 'blog'){ $art = article($seg[1], 'blog'); if($art) $page = 'article'; }
 elseif(count($seg) === 1 && ($topic = topic_by_slug($PATH)) !== null) $page = 'topic';
@@ -155,6 +155,7 @@ if($page === 'sitemap.xml'){
   foreach(GUIDE_GROUPS as $t) $urls[] = [abs_url($t[1]), $mod, []];
   if(articles_of('blog')) $urls[] = [abs_url('blog'), $mod, []];
   $urls[] = [abs_url('contact'), $mod, []];
+  if(gallery_photos()) $urls[] = [abs_url('schnauzer-pictures'), $mod, array_map(fn($p)=>abs_img($p['file']), array_slice(gallery_photos(), 0, 1000))];
   foreach($SITE['pages'] as $pg) $urls[] = [abs_url($pg['slug']), $mod, []];
   foreach($SITE['articles'] as $a) if(empty($a['draft'])) $urls[] = [abs_url(article_path($a)), $a['updated'] ?? $a['date'], ($a['image'] ?? '') !== '' ? [abs_img($a['image'])] : []];
   $x = fn($v)=>htmlspecialchars($v, ENT_XML1|ENT_QUOTES, 'UTF-8');
@@ -207,6 +208,15 @@ switch($page){
   case 'info':
     $h1 = fill($info['title']); $title = fill($info['seo_title'] ?: $info['title'].' | '.$brand); $desc = fill($info['seo_desc'] ?: plain($info['body']));
     $crumbs[] = [$info['menu'] ?: $info['title'], $info['slug']];
+    break;
+  case 'schnauzer-pictures':
+    $gal_breed = isset(GALLERY_BREEDS[$_GET['breed'] ?? '']) ? $_GET['breed'] : '';
+    $h1 = $gal_breed !== '' ? GALLERY_BREEDS[$gal_breed].' pictures' : 'Schnauzer pictures';
+    $title = $gal_breed !== '' ? GALLERY_BREEDS[$gal_breed].' Pictures & Photos | '.$brand : 'Schnauzer Pictures: Miniature, Standard & Giant Schnauzer Photos | '.$brand;
+    $desc = 'Photos of miniature, standard and giant schnauzers: salt and pepper, black, black and silver and white coats, puppies, adults and haircuts.';
+    $crumbs[] = ['Schnauzer pictures', 'schnauzer-pictures'];
+    if($gal_breed !== '' || !gallery_photos()) $noindex = true;
+    $og_image = gallery_photos()[0]['file'] ?? '';
     break;
   case 'contact':
     $h1 = 'Contact '.$brand; $title = 'Contact '.$brand; $desc = 'Questions, corrections or schnauzer stories? Contact '.$brand.' by email or with our contact form.';

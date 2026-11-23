@@ -76,9 +76,15 @@ answered by the guide to finding a breeder safely, the price guide and the rescu
 | /guides/schnauzer-puppy | schnauzer puppy (8,100) | schnauzer puppy dog, miniature schnauzer puppy, mini schnauzer puppy, giant schnauzer puppy, schnauzer puppies |
 | /guides/schnauzer-rescue | schnauzer rescue | miniature schnauzer rescue, mini schnauzer rescue, schnauzer rescue near me, schnauzer rescue texas, schnauzer rescue of texas, giant schnauzer rescue, miniature schnauzer for adoption, giant schnauzer for adoption, schnauzer adopt, schnauzer adoption, schnauzer miniature rescue |
 
+## Pictures (/schnauzer-pictures)
+
+| Page | Main keywords | Also covers |
+|---|---|---|
+| /schnauzer-pictures | miniature schnauzer images, miniature schnauzer pics, schnauzer pics, mini schnauzer images | Image searches for every breed and color: your photos also appear on the matching breed and color guides, are listed in the image sitemap and carry ImageObject data. The page stays hidden (noindex, out of the menu) until you upload photos in Admin → Photos. |
+
 ## Not targeted directly
 
 - **Pure "for sale near me" and breeder searches** show Google's local map results and listing sites. A guide site can't rank well for these, and Pepperwhisker doesn't sell puppies. The safe-buying guide catches the people researching them.
 - **american miniature schnauzer club**: navigational (people want the club's own site). It's mentioned in the miniature schnauzer, buying and rescue guides.
-- **miniature schnauzer images / pics, schnauzer pics, mini schnauzer images**: these need real photos. Add your own photos to the breed guides (Admin → Guides) to compete in Google Images.
+
 - **lalune miniature schnauzer coat color**: appears to refer to a specific kennel or dog; covered generally by the colors guide.

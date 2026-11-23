@@ -24,6 +24,7 @@ Pepperwhisker doesn't breed or sell dogs and has no puppy listings. It earns fro
   - a Questions section, marked up as FAQs for Google
   - related guides
   - a "general information, not veterinary advice" note on health guides
+- **Schnauzer pictures** (`/schnauzer-pictures`): your own photos, grouped by breed, for Google Images searches like "miniature schnauzer pictures". The same photos appear on the matching breed and color guides. The page appears in the menu and sitemap once you've uploaded photos.
 - **Pages:** About, Editorial policy, Advertising & affiliate disclosure, Privacy policy, Terms of use, Contact.
 - **Contact form:** messages are saved under Admin → Messages and emailed to you. Spam protection uses a hidden field, a timing check and a limit per connection.
 
@@ -33,6 +34,7 @@ Pepperwhisker doesn't breed or sell dogs and has no puppy listings. It earns fro
   - add a main photo and photos inside the text
   - set the quick answer, address, Google title and description
   - save as a draft
+- **Photos:** upload your own schnauzer photos (several at once), tag each with breed and color, and write the description Google Images reads. Photos are resized, turned upright and cleaned of location data.
 - **Pages:** edit the About and policy pages or add your own.
 - **Messages** from the contact form.
 - **Redirects:** when you rename or delete a guide, the old address leads to the new one automatically.
@@ -53,9 +55,10 @@ Pepperwhisker doesn't breed or sell dogs and has no puppy listings. It earns fro
   - BreadcrumbList
   - Article, with the writer as author
   - CollectionPage with an ItemList on topic pages
+  - ImageGallery with ImageObject (credit and copyright) on the pictures page
   - FAQPage from each guide's Questions section and the home page questions
 - **Sitemap and robots:**
-  - `sitemap.xml`, built automatically, including new guides
+  - `sitemap.xml`, built automatically, including new guides and every gallery photo
   - `robots.txt`
   - `ads.txt` once AdSense is set
 - **Internal links:** every guide links to related guides, its topic page and the breed guides.
