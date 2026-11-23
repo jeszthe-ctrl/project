@@ -1552,6 +1552,7 @@ h1{font-size:clamp(32px,4.4vw,52px);margin-bottom:18px}
 .buybox .big{font-size:40px;font-weight:800;line-height:1.1;color:var(--ink);letter-spacing:-.03em}
 .buybox .sm{font-size:13.5px;color:var(--muted);margin-bottom:14px}
 .buybox .sm a{color:var(--link)}
+.buybox .per{font-size:14px;color:var(--ink2);margin:-8px 0 14px}.buybox .per b{color:var(--green)}
 .buybox .ladder{margin:4px 0 14px}
 .buybox .buyrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .buybox .buyrow .btn{flex:1;min-width:150px}
@@ -2445,11 +2446,14 @@ html[data-view=list] .pgrid .card .buyrow .btn{min-width:84px}
       <?php if($summary !== ''): ?><p class="summary-line"><?= rich_inline($summary) ?></p><?php endif; ?>
 
       <?php $tt = tiers($prod); $single = (float)$prod['ladder'][0][1]; ?>
-      <form method="post" action="index.php" class="buybox" id="buyForm" data-tiers="<?= h(json_encode(array_map(fn($t)=>[$t[0], $t[1]], $tt))) ?>">
+      <form method="post" action="index.php" class="buybox" id="buyForm"<?= !empty($prod['pack'][0]) ? ' data-pack="'.(int)$prod['pack'][0].'"' : '' ?> data-tiers="<?= h(json_encode(array_map(fn($t)=>[$t[0], $t[1]], $tt))) ?>">
         <input type="hidden" name="action" value="add">
         <input type="hidden" name="id" value="<?= h($prod['id']) ?>"><input type="hidden" name="from" value="<?= h(here_path()) ?>"><button type="submit" class="hp" tabindex="-1" aria-hidden="true">Add</button>
         <div class="big" data-unit><?= money($base) ?></div>
         <div class="sm">each<?php if($single > $base): ?> · single-unit price <s><?= money($single) ?></s><?php endif; ?><?php if(count($tt) > 1): ?> · drops to <b style="color:var(--green)"><?= money(end($tt)[1]) ?></b> at <?= (int)end($tt)[0] ?>+<?php endif; ?></div>
+        <?php if(!empty($prod['pack'][0])): [$pn, $pl] = $prod['pack']; ?>
+        <div class="per">= <b data-per><?= money($base / $pn) ?></b> per <?= h($pl) ?> · <?= (int)$pn ?> in each case, cheaper than buying them separately</div>
+        <?php endif; ?>
         <?php if(count($tt) > 1 && can_order($prod)): ?>
         <div class="ladder" role="group" aria-label="Bulk prices">
           <div class="lh">Bulk prices · tap a tier to add it</div>
@@ -3360,6 +3364,7 @@ document.querySelectorAll('form[data-tiers]').forEach(f => {
     tiers.forEach((t, i) => { if(q >= t[0]){ unit = t[1]; at = i; } });
     const nx = tiers.find(t => t[0] > q);
     if(big) big.textContent = cur(unit);
+    const per = f.querySelector('[data-per]'); if(per && f.dataset.pack) per.textContent = cur(unit / +f.dataset.pack);
     f.querySelectorAll('.ladder .row').forEach((r, i) => r.classList.toggle('on', i === at));
     if(live) live.innerHTML = q + ' × ' + cur(unit) + ' = <b>' + cur(unit * q) + '</b>'
       + (nx ? '<span> · ' + (nx[0] - q) + ' more drops it to ' + cur(nx[1]) + ' each</span>' : (tiers.length > 1 ? '<span class="ok"> · best bulk price</span>' : ''));
@@ -3506,6 +3511,7 @@ function include_card($p){
       <h3><a href="<?= url('product',['id'=>$p['id']]) ?>"><?= h($p['name']) ?></a></h3>
       <div class="meta"><span class="lang"><?= h(product_lang($p)) ?></span> <?= h(implode(' · ', array_filter([$p['set'], ($p['cond'] ?? 'Sealed') !== 'Sealed' ? $p['cond'] : '', $p['status']==='preorder' ? $p['release'] : '']))) ?></div>
       <div class="px"><span class="u"><?= money($base) ?></span><span class="per">each<?= $p['moq'] > 1 ? ' at '.(int)$p['moq'] : '' ?></span><?php if($p['ladder'][0][1] > $base): ?><span class="w"><?= money($p['ladder'][0][1]) ?></span><?php endif; ?></div>
+      <?php if(!empty($p['pack'][0])): ?><div class="drop">= <?= money($base / $p['pack'][0]) ?> per <?= h($p['pack'][1]) ?> (<?= (int)$p['pack'][0] ?> in the case)</div><?php endif; ?>
       <?php if(count($p['ladder']) > 1 && $best[1] < $base): ?><div class="drop">Drops to <b><?= money($best[1]) ?></b> each at <?= (int)max($best[0], $p['moq']) ?>+</div><?php endif; ?>
     </div>
     <form method="post" action="index.php" data-tiers="<?= h(json_encode(array_map(fn($t)=>[$t[0], $t[1]], tiers($p)))) ?>">

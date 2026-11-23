@@ -89,7 +89,8 @@ add('Pokémon Scarlet & Violet Base Set Elite Trainer Box — Koraidon', 'etb', 
 add('Pokémon Scarlet & Violet Base Set Elite Trainer Box — Miraidon', 'etb', 'Scarlet & Violet Base Set', 84.99, poke='Miraidon')
 add('Pokémon Crown Zenith Elite Trainer Box', 'etb', 'Crown Zenith', 109.99)
 add('Pokémon Crown Zenith Pokémon Center Elite Trainer Box Plus', 'pcetb', 'Crown Zenith', 299.99)
-add('Pokémon 30th Celebration UPC — Factory-Sealed Case Configuration', 'case_upc', C30, 749.99, status='new')
+add('Pokémon 30th Celebration Ultra-Premium Collection Case — 2 Day & 2 Night', 'case_upc', C30, 749.99, status='in',
+    id='pokemon-30th-celebration-upc-factory-sealed-case-configuration')
 add('Pokémon Mega Charizard X ex Ultra-Premium Collection', 'upc', '', 169.99, poke='Mega Charizard X ex')
 add('Pokémon Greninja ex Ultra-Premium Collection', 'upc', '', 139.99, poke='Greninja ex')
 add('Pokémon Terapagos ex Ultra-Premium Collection', 'upc', '', 139.99, poke='Terapagos ex')
@@ -188,7 +189,7 @@ TYPES = {  # type: (category, weight kg, sku code, label)
  'jpbox': ('boxes', 0.45, 'JBB', 'Japanese booster box'), 'bb': ('premium', 0.35, 'BNB', 'Build & Battle Box'),
  'blister3': ('premium', 0.15, 'BL3', '3-pack blister'), 'blister2': ('premium', 0.12, 'BL2', '2-pack blister'),
  'checklane': ('premium', 0.06, 'CLB', 'checklane blister'), 'pchecklane': ('premium', 0.1, 'PCLB', 'premium checklane blister'),
- 'upc': ('premium', 2.0, 'UPC', 'Ultra-Premium Collection'), 'case_upc': ('premium', 7.0, 'UPCC', 'Ultra-Premium Collection case'),
+ 'upc': ('premium', 2.0, 'UPC', 'Ultra-Premium Collection'), 'case_upc': ('premium', 8.0, 'UPCC', 'Ultra-Premium Collection case'),
  'premium': ('premium', 0.8, 'PC', 'premium collection'), 'figure': ('premium', 0.9, 'FIG', 'figure collection'),
  'binder': ('premium', 0.9, 'BIN', 'binder collection'), 'poster': ('premium', 0.6, 'POS', 'poster collection'),
  'tin': ('premium', 0.35, 'TIN', 'tin'), 'minitin': ('premium', 0.12, 'MT', 'mini tin'),
@@ -295,10 +296,10 @@ def desc(p):
         lead = f"A factory-sealed case of 10 English {sl} Elite Trainer Boxes, in the original distributor carton."
         body = f"The lowest price per {sl} ETB for shops and resellers.\n\n- 10 sealed {sl} Elite Trainer Boxes\n- Original sealed case\n- English edition"
     elif t == 'case_upc':
-        lead = f"A factory-sealed case of {sl} Ultra-Premium Collections in the manufacturer's case configuration, in the original carton."
-        body = ("For shops and investors who want the 30th Celebration Ultra-Premium Collections untouched in their sealed case. "
-                "The number of collections per case follows the manufacturer's configuration and is confirmed on your invoice before you pay.\n\n"
-                f"- Sealed case of {sl} Ultra-Premium Collections\n- Original carton\n- English edition")
+        lead = f"A factory-sealed case of 4 English {sl} Ultra-Premium Collections: 2 Day and 2 Night, in the original carton."
+        body = ("The 30th Celebration Ultra-Premium Collections, Day and Night, two of each in their factory-sealed case. "
+                "The case costs less than buying the four collections separately, and less again from 2, 4 and 6 cases.\n\n"
+                f"- 2 {sl} Ultra-Premium Collection — Day\n- 2 {sl} Ultra-Premium Collection — Night\n- Original sealed case\n- English edition")
     elif t == 'upc':
         what = poke
         lead = f"The {short(n)}: a premium Pokémon TCG collection{' featuring ' + poke if poke else ''} with booster packs, foil promo cards and collector extras. English, factory sealed."
@@ -386,7 +387,7 @@ for p in P:
     key = p['name']
     if key in seen: continue
     seen.add(key)
-    pid = slug(re.sub(r'^Pokémon (Mega Evolution—|Scarlet & Violet—(?!151))', '', p['name']).replace('Scarlet & Violet—151', 'Scarlet Violet 151'))
+    pid = p.get('id') or slug(re.sub(r'^Pokémon (Mega Evolution—|Scarlet & Violet—(?!151))', '', p['name']).replace('Scarlet & Violet—151', 'Scarlet Violet 151'))
     assert pid not in existing, pid
     cat, kg, code, _ = TYPES[p['typ']]
     counters[code] = counters.get(code, 0) + 1
@@ -405,6 +406,7 @@ for o, p in zip(out, srcs):
     o['ladder'] = lad
     o['seo_desc'] = seo_desc(p, lad[0][1], lad[1][0] if len(lad) > 1 else None)
     if o['id'] in PR.HIDE: o['hidden'] = True
+    if o['id'] in PR.PACKS: o['pack'] = PR.PACKS[o['id']]
     o['_rule'], o['_market'], o['_src'] = rule, mk, src
 for o in out: assert len(o['seo_desc']) <= 160, (o['id'], len(o['seo_desc']))
 src = ("<?php\n/* The product range added in November 2026: English Pokémon TCG sealed product (30th Celebration, Mega Evolution,\n"

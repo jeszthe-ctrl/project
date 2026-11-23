@@ -83,7 +83,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 17;
+const CONTENT_VERSION = 18;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -288,6 +288,24 @@ function content_upgrade($s, $d, $version){
       if(md5(json_encode($p['ladder'] ?? [])) === $was[$id][0]) $s['products'][$i]['ladder'] = $now[$id]['ladder'];
       if(md5((string)($p['seo_desc'] ?? '')) === $was[$id][1]) $s['products'][$i]['seo_desc'] = $now[$id]['seo_desc'] ?? '';
       if($id === 'pokemon-30th-celebration-upc-factory-sealed-case-configuration') $s['products'][$i]['hidden'] = false;   /* back on sale */
+    }
+  }
+  if($version < 18){   /* case contents (the 30th Celebration UPC case: 2 Day + 2 Night), case prices, nothing sold out */
+    $was = require FK_ROOT.'/inc/prices-v17.php';
+    $now = array_column($d['products'], null, 'id');
+    foreach($s['products'] ?? [] as $i=>$p){
+      $id = $p['id'] ?? '';
+      if(($p['status'] ?? '') === 'soldout') $s['products'][$i]['status'] = 'in';   /* the owner has no sold-out items */
+      if(!isset($was[$id], $now[$id])) continue;
+      if(md5(json_encode($p['ladder'] ?? [])) === $was[$id][0]) $s['products'][$i]['ladder'] = $now[$id]['ladder'];
+      if(md5((string)($p['seo_desc'] ?? '')) === $was[$id][1]) $s['products'][$i]['seo_desc'] = $now[$id]['seo_desc'] ?? '';
+      if(md5((string)($p['name'] ?? '')) === $was[$id][2]) $s['products'][$i]['name'] = $now[$id]['name'];
+      if(md5((string)($p['desc'] ?? '')) === $was[$id][3]) $s['products'][$i]['desc'] = $now[$id]['desc'];
+      if(!empty($now[$id]['pack']) && empty($p['pack'])) $s['products'][$i]['pack'] = $now[$id]['pack'];
+      if($id === 'pokemon-30th-celebration-upc-factory-sealed-case-configuration'){
+        $s['products'][$i]['status'] = 'in'; $s['products'][$i]['hidden'] = false; $s['products'][$i]['weight'] = $now[$id]['weight'];
+        if(md5((string)($p['name'] ?? '')) === $was[$id][2]) $s['products'][$i]['seo_title'] = $now[$id]['seo_title'];
+      }
     }
   }
   $s['settings']['content_version'] = CONTENT_VERSION;

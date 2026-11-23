@@ -28,7 +28,7 @@ $d = [
     'pretty_urls'   => false,            /* clean addresses like /products/151-booster-box: switched on by themselves when the host supports them */
     'pretty_auto'   => false,            /* set once that automatic switch has happened, so turning them off in the admin sticks */
     'free_ship_usd' => 2000,             /* free Standard shipping from this goods total (USD); 0 = off */
-    'content_version' => 17,              /* set by the shop: which built-in content updates are applied */
+    'content_version' => 18,              /* set by the shop: which built-in content updates are applied */
     'moved_to'      => '',               /* an old domain running this code can send every visitor here (301) */
     'google_verify' => '', 'bing_verify' => '',   /* Search Console / Bing verification codes (Admin → Settings) */
     /* SMTP for order emails (Admin → Settings → Email); blank host = the web host's mail() */
@@ -243,7 +243,7 @@ Charizard is one of the most collected Pokémon in the TCG, and its 151 Special 
     ['id'=>'storm-emeralda-booster-box-case-12-ct', 'sku'=>'PK-BB-M6-C12',
      'name'=>'Storm Emeralda Booster Box Case (12-ct)', 'set'=>'Storm Emeralda', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>5.6, 'hidden'=>false,
-     'ladder'=>[[1,818.99],[2,793.99],[4,769.49],[6,744.99]],
+     'pack'=>[12,'booster box'], 'ladder'=>[[1,818.49],[2,776.99],[4,769.49],[6,744.99]],
      'desc'=>'A factory-sealed case of 12 Japanese Storm Emeralda (M6) booster boxes, priced per case.
 
 For shops and box breakers stocking Storm Emeralda in volume, a sealed case is the simplest buy: twelve booster boxes in one sealed case at a lower price per box than buying boxes individually, falling further from six cases.
@@ -547,7 +547,7 @@ Ascended Heroes is part of the Pokémon Trading Card Game\'s Mega Evolution seri
     ['id'=>'30th-celebration-elite-trainer-box-case-10-ct', 'sku'=>'PK-ETB-30C-C10',
      'name'=>'30th Celebration Elite Trainer Box Case (10-ct)', 'set'=>'30th Celebration', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>10, 'hidden'=>false,
-     'ladder'=>[[1,363.49],[2,352.49],[4,341.49],[6,330.49]],
+     'pack'=>[10,'Elite Trainer Box'], 'ladder'=>[[1,362.99],[2,352.49],[4,341.49],[6,330.49]],
      'desc'=>'A sealed case of 10 Pokémon TCG: 30th Celebration Elite Trainer Boxes, priced per case.
 
 The most economical way to stock anniversary ETBs: ten boxes in one sealed case, at a lower price per box than buying ten loose. Each Elite Trainer Box holds 9 booster packs, a full-art Nidorina promo, 65 sleeves, dice and a player\'s guide.

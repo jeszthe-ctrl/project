@@ -137,10 +137,16 @@ def retail_rule(p):
     return None
 
 # sealed cases: (unit product, units per case). Priced from the unit, never above buying loose.
-CASES = {'delta-reign-factory-sealed-booster-case': ('delta-reign-booster-display-box', 6),
-         'delta-reign-factory-sealed-etb-case': ('delta-reign-elite-trainer-box', 10),
-         'storm-emeralda-booster-box-case-12-ct': ('storm-emeralda-m6-booster-box', 12),
-         '30th-celebration-elite-trainer-box-case-10-ct': ('30th-celebration-elite-trainer-box', 10)}
+CASES = {'delta-reign-factory-sealed-booster-case': [('delta-reign-booster-display-box', 6)],
+         'delta-reign-factory-sealed-etb-case': [('delta-reign-elite-trainer-box', 10)],
+         'storm-emeralda-booster-box-case-12-ct': [('storm-emeralda-m6-booster-box', 12)],
+         '30th-celebration-elite-trainer-box-case-10-ct': [('30th-celebration-elite-trainer-box', 10)],
+         'pokemon-30th-celebration-upc-factory-sealed-case-configuration': [('pokemon-30th-celebration-ultra-premium-collection-day', 2),
+                                                                            ('pokemon-30th-celebration-ultra-premium-collection-night', 2)]}
+# what's in each case, for "per unit" prices on the shop: [units, what one unit is called]
+PACKS = {'delta-reign-factory-sealed-booster-case': [6, 'booster box'], 'delta-reign-factory-sealed-etb-case': [10, 'Elite Trainer Box'],
+         'storm-emeralda-booster-box-case-12-ct': [12, 'booster box'], '30th-celebration-elite-trainer-box-case-10-ct': [10, 'Elite Trainer Box'],
+         'pokemon-30th-celebration-upc-factory-sealed-case-configuration': [4, 'collection']}
 HIDE = set()   # every product stays on sale
 
 
@@ -199,14 +205,18 @@ def reprice(products, owner_ids=()):
         if p['id'] in owner_ids and src != 'v' and rule != 'owner price kept' and base > at(p['ladder'], moq):
             base = at(p['ladder'], moq); rule = 'owner price kept (already under market)'
         out[p['id']] = (ladder(base, moq, step, p['ladder'], rule.startswith('owner price kept') and p['id'] in owner_ids), mk, src, rule)
-    for cid, (uid, n) in CASES.items():
-        if cid not in by: continue
-        ulad = out[uid][0]
-        c = by[cid]
-        base = nice(n * at(ulad, n) * CASE_SAVING)
-        lad = [[1, base]] + [[q, nice(base * f)] for q, f in [(2, 0.97), (4, 0.94), (6, 0.91)]]
+    for cid, comps in CASES.items():
+        if cid not in by or any(u not in out for u, n in comps): continue
+        loose = lambda k: sum(k * n * at(out[u][0], k * n) for u, n in comps)   # k cases' contents bought loose
+        base = nice(loose(1) * CASE_SAVING)
+        lad = []
+        for q, f in [(1, 1), (2, 0.97), (4, 0.94), (6, 0.91)]:
+            price = nice(min(base * f, loose(q) / q * CASE_SAVING))   # never more than 3% under the same contents loose
+            if lad and price >= lad[-1][1]: price = round(lad[-1][1] - 0.5, 2)
+            lad.append([q, price])
         check(lad, 1)
-        for q, price in lad:   # per unit, a case is always cheaper than the same quantity loose
-            assert price / n < at(ulad, q * n) + 0.005, (cid, q, price / n, at(ulad, q * n))
+        for q, price in lad:   # a case is always cheaper than the same contents bought loose
+            assert q * price < loose(q) - 0.005, (cid, q, q * price, loose(q))
+        n = sum(n for u, n in comps)
         out[cid] = (lad, None, '-', f'case of {n}: {int((1 - CASE_SAVING) * 100)}% under {n} loose')
     return out

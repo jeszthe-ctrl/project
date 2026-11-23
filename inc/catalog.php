@@ -300,7 +300,7 @@ Loose booster packs are great for pack-opening streams, prize support and fillin
 - English edition
 
 Buying for a shop or a break? The unit price drops at each bulk tier on this page, applied automatically. Ships worldwide from Japan with tracking.', 'seo_title'=>'Delta Reign Loose Booster Pack — Pokémon TCG', 'seo_desc'=>'A single sealed English Delta Reign booster pack from the Pokémon TCG Mega Evolution series. From $3.29, lower prices from 10+. Ships worldwide.', 'added'=>'2026-11'],
-  ['id'=>'delta-reign-factory-sealed-booster-case', 'sku'=>'PK-BDC-001', 'name'=>'Pokémon Mega Evolution—Delta Reign Factory-Sealed Booster Case', 'set'=>'Delta Reign', 'cat'=>'boxes', 'cond'=>'Sealed', 'lang'=>'English', 'moq'=>1, 'step'=>1, 'status'=>'new', 'release'=>'', 'weight'=>5.0, 'hidden'=>false, 'ladder'=>[[1,601.99],[2,583.49],[4,565.49],[6,547.49]], 'desc'=>'A factory-sealed case of 6 English Delta Reign booster display boxes: 216 booster packs in the original distributor carton.
+  ['id'=>'delta-reign-factory-sealed-booster-case', 'sku'=>'PK-BDC-001', 'name'=>'Pokémon Mega Evolution—Delta Reign Factory-Sealed Booster Case', 'set'=>'Delta Reign', 'cat'=>'boxes', 'cond'=>'Sealed', 'lang'=>'English', 'moq'=>1, 'step'=>1, 'status'=>'new', 'release'=>'', 'weight'=>5.0, 'hidden'=>false, 'ladder'=>[[1,601.49],[2,577.99],[4,558.49],[6,547.49]], 'desc'=>'A factory-sealed case of 6 English Delta Reign booster display boxes: 216 booster packs in the original distributor carton.
 
 The best price per pack for Delta Reign. A sealed case is how shops stock a new release and how breakers buy for streams.
 
@@ -309,8 +309,8 @@ The best price per pack for Delta Reign. A sealed case is how shops stock a new 
 - Original sealed case
 - English edition
 
-Buying for a shop or a break? The unit price drops at each bulk tier on this page, applied automatically. Ships worldwide from Japan with tracking.', 'seo_title'=>'Delta Reign Factory-Sealed Booster Case — Pokémon TCG', 'seo_desc'=>'A factory-sealed case of 6 English Delta Reign booster display boxes: 216 booster packs in the original… From $601.99, lower prices from 2+. Ships worldwide.', 'added'=>'2026-11'],
-  ['id'=>'delta-reign-factory-sealed-etb-case', 'sku'=>'PK-ETBC-001', 'name'=>'Pokémon Mega Evolution—Delta Reign Factory-Sealed ETB Case', 'set'=>'Delta Reign', 'cat'=>'etb', 'cond'=>'Sealed', 'lang'=>'English', 'moq'=>1, 'step'=>1, 'status'=>'new', 'release'=>'', 'weight'=>10.0, 'hidden'=>false, 'ladder'=>[[1,319.99],[2,309.99],[4,300.49],[6,290.99]], 'desc'=>'A factory-sealed case of 10 English Delta Reign Elite Trainer Boxes, in the original distributor carton.
+Buying for a shop or a break? The unit price drops at each bulk tier on this page, applied automatically. Ships worldwide from Japan with tracking.', 'seo_title'=>'Delta Reign Factory-Sealed Booster Case — Pokémon TCG', 'seo_desc'=>'A factory-sealed case of 6 English Delta Reign booster display boxes: 216 booster packs in the original… From $601.49, lower prices from 2+. Ships worldwide.', 'added'=>'2026-11', 'pack'=>[6,'booster box']],
+  ['id'=>'delta-reign-factory-sealed-etb-case', 'sku'=>'PK-ETBC-001', 'name'=>'Pokémon Mega Evolution—Delta Reign Factory-Sealed ETB Case', 'set'=>'Delta Reign', 'cat'=>'etb', 'cond'=>'Sealed', 'lang'=>'English', 'moq'=>1, 'step'=>1, 'status'=>'new', 'release'=>'', 'weight'=>10.0, 'hidden'=>false, 'ladder'=>[[1,319.49],[2,309.99],[4,300.49],[6,290.99]], 'desc'=>'A factory-sealed case of 10 English Delta Reign Elite Trainer Boxes, in the original distributor carton.
 
 The lowest price per Delta Reign ETB for shops and resellers.
 
@@ -318,7 +318,7 @@ The lowest price per Delta Reign ETB for shops and resellers.
 - Original sealed case
 - English edition
 
-Buying for a shop or a break? The unit price drops at each bulk tier on this page, applied automatically. Ships worldwide from Japan with tracking.', 'seo_title'=>'Delta Reign Factory-Sealed ETB Case — Pokémon TCG', 'seo_desc'=>'A factory-sealed case of 10 English Delta Reign Elite Trainer Boxes, in the original distributor carton. From $319.99, lower prices from 2+. Ships worldwide.', 'added'=>'2026-11'],
+Buying for a shop or a break? The unit price drops at each bulk tier on this page, applied automatically. Ships worldwide from Japan with tracking.', 'seo_title'=>'Delta Reign Factory-Sealed ETB Case — Pokémon TCG', 'seo_desc'=>'A factory-sealed case of 10 English Delta Reign Elite Trainer Boxes, in the original distributor carton. From $319.49, lower prices from 2+. Ships worldwide.', 'added'=>'2026-11', 'pack'=>[10,'Elite Trainer Box']],
   ['id'=>'pitch-black-pokemon-center-elite-trainer-box', 'sku'=>'PK-PCETB-003', 'name'=>'Pokémon Mega Evolution—Pitch Black Pokémon Center Elite Trainer Box', 'set'=>'Pitch Black', 'cat'=>'etb', 'cond'=>'Sealed', 'lang'=>'English', 'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>1.3, 'hidden'=>false, 'ladder'=>[[1,53.99],[4,51.29],[6,49.59],[10,47.49],[24,45.89]], 'desc'=>'The Pokémon Center exclusive version of the Pitch Black Elite Trainer Box: more booster packs than the standard ETB, a Pokémon Center exclusive promo card, and the usual sleeves, Energy, dice and storage box. English, factory sealed.
 
 Pokémon Center Elite Trainer Boxes are sold only through the official Pokémon Center, which makes them the most collected version of each ETB. The Pitch Black Pokémon Center ETB keeps everything in the regular box and adds extra booster packs and an exclusive promo, so it\'s a favourite to open and to keep sealed.
@@ -940,15 +940,16 @@ Pokémon Center Elite Trainer Boxes are sold only through the official Pokémon 
 - English edition, factory sealed
 
 Buying for a shop or a break? The unit price drops at each bulk tier on this page, applied automatically. Ships worldwide from Japan with tracking.', 'seo_title'=>'Crown Zenith Pokémon Center Elite Trainer Box', 'seo_desc'=>'The Pokémon Center exclusive version of the Crown Zenith Elite Trainer Box: more booster packs than the… From $369.49, lower prices from 2+. Ships worldwide.', 'added'=>'2026-11'],
-  ['id'=>'pokemon-30th-celebration-upc-factory-sealed-case-configuration', 'sku'=>'PK-UPCC-001', 'name'=>'Pokémon 30th Celebration UPC — Factory-Sealed Case Configuration', 'set'=>'30th Celebration', 'cat'=>'premium', 'cond'=>'Sealed', 'lang'=>'English', 'moq'=>1, 'step'=>1, 'status'=>'new', 'release'=>'', 'weight'=>7.0, 'hidden'=>false, 'ladder'=>[[1,749.99],[2,711.99],[4,689.49],[6,659.49]], 'desc'=>'A factory-sealed case of 30th Celebration Ultra-Premium Collections in the manufacturer\'s case configuration, in the original carton.
+  ['id'=>'pokemon-30th-celebration-upc-factory-sealed-case-configuration', 'sku'=>'PK-UPCC-001', 'name'=>'Pokémon 30th Celebration Ultra-Premium Collection Case — 2 Day & 2 Night', 'set'=>'30th Celebration', 'cat'=>'premium', 'cond'=>'Sealed', 'lang'=>'English', 'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>8.0, 'hidden'=>false, 'ladder'=>[[1,371.49],[2,353.49],[4,342.49],[6,326.99]], 'desc'=>'A factory-sealed case of 4 English 30th Celebration Ultra-Premium Collections: 2 Day and 2 Night, in the original carton.
 
-For shops and investors who want the 30th Celebration Ultra-Premium Collections untouched in their sealed case. The number of collections per case follows the manufacturer\'s configuration and is confirmed on your invoice before you pay.
+The 30th Celebration Ultra-Premium Collections, Day and Night, two of each in their factory-sealed case. The case costs less than buying the four collections separately, and less again from 2, 4 and 6 cases.
 
-- Sealed case of 30th Celebration Ultra-Premium Collections
-- Original carton
+- 2 30th Celebration Ultra-Premium Collection — Day
+- 2 30th Celebration Ultra-Premium Collection — Night
+- Original sealed case
 - English edition
 
-Buying for a shop or a break? The unit price drops at each bulk tier on this page, applied automatically. Ships worldwide from Japan with tracking.', 'seo_title'=>'30th Celebration UPC — Factory-Sealed Case Configuration', 'seo_desc'=>'A factory-sealed case of 30th Celebration Ultra-Premium Collections in the manufacturer\'s case… From $749.99, lower prices from 2+. Ships worldwide.', 'added'=>'2026-11'],
+Buying for a shop or a break? The unit price drops at each bulk tier on this page, applied automatically. Ships worldwide from Japan with tracking.', 'seo_title'=>'30th Celebration Ultra-Premium Collection Case — 2 Day & 2 Night', 'seo_desc'=>'A factory-sealed case of 4 English 30th Celebration Ultra-Premium Collections: 2 Day and 2 Night, in the… From $371.49, lower prices from 2+. Ships worldwide.', 'added'=>'2026-11', 'pack'=>[4,'collection']],
   ['id'=>'pokemon-mega-charizard-x-ex-ultra-premium-collection', 'sku'=>'PK-UPC-003', 'name'=>'Pokémon Mega Charizard X ex Ultra-Premium Collection', 'set'=>'', 'cat'=>'premium', 'cond'=>'Sealed', 'lang'=>'English', 'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>2.0, 'hidden'=>false, 'ladder'=>[[1,95.99],[4,91.19],[6,88.29],[10,84.39],[24,81.59]], 'desc'=>'The Mega Charizard X ex Ultra-Premium Collection: a premium Pokémon TCG collection featuring Mega Charizard X ex with booster packs, foil promo cards and collector extras. English, factory sealed.
 
 Ultra-Premium Collections are the top tier of Pokémon TCG sealed product and some of the most collected boxes of all — opened for the packs and promos, or kept sealed as a display piece.
