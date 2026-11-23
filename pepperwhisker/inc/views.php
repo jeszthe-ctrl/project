@@ -265,6 +265,7 @@ function home_faqs(){
     ['Which schnauzer is best for families?', 'The miniature schnauzer suits most families: it is friendly, sturdy and adaptable. The standard suits active families, and the giant is best with experienced owners who have time for daily exercise and training.'],
     ['Do schnauzers shed?', 'Very little. Their harsh, wiry coat holds loose hair until it is brushed or clipped, which is why schnauzers are popular with people with mild allergies. They need brushing a few times a week and a haircut every 5 to 8 weeks.'],
     ['How long do schnauzers live?', 'Miniature schnauzers usually live 12 to 15 years, standards 13 to 16 and giants about 10 to 15.'],
+    ['What is a standard schnauzer?', 'The standard schnauzer is the original, medium-size schnauzer that the miniature and giant were bred from: 17.5 to 19.5 inches tall and about 30 to 50 pounds. It is often called the regular or medium schnauzer.'],
   ];
 }
 
@@ -284,6 +285,12 @@ function view_home(){
       <p class="hero-b"><a class="btn" href="<?= h(url('guides')) ?>">Browse all guides</a><a class="btn btn-ghost" href="<?= h(url('guides/schnauzer-sizes')) ?>"><?= icon('ruler') ?>Size chart</a></p>
     </div>
     <div class="hero-art"><?= $CFG['hero_photo'] !== '' && is_file(PW_ROOT.'/'.$CFG['hero_photo']) ? img_tag($CFG['hero_photo'], 'A schnauzer', '(max-width:900px) 100vw, 520px', true, 'hero-img') : size_chart_svg(false) ?></div>
+  </div></section>
+
+  <section class="sec"><div class="wrap narrow home-intro">
+    <h2 class="sec-h">What is a schnauzer?</h2>
+    <p>The schnauzer is a bearded, wire-coated dog from Germany, named after the German word <em>Schnauze</em>, “snout”. There isn’t one schnauzer breed but three: the <a href="<?= h(url('guides/miniature-schnauzer')) ?>">miniature schnauzer</a>, the <a href="<?= h(url('guides/standard-schnauzer')) ?>">standard schnauzer</a> (the original, often called the regular or medium schnauzer) and the <a href="<?= h(url('guides/giant-schnauzer')) ?>">giant schnauzer</a>. All three share the bushy eyebrows, beard and low-shedding coat, and all are smart, loyal and alert watchdogs, but they differ a lot in size, energy and how much training they need.</p>
+    <p>Schnauzers come in salt and pepper or black (miniatures also in black and silver), live about 12 to 16 years depending on size, and need brushing a few times a week and a haircut every 5 to 8 weeks. Read the full <a href="<?= h(url('guides/schnauzer-dog-breed')) ?>">schnauzer dog breed guide</a> to compare them.</p>
   </div></section>
 
   <section class="sec"><div class="wrap">

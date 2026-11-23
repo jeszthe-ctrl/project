@@ -78,6 +78,7 @@ p{margin:0 0 14px}
 .hero-img{border-radius:var(--radius);box-shadow:var(--shadow)}
 .sec{padding:34px 0}
 .sec.band{background:var(--band)}
+.home-intro{padding-bottom:0}.home-intro p{color:var(--ink2);font-size:1.05rem}
 .sec-h{display:flex;align-items:center;gap:10px;margin-top:0}
 .sec-h .ic{color:var(--accent)}
 .sec-row{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}

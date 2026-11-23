@@ -173,53 +173,91 @@ TXT
 ],
 [
   'slug'=>'standard-schnauzer', 'type'=>'guide', 'group'=>'breeds', 'date'=>'2026-11-23',
-  'title'=>'Standard Schnauzer: The Original "Regular" Schnauzer',
-  'seo_title'=>'Standard Schnauzer: Size, Temperament & Care (Regular Schnauzer)',
-  'seo_desc'=>'The standard schnauzer, the original medium-size schnauzer: size, weight, temperament, colors, grooming, health and how it compares to the mini and giant.',
+  'title'=>'Standard Schnauzer: Size, Temperament and Care of the Original Schnauzer',
+  'seo_title'=>'Standard Schnauzer: Size, Temperament, Colors & Care Guide',
+  'seo_desc'=>'The standard schnauzer, the original "regular" schnauzer: size, weight, temperament, colors, exercise, grooming, health, puppies and how it compares.',
   'excerpt'=>'The medium-size original that the miniature and giant were bred from: clever, spirited and a true working dog.',
-  'answer'=>'The standard schnauzer is the original, medium-size schnauzer: 17.5 to 19.5 inches tall and about 30 to 50 pounds. Often called the "regular" or "medium" schnauzer, it is clever, spirited and protective, comes in salt and pepper or black, and usually lives 13 to 16 years.',
+  'answer'=>'The standard schnauzer is the original, medium-size schnauzer: 17.5 to 19.5 inches tall and about 30 to 50 pounds. Often called the "regular" or "medium" schnauzer, it is clever, spirited and protective, comes in salt and pepper or solid black, sheds little and usually lives 13 to 16 years.',
   'body'=><<<'TXT'
-When people say "regular schnauzer", "medium schnauzer" or "German schnauzer", they usually mean the standard schnauzer, the original breed that the miniature and giant were developed from. It is much rarer than the mini in the United States, and those who know it often say it is the best-kept secret of the three.
+When people say "regular schnauzer", "medium schnauzer", "schnauzer standard" or "German schnauzer", they usually mean the standard schnauzer: the original breed that the [miniature](/guides/miniature-schnauzer) and [giant](/guides/giant-schnauzer) were developed from. It is much rarer than the mini in the United States, and those who know it often call it the best-kept secret of the three.
 
 ## Standard schnauzer at a glance
 
 | Trait | Standard schnauzer |
 |---|---|
-| AKC group | Working Group |
+| AKC group | Working Group (Pinscher and Schnauzer group under the FCI) |
 | Height | Males 18.5–19.5 in; females 17.5–18.5 in |
-| Weight | About 30–50 lb |
+| Weight | Males about 35–50 lb; females about 30–45 lb |
 | Lifespan | Usually 13–16 years |
 | Colors | Salt and pepper or solid black |
-| Coat | Harsh, wiry coat with soft undercoat; low shedding |
+| Coat | Harsh, wiry outer coat over a soft undercoat; low shedding |
 | Temperament | Smart, bold, playful, protective |
 | Exercise | About an hour a day plus mental work |
+| Good first dog? | Yes, for active owners willing to train |
 
 ## History
 
-The standard schnauzer is an old German farm dog from Württemberg and Bavaria, kept to catch rats, guard the farmyard and travel with carts to market. Early on it was called the wire-haired pinscher; the name *schnauzer* comes from *Schnauze*, German for snout or muzzle, after its bearded face. The AKC recognized the breed in 1904.
+The standard schnauzer is an old German farm dog from Württemberg and Bavaria, kept to catch rats, guard the farmyard and travel with carts to market. Early on it was shown as the wire-haired pinscher; the name *schnauzer* comes from *Schnauze*, German for snout or muzzle, after its bearded face. Dogs like it appear in German paintings from the 1400s and 1500s. During World War I standards carried messages and served as Red Cross dogs. The AKC recognized the breed in 1904.
+
+## Size: how big is a standard schnauzer?
+
+A standard is a true medium-size dog, roughly knee to mid-thigh height on an adult. It is about twice the weight of a miniature and about half the weight of a giant. Most reach adult height by 12 months and fill out by about 18 months.
+
+| | Miniature | Standard | Giant |
+|---|---|---|---|
+| Height | 12–14 in | 17.5–19.5 in | 23.5–27.5 in |
+| Weight | 11–20 lb | 30–50 lb | 55–85 lb |
+| Energy | Moderate | High | Very high |
+| Watchdog | Vocal | Alert and protective | Protective guardian |
+
+See the full [schnauzer size chart](/guides/schnauzer-sizes).
 
 ## Temperament
 
 Standards combine the brains of a working dog with a terrier's spark. They are:
 
-- **Very intelligent**, sometimes too clever: they learn routines fast and test rules.
-- **Devoted** to their family and good with children they are raised with.
-- **Watchful and protective**, reserved with strangers.
-- **Playful** well into old age.
+- **Very intelligent**, sometimes too clever: they learn routines fast, solve problems and test rules.
+- **Devoted** to their family and usually excellent with children they are raised with.
+- **Watchful and protective**, reserved with strangers but not aggressive when well socialized.
+- **Playful** well into old age, with a sense of humor owners love.
+- **Independent-minded**: they respond best to fair, reward-based training rather than repetition and harsh corrections.
 
-They need daily exercise and something to think about: training, scent games or a dog sport.
+Compared with a miniature, a standard is usually less yappy but more serious about guarding. Compared with a giant, it is far easier to handle, house and travel with.
 
-## How it compares
+## Colors
 
-A standard is roughly twice the weight of a [miniature schnauzer](/guides/miniature-schnauzer) and about half the weight of a [giant schnauzer](/guides/giant-schnauzer). It has more working drive than most minis, but is far easier to handle and house than a giant. See the full [schnauzer size chart](/guides/schnauzer-sizes).
+The breed standard allows two colors: **salt and pepper** (also called pepper and salt) and **solid black**. A small white spot on the chest is allowed. White, black and silver, and parti colors are not standard for this breed. See [schnauzer colors](/guides/schnauzer-colors) and [salt and pepper schnauzers](/guides/salt-and-pepper-schnauzer).
 
-## Grooming and health
+## Exercise and training
 
-Groom like a mini: brush several times a week, keep the beard clean and clip or hand-strip every 6 to 8 weeks ([grooming guide](/guides/how-to-groom-a-schnauzer)). The breed is generally healthy; breeders screen hips (hip dysplasia), eyes and for juvenile renal dysplasia, an inherited kidney condition.
+Plan on about an hour of exercise a day: brisk walks, jogging, hiking, fetch and play, plus something to think about. Standards excel at obedience, agility, rally, tracking, scent work and even herding. A bored standard will invent its own jobs, such as digging, barking or redesigning your garden.
 
-## Finding a standard schnauzer
+Start socializing your puppy early with many people, dogs and places, and keep training sessions short, varied and upbeat.
 
-Because the breed is less common, there may be a waiting list. Start with the national breed club, the Standard Schnauzer Club of America, and read [how to buy a schnauzer puppy safely](/guides/how-to-buy-a-schnauzer-puppy).
+## Grooming
+
+The wiry coat sheds little, which suits many people with mild dog allergies (see [are schnauzers hypoallergenic?](/guides/are-schnauzers-hypoallergenic)). Brush two or three times a week, comb the beard and leg furnishings, wipe the beard after meals, and clip or hand-strip every 6 to 8 weeks. Clipping is easier but softens the coat and lightens the color; hand-stripping keeps the harsh texture. See [schnauzer haircut styles](/guides/schnauzer-haircut-styles) and [how to groom a schnauzer](/guides/how-to-groom-a-schnauzer).
+
+## Health and lifespan
+
+Standard schnauzers are one of the healthier medium-size breeds and often live **13 to 16 years**. Responsible breeders screen for:
+
+- **Hip dysplasia** (OFA or PennHIP evaluation)
+- **Eye disease** (annual eye exam by a veterinary ophthalmologist)
+- **Juvenile renal dysplasia**, an inherited kidney condition
+- **Heart health**, with a cardiac exam
+
+Keep your dog lean and up to date with vet checks. More in [schnauzer health problems](/guides/schnauzer-health-problems).
+
+## Standard schnauzer puppies
+
+Because the breed is less common, good breeders often have a waiting list. Start with the national breed club, the Standard Schnauzer Club of America, which has breeder referral contacts and a rescue network. Expect to pay roughly $1,800 to $3,500 from a health-testing breeder (see [schnauzer prices](/guides/schnauzer-price)).
+
+A good breeder lets you meet the puppy and its mother (in person, or on a live video call if you live far away), shows you the parents' health results, and gives you a written contract. Read [how to buy a schnauzer puppy safely](/guides/how-to-buy-a-schnauzer-puppy) and our [schnauzer puppy guide](/guides/schnauzer-puppy). Adult standards also come up through [schnauzer rescue](/guides/schnauzer-rescue).
+
+## Is a standard schnauzer right for you?
+
+A standard suits you if you want a medium-size, low-shedding dog that is clever, sporty and a good watchdog, and you have time for daily exercise, training and regular grooming. It may not suit you if you want a quiet, low-energy dog or can't commit to training.
 
 ## Questions
 
@@ -231,6 +269,12 @@ Yes. "Regular", "medium" and "standard" schnauzer all refer to the same breed, t
 
 ### Are standard schnauzers good with kids?
 Usually, especially when raised with them. They are playful and protective but need training and supervision around very young children.
+
+### Do standard schnauzers shed?
+Very little. Their wiry coat needs brushing a few times a week and clipping or hand-stripping every 6 to 8 weeks.
+
+### How long do standard schnauzers live?
+Usually 13 to 16 years, one of the longest lifespans for a dog of their size.
 TXT
 ],
 [

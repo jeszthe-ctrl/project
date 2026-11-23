@@ -4,14 +4,20 @@ Which page targets which searches from the keyword research (US volumes per mont
 information site: it doesn't list or sell puppies, so "for sale", "breeders" and "near me" searches are
 answered by the guide to finding a breeder safely, the price guide and the rescue guide.
 
+## Home page (/)
+
+| Page | Main keywords | Also covers |
+|---|---|---|
+| / (home) | schnauzer (110,000) | The "What is a schnauzer?" section, the three breeds and the questions answer the head term; the breed guides below go deeper. |
+
 ## Breeds (/schnauzer-breeds)
 
 | Page | Main keywords | Also covers |
 |---|---|---|
 | /guides/giant-schnauzer | giant schnauzer (74,000) | big schnauzer, large schnauzer, giant schnauzer dog, giant schnauzer schnauzer, giant schnauzer size, giant schnauzer colors |
 | /guides/miniature-schnauzer | miniature schnauzer (74,000), mini schnauzer (49,500) | dog schnauzer miniature, schnauzer mini, mini schnauzer dog, miniature schnauzer dog breed, dog breed mini schnauzer, schnauzer miniature, full grown miniature schnauzer, mini schnauzer size, american miniature schnauzer club (mentioned) |
-| /guides/schnauzer-dog-breed | schnauzer dog (40,500), schnauzer schnauzer dog (33,100) | schnauzer dogs, dog breed schnauzer, schnauzer dog breed, dog schnauzer, schnauzer schnauzer, german schnauzer, schnauzer terrier |
-| /guides/standard-schnauzer | regular schnauzer, medium schnauzer | standard schnauzer size, german schnauzer, standard schnauzer puppies |
+| /guides/schnauzer-dog-breed | schnauzer dog (40,500), schnauzer schnauzer dog (33,100) | schnauzer dogs, dog breed schnauzer, schnauzer dog breed, schnauzer breed, dog schnauzer, schnauzer schnauzer, german schnauzer, schnauzer terrier |
+| /guides/standard-schnauzer | standard schnauzer (18,100), schnauzer standard (1,900) | regular schnauzer, medium schnauzer, standard schnauzer size, german schnauzer, standard schnauzer puppies, standard schnauzer breeders / for sale (safe-buying section) |
 | /guides/schnauzer-sizes | schnauzer sizes | giant schnauzer next to person, full grown miniature schnauzer, miniature schnauzer full grown, standard schnauzer size |
 | /guides/teacup-and-toy-schnauzer | teacup schnauzer, toy schnauzer | teacup mini schnauzer, teacup miniature schnauzer |
 | /guides/miniature-schnauzer-temperament | miniature schnauzer temperament | |
