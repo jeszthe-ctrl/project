@@ -72,7 +72,19 @@ function store_defaults(){ return require FK_ROOT.'/inc/defaults.php'; }
 function store_load(){
   $d = store_defaults();
   $s = data_read('store');
-  if(!$s){ $s = $d; data_write('store', $s); starter_photos(); }   // first run: seed from defaults
+  if(!$s){
+    $file = data_file('store');
+    $backups = glob(data_dir().'/backups/store-*.php') ?: [];
+    if(is_file($file) || $backups){
+      /* the shop has data but store.php is missing or unreadable: never start over with the starting data.
+         Keep the unreadable file aside and carry on from the newest readable backup. */
+      rsort($backups);
+      foreach($backups as $f){ $raw = (string)@file_get_contents($f); $v = json_decode(substr($raw, strpos($raw, "\n") + 1), true); if(is_array($v) && !empty($v['products'])){ $s = $v; break; } }
+      if(!$s){ http_response_code(503); header('Retry-After: 300'); exit('The shop is being updated. Please try again in a few minutes.'); }
+      if(is_file($file)) @rename($file, data_dir().'/store-unreadable-'.date('Ymd-His').'.php');
+      data_write('store', $s);
+    } else { $s = $d; data_write('store', $s); starter_photos(); }   // first run: seed from defaults
+  }
   $version = (int)($s['settings']['content_version'] ?? 1);
   $s += $d;                                       // sections added by later versions
   $s['settings'] += $d['settings'];

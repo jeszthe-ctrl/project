@@ -201,3 +201,5 @@ if(class_exists('ZipArchive')){
     printf("dist/pokekura-upload.zip: %d files, %.0f KB\n", count($files), filesize($zf) / 1024);
   }
 }
+copy("$root/tools/check.php", "$root/dist/pokekura-check.php");   /* data check & restore page, uploaded only when needed */
+echo "dist/pokekura-check.php\n";
