@@ -284,7 +284,7 @@ function inquiry_form($sel=null){
     <div class="frow frow-2"><?= field('phone', 'Phone', 'tel', true, 'autocomplete="tel" inputmode="tel" placeholder="(555) 555-0123"') ?><?= field('email', 'Email', 'email', true, 'autocomplete="email" placeholder="you@example.com"') ?></div>
     <label class="f"><span>Your note <i>(optional)</i></span><textarea name="notes" rows="3" maxlength="3000" placeholder="Your name, questions, when you’d like your puppy…"><?= val('notes') ?></textarea></label>
     <button class="btn btn-lg btn-block" type="submit">Proceed now <?= icon('arrow') ?></button>
-    <p class="fnote"><?= icon('lock') ?> No payment. We reply <?= h(fill('{reply_time}')) ?> by call, text or email. <a href="<?= h(url('privacy-policy')) ?>">Privacy</a></p>
+    <p class="fnote"><?= icon('lock') ?> We reply <?= h(fill('{reply_time}')) ?> by call, text or email. <a href="<?= h(url('privacy-policy')) ?>">Privacy</a></p>
   </form>
   <?php return ob_get_clean();
 }
@@ -479,7 +479,7 @@ function footer(){
   $guides = array_slice(articles_of('guide'), 0, 7);
   ?>
 <section class="pre-f"><div class="wrap pre-f-in">
-  <div><h2>Questions? Talk to a real beagle breeder.</h2><p>We reply <?= h(fill('{reply_time}')) ?>. No pressure, and no payment until you’re sure.</p></div>
+  <div><h2>Questions? Talk to a real beagle breeder.</h2><p>We reply <?= h(fill('{reply_time}')) ?>.</p></div>
   <div class="pre-f-b"><?php if($CFG['phone'] !== ''): ?><a class="btn btn-light" href="sms:<?= h(tel($CFG['phone'])) ?>"><?= icon('chat') ?>Text us</a><a class="btn btn-light" href="tel:<?= h(tel($CFG['phone'])) ?>"><?= icon('phone') ?><?= h($CFG['phone']) ?></a><?php endif; ?><a class="btn btn-light" href="mailto:<?= h($CFG['email']) ?>"><?= icon('mail') ?><?= h($CFG['email']) ?></a></div>
 </div></section>
 <footer class="site-f">
@@ -532,7 +532,7 @@ function inquiry_section($sel=null, $title='', $band=true){
     <div class="inq-side">
       <p class="eyebrow"><?= icon('chat') ?>One-minute inquiry</p>
       <h2><?= h($title) ?></h2>
-      <p>Choose your dog, leave your phone number and email, and add a note if you like. That’s it — <strong>no payment</strong>.</p>
+      <p>Choose your dog, leave your phone number and email, and add a note if you like. That’s it.</p>
       <ol class="mini-steps"><li><span>1</span>Choose your dog, or “not sure yet”</li><li><span>2</span>We call, text or email you <?= h(fill('{reply_time}')) ?></li><li><span>3</span>We answer every question and help you choose</li></ol>
       <?php if($CFG['phone'] !== ''): ?><p class="inq-call"><a class="btn btn-ghost" href="sms:<?= h(tel($CFG['phone'])) ?>"><?= icon('chat') ?>Text us</a><a class="btn btn-ghost" href="tel:<?= h(tel($CFG['phone'])) ?>"><?= icon('phone') ?><?= h($CFG['phone']) ?></a></p><?php endif; ?>
     </div>
@@ -572,7 +572,7 @@ function view_home(){
 
   <section class="wrap easy3 easy3-after" aria-label="How to get your puppy">
     <a class="e3" href="#puppies"><span class="e3-n">1</span><span><strong>Choose your puppy</strong><small>Real photos, price, age and both parents</small></span></a>
-    <a class="e3" href="#inquire"><span class="e3-n">2</span><span><strong>Proceed now, in one minute</strong><small>Phone and email, plus a note. No payment</small></span></a>
+    <a class="e3" href="#inquire"><span class="e3-n">2</span><span><strong>Proceed now, in one minute</strong><small>Phone and email, plus a note</small></span></a>
     <a class="e3" href="<?= h(url('puppy-delivery')) ?>"><span class="e3-n">3</span><span><strong>We call you, then deliver</strong><small>We reply <?= h(fill('{reply_time}')) ?>. Delivered to your door</small></span></a>
   </section>
 
@@ -584,7 +584,7 @@ function view_home(){
   </div></section>
 
   <section class="sec band"><div class="wrap split">
-    <div ><h2>How it works</h2><p>From inquiry to delivery day, in a few simple steps. Sending an inquiry is free and you’re never committed until you’ve talked to us and you’re sure.</p><?= steps_block() ?><p><a class="btn" href="<?= h(url('how-it-works')) ?>">How buying from us works</a></p></div>
+    <div ><h2>How it works</h2><p>From inquiry to delivery day, in a few simple steps.</p><?= steps_block() ?><p><a class="btn" href="<?= h(url('how-it-works')) ?>">How buying from us works</a></p></div>
     <div ><h2>Every puppy comes with</h2><?= included_block() ?><p class="muted">The price on each puppy’s page includes all of this. <a href="<?= h(url('whats-included')) ?>">What’s included</a></p></div>
   </div></section>
 
@@ -628,7 +628,7 @@ function home_faqs(){
   global $CFG;
   return [
     ['How much is a beagle puppy from '.$CFG['brand'].'?', 'Each puppy’s price is listed on their card and their page. The price includes a vet check, age-appropriate shots, a microchip, starter food and all their documents. Delivery to your door is extra: '.delivery_summary().'.'],
-    ['How do I get a beagle puppy from you?', 'Choose a puppy on our site and send the one-minute inquiry form with your phone number and email. Inquiring is free. We call, text or email you '.fill('{reply_time}').', answer every question, send more photos if you like and arrange delivery to your door.'],
+    ['How do I get a beagle puppy from you?', 'Choose a puppy on our site and send the one-minute inquiry form with your phone number and email. We call, text or email you '.fill('{reply_time}').', answer every question, send more photos if you like and arrange delivery to your door.'],
     ['Do you deliver beagle puppies near me?', 'Yes. We deliver beagle puppies from '.$CFG['city'].', Ohio to your door: '.delivery_summary().'. Delivery times count from when your puppy leaves us, after a final check by our veterinarian.'],
     ['What comes with a '.$CFG['brand'].' beagle puppy?', 'Every puppy comes with a veterinarian check, age-appropriate shots and deworming, a microchip, a bag of the food they already eat, all their documents (registration papers, vet and vaccination records and microchip details, with names) and a written '.fill('{genetic_year}').' genetic health guarantee.'],
     ['How big do beagles get?', 'Beagles come in two sizes: 13-inch beagles stand up to 13 inches at the shoulder and usually weigh under 20 pounds, and 15-inch beagles stand 13 to 15 inches and weigh about 20 to 30 pounds. Most are fully grown by 12 to 18 months.'],

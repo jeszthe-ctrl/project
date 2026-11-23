@@ -37,7 +37,7 @@ return [
     'puppies_title'   => 'Beagle Puppies for Sale',
     'puppies_seo_title'=> 'Beagle Puppies for Sale Near You | Available Now | Beagle Brook',
     'puppies_seo_desc'=> 'See every beagle puppy available now at Beagle Brook: photos, price, age, color and parents. Vet checked, microchipped, full papers, delivered from Cincinnati, Ohio.',
-    'puppies_intro'   => "Every beagle puppy we have available right now is listed here, with real photos, price, date of birth and both parents. Each one has been raised in our home in {city}, {state}, examined by our veterinarian and is ready for a family that will love them.\n\nFound the one? Choose them in the inquiry form, leave your phone number and email, and add a note. It takes a minute, there's no payment, and we reply {reply_time}.",
+    'puppies_intro'   => "Every beagle puppy we have available right now is listed here, with real photos, price, date of birth and both parents. Each one has been raised in our home in {city}, {state}, examined by our veterinarian and is ready for a family that will love them.\n\nFound the one? Choose them in the inquiry form, leave your phone number and email, and add a note. It takes a minute, and we reply {reply_time}.",
     'parents_intro'   => "Good puppies start with good parents. These are the adult beagles behind our litters: their registration, health testing, size and temperament. Ask us about any of them.",
     'litters_intro'   => "Our beagles have litters a few times a year, and the best puppies often go to families who are already on our waitlist. Join it below and we'll email you the moment a new litter is born, before the puppies are posted publicly.",
     'reviews_intro'   => "What families say after their Beagle Brook puppy comes home. Every review here is from a real buyer and is published with their permission.",
@@ -50,7 +50,7 @@ return [
     'smtp_host'       => '', 'smtp_port' => '', 'smtp_secure' => 'tls', 'smtp_user' => '', 'smtp_pass' => '',
     'alert_phone'     => '', 'alert_sms_email' => '', 'twilio_sid' => '', 'twilio_token' => '', 'twilio_from' => '',
     'pretty_urls'     => false, 'pretty_auto' => false,
-    'content_version' => 5,   /* see site_load(): changes applied once to sites installed earlier */
+    'content_version' => 6,   /* see site_load(): changes applied once to sites installed earlier */
   ],
 
   /* delivery options and prices (Admin → Delivery). Times count from when the puppy leaves us. */
@@ -94,7 +94,7 @@ return [
   ],
 
   'steps' => [
-    ['title'=>'Choose your puppy and send an inquiry', 'text'=>'Pick your puppy, leave your phone number and email, and add a note if you like. It takes a minute, and there’s no payment.'],
+    ['title'=>'Choose your puppy and send an inquiry', 'text'=>'Pick your puppy, leave your phone number and email, and add a note if you like. It takes a minute.'],
     ['title'=>'We call, text or email you', 'text'=>'We reply {reply_time}, answer every question and tell you all about your puppy, with more photos if you’d like them.'],
     ['title'=>'Reserve your puppy', 'text'=>'When you’ve chosen, we confirm your puppy, the price and your delivery in writing, and mark your puppy Reserved on our site.'],
     ['title'=>'We plan your delivery', 'text'=>'You choose Standard (2–5 days) or Express (within 24 hours) delivery, and we agree the departure date with you. The delivery fee is in your written agreement.'],
@@ -329,8 +329,8 @@ See the full [health guarantee](/health-guarantee), or browse [beagle puppies fo
 TXT
     ],
     [
-      'slug'=>'is-beagle-brook-legit', 'menu'=>'Verify us', 'title'=>'Is Beagle Brook legit? How to verify us before you pay',
-      'seo_title'=>'Is Beagle Brook Legit? How to Verify Us Before You Pay',
+      'slug'=>'is-beagle-brook-legit', 'menu'=>'Verify us', 'title'=>'Is Beagle Brook legit? How to verify us',
+      'seo_title'=>'Is Beagle Brook Legit? How to Verify Us | Beagle Brook',
       'seo_desc'=>'How to check that Beagle Brook is a real beagle breeder: recent photos, registration lookups, written agreements and the warning signs of puppy scams.',
       'body'=><<<'TXT'
 Puppy scams are real, and beagles are one of the breeds scammers copy most. You should check any breeder before you send money — including us. Here is exactly how to verify Beagle Brook, and the warning signs to watch for anywhere else.
@@ -362,7 +362,7 @@ If anyone contacts you claiming to be Beagle Brook from another email address, p
 ## Questions
 
 ### Can I visit before buying?
-We are a delivery-only breeder. Before you pay anything, ask us all your questions: we'll send recent photos of your puppy and the parents, and every detail in writing.
+We are a delivery-only breeder. Ask us all your questions: we'll send recent photos of your puppy and the parents, and every detail in writing.
 
 ### Are you licensed?
 Our license and registration details, where they apply, are listed on this page.
@@ -461,7 +461,7 @@ These terms apply when you reserve and buy a puppy from {brand}, {city}, {state}
 
 ## Inquiries
 
-Sending an inquiry is free and doesn't commit you to anything. A puppy is only reserved once we've confirmed the sale with you in writing.
+A puppy is only reserved once we've confirmed everything with you in writing.
 
 ## Prices
 

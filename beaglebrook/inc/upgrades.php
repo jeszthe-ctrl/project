@@ -83,16 +83,19 @@ return array (
     array (
       0 => '3634ca852a5a9f3cb4c804b440d84d19',
       1 => 'b05910fcaf138bd9ec867f5af3e6576f',
+      2 => 'cd3c63f391d2c49b72632f0d35d72aa8',
     ),
     'lemon-beagle' => 
     array (
       0 => '25c5318eb9f40f0bf60b58c170c6fa80',
       1 => 'c74f8b85a04270e208ff596d470542bd',
+      2 => '23f1e5ae70083de6f668ee16c2097e50',
     ),
     'pocket-beagle' => 
     array (
       0 => '7b0bfc9417cc3e0f0f93f84403aa3808',
       1 => 'b94a54a1032c0868c29f71328ccf9200',
+      2 => '8849dd5a8aab1bee50133df1d2aca4ae',
     ),
     'do-beagles-shed' => 
     array (
@@ -170,6 +173,7 @@ return array (
     array (
       0 => '924ff70af2a66dd25d083cc5ec5b4e43',
       1 => '32bf1fe67644097558e82f237f72c5c4',
+      2 => '29c8e90fc862844f77a94234a5b5ef51',
     ),
     'beagle-growth-chart' => 
     array (
@@ -233,10 +237,12 @@ return array (
     'beagle-boxer-mix' => 
     array (
       0 => '8cd0e814f0bf64e5acdc76fbc4961947',
+      1 => 'dcace1ebd7de0bba90156702952fd946',
     ),
     'corgi-beagle-mix' => 
     array (
       0 => 'adc561b4af1c9fe62d9eac8a53393705',
+      1 => 'eb28491eefed13e58813d7f4bf0d08e3',
     ),
     'beagle-temperament' => 
     array (
@@ -249,14 +255,17 @@ return array (
     'tricolor-beagle' => 
     array (
       0 => '120faec83d61814de9b4bedd5d38e969',
+      1 => '91f6f698966df9d4d7480aa92ea559e2',
     ),
     'bluetick-beagle' => 
     array (
       0 => '2378f52cf87d12f09972a3fe25eaf163',
+      1 => '633759b85ccaaa945a61abb2d6566bc3',
     ),
     'black-and-white-beagle' => 
     array (
       0 => '1287194256db47ccab84623a54222fc6',
+      1 => '58443908b12656b3f37e7f2f64eb6439',
     ),
     'beagle-vs-basset-hound' => 
     array (
@@ -329,6 +338,7 @@ return array (
     'beagle-puppy-checklist' => 
     array (
       0 => '464a71d0d7f5d598f8423aada17e7347',
+      1 => 'a1294134316117dec63e0c0f08379492',
     ),
   ),
   'templates' => 
@@ -375,6 +385,7 @@ return array (
   'included' => 
   array (
     0 => '99fdd2683ef5d8240c2a2d08f3f79512',
+    1 => 'c81119c13152d6cd737bd5cb8b4f67b9',
   ),
   'settings' => 
   array (
