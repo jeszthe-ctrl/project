@@ -9,13 +9,14 @@
 #
 # Base price  = products still in print: a share of their US retail price (under Pokémon Center's price);
 #               everything else: 12% under the market reference (UNDER).
-# Bulk tiers  = gentle steps (TIER_STEPS), and buying more never costs less in total.
+# Bulk tiers  = 5% off at 4+, 8% at 6+, 12% at 10+, 15% at 24+ (TIER_STEPS; the owner's own tier quantities
+#               for products sold in multiples).
 # Sealed case = always cheaper per unit than the same quantity bought loose (CASE_SAVING).
 import math
 
 UNDER = 0.88          # 12% under market
 CASE_SAVING = 0.97    # a case costs 3% less per unit than the same quantity at the loose tier price
-TIER_STEPS = [1, 0.98, 0.96, 0.94, 0.92]   # price factor at each tier
+TIER_STEPS = [1, 0.95, 0.92, 0.88, 0.85]   # price factor at each tier: 5%, 8%, 12%, 15% off
 
 M = {}
 def m(ids, usd, src='e'):
@@ -140,8 +141,7 @@ CASES = {'delta-reign-factory-sealed-booster-case': ('delta-reign-booster-displa
          'delta-reign-factory-sealed-etb-case': ('delta-reign-elite-trainer-box', 10),
          'storm-emeralda-booster-box-case-12-ct': ('storm-emeralda-m6-booster-box', 12),
          '30th-celebration-elite-trainer-box-case-10-ct': ('30th-celebration-elite-trainer-box', 10)}
-# off sale until the owner confirms how many collections (and which) are in the case
-HIDE = {'pokemon-30th-celebration-upc-factory-sealed-case-configuration'}
+HIDE = set()   # every product stays on sale
 
 
 def nice(x):
@@ -162,20 +162,15 @@ def ladder(base, moq, step, old, keep=False):
     lad = []
     for i, q in enumerate(qs):
         price = base if i == 0 else nice(base * TIER_STEPS[i])
-        if lad:
-            prev_q, prev = lad[-1]
-            floor_ = prev * (q - step) / q          # lowest price at which the tier can't undercut buying one step less
-            if price < floor_: price = math.ceil(floor_ * 100) / 100
-            if price >= prev: continue               # no real saving left at this quantity: drop the tier
+        if lad and price >= lad[-1][1]: continue      # no real saving at this quantity: skip the tier
         lad.append([q, price])
     check(lad, step)
     return lad
 
 def check(lad, step):
-    """buying more never costs less in total, and every tier is cheaper than the one before"""
+    """every tier is cheaper per unit than the one before (bigger orders get bigger discounts)"""
     for (q0, p0), (q1, p1) in zip(lad, lad[1:]):
-        assert p1 < p0, lad
-        assert (q1 - step) * p0 <= q1 * p1 + 0.005, ('cliff', lad)
+        assert q1 > q0 and p1 < p0, lad
 
 def at(lad, q):
     p = lad[0][1]
@@ -203,13 +198,13 @@ def reprice(products, owner_ids=()):
             base = at(p['ladder'], moq); rule = 'owner price kept'
         if p['id'] in owner_ids and src != 'v' and rule != 'owner price kept' and base > at(p['ladder'], moq):
             base = at(p['ladder'], moq); rule = 'owner price kept (already under market)'
-        out[p['id']] = (ladder(base, moq, step, p['ladder'], rule.startswith('owner price kept')), mk, src, rule)
+        out[p['id']] = (ladder(base, moq, step, p['ladder'], rule.startswith('owner price kept') and p['id'] in owner_ids), mk, src, rule)
     for cid, (uid, n) in CASES.items():
         if cid not in by: continue
         ulad = out[uid][0]
         c = by[cid]
         base = nice(n * at(ulad, n) * CASE_SAVING)
-        lad = [[1, base]] + [[q, nice(base * f)] for q, f in [(2, 0.99), (4, 0.98), (6, 0.97)]]
+        lad = [[1, base]] + [[q, nice(base * f)] for q, f in [(2, 0.97), (4, 0.94), (6, 0.91)]]
         check(lad, 1)
         for q, price in lad:   # per unit, a case is always cheaper than the same quantity loose
             assert price / n < at(ulad, q * n) + 0.005, (cid, q, price / n, at(ulad, q * n))

@@ -83,7 +83,7 @@ function store_load(){
 /* Content that a newer version of the shop adds or improves, applied once to shops installed
    earlier. It only adds what's missing, and only replaces text the owner hasn't edited: each
    replaced item is checked against the exact default text it shipped with. */
-const CONTENT_VERSION = 16;
+const CONTENT_VERSION = 17;
 function content_upgrade($s, $d, $version){
   $new = array_column($d['guides'], null, 'slug');
   /* replace a guide with today's default, but only if it still matches the default it shipped with */
@@ -275,10 +275,19 @@ function content_upgrade($s, $d, $version){
       $id = $p['id'] ?? ''; if(!isset($was[$id], $now[$id])) continue;
       if(md5(json_encode($p['ladder'] ?? [])) === $was[$id][0]) $s['products'][$i]['ladder'] = $now[$id]['ladder'];
       if(md5((string)($p['seo_desc'] ?? '')) === $was[$id][1]) $s['products'][$i]['seo_desc'] = $now[$id]['seo_desc'] ?? '';
-      if($id === 'pokemon-30th-celebration-upc-factory-sealed-case-configuration') $s['products'][$i]['hidden'] = true;   /* until the case contents are confirmed */
       if($id === '30th-celebration-elite-trainer-box-case-10-ct') $s['products'][$i]['desc'] = strtr((string)($p['desc'] ?? ''), [
         'with the price per case falling sharply from six cases.'=>'at a lower price per box than buying ten loose.',
         '- Price per case drops from 6 cases'=>'- Lower price per box than ten loose boxes, and lower again from 2, 4 and 6 cases']);
+    }
+  }
+  if($version < 17){   /* deeper bulk tiers (5/8/12/15% off), and every product on sale */
+    $was = require FK_ROOT.'/inc/prices-v16.php';
+    $now = array_column($d['products'], null, 'id');
+    foreach($s['products'] ?? [] as $i=>$p){
+      $id = $p['id'] ?? ''; if(!isset($was[$id], $now[$id])) continue;
+      if(md5(json_encode($p['ladder'] ?? [])) === $was[$id][0]) $s['products'][$i]['ladder'] = $now[$id]['ladder'];
+      if(md5((string)($p['seo_desc'] ?? '')) === $was[$id][1]) $s['products'][$i]['seo_desc'] = $now[$id]['seo_desc'] ?? '';
+      if($id === 'pokemon-30th-celebration-upc-factory-sealed-case-configuration') $s['products'][$i]['hidden'] = false;   /* back on sale */
     }
   }
   $s['settings']['content_version'] = CONTENT_VERSION;
