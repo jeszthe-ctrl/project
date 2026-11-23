@@ -28,7 +28,7 @@ $d = [
     'pretty_urls'   => false,            /* clean addresses like /products/151-booster-box: switched on by themselves when the host supports them */
     'pretty_auto'   => false,            /* set once that automatic switch has happened, so turning them off in the admin sticks */
     'free_ship_usd' => 2000,             /* free Standard shipping from this goods total (USD); 0 = off */
-    'content_version' => 18,              /* set by the shop: which built-in content updates are applied */
+    'content_version' => 19,              /* set by the shop: which built-in content updates are applied */
     'moved_to'      => '',               /* an old domain running this code can send every visitor here (301) */
     'google_verify' => '', 'bing_verify' => '',   /* Search Console / Bing verification codes (Admin → Settings) */
     /* SMTP for order emails (Admin → Settings → Email); blank host = the web host's mail() */
@@ -84,7 +84,7 @@ Inside are booster packs plus card sleeves, dice, damage counters, energy cards 
     ['id'=>'30th-celebration-m6a-booster-box', 'sku'=>'PK-BB-M6A-01',
      'name'=>'30th Celebration (M6A) Booster Box', 'set'=>'30th Celebration', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
-     'ladder'=>[[6,157.99],[12,149.99],[24,144.99]],
+     'ladder'=>[[6,143.99],[12,136.49],[24,131.99]],
      'desc'=>'A factory-sealed Japanese booster box from 30th Celebration (M6A), the set marking Pokémon\'s 30th anniversary.
 
 30th Celebration brings back classic Pokémon illustrations alongside new cards and has a high pull rate, which makes anniversary boxes a favourite with collectors and box openers alike. Open them for the pulls, or keep boxes sealed as an anniversary collectible.
@@ -120,7 +120,7 @@ Gengar has one of the most loyal followings in the hobby, and this Special Illus
     ['id'=>'30th-celebration-elite-trainer-box', 'sku'=>'PK-ETB-30C-01',
      'name'=>'30th Celebration Elite Trainer Box', 'set'=>'30th Celebration', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
-     'ladder'=>[[4,37.49],[24,35.59]],
+     'ladder'=>[[4,29.99],[24,28.49]],
      'desc'=>'The Pokémon TCG: 30th Celebration Elite Trainer Box — nine booster packs of the 30th-anniversary expansion plus everything needed to play them.
 
 30th Celebration marks thirty years of Pokémon: Mewtwo ex and Mew ex lead the set, joined by Umbreon ex, Salamence ex and Greninja ex, and every booster pack contains a Pikachu — with 30 different Pikachu rare cards to collect. Buying in volume? See the [sealed 10-box case](product:30th-celebration-elite-trainer-box-case-10-ct).
@@ -135,7 +135,7 @@ Gengar has one of the most loyal followings in the hobby, and this Special Illus
     ['id'=>'storm-emeralda-m6-booster-box', 'sku'=>'PK-BB-M6-01',
      'name'=>'Storm Emeralda (M6) Booster Box', 'set'=>'Storm Emeralda', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
-     'ladder'=>[[6,70.39],[24,66.79]],
+     'ladder'=>[[6,63.99],[24,60.79]],
      'desc'=>'A factory-sealed Japanese booster box of Storm Emeralda (M6), the Mega Evolution set headlined by Mega Rayquaza ex.
 
 Storm Emeralda\'s chase cards include the [Mega Rayquaza ex Master Ultra Rare](product:mega-rayquaza-ex-mur) and [Special Illustration Rare](product:mega-rayquaza-ex-sar-245-191-near-mint), which keeps sealed boxes in demand with collectors and box breakers. Order in multiples of six, or take a [sealed 12-box case](product:storm-emeralda-booster-box-case-12-ct) for the lowest price per box.
@@ -167,7 +167,7 @@ Collection boxes like this sell well as single units and gifts, and case pricing
     ['id'=>'heat-wave-arena-sv9a-booster-box', 'sku'=>'PK-BB-SV9A-01',
      'name'=>'Heat Wave Arena (SV9a) Booster Box', 'set'=>'Heat Wave Arena', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
-     'ladder'=>[[6,65.99],[18,62.69],[36,60.69]],
+     'ladder'=>[[6,59.99],[18,56.99],[36,55.19]],
      'desc'=>'A factory-sealed Japanese Heat Wave Arena (SV9a) booster box from the Scarlet & Violet series.
 
 Heat Wave Arena is a dependable reorder line for card shops running drafts and league nights, and a steady opener for collectors of Scarlet & Violet-era Japanese product.
@@ -178,7 +178,7 @@ Heat Wave Arena is a dependable reorder line for card shops running drafts and l
     ['id'=>'glory-of-team-rocket-sv10-booster-box', 'sku'=>'PK-BB-SV10-01',
      'name'=>'Glory of Team Rocket (SV10) Booster Box', 'set'=>'Glory of Team Rocket', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
-     'ladder'=>[[6,131.99],[18,124.99],[36,120.99]],
+     'ladder'=>[[6,119.99],[18,113.49],[36,109.99]],
      'desc'=>'A factory-sealed Japanese Glory of Team Rocket (SV10) booster box — Team Rocket\'s Pokémon return to the TCG.
 
 Glory of Team Rocket is one of the most in-demand Japanese Scarlet & Violet sets, built around the Pokémon of Team Rocket. Allocation sells quickly.
@@ -219,7 +219,7 @@ Premium trainer boxes combine booster packs with play accessories for players bu
     ['id'=>'151-booster-box', 'sku'=>'PK-BB-SV2A-01',
      'name'=>'151 Booster Box', 'set'=>'151', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
-     'ladder'=>[[6,245.99],[36,233.49]],
+     'ladder'=>[[6,223.99],[36,212.49]],
      'desc'=>'A factory-sealed Japanese 151 (SV2a) booster box — 20 packs of 7 cards from the set that revisits the original 151 Pokémon.
 
 151 Pokémon cards are some of the most collected of the Scarlet & Violet era: the original Pokémon from Bulbasaur to Mew, in modern artwork with full art rares. The [Charizard ex Special Illustration Rare](product:151-charizard-ex-special-illustration-rare) is the chase card. 151 was later released in English as Scarlet & Violet—151, but the Japanese version came first and many collectors prefer it.
@@ -243,7 +243,7 @@ Charizard is one of the most collected Pokémon in the TCG, and its 151 Special 
     ['id'=>'storm-emeralda-booster-box-case-12-ct', 'sku'=>'PK-BB-M6-C12',
      'name'=>'Storm Emeralda Booster Box Case (12-ct)', 'set'=>'Storm Emeralda', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>5.6, 'hidden'=>false,
-     'pack'=>[12,'booster box'], 'ladder'=>[[1,818.49],[2,776.99],[4,769.49],[6,744.99]],
+     'pack'=>[12,'booster box'], 'ladder'=>[[1,743.99],[2,707.49],[4,699.49],[6,676.99]],
      'desc'=>'A factory-sealed case of 12 Japanese Storm Emeralda (M6) booster boxes, priced per case.
 
 For shops and box breakers stocking Storm Emeralda in volume, a sealed case is the simplest buy: twelve booster boxes in one sealed case at a lower price per box than buying boxes individually, falling further from six cases.
@@ -254,7 +254,7 @@ For shops and box breakers stocking Storm Emeralda in volume, a sealed case is t
     ['id'=>'aura-seeker-booster-box', 'sku'=>'PK-BB-MLZ-01',
      'name'=>'Aura Seeker (Hadou Seeker) Booster Box', 'set'=>'Aura Seeker (Hadou Seeker)', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'preorder', 'release'=>'November 2026', 'weight'=>0.4, 'hidden'=>false,
-     'ladder'=>[[6,61.59],[18,58.49],[36,56.59]],
+     'ladder'=>[[6,55.99],[18,53.19],[36,51.49]],
      'desc'=>'Preorder the Japanese Aura Seeker (Hadou Seeker) booster box, an upcoming Mega Evolution-series set.
 
 A preorder reserves your allocation ahead of release at the quantity-break prices shown. You are invoiced when stock is allocated, not when you order, and boxes ship from Japan once released and paid.
@@ -503,7 +503,7 @@ A low-price item that sells well at the counter and in online baskets next to 30
     ['id'=>'pitch-black-elite-trainer-box', 'sku'=>'PK-ETB-PB-01',
      'name'=>'Pitch Black Elite Trainer Box', 'set'=>'Pitch Black', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
-     'ladder'=>[[4,37.49],[24,35.59]],
+     'ladder'=>[[4,29.99],[24,28.49]],
      'desc'=>'A factory-sealed Pokémon TCG Mega Evolution Pitch Black Elite Trainer Box.
 
 Pitch Black is part of the Pokémon Trading Card Game\'s Mega Evolution series. An Elite Trainer Box is the complete way to start a new set: booster packs plus card sleeves, dice, damage counters and a storage box. Related Japanese product is in our [Abyss Eye](set:abyss-eye) range.
@@ -514,7 +514,7 @@ Pitch Black is part of the Pokémon Trading Card Game\'s Mega Evolution series. 
     ['id'=>'chaos-rising-elite-trainer-box', 'sku'=>'PK-ETB-CR-01',
      'name'=>'Chaos Rising Elite Trainer Box', 'set'=>'Chaos Rising', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
-     'ladder'=>[[4,37.49],[24,35.59]],
+     'ladder'=>[[4,29.99],[24,28.49]],
      'desc'=>'A factory-sealed Pokémon TCG Mega Evolution Chaos Rising Elite Trainer Box.
 
 Chaos Rising is part of the Pokémon Trading Card Game\'s Mega Evolution series. An Elite Trainer Box is the complete way to start a new set: booster packs plus card sleeves, dice, damage counters and a storage box. Related Japanese product is in our [Ninja Spinner](set:ninja-spinner) range.
@@ -525,7 +525,7 @@ Chaos Rising is part of the Pokémon Trading Card Game\'s Mega Evolution series.
     ['id'=>'perfect-order-elite-trainer-box', 'sku'=>'PK-ETB-PO-01',
      'name'=>'Perfect Order Elite Trainer Box', 'set'=>'Perfect Order', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
-     'ladder'=>[[4,37.49],[24,35.59]],
+     'ladder'=>[[4,29.99],[24,28.49]],
      'desc'=>'A factory-sealed Pokémon TCG Mega Evolution Perfect Order Elite Trainer Box.
 
 Perfect Order is part of the Pokémon Trading Card Game\'s Mega Evolution series. An Elite Trainer Box is the complete way to start a new set: booster packs plus card sleeves, dice, damage counters and a storage box. Related Japanese product is in our [Nihil Zero](set:nihil-zero) range.
@@ -536,7 +536,7 @@ Perfect Order is part of the Pokémon Trading Card Game\'s Mega Evolution series
     ['id'=>'mega-evolution-ascended-heroes-elite-trainer-box', 'sku'=>'PK-ETB-AH-01',
      'name'=>'Mega Evolution: Ascended Heroes Elite Trainer Box', 'set'=>'Ascended Heroes', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>4, 'step'=>4, 'status'=>'in', 'release'=>'', 'weight'=>0.9, 'hidden'=>false,
-     'ladder'=>[[4,37.49],[24,35.59]],
+     'ladder'=>[[4,29.99],[24,28.49]],
      'desc'=>'A factory-sealed Pokémon TCG Mega Evolution Ascended Heroes Elite Trainer Box.
 
 Ascended Heroes is part of the Pokémon Trading Card Game\'s Mega Evolution series. An Elite Trainer Box is the complete way to start a new set: booster packs plus card sleeves, dice, damage counters and a storage box. Related Japanese product is in our [Mega Dream ex](set:mega-dream-ex) range.
@@ -547,7 +547,7 @@ Ascended Heroes is part of the Pokémon Trading Card Game\'s Mega Evolution seri
     ['id'=>'30th-celebration-elite-trainer-box-case-10-ct', 'sku'=>'PK-ETB-30C-C10',
      'name'=>'30th Celebration Elite Trainer Box Case (10-ct)', 'set'=>'30th Celebration', 'cat'=>'etb', 'cond'=>'Sealed',
      'moq'=>1, 'step'=>1, 'status'=>'in', 'release'=>'', 'weight'=>10, 'hidden'=>false,
-     'pack'=>[10,'Elite Trainer Box'], 'ladder'=>[[1,362.99],[2,352.49],[4,341.49],[6,330.49]],
+     'pack'=>[10,'Elite Trainer Box'], 'ladder'=>[[1,289.99],[2,281.49],[4,272.99],[6,263.99]],
      'desc'=>'A sealed case of 10 Pokémon TCG: 30th Celebration Elite Trainer Boxes, priced per case.
 
 The most economical way to stock anniversary ETBs: ten boxes in one sealed case, at a lower price per box than buying ten loose. Each Elite Trainer Box holds 9 booster packs, a full-art Nidorina promo, 65 sleeves, dice and a player\'s guide.
@@ -559,7 +559,7 @@ The most economical way to stock anniversary ETBs: ten boxes in one sealed case,
     ['id'=>'mega-dream-ex-m2a-booster-box', 'sku'=>'PK-BB-M2A-01',
      'name'=>'Mega Dream ex (M2A) Booster Box', 'set'=>'Mega Dream ex', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
-     'ladder'=>[[6,96.79],[24,91.89]],
+     'ladder'=>[[6,87.99],[24,83.59]],
      'desc'=>'A factory-sealed Japanese Mega Dream ex (M2A) booster box — the special set of the Mega Evolution series.
 
 Mega Dream ex is home to the [Mega Gengar ex Special Illustration Rare](product:mega-gengar-ex-sir), one of the standout cards of the Mega Evolution era, which makes these boxes a favourite with collectors chasing it.
@@ -571,7 +571,7 @@ Mega Dream ex is home to the [Mega Gengar ex Special Illustration Rare](product:
     ['id'=>'inferno-x-booster-box', 'sku'=>'PK-BB-INFX-01',
      'name'=>'Inferno X Booster Box', 'set'=>'Inferno X', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
-     'ladder'=>[[6,79.19],[36,75.19]],
+     'ladder'=>[[6,71.99],[36,68.39]],
      'desc'=>'A factory-sealed Japanese Inferno X (M2) booster box, the second main set of the Mega Evolution series.
 
 Inferno X continues the Mega Evolution era with new Mega Pokémon ex and full art rares. Sealed boxes suit players building decks, collectors chasing the set\'s rare cards, and shops restocking current Japanese product.
@@ -582,7 +582,7 @@ Inferno X continues the Mega Evolution era with new Mega Pokémon ex and full ar
     ['id'=>'mega-symphonia-booster-box', 'sku'=>'PK-BB-M1S-01',
      'name'=>'Mega Symphonia Booster Box', 'set'=>'Mega Symphonia', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
-     'ladder'=>[[6,48.39],[36,45.89]],
+     'ladder'=>[[6,43.99],[36,41.79]],
      'desc'=>'A factory-sealed Japanese Mega Symphonia (M1S) booster box — one of the twin sets that launched the Mega Evolution series in 2025.
 
 Mega Symphonia and its partner set [Mega Brave](product:mega-brave-booster-box) brought Mega Evolution back to the Pokémon TCG, and many collectors buy the two together to complete the launch of the era.
@@ -593,7 +593,7 @@ Mega Symphonia and its partner set [Mega Brave](product:mega-brave-booster-box) 
     ['id'=>'mega-brave-booster-box', 'sku'=>'PK-BB-M1L-01',
      'name'=>'Mega Brave Booster Box', 'set'=>'Mega Brave', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
-     'ladder'=>[[6,57.19],[36,54.29]],
+     'ladder'=>[[6,51.99],[36,49.39]],
      'desc'=>'A factory-sealed Japanese Mega Brave (M1L) booster box — one of the twin sets that launched the Mega Evolution series in 2025.
 
 Mega Brave and its partner set [Mega Symphonia](product:mega-symphonia-booster-box) brought Mega Evolution back to the Pokémon TCG, and many collectors buy the two together to complete the launch of the era.
@@ -604,7 +604,7 @@ Mega Brave and its partner set [Mega Symphonia](product:mega-symphonia-booster-b
     ['id'=>'abyss-eye-m5-booster-box', 'sku'=>'PK-BB-M5-01',
      'name'=>'Abyss Eye (M5) Booster Box', 'set'=>'Abyss Eye', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
-     'ladder'=>[[6,45.69],[24,43.39]],
+     'ladder'=>[[6,41.59],[24,39.49]],
      'desc'=>'A factory-sealed Japanese Abyss Eye (M5) booster box from the Mega Evolution series.
 
 Abyss Eye features [Mega Darkrai ex](product:mega-darkrai-ex-japanese) and [Mega Excadrill ex](product:mega-excadrill-ex-japanese) among its Mega Pokémon ex. Open boxes to chase them, or pick up the singles directly.
@@ -616,7 +616,7 @@ Abyss Eye features [Mega Darkrai ex](product:mega-darkrai-ex-japanese) and [Mega
     ['id'=>'ninja-spinner-m4-booster-box', 'sku'=>'PK-BB-M4-01',
      'name'=>'Ninja Spinner (M4) Booster Box', 'set'=>'Ninja Spinner', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'low', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
-     'ladder'=>[[6,52.79],[24,50.09]],
+     'ladder'=>[[6,47.99],[24,45.59]],
      'desc'=>'A factory-sealed Japanese Ninja Spinner (M4) booster box — limited stock remaining.
 
 Ninja Spinner brings [Mega Greninja ex](product:mega-greninja-ex-japanese) and [Mega Floette ex](product:mega-floette-ex-japanese) to the Mega Evolution series. Greninja is a long-time fan favourite, and remaining sealed boxes are limited.
@@ -627,7 +627,7 @@ Ninja Spinner brings [Mega Greninja ex](product:mega-greninja-ex-japanese) and [
     ['id'=>'nihil-zero-booster-box', 'sku'=>'PK-BB-NZ-01',
      'name'=>'Nihil Zero Booster Box', 'set'=>'Nihil Zero', 'cat'=>'boxes', 'cond'=>'Sealed',
      'moq'=>6, 'step'=>6, 'status'=>'in', 'release'=>'', 'weight'=>0.4, 'hidden'=>false,
-     'ladder'=>[[6,48.39],[36,45.89]],
+     'ladder'=>[[6,43.99],[36,41.79]],
      'desc'=>'A factory-sealed Japanese Nihil Zero (M3) booster box from the Mega Evolution series.
 
 Nihil Zero is an affordable way into the Mega Evolution era, and its flat price ladder makes it an easy add-on to a larger order.

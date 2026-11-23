@@ -7,14 +7,16 @@
 #   estimated = no current figure found; set from the verified prices of comparable products
 # Products not listed here (singles, accessories, a few Japanese specials) keep the owner's price.
 #
-# Base price  = products still in print: a share of their US retail price (under Pokémon Center's price);
-#               everything else: 12% under the market reference (UNDER).
+# Base price  = distributor level. Products still in print: 60% of their US retail price (RETAIL_SHARE), the
+#               price a distributor charges shops; everything else: 20% under the market reference (UNDER).
+#               Whichever is lower wins.
 # Bulk tiers  = 5% off at 4+, 8% at 6+, 12% at 10+, 15% at 24+ (TIER_STEPS; the owner's own tier quantities
 #               for products sold in multiples).
 # Sealed case = always cheaper per unit than the same quantity bought loose (CASE_SAVING).
 import math
 
-UNDER = 0.88          # 12% under market
+UNDER = 0.80          # 20% under market
+RETAIL_SHARE = 0.60   # in print: 60% of US retail (distributor price to shops)
 CASE_SAVING = 0.97    # a case costs 3% less per unit than the same quantity at the loose tier price
 TIER_STEPS = [1, 0.95, 0.92, 0.88, 0.85]   # price factor at each tier: 5%, 8%, 12%, 15% off
 
@@ -117,14 +119,14 @@ IN_PRINT_NAMES = ('Mega Forces Tin', 'Mega Greninja ex League Battle Deck', 'Uno
                   'Mega Charizard X ex Ultra-Premium', 'Greninja ex Ultra-Premium')
 OP_IN_PRINT = ('One Piece OP-13', 'One Piece OP14', 'One Piece OP15', 'One Piece OP-16', 'One Piece OP-17', 'One Piece OP-18', 'One Piece OP-19',
                'One Piece EB-05', 'One Piece EB-06', 'One Piece ST-')
-# (name contains, US retail price, share of it we charge) — first match wins
-MSRP_RULES = [('Pokémon Center Elite Trainer Box', 59.99, 0.90), ('Elite Trainer Box', 49.99, 0.75), ('Booster Display Box', 161.64, 0.70),
-  ('Booster Bundle', 26.94, 0.75), ('Build & Battle', 21.99, 0.75), ('Sleeved Booster Pack', 4.49, 0.75), ('Booster Pack', 4.49, 0.75),
-  ('3-Pack Blister', 14.99, 0.75), ('2-Pack Blister', 9.99, 0.75), ('Premium Checklane', 9.99, 0.75), ('Checklane', 4.99, 0.75),
-  ('Ultra-Premium Collection', 119.99, 0.80), ('Figure Collection', 29.99, 0.75), ('Binder Collection', 29.99, 0.75), ('Poster Collection', 19.99, 0.75),
-  ('Mini Tin', 9.99, 0.75), ('League Battle Deck', 29.99, 0.75), ('Battle Deck', 14.99, 0.75), ('Tin', 26.99, 0.75), ('Ditto Premium', 39.99, 0.75),
-  ('Knock Out', 14.99, 0.75), ('Unova Heavy Hitters', 49.99, 0.75), ('Premium Tournament', 59.99, 0.75),
-  ('Booster Box', 24 * 4.49, 0.72), ('Starter Deck', 11.99, 0.75)]
+# US retail prices (MSRP) by product type, name contains → price, first match wins; in print = RETAIL_SHARE of these
+MSRP_RULES = [('Pokémon Center Elite Trainer Box', 59.99), ('Elite Trainer Box', 49.99), ('Booster Display Box', 161.64),
+  ('Booster Bundle', 26.94), ('Build & Battle', 21.99), ('Sleeved Booster Pack', 4.49), ('Booster Pack', 4.49),
+  ('3-Pack Blister', 14.99), ('2-Pack Blister', 9.99), ('Premium Checklane', 9.99), ('Checklane', 4.99),
+  ('Ultra-Premium Collection', 119.99), ('Figure Collection', 29.99), ('Binder Collection', 29.99), ('Poster Collection', 19.99),
+  ('Mini Tin', 9.99), ('League Battle Deck', 29.99), ('Battle Deck', 14.99), ('Tin', 26.99), ('Ditto Premium', 39.99),
+  ('Knock Out', 14.99), ('Unova Heavy Hitters', 49.99), ('Premium Tournament', 59.99),
+  ('Booster Box', 24 * 4.49), ('Starter Deck', 11.99)]
 
 def in_print(p):
     if p.get('lang') == 'Japanese' or 'Case' in p['name']: return False
@@ -132,8 +134,8 @@ def in_print(p):
     return p.get('set') in IN_PRINT_SETS or any(k in p['name'] for k in IN_PRINT_NAMES)
 
 def retail_rule(p):
-    for key, msrp, share in MSRP_RULES:
-        if key in p['name']: return msrp, share
+    for key, msrp in MSRP_RULES:
+        if key in p['name']: return msrp, RETAIL_SHARE
     return None
 
 # sealed cases: (unit product, units per case). Priced from the unit, never above buying loose.
@@ -196,9 +198,9 @@ def reprice(products, owner_ids=()):
         rr = retail_rule(p) if in_print(p) else None
         if rr:
             base = nice(rr[0] * rr[1]); rule = f'{int(round(rr[1] * 100))}% of US retail (in print)'
-            if mk and nice(mk * UNDER) < base: base = nice(mk * UNDER); rule = '12% under market'
+            if mk and nice(mk * UNDER) < base: base = nice(mk * UNDER); rule = '20% under market'
         elif mk:
-            base = nice(mk * UNDER); rule = '12% under market'
+            base = nice(mk * UNDER); rule = '20% under market'
         else:
             mk, src = None, '-'
             base = at(p['ladder'], moq); rule = 'owner price kept'

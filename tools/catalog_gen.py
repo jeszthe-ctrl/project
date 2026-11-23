@@ -398,7 +398,7 @@ for p in P:
                 'moq': 1, 'step': 1, 'status': p.get('status', 'in'), 'release': p.get('release', ''), 'weight': kg, 'hidden': False,
                 'ladder': lad, 'desc': desc(p), 'seo_title': seo_title(p), 'seo_desc': '', 'added': '2026-11'})
 ids = [o['id'] for o in out]; assert len(ids) == len(set(ids))
-# prices: tools/pricing.py (in print: under US retail; otherwise 12% under market; gentle tiers; cases under loose)
+# prices: tools/pricing.py (distributor level: in print 60% of US retail; otherwise 20% under market; bulk tiers; cases under loose)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import pricing as PR
 res = PR.reprice([{'id': o['id'], 'name': o['name'], 'moq': 1, 'step': 1, 'ladder': o['ladder'], 'cat': o['cat'], 'set': o['set'], 'lang': o['lang']} for o in out])
 for o, p in zip(out, srcs):
@@ -412,7 +412,7 @@ for o in out: assert len(o['seo_desc']) <= 160, (o['id'], len(o['seo_desc']))
 src = ("<?php\n/* The product range added in November 2026: English Pokémon TCG sealed product (30th Celebration, Mega Evolution,\n"
        "   Scarlet & Violet, Sword & Shield), Japanese booster boxes and English One Piece Card Game. New shops get these\n"
        "   with the starting data; shops installed earlier get any that are missing, once (content update 10).\n"
-       "   Prices come from tools/pricing.py: in-print products under their US retail price, the rest 12% under market.\n"
+       "   Prices come from tools/pricing.py: in-print products at 60% of US retail (distributor level), the rest 20% under market.\n"
        "   USD; check them in Admin → Products. */\n"
        "if(!defined('FK_ROOT')){ http_response_code(404); exit; }\n\nreturn [\n")
 import csv
