@@ -860,12 +860,12 @@ function view_dashboard(){
 function view_puppies(){
   global $SITE;
   ?><div class="row"><h1>Puppies</h1><a class="btn btn-g right" href="<?= h(self_url('puppy_import')) ?>">Import from a spreadsheet</a><a class="btn" href="<?= h(self_url('puppy')) ?>">+ Add a puppy</a></div>
-  <p class="mut">Restock by adding new puppies here. Mark them Reserved when a deposit arrives and Sold after delivery — sold puppies stay on the site as “gone to loving homes”, which builds trust.</p>
+  <p class="mut">Restock by adding new puppies here. Puppies show on the site once they have a photo (or a video). Mark them Reserved when a buyer confirms and Sold after delivery — sold puppies stay on the site as “gone to loving homes”, which builds trust.</p>
   <div class="tw"><table><tr><th></th><th>Puppy</th><th>Price</th><th>Born</th><th>Status</th><th>Quick change</th></tr>
   <?php foreach($SITE['puppies'] as $p): ?><tr>
     <?php $ph = ''; foreach($p['photos'] ?? [] as $f) if(is_file(BB_ROOT.'/'.$f)){ $ph = thumb($f, 160); break; } if($ph === '') $ph = stream_thumb($p['video'] ?? ''); ?>
     <td style="width:76px"><?php if($ph !== ''): ?><img src="<?= h($ph) ?>" alt="" style="width:64px;height:50px;object-fit:cover;border-radius:6px"><?php endif; ?></td>
-    <td><a href="<?= h(self_url('puppy', ['id'=>$p['id']])) ?>"><strong><?= h($p['name']) ?></strong></a> <?= !empty($p['hidden']) ? '<span class="badge">Hidden</span>' : '' ?><br><span class="mut"><?= h($p['color'].' · '.ucfirst($p['sex'])) ?></span></td>
+    <td><a href="<?= h(self_url('puppy', ['id'=>$p['id']])) ?>"><strong><?= h($p['name']) ?></strong></a> <?= !empty($p['hidden']) ? '<span class="badge">Hidden</span>' : ($ph === '' ? '<span class="badge" title="Add a photo or a video to show this puppy on the site">Not on site: add a photo</span>' : '') ?><br><span class="mut"><?= h($p['color'].' · '.ucfirst($p['sex'])) ?></span></td>
     <td><?= ($p['price'] ?? '') !== '' ? h(money($p['price'])) : '—' ?></td><td><?= h($p['dob'] ? date('M j, Y', strtotime($p['dob'])) : '—') ?></td><td><?= badge($p['status'], PUPPY_STATUSES) ?></td>
     <td><?= form_start('puppy_status') ?><input type="hidden" name="id" value="<?= h($p['id']) ?>"><select name="status" onchange="this.form.submit()" style="width:auto"><?php foreach(PUPPY_STATUSES as $k=>$l): ?><option value="<?= $k ?>"<?= $p['status'] === $k ? ' selected' : '' ?>><?= h($l) ?></option><?php endforeach; ?></select></form></td>
   </tr><?php endforeach; ?>

@@ -53,8 +53,8 @@ function miles_from_home($code){
   return (int)(round($r * 1.2 / 10) * 10);
 }
 
-/* visible puppies; photo paths whose file isn't on the server yet (e.g. imported from a CSV
-   before the photo folder was uploaded) are left out so no page shows a broken image */
+/* visible puppies; photo paths whose file isn't on the server yet are left out, and a puppy with
+   no photo at all (and no video to take a still from) isn't shown until a photo is added */
 function public_puppies(){
   global $SITE; static $memo = null;
   if($memo === null){
@@ -63,6 +63,7 @@ function public_puppies(){
       if(!empty($p['hidden'])) continue;
       $p['photos'] = array_values(array_filter($p['photos'] ?? [], fn($f)=>is_string($f) && $f !== '' && is_file(BB_ROOT.'/'.$f)));
       if(!$p['photos'] && ($still = stream_thumb($p['video'] ?? '')) !== '') $p['photos'] = [$still];
+      if(!$p['photos']) continue;   /* only puppies with a photo (or a video still) are shown */
       $memo[] = $p;
     }
   }
