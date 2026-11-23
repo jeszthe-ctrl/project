@@ -1,5 +1,5 @@
 # Generates inc/catalog.php: the product range added in November 2026.
-import re, json, math, sys
+import re, json, math, sys, os
 
 def slug(s):
     s = s.strip()
@@ -359,11 +359,10 @@ def seo_title(p):
     if p.get('status') == 'preorder': x = x.replace(' (English)', '') + ' — Preorder'
     return x
 
-def seo_desc(p, price):
+def seo_desc(p, price, first=None):
     lead = desc(p).split('\n\n')[0]
     lead = re.sub(r'\s+', ' ', lead)
-    first = ladder(price)[1][0]
-    tail = f" From ${price:,.2f}, lower prices from {first}+. Ships worldwide."
+    tail = f" From ${price:,.2f}" + (f", lower prices from {first}+" if first else '') + ". Ships worldwide."
     room = 158 - len(tail)
     if len(lead) > room: lead = lead[:room].rsplit(' ', 1)[0].rstrip(',;:—-') + '…'
     return lead + tail
@@ -381,7 +380,7 @@ def php(v, ind=0):
         return '[' + ', '.join(php(k) + '=>' + php(x, ind + 2) for k, x in v.items()) + ']'
     raise TypeError(v)
 
-seen, out, counters = set(), [], {}
+seen, out, counters, srcs = set(), [], {}, []
 existing = set(sys.argv[1].split(',')) if len(sys.argv) > 1 else set()
 for p in P:
     key = p['name']
@@ -392,26 +391,33 @@ for p in P:
     cat, kg, code, _ = TYPES[p['typ']]
     counters[code] = counters.get(code, 0) + 1
     lang = 'Japanese' if p['typ'] in ('jpbox', 'jpdeckset') else 'English'
-    p['market'] = p['price']
-    p['price'], p['rule'] = wholesale_price(p)
-    lad = ladder(p['price'])
+    lad = [[1, p['price']]]                    # priced below, from tools/pricing.py
+    srcs.append(p)
     out.append({'id': pid, 'sku': f"PK-{code}-{counters[code]:03d}", 'name': p['name'], 'set': p['set'], 'cat': cat, 'cond': 'Sealed', 'lang': lang,
                 'moq': 1, 'step': 1, 'status': p.get('status', 'in'), 'release': p.get('release', ''), 'weight': kg, 'hidden': False,
-                'ladder': lad, 'desc': desc(p), 'seo_title': seo_title(p), 'seo_desc': seo_desc(p, p['price']), 'added': '2026-11',
-                '_rule': p['rule'], '_market': p['market']})
+                'ladder': lad, 'desc': desc(p), 'seo_title': seo_title(p), 'seo_desc': '', 'added': '2026-11'})
 ids = [o['id'] for o in out]; assert len(ids) == len(set(ids))
+# prices: tools/pricing.py (in print: under US retail; otherwise 12% under market; gentle tiers; cases under loose)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import pricing as PR
+res = PR.reprice([{'id': o['id'], 'name': o['name'], 'moq': 1, 'step': 1, 'ladder': o['ladder'], 'cat': o['cat'], 'set': o['set'], 'lang': o['lang']} for o in out])
+for o, p in zip(out, srcs):
+    lad, mk, src, rule = res[o['id']]
+    o['ladder'] = lad
+    o['seo_desc'] = seo_desc(p, lad[0][1], lad[1][0] if len(lad) > 1 else None)
+    if o['id'] in PR.HIDE: o['hidden'] = True
+    o['_rule'], o['_market'], o['_src'] = rule, mk, src
 for o in out: assert len(o['seo_desc']) <= 160, (o['id'], len(o['seo_desc']))
 src = ("<?php\n/* The product range added in November 2026: English Pokémon TCG sealed product (30th Celebration, Mega Evolution,\n"
        "   Scarlet & Violet, Sword & Shield), Japanese booster boxes and English One Piece Card Game. New shops get these\n"
        "   with the starting data; shops installed earlier get any that are missing, once (content update 10).\n"
-       "   Prices are wholesale: in-print products from their US retail price (MSRP), out-of-print ones 15% under market.\n"
+       "   Prices come from tools/pricing.py: in-print products under their US retail price, the rest 12% under market.\n"
        "   USD; check them in Admin → Products. */\n"
        "if(!defined('FK_ROOT')){ http_response_code(404); exit; }\n\nreturn [\n")
 import csv
 with open('/tmp/claude-0/-home-user-project/2c990d2c-20a8-59ab-9acc-b81f91eb48d0/scratchpad/pricing_report.csv', 'w', newline='') as fh:
-    w = csv.writer(fh); w.writerow(['name', 'rule', 'market estimate', 'new price'])
-    for o in out: w.writerow([o['name'], o['_rule'], o['_market'], o['ladder'][0][1]])
-for o in out: o.pop('_rule'); o.pop('_market')
+    w = csv.writer(fh); w.writerow(['name', 'rule', 'market', 'source', 'new price'])
+    for o in out: w.writerow([o['name'], o['_rule'], o['_market'] or '', o['_src'], o['ladder'][0][1]])
+for o in out: o.pop('_rule'); o.pop('_market'); o.pop('_src')
 src += ',\n'.join('  ' + php(o, 2) for o in out) + '\n];\n'
 open('inc/catalog.php', 'w').write(src)
 print(len(out), 'products;', sum(1 for o in out if o['cat'] == 'onepiece'), 'One Piece;', sum(1 for o in out if o['status'] == 'preorder'), 'preorders')
