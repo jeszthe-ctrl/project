@@ -1,0 +1,8 @@
+data/*
+!data/.htaccess
+!data/index.html
+assets/uploads/*
+!assets/uploads/.gitkeep
+!assets/uploads/.htaccess
+!assets/uploads/index.html
+dist/
