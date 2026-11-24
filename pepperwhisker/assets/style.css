@@ -468,3 +468,9 @@ tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
 /* phones: puppies first, so the hero stays short */
 @media(max-width:899px){.hero .hero-ph{display:none}.hero-in{padding-top:22px;padding-bottom:24px}.hero .lede{font-size:1rem}.hero .cta-row{margin:16px 0}.hero .cta-row .btn{flex:1}}
 @media(max-width:899px){.hero .ticks li:nth-child(n+4){display:none}}
+
+/* puppies without a photo yet */
+.ph-logo{width:54px;height:54px;opacity:.9}
+.ph{background:linear-gradient(160deg,#f1f2f4,#e6e8eb)}
+.ph span{font-weight:600;color:#6b7279;letter-spacing:.01em}
+.parent-mini .ph-logo{width:30px;height:30px}

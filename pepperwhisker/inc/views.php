@@ -69,7 +69,7 @@ function logo_svg($class='logo-mark'){
 /* a photo, or a soft placeholder until photos are added */
 function photo_or_placeholder($rel, $alt, $sizes='(max-width:600px) 100vw, (max-width:1100px) 50vw, 360px', $lcp=false){
   $img = $rel ? img_tag($rel, $alt, $sizes, $lcp) : '';
-  return $img !== '' ? $img : '<div class="ph" role="img" aria-label="'.h($alt).' (photo coming soon)">'.icon('paw', 'ph-ic').'<span>Photos coming soon</span></div>';
+  return $img !== '' ? $img : '<div class="ph" role="img" aria-label="'.h($alt).' (photo coming soon)">'.logo_svg('ph-logo').'<span>Photos coming soon</span></div>';
 }
 
 /* ---------------- blocks used inside page text ({guarantees}, {steps}…) ---------------- */
