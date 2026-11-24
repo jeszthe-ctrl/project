@@ -239,7 +239,7 @@ legend i,.f i{font:400 .85rem var(--sans);color:var(--muted)}
 .filters select{font:inherit;padding:7px 10px;border:1px solid #d0d4d9;border-radius:8px;background:#fff;margin-left:4px}
 
 /* articles and long text */
-.prose{max-width:760px}
+.prose{max-width:760px;min-width:0}
 .prose-wide{max-width:none}
 .prose h2{margin-top:1.6em}
 .prose ul,.prose ol{padding-left:1.25em}
