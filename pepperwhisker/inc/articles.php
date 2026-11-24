@@ -4,7 +4,7 @@
    "group" decides which guides are linked together as related reading. */
 if(!defined('BB_ROOT')){ http_response_code(404); exit; }
 
-return array_merge(
+$all = array_merge(
   require BB_ROOT.'/inc/articles/breed.php',
   require BB_ROOT.'/inc/articles/colors.php',
   require BB_ROOT.'/inc/articles/grooming.php',
@@ -13,3 +13,8 @@ return array_merge(
   require BB_ROOT.'/inc/articles/care.php',
   require BB_ROOT.'/inc/articles/blog.php'
 );
+
+/* full-length versions of the most-searched guides replace the short ones with the same slug */
+$full = array_column(array_merge(require BB_ROOT.'/inc/articles/pillars_a.php', require BB_ROOT.'/inc/articles/pillars_b.php'), null, 'slug');
+foreach($all as $i=>$a) if(isset($full[$a['slug']])) $all[$i] = $full[$a['slug']];
+return $all;

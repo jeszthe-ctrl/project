@@ -43,6 +43,18 @@ return array (
     array (
       0 => 'e684153e7ce5b7712316043df52bb1ea',
     ),
+    'health-testing' => 
+    array (
+      0 => '61c97767c4e1d241b90f62fc56763b76',
+    ),
+    'how-we-raise-our-puppies' => 
+    array (
+      0 => '0e5d46305790ce613a6047008d614a58',
+    ),
+    'editorial-policy' => 
+    array (
+      0 => 'b2436dfe09a0b03011e6c98747c138d5',
+    ),
   ),
   'articles' => 
   array (
@@ -384,6 +396,7 @@ return array (
     array (
       0 => '9357e564976bf161df7b2d443785a3da',
       1 => '76666ea78382e9b2e3679dcd1906cbb8',
+      2 => '64747faaf392fa15fd3fb0befb798012',
     ),
     'puppies_title' => 
     array (
