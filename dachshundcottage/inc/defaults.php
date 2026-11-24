@@ -50,7 +50,7 @@ return [
     'smtp_host'       => '', 'smtp_port' => '', 'smtp_secure' => 'tls', 'smtp_user' => '', 'smtp_pass' => '',
     'alert_phone'     => '', 'alert_sms_email' => '', 'twilio_sid' => '', 'twilio_token' => '', 'twilio_from' => '',
     'pretty_urls'     => false, 'pretty_auto' => false,
-    'content_version' => 1,   /* see site_load(): changes applied once to sites installed earlier */
+    'content_version' => 2,   /* see site_load(): changes applied once to sites installed earlier */
   ],
 
   /* delivery options and prices (Admin → Delivery). Times count from when the puppy leaves us. */
