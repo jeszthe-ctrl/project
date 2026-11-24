@@ -124,6 +124,11 @@ function site_upgrade($s, $d, $version){
     }
     foreach($par_add ?? [] as $par) if(isset($used[$par['id']]) && !find_by($s['parents'], 'slug', $par['slug'])) $s['parents'][] = $par;
   }
+  if($version < 3){
+    /* the 24 listings an earlier version added came from another seller's listings; they are taken out */
+    $copied = ['cb0129c060', 'ac8fcc6ba8', '78a608ce5f', 'c42f9ce68c', '103d152bca', '647d8b85dd', 'be95146a17', '9bf417f97a', '7a4459b983', 'cd5867ed87', '8b4a83033a', 'a34ef17b02', '641e1b29df', '88b5351080', 'b522ea64da', 'ecda41a550', 'ff9b39b170', 'f04f599365', '3f80b22347', '38e2d65222', 'ed073e65e3', '6c861bda51', 'a6e8d5a946', 'c1c904e0dc'];
+    $s['puppies'] = array_values(array_filter($s['puppies'], fn($p)=>!in_array($p['id'] ?? '', $copied, true)));
+  }
   $s['settings']['content_version'] = (int)$d['settings']['content_version'];
   return $s;
 }
