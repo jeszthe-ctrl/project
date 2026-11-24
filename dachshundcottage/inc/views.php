@@ -690,17 +690,6 @@ function view_home(){
     <?php if(count($avail) > 9): ?><p class="center"><a class="btn btn-lg btn-ghost" href="<?= h(url(PUPPIES_PATH)) ?>">See all <?= count($avail) ?> dachshund puppies <?= icon('arrow') ?></a></p><?php endif; ?>
   </section>
 
-  <section class="sec wrap browse" aria-label="Browse dachshunds">
-    <div class="sec-h"><h2>Browse by size and coat</h2></div>
-    <div class="tiles">
-      <a class="tile t-mini" href="<?= h(url(PUPPIES_PATH, ['size'=>'miniature'])) ?>"><span class="tile-k">Puppies</span><strong>Miniature</strong><small>11 lb and under</small><span class="tile-go"><?= icon('arrow') ?></span></a>
-      <a class="tile t-std" href="<?= h(url(PUPPIES_PATH, ['size'=>'standard'])) ?>"><span class="tile-k">Puppies</span><strong>Standard</strong><small>16–32 lb</small><span class="tile-go"><?= icon('arrow') ?></span></a>
-      <a class="tile t-long" href="<?= h(url('guides/long-haired-dachshund')) ?>"><span class="tile-k">Guide</span><strong>Long-haired</strong><small>Silky, gentle, feathered</small><span class="tile-go"><?= icon('arrow') ?></span></a>
-      <a class="tile t-wire" href="<?= h(url('guides/wirehaired-dachshund')) ?>"><span class="tile-k">Guide</span><strong>Wirehaired</strong><small>Bearded and low-shedding</small><span class="tile-go"><?= icon('arrow') ?></span></a>
-      <a class="tile t-dapple" href="<?= h(url('guides/dapple-dachshund')) ?>"><span class="tile-k">Guide</span><strong>Dapple</strong><small>Marbled and striking</small><span class="tile-go"><?= icon('arrow') ?></span></a>
-    </div>
-  </section>
-
   <section class="wrap easy3 easy3-after" aria-label="How to get your puppy">
     <a class="e3" href="#puppies"><span class="e3-n">1</span><span><strong>Choose your puppy</strong><small>Real photos, price, age and both parents</small></span></a>
     <a class="e3" href="#inquire"><span class="e3-n">2</span><span><strong>Proceed now, in one minute</strong><small>Phone and email, plus a note</small></span></a>

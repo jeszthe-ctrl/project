@@ -574,23 +574,6 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.012em}
 .acard h3{font-family:var(--serif);font-size:1.15rem;font-weight:600}
 .acard .more{transition:gap .2s}.acard a:hover .more{gap:10px}
 
-/* browse tiles */
-.tiles{display:grid;gap:14px;grid-template-columns:repeat(2,1fr)}
-@media(min-width:760px){.tiles{grid-template-columns:repeat(3,1fr)}}
-@media(min-width:1080px){.tiles{grid-template-columns:repeat(5,1fr)}}
-.tile{position:relative;display:flex;flex-direction:column;justify-content:flex-end;min-height:150px;padding:18px;border-radius:18px;text-decoration:none;color:#fff;overflow:hidden;box-shadow:var(--sh1);transition:transform .25s var(--ease),box-shadow .25s var(--ease)}
-.tile:hover{transform:translateY(-4px);box-shadow:var(--sh2);color:#fff}
-.tile strong{font:600 1.3rem var(--serif)}
-.tile small{opacity:.9;font-size:.86rem}
-.tile-k{position:absolute;top:14px;left:16px;font:700 .68rem var(--sans);letter-spacing:.09em;text-transform:uppercase;background:rgba(255,255,255,.2);padding:4px 8px;border-radius:999px}
-.tile-go{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;transition:transform .25s var(--ease),background .25s}
-.tile:hover .tile-go{transform:translateX(3px);background:rgba(255,255,255,.35)}
-.t-mini{background:linear-gradient(150deg,#4f6d58,#2a3f31)}
-.t-std{background:linear-gradient(150deg,#a0683e,#6c4126)}
-.t-long{background:linear-gradient(150deg,#caa06d,#8f6338)}
-.t-wire{background:linear-gradient(150deg,#6b6f6a,#3c3f3b)}
-.t-dapple{background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.22) 0 14px,transparent 15px),radial-gradient(circle at 70% 25%,rgba(255,255,255,.18) 0 22px,transparent 23px),radial-gradient(circle at 45% 70%,rgba(255,255,255,.16) 0 18px,transparent 19px),linear-gradient(150deg,#5d5a63,#34323a)}
-
 /* tabbed guides */
 .gtabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px}
 .gtabs button{font:600 .95rem var(--sans);padding:10px 18px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;transition:background .2s,color .2s,border-color .2s,box-shadow .2s}
