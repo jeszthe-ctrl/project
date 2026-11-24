@@ -488,6 +488,137 @@ Every puppy is covered by our written [health guarantee](/health-guarantee).
 TXT
     ],
     [
+      'slug'=>'health-testing', 'menu'=>'Health & testing', 'title'=>'Schnauzer health and how we care for our dogs',
+      'seo_title'=>'Miniature Schnauzer Health Testing & Care | Pepper Whisker',
+      'seo_desc'=>'The health issues that matter in miniature schnauzers, from pancreatitis and bladder stones to eye disease and DNA tests, and how we look after our dogs and puppies.',
+      'answer'=>'Responsible schnauzer breeding starts with healthy, even-tempered parents checked by a veterinarian. The main miniature schnauzer health concerns are pancreatitis and high blood fats, bladder stones, eye diseases such as cataracts and PRA, and inherited conditions with DNA tests, such as myotonia congenita and MAC susceptibility.',
+      'body'=><<<'TXT'
+Every puppy we raise starts with the health of its parents. Here is what matters most in miniature schnauzers, and how we look after our dogs and puppies.
+
+## Health issues that matter in schnauzers
+
+| Condition | What it is | What helps |
+|---|---|---|
+| Pancreatitis and high blood fats | Inflammation of the pancreas, often after fatty food | A moderate-fat diet and no fatty scraps |
+| Bladder stones | Mineral stones in the bladder | Fresh water, regular potty breaks, the right diet |
+| Eye disease (cataracts, PRA) | Clouding or loss of sight | Eye exams on breeding dogs |
+| Myotonia congenita | Inherited muscle stiffness | DNA test on parents |
+| MAC susceptibility | Inherited weakness to a mycobacterial infection | DNA test on parents |
+| Dental disease | Tartar and gum disease | Brushing several times a week |
+
+Read more in [schnauzer health problems](/guides/schnauzer-health-problems) and [miniature schnauzer lifespan](/guides/miniature-schnauzer-lifespan).
+
+## Our breeding dogs
+
+- Chosen for good health and a friendly, confident temperament
+- Seen by a veterinarian, with their health records kept
+- Kept lean and fed a balanced, moderate-fat diet
+- Regular grooming and dental care
+
+Each parent's registration and health details are listed on [our schnauzers](/our-schnauzers) page. Ask us about anything you'd like to see.
+
+## Our puppies
+
+- Examined by a licensed veterinarian before delivery
+- Age-appropriate vaccinations and deworming, recorded in their health record
+- Microchipped
+- Covered by our written [health guarantee](/health-guarantee)
+
+## Questions
+
+### Do you health test your schnauzers?
+Each parent's health details are listed on our schnauzers page. Ask us for any records you'd like to see.
+
+### Why do schnauzers get pancreatitis?
+Many miniature schnauzers have high blood fats, and fatty meals can trigger it. A moderate-fat diet helps prevent it.
+
+### What DNA tests exist for miniature schnauzers?
+Tests include myotonia congenita and MAC susceptibility, plus tests for some eye conditions. Ask any breeder which tests the parents have had.
+TXT
+    ],
+    [
+      'slug'=>'how-we-raise-our-puppies', 'menu'=>'How we raise our puppies', 'title'=>'How we raise our schnauzer puppies',
+      'seo_title'=>'How We Raise Our Schnauzer Puppies | Pepper Whisker',
+      'seo_desc'=>'How Pepper Whisker puppies are raised in our home: daily handling, socialization, early potty training, vet care and preparing each puppy for family life.',
+      'answer'=>'Our schnauzer puppies are raised in our home in Cincinnati, Ohio, handled every day and introduced to household sounds, people, surfaces and gentle grooming. They start crate and potty habits, are examined by a veterinarian, vaccinated and microchipped, and go home no earlier than 8 weeks with their health record and documents.',
+      'body'=><<<'TXT'
+A confident, healthy schnauzer puppy is made in the first weeks of life. This is how we raise every Pepper Whisker puppy in our home in {city}, {state}.
+
+## Week by week
+
+| Age | What happens |
+|---|---|
+| 0–3 weeks | With mom in a warm, quiet whelping area; gentle daily handling and weight checks |
+| 3–5 weeks | Eyes and ears open; new textures, toys and household sounds; first steps toward a potty area |
+| 5–8 weeks | Meeting new people, short play sessions, crate naps, gentle brushing of the face and beard, and nail trims |
+| 8 weeks + | Vet check, shots and microchip; ready for their new family |
+
+## Socialization
+
+Puppies grow up around everyday life: voices, the vacuum, doorbells, different floors and gentle handling of paws, ears and mouths. Calm, happy experiences now make a confident adult schnauzer.
+
+## A good start on habits
+
+We start crate naps and a puppy potty area, so your puppy already knows the basics. Read [how to potty train a schnauzer](/guides/how-to-potty-train-a-schnauzer) to carry on at home.
+
+## Grooming from the start
+
+Our puppies are brushed, have their faces and beards wiped and their paws handled every day, so their first visit to a groomer is easy. See [schnauzer haircut styles](/guides/schnauzer-haircut-styles).
+
+## Going home
+
+Puppies go home no earlier than {go_home_weeks} old, after a vet check, with their health record, microchip details, starter food and all documents, including names. See [what's included](/whats-included) and [how it works](/how-it-works).
+
+## Questions
+
+### Can I get updates while my puppy grows?
+Yes. Ask us for recent photos of your puppy any time.
+
+### How old are puppies when they go home?
+At least {go_home_weeks} old, and only when our vet is happy they're ready.
+
+### Do puppies come crate trained?
+They're used to crate naps and a potty area, which gives you a head start.
+TXT
+    ],
+    [
+      'slug'=>'editorial-policy', 'menu'=>'How we write our guides', 'title'=>'How we write our schnauzer guides',
+      'seo_title'=>'Editorial Policy: How We Write Our Guides | Pepper Whisker',
+      'seo_desc'=>'How Pepper Whisker writes its schnauzer guides: who writes them, the sources we use, how we keep them accurate and how to report a mistake.',
+      'answer'=>'Our schnauzer guides are written by the Pepper Whisker team from hands-on experience raising schnauzers, checked against breed club standards, veterinary sources and registry information, and reviewed regularly. They are general information, not veterinary advice: always ask your own vet about your dog’s health.',
+      'body'=><<<'TXT'
+We write our guides to help families make good decisions about schnauzers, whether or not they buy a puppy from us.
+
+## Who writes our guides
+
+Our guides are written by the {brand} team, drawing on our everyday experience raising schnauzers in {city}, {state}.
+
+## Our sources
+
+We check facts against:
+
+- breed standards and information from national breed clubs and registries
+- veterinary and university sources on dog health and genetics
+- our own records and experience with our dogs and puppies
+
+## Accuracy and updates
+
+We review our guides regularly and update them when information changes. Each guide shows the date it was published or last updated.
+
+## Not veterinary advice
+
+Our guides are general information. They are not a substitute for advice from your own veterinarian, who knows your dog.
+
+## Independence
+
+We don't accept payment to mention products or other businesses in our guides.
+
+## Found a mistake?
+
+Email **{email}** and we'll check it and correct the guide.
+TXT
+    ],
+    [
       'slug'=>'privacy-policy', 'menu'=>'Privacy policy', 'title'=>'Privacy policy',
       'seo_title'=>'Privacy Policy | Pepper Whisker',
       'seo_desc'=>'How Pepper Whisker uses the information you send us in puppy inquiries, waitlist sign-ups and messages.',

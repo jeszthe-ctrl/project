@@ -185,7 +185,8 @@ function page_blocks(){
 /* ---------------- cards ---------------- */
 function puppy_card($p){
   $age = age_text($p['dob'] ?? '');
-  $o = '<article class="pcard"><a class="pcard-ph" href="'.h(puppy_url($p)).'" tabindex="-1" aria-hidden="true">'.photo_or_placeholder($p['photos'][0] ?? '', $p['name'].', '.strtolower(puppy_kind($p))).status_badge($p).'</a>';
+  $o = '<article class="pcard" data-sex="'.h($p['sex'] ?? '').'" data-size="'.h($p['size'] ?? '').'"><a class="pcard-ph" href="'.h(puppy_url($p)).'" tabindex="-1" aria-hidden="true">'.photo_or_placeholder($p['photos'][0] ?? '', $p['name'].', '.strtolower(puppy_kind($p))).status_badge($p)
+     .(($p['price'] ?? '') !== '' ? '<span class="pcard-price">'.h(money($p['price'])).'</span>' : '').'</a>';
   $o .= '<div class="pcard-b"><h3><a href="'.h(puppy_url($p)).'">'.h($p['name']).'</a></h3>';
   $o .= '<p class="pcard-kind">'.h(trim(($p['color'] ?? '').' · '.sex_label($p['sex'] ?? ''), ' ·')).(!empty($p['champion']) ? ' <span class="champ">'.icon('star').'Champion bloodline</span>' : '').'</p>';
   $o .= '<ul class="pcard-facts">'.($age ? '<li>'.icon('calendar').h($age).' old</li>' : '').(($p['ready'] ?? '') !== '' && strtotime($p['ready']) > time() ? '<li>'.icon('home').'Ready '.h(date('M j', strtotime($p['ready']))).'</li>' : (($p['status'] ?? '') === 'available' ? '<li>'.icon('home').'Ready now</li>' : '')).'</ul>';
@@ -412,6 +413,8 @@ function render_page(){
 <?php endif; if($CFG['bing_verification'] !== ''): ?><meta name="msvalidate.01" content="<?= h($CFG['bing_verification']) ?>">
 <?php endif; ?>
 <script>document.documentElement.className+=" js"</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="assets/style.css?v=<?= (int)$css_v ?>">
 <?= structured_data() ?>
 <?php if(preg_match('/^G-[A-Z0-9]{4,}$/', $CFG['ga4_id'])): ?>
@@ -425,10 +428,8 @@ function render_page(){
 <header class="site-h">
   <div class="wrap hrow">
     <a class="brand" href="./" aria-label="<?= h($CFG['brand']) ?> home"><?= logo_svg() ?><span class="brand-t"><?= h($CFG['brand']) ?><small>Purebred schnauzer puppies</small></span></a>
-    <button class="navbtn" type="button" aria-expanded="false" aria-controls="nav"><?= icon('menu') ?><span>Menu</span></button>
-    <nav id="nav" class="nav" aria-label="Main">
-      <?php foreach(nav_items() as [$path, $label]): ?><a href="<?= h(url($path)) ?>"<?= $PATH === $path || ($path === PUPPIES_PATH && $page === 'puppy') || ($path === 'guides' && $page === 'article') ? ' aria-current="page"' : '' ?>><?= h($label) ?></a><?php endforeach; ?>
-    </nav>
+    <button class="navbtn" type="button" aria-expanded="false" aria-controls="nav"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span>Menu</span></button>
+    <?= mega_nav() ?>
     <a class="btn btn-sm hcta" href="<?= h(url(PUPPIES_PATH)) ?>">Find your puppy</a>
   </div>
 </header>
@@ -453,10 +454,43 @@ function render_page(){
 <script>
 (function(){
 var d=document,b=d.querySelector('.navbtn'),n=d.getElementById('nav');
-if(b)b.addEventListener('click',function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o)});
+if(b)b.addEventListener('click',function(){drawer(!n.classList.contains('open'))});
 d.querySelectorAll('[data-gal]').forEach(function(t){t.addEventListener('click',function(){var m=d.getElementById('gal-main');if(!m)return;m.innerHTML=t.querySelector('template').innerHTML;d.querySelectorAll('[data-gal]').forEach(function(x){x.removeAttribute('aria-current')});t.setAttribute('aria-current','true')})});
 d.querySelectorAll('form.form').forEach(function(f){f.addEventListener('submit',function(){var s=f.querySelector('[type=submit]');setTimeout(function(){s.disabled=true;s.textContent='Sending…'},10)})});
 var bad=d.querySelector('.f-bad input,.f-bad select,.f-bad textarea');if(bad)bad.focus();
+/* main menu: dropdowns open on hover (desktop) or click/keyboard; on phones the menu is a drawer */
+var wide=window.matchMedia('(min-width:1080px)'),items=d.querySelectorAll('.nav-item.has-menu'),scrim=d.querySelector('.nav-scrim'),hov;
+function closeAll(ex){items.forEach(function(it){if(it!==ex){it.classList.remove('open');it.querySelector('.nav-top').setAttribute('aria-expanded','false')}})}
+items.forEach(function(it){var b=it.querySelector('.nav-top');
+b.addEventListener('click',function(){var o=!it.classList.contains('open');closeAll(it);it.classList.toggle('open',o);b.setAttribute('aria-expanded',o)});
+it.addEventListener('mouseenter',function(){if(!wide.matches)return;clearTimeout(hov);hov=setTimeout(function(){closeAll(it);it.classList.add('open');b.setAttribute('aria-expanded','true')},90)});
+it.addEventListener('mouseleave',function(){if(!wide.matches)return;clearTimeout(hov);hov=setTimeout(function(){it.classList.remove('open');b.setAttribute('aria-expanded','false')},180)})});
+d.addEventListener('click',function(e){if(wide.matches&&!e.target.closest('.nav-item'))closeAll()});
+function drawer(o){n.classList.toggle('open',o);b&&b.setAttribute('aria-expanded',o);if(scrim)scrim.hidden=!o;d.body.classList.toggle('nav-open',o)}
+var nc=d.querySelector('.navclose');if(nc)nc.addEventListener('click',function(){drawer(false)});if(scrim)scrim.addEventListener('click',function(){drawer(false)});
+d.addEventListener('keydown',function(e){if(e.key==='Escape'){var o=d.querySelector('.nav-item.open .nav-top');closeAll();drawer(false);if(o)o.focus()}});
+/* header shadow and back-to-top */
+var hd=d.querySelector('.site-h'),top=d.createElement('button');top.className='totop';top.type='button';top.setAttribute('aria-label','Back to top');top.innerHTML='&uarr;';d.body.appendChild(top);
+top.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})});
+var onS=function(){var y=window.scrollY;if(hd)hd.classList.toggle('scrolled',y>8);top.classList.toggle('show',y>900)};window.addEventListener('scroll',onS,{passive:true});onS();
+/* home: featured puppies, counters, filter chips, why-us switcher, timeline */
+var fp=d.querySelector('.fp');if(fp&&fp.querySelector('.fp-nav')){var cards=fp.querySelectorAll('.fp-card'),dots=fp.querySelectorAll('.fp-dots button'),ci=0,tm;
+function show(k){ci=(k+cards.length)%cards.length;cards.forEach(function(c,j){c.classList.toggle('on',j===ci)});dots.forEach(function(x,j){x.toggleAttribute('aria-current',j===ci)})}
+function auto(){clearInterval(tm);if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)tm=setInterval(function(){show(ci+1)},5000)}
+fp.querySelector('.fp-prev').addEventListener('click',function(){show(ci-1);auto()});fp.querySelector('.fp-next').addEventListener('click',function(){show(ci+1);auto()});
+dots.forEach(function(x,j){x.addEventListener('click',function(){show(j);auto()})});fp.addEventListener('mouseenter',function(){clearInterval(tm)});fp.addEventListener('mouseleave',auto);auto()}
+var cnt=d.querySelectorAll('[data-count]');if(cnt.length&&'IntersectionObserver' in window&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){var co=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;co.unobserve(e.target);var el=e.target,to=+el.getAttribute('data-count'),suf=el.getAttribute('data-suffix')||'',t0=null;
+function step(t){if(!t0)t0=t;var k=Math.min(1,(t-t0)/1100);el.textContent=Math.round(to*(1-Math.pow(1-k,3)))+suf;if(k<1)requestAnimationFrame(step)}requestAnimationFrame(step)})},{threshold:.6});cnt.forEach(function(el){co.observe(el)})}
+var chips=d.querySelectorAll('.chips button');if(chips.length){var grid=d.querySelector('#puppies .pgrid'),none=d.querySelector('.chips-none');chips.forEach(function(c){c.addEventListener('click',function(){chips.forEach(function(x){x.setAttribute('aria-pressed','false')});c.setAttribute('aria-pressed','true');var f=c.getAttribute('data-f'),n=0;
+grid.querySelectorAll('.pcard').forEach(function(p){var ok=f==='all'||p.getAttribute('data-'+f.split(':')[0])===f.split(':')[1];p.hidden=!ok;if(ok)n++});if(none)none.hidden=n>0})})}
+var wt=d.querySelectorAll('.why-list [role=tab]');wt.forEach(function(t,i){function go(){wt.forEach(function(x){x.setAttribute('aria-selected','false')});t.setAttribute('aria-selected','true');d.querySelectorAll('.why-panel').forEach(function(p){p.classList.toggle('on',p.id===t.getAttribute('aria-controls'))})}
+t.addEventListener('click',go);t.addEventListener('mouseenter',function(){if(wide.matches)go()});t.addEventListener('keydown',function(e){var k=e.key==='ArrowDown'?1:e.key==='ArrowUp'?-1:0;if(k){e.preventDefault();var nx=wt[(i+k+wt.length)%wt.length];nx.focus();nx.click()}})});
+var tl=d.querySelector('.tl');if(tl){if('IntersectionObserver' in window){var to2=new IntersectionObserver(function(es){if(es[0].isIntersecting){tl.classList.add('in');to2.disconnect()}},{threshold:.4});to2.observe(tl)}else tl.classList.add('in')}
+/* guide tabs */
+d.querySelectorAll('.gtabs-sec').forEach(function(sec){var tabs=sec.querySelectorAll('[role=tab]'),ps=sec.querySelectorAll('[role=tabpanel]');
+ps.forEach(function(p){p.hidden=p.getAttribute('data-first')!=='1'});
+tabs.forEach(function(t,i){t.addEventListener('click',function(){tabs.forEach(function(x){x.setAttribute('aria-selected','false')});t.setAttribute('aria-selected','true');ps.forEach(function(p){p.hidden=p.id!==t.getAttribute('aria-controls')})});
+t.addEventListener('keydown',function(e){var k=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;if(k){var nx=tabs[(i+k+tabs.length)%tabs.length];nx.focus();nx.click()}})})});
 /* choosing a dog: the form shows the chosen puppy; "Inquire" on a card picks it in this page's form */
 var sel=d.querySelector('select[data-pickbox]');
 function showPick(){var box=sel.form.querySelector('.pickbox'),o=sel.options[sel.selectedIndex];if(!box)return;if(!o||!o.value){box.hidden=true;return}
@@ -498,7 +532,7 @@ function footer(){
       <li><a href="<?= h(url('reviews')) ?>">Reviews</a></li>
     </ul></div>
     <div class="fcol"><h2>Buying with confidence</h2><ul>
-      <?php foreach(['how-it-works', 'health-guarantee', 'whats-included', 'puppy-delivery', 'is-pepper-whisker-legit', 'faq', 'about'] as $s): $pg = info_page($s); if($pg): ?>
+      <?php foreach(['how-it-works', 'health-guarantee', 'health-testing', 'how-we-raise-our-puppies', 'whats-included', 'puppy-delivery', 'is-pepper-whisker-legit', 'faq', 'about'] as $s): $pg = info_page($s); if($pg): ?>
       <li><a href="<?= h(url($s)) ?>"><?= h($pg['menu'] ?: $pg['title']) ?></a></li>
       <?php endif; endforeach; ?>
     </ul></div>
@@ -508,7 +542,7 @@ function footer(){
     </ul></div>
   </div>
   <div class="wrap fbottom"><p>© <?= date('Y') ?> <?= h($CFG['brand']) ?> · <?= h($CFG['city'].', '.$CFG['state_name']) ?></p>
-    <p><a href="<?= h(url('terms-of-sale')) ?>">Terms of sale</a> · <a href="<?= h(url('privacy-policy')) ?>">Privacy</a> · <a href="<?= h(url('contact')) ?>">Contact</a></p></div>
+    <p><a href="<?= h(url('terms-of-sale')) ?>">Terms of sale</a> · <a href="<?= h(url('privacy-policy')) ?>">Privacy</a> · <a href="<?= h(url('editorial-policy')) ?>">How we write our guides</a> · <a href="<?= h(url('contact')) ?>">Contact</a></p></div>
 </footer>
 <?php
 }
@@ -539,84 +573,188 @@ function inquiry_section($sel=null, $title='', $band=true){
   <?php return ob_get_clean();
 }
 
+/* the main menu: dropdowns on desktop (hover or click, keyboard friendly), a slide-in drawer with
+   expanding sections on phones. Built from the puppies, guide groups and pages on the site. */
+function mega_nav(){
+  global $PATH, $page, $CFG;
+  $avail = count(array_merge(puppies_with('available'), puppies_with('reserved')));
+  $chev = '<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+  $item = function($path, $label, $sub='') { return '<a class="mi" href="'.h(url($path)).'"><span>'.h($label).'</span>'.($sub !== '' ? '<small>'.h($sub).'</small>' : '').'</a>'; };
+  $pages = []; foreach(['health-guarantee', 'health-testing', 'how-we-raise-our-puppies', 'whats-included', 'puppy-delivery', 'is-pepper-whisker-legit', 'about', 'faq'] as $s) if($pg = info_page($s)) $pages[$s] = $pg;
+  $guides = articles_of('guide');
+  $groups = ['breed'=>'The breeds', 'colors'=>'Colors', 'grooming'=>'Haircuts & grooming', 'care'=>'Care & health'];
+  $prio = ['miniature-schnauzer', 'schnauzer-dog-breed', 'giant-schnauzer', 'standard-schnauzer', 'schnauzer-sizes', 'salt-and-pepper-schnauzer', 'schnauzer-colors', 'black-schnauzer', 'white-schnauzer', 'black-and-silver-schnauzer',
+           'schnauzer-haircut-styles', 'teddy-bear-schnauzer-haircut', 'how-to-groom-a-schnauzer', 'schnauzer-hand-stripping-vs-clipping', 'schnauzer-puppy-care', 'schnauzer-health-problems', 'best-dog-food-for-schnauzers', 'schnauzer-training'];
+  usort($guides, fn($a, $b)=>((array_search($a['slug'], $prio) === false ? 99 : array_search($a['slug'], $prio)) <=> (array_search($b['slug'], $prio) === false ? 99 : array_search($b['slug'], $prio))));
+  $cur = fn($test)=>$test ? ' aria-current="page"' : '';
+  ob_start(); ?>
+  <nav id="nav" class="nav" aria-label="Main">
+    <div class="nav-head"><strong><?= h($CFG['brand']) ?></strong><button class="navclose" type="button" aria-label="Close menu">&times;</button></div>
+    <div class="nav-item has-menu">
+      <button class="nav-top" type="button" aria-expanded="false" aria-controls="m-pups"<?= $cur($PATH === PUPPIES_PATH || $page === 'puppy') ?>>Puppies<?= $chev ?></button>
+      <div class="menu" id="m-pups"><div class="wrap menu-in menu-3">
+        <div class="menu-col"><p class="menu-h">Find your puppy</p>
+          <?= $item(PUPPIES_PATH, 'Schnauzer puppies for sale', $avail ? $avail.' available now, with photos and prices' : 'Every available puppy, with prices') ?>
+          <?= $item('upcoming-litters', 'Upcoming litters & waitlist', 'Hear about new puppies first') ?>
+          <?= $item('our-schnauzers', 'Meet the parents', 'Registration and health details') ?>
+          <?= $item('how-it-works', 'How it works', 'From inquiry to delivery day') ?>
+        </div>
+        <div class="menu-col"><p class="menu-h">Delivered to your state</p><div class="menu-states">
+          <?php foreach(array_slice(array_keys(locations_on()), 0, 10) as $c): ?><a href="<?= h(location_url($c)) ?>"><?= h(states()[$c][0]) ?></a><?php endforeach; ?>
+          <a href="<?= h(url('puppy-delivery')) ?>"><strong>All delivery details</strong></a></div>
+        </div>
+        <div class="menu-feature"><?= logo_svg('mf-logo') ?><p class="mf-t">Ready to choose?</p><p>Pick your puppy and press <strong>Proceed now</strong>. It takes a minute.</p><a class="btn btn-sm" href="<?= h(url(PUPPIES_PATH)) ?>">See puppies</a></div>
+      </div></div>
+    </div>
+    <div class="nav-item has-menu">
+      <button class="nav-top" type="button" aria-expanded="false" aria-controls="m-guides"<?= $cur($PATH === 'guides' || $page === 'article') ?>>Schnauzer guides<?= $chev ?></button>
+      <div class="menu" id="m-guides"><div class="wrap menu-in menu-4">
+        <?php foreach($groups as $g=>$label): $list = array_slice(array_values(array_filter($guides, fn($a)=>$a['group'] === $g)), 0, 5); if(!$list) continue; ?>
+        <div class="menu-col"><p class="menu-h"><?= h($label) ?></p><?php foreach($list as $a): ?><a class="mi mi-s" href="<?= h(url(article_path($a))) ?>"><span><?= h(short_title($a['title'])) ?></span></a><?php endforeach; ?></div>
+        <?php endforeach; ?>
+        <div class="menu-foot"><a href="<?= h(url('guides')) ?>">All <?= count($guides) ?> schnauzer guides →</a><a href="<?= h(url('blog')) ?>">Blog →</a></div>
+      </div></div>
+    </div>
+    <div class="nav-item has-menu">
+      <button class="nav-top" type="button" aria-expanded="false" aria-controls="m-why"<?= $cur(isset($pages[$PATH]) || $PATH === 'reviews') ?>>Why us<?= $chev ?></button>
+      <div class="menu" id="m-why"><div class="wrap menu-in menu-3">
+        <div class="menu-col"><p class="menu-h">Our promise</p>
+          <?php foreach(['health-guarantee'=>'Every guarantee, in writing', 'health-testing'=>'How we look after our dogs', 'how-we-raise-our-puppies'=>'From birth to going home', 'whats-included'=>'Vet check, shots, chip, documents'] as $s=>$sub) if(isset($pages[$s])) echo $item($s, $pages[$s]['menu'] ?: $pages[$s]['title'], $sub); ?>
+        </div>
+        <div class="menu-col"><p class="menu-h">Buy with confidence</p>
+          <?php foreach(['is-pepper-whisker-legit'=>'How to check any breeder', 'puppy-delivery'=>'Express and standard delivery', 'faq'=>'Answers to common questions', 'about'=>'The people behind our puppies'] as $s=>$sub) if(isset($pages[$s])) echo $item($s, $pages[$s]['menu'] ?: $pages[$s]['title'], $sub); ?>
+          <?= $item('reviews', 'Reviews', 'What our families say') ?>
+        </div>
+        <div class="menu-feature"><?= icon('shield', 'ic mf-ic') ?><p class="mf-t"><?= h(fill('{genetic_year}')) ?> health guarantee</p><p>Vet checked, vaccinated and microchipped, with all documents, including names.</p><a class="btn btn-sm btn-ghost" href="<?= h(url('health-guarantee')) ?>">Read the guarantee</a></div>
+      </div></div>
+    </div>
+    <a class="nav-link" href="<?= h(url('contact')) ?>"<?= $cur($PATH === 'contact') ?>>Contact</a>
+    <a class="btn nav-cta" href="<?= h(url(PUPPIES_PATH)) ?>">Find your puppy</a>
+  </nav>
+  <div class="nav-scrim" hidden></div>
+  <?php return ob_get_clean();
+}
+
+
 function view_home(){
   global $SITE, $CFG;
   $avail = array_merge(puppies_with('available'), puppies_with('reserved'));
   $reviews = array_values(array_filter($SITE['reviews'], fn($r)=>empty($r['hidden'])));
   $parents = array_values(array_filter($SITE['parents'], fn($p)=>empty($p['hidden']) && empty($p['retired'])));
-  /* the hero: an uploaded photo, else the newest puppies' photos, else the starter photo */
-  $shots = [];
-  if($CFG['hero_photo'] !== '') $shots[] = [$CFG['hero_photo'], 'Schnauzer puppies at '.$CFG['brand']];
-  foreach($avail as $p) if(!empty($p['photos'][0]) && !is_stream_img($p['photos'][0]) && count($shots) < 3) $shots[] = [$p['photos'][0], $p['name'].', '.strtolower(puppy_kind($p))];
-  if(!$shots) foreach($avail as $p) if(!empty($p['photos'][0]) && count($shots) < 1) $shots[] = [$p['photos'][0], $p['name'].', '.strtolower(puppy_kind($p))];
+  $feat = array_slice($avail, 0, 6);
+  $guides = array_column(articles_of('guide'), null, 'slug');
+  $chips = array_filter(['sex:female'=>'Girls', 'sex:male'=>'Boys', 'size:miniature'=>'Miniature', 'size:standard'=>'Standard', 'size:giant'=>'Giant'],
+    function($k) use($avail){ [$f, $v] = explode(':', $k); return (bool)array_filter($avail, fn($p)=>($p[$f] ?? '') === $v); }, ARRAY_FILTER_USE_KEY);
+  $ribbon = ['Vet checked', 'Age-appropriate shots', 'Microchipped', 'All documents, with names', fill('{genetic_year}').' health guarantee', 'Express delivery within 24 hours', 'Lifetime breeder support'];
+  $why = [
+    ['shield', 'Written health guarantee', fill('A {vet_check_hour} vet check guarantee and a {genetic_year} genetic health guarantee, in writing, plus a lifetime take-back promise. If your schnauzer ever needs a new home, they come back to us.'), 'health-guarantee', 'Read the guarantee'],
+    ['home', 'Raised in our home', 'Every puppy grows up in our home in '.$CFG['city'].', handled every day and introduced to everyday sounds, people and gentle grooming, so they arrive confident and ready for family life.', 'how-we-raise-our-puppies', 'How we raise our puppies'],
+    ['doc', 'All documents, including names', 'Registration papers, vet and vaccination records and microchip details, with your puppy’s name and both parents’ registered names. Ask to see any of them before delivery.', 'whats-included', 'What’s included'],
+    ['truck', 'Delivered to your door', 'Choose '.delivery_summary().'. Your puppy is checked by our vet before travel, and we keep you updated all the way.', 'puppy-delivery', 'How delivery works'],
+  ];
+  $steps = [['Choose your puppy', 'Real photos, price, age and both parents on every puppy page.'], ['Press Proceed now', 'Leave your phone number and email, plus a note. It takes a minute.'],
+            ['We call you', 'We reply '.fill('{reply_time}').', answer every question and confirm everything in writing.'], ['Delivered to your door', 'Vet checked, with all documents and starter food. Then lifetime support.']];
+  $mag = array_values(array_filter(['schnauzer-haircut-styles', 'giant-schnauzer', 'schnauzer-poodle-mix', 'salt-and-pepper-schnauzer', 'are-schnauzers-hypoallergenic'], fn($x)=>isset($guides[$x])));
+  $group_names = ['breed'=>'The breeds', 'colors'=>'Colors', 'grooming'=>'Grooming', 'care'=>'Care & health', 'mixes'=>'Mixes', 'buying'=>'Buying', 'culture'=>'Rescue'];
   ?>
-  <section class="hero"><div class="wrap hero-in">
-    <div class="hero-t">
-      <p class="eyebrow"><?= h($CFG['brand']) ?> · Purebred schnauzer puppies</p>
-      <h1><?= h(fill($CFG['hero_title'])) ?></h1>
-      <p class="lede"><?= h(fill($CFG['hero_lede'])) ?></p>
-      <div class="cta-row"><a class="btn btn-lg" href="#puppies">Choose your puppy <?= icon('arrow') ?></a><a class="btn btn-lg btn-ghost" href="#inquire">Proceed now</a></div>
-      <ul class="ticks"><li><?= icon('check') ?>Vet checked</li><li><?= icon('check') ?>Shots &amp; microchip</li><li><?= icon('check') ?>All documents, with names</li><li><?= icon('check') ?>Written health guarantee</li><li><?= icon('check') ?>Delivered to your door</li></ul>
+  <section class="h2-hero">
+    <div class="h2-glow" aria-hidden="true"></div>
+    <div class="wrap h2-hero-in">
+      <div class="h2-copy">
+        <p class="h2-pill"><span class="h2-dot"></span><?= count($avail) ? count($avail).' '.(count($avail) === 1 ? 'puppy' : 'puppies').' available now' : 'New litters announced soon' ?></p>
+        <h1>Miniature schnauzer puppies, <em>raised with love</em>, delivered to your door</h1>
+        <p class="h2-lede"><?= h(fill($CFG['hero_lede'])) ?></p>
+        <div class="h2-cta"><a class="btn btn-lg btn-cream" href="#puppies">Meet the puppies <?= icon('arrow') ?></a><a class="btn btn-lg btn-line" href="#how">How it works</a></div>
+        <dl class="h2-stats">
+          <div><dt data-count="<?= count($avail) ?>"><?= count($avail) ?></dt><dd>puppies available</dd></div>
+          <div><dt data-count="<?= (int)$CFG['genetic_years'] ?>" data-suffix=" yr"><?= (int)$CFG['genetic_years'] ?> yr</dt><dd>health guarantee</dd></div>
+          <div><dt data-count="24" data-suffix="h">24h</dt><dd>express delivery</dd></div>
+          <div><dt data-count="100" data-suffix="%">100%</dt><dd>documents included</dd></div>
+        </dl>
+      </div>
+      <div class="h2-show">
+        <?php if($feat): ?>
+        <div class="fp" aria-roledescription="carousel" aria-label="Featured puppies">
+          <?php foreach($feat as $i=>$p): ?>
+          <article class="fp-card<?= $i ? '' : ' on' ?>" aria-roledescription="slide" aria-label="<?= $i + 1 ?> of <?= count($feat) ?>">
+            <a class="fp-ph" href="<?= h(puppy_url($p)) ?>" tabindex="-1" aria-hidden="true"><?= photo_or_placeholder($p['photos'][0] ?? '', $p['name'].', '.strtolower(puppy_kind($p)), '(max-width:900px) 90vw, 460px', $i === 0) ?><span class="fp-tag"><?= h(($p['ready'] ?? '') !== '' && strtotime($p['ready']) > time() ? 'Ready '.date('M j', strtotime($p['ready'])) : ($p['status'] === 'reserved' ? 'Reserved' : 'Ready now')) ?></span></a>
+            <div class="fp-b">
+              <div><h3 class="fp-name"><a href="<?= h(puppy_url($p)) ?>"><?= h($p['name']) ?></a></h3><p class="fp-kind"><?= h(trim(($p['color'] ?? '').' · '.sex_label($p['sex'] ?? '').(size_text($p['size'] ?? '') ? ' · '.ucfirst($p['size']) : ''), ' ·')) ?></p></div>
+              <?php if(($p['price'] ?? '') !== ''): ?><p class="fp-price"><?= h(money($p['price'])) ?></p><?php endif; ?>
+            </div>
+            <div class="fp-actions"><a class="btn btn-ghost" href="<?= h(puppy_url($p)) ?>">Details</a><a class="btn" href="<?= h(puppy_url($p)) ?>#inquire" data-pick="<?= h($p['id']) ?>">Proceed now</a></div>
+          </article>
+          <?php endforeach; ?>
+          <?php if(count($feat) > 1): ?><div class="fp-nav"><button type="button" class="fp-prev" aria-label="Previous puppy">&#8249;</button><span class="fp-dots"><?php foreach($feat as $i=>$p): ?><button type="button" aria-label="Show <?= h($p['name']) ?>"<?= $i ? '' : ' aria-current="true"' ?>></button><?php endforeach; ?></span><button type="button" class="fp-next" aria-label="Next puppy">&#8250;</button></div><?php endif; ?>
+        </div>
+        <?php else: ?>
+        <div class="fp fp-empty"><?= logo_svg('fp-logo') ?><h3>New litters coming soon</h3><p>Join the waitlist and we’ll email you the moment puppies are born.</p><a class="btn" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a></div>
+        <?php endif; ?>
+      </div>
     </div>
-    <?php if($shots): ?><div class="hero-ph"><?= img_tag($shots[0][0], $shots[0][1], '(max-width:900px) 92vw, 480px', true) ?></div>
-    <?php else: ?><div class="hero-card"><?= logo_svg('hero-logo') ?><p><strong><?= h($CFG['brand']) ?></strong><br>Schnauzer puppies, raised with care</p></div><?php endif; ?>
+    <div class="h2-ribbon" aria-hidden="true"><div class="h2-track"><?php for($k = 0; $k < 2; $k++) foreach($ribbon as $r) echo '<span>'.icon('paw').h($r).'</span>'; ?></div></div>
+  </section>
+
+  <section class="h2-sec" id="puppies"><div class="wrap">
+    <div class="h2-head"><div><p class="kicker">Available now</p><h2>Meet the puppies</h2></div><a class="h2-link" href="<?= h(url(PUPPIES_PATH)) ?>">See all<?= count($avail) > 1 ? ' '.count($avail) : '' ?> puppies <?= icon('arrow') ?></a></div>
+    <?php if(count($avail) > 1 && $chips): ?><div class="chips" role="group" aria-label="Filter puppies"><button type="button" data-f="all" aria-pressed="true">All</button><?php foreach($chips as $k=>$l): ?><button type="button" data-f="<?= h($k) ?>" aria-pressed="false"><?= h($l) ?></button><?php endforeach; ?></div><?php endif; ?>
+    <?= puppies_block($avail, 12) ?>
+    <p class="chips-none" hidden>No puppies match that right now. <a href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a> to hear first.</p>
+    <?php if(count($avail) > 12): ?><p class="center"><a class="btn btn-lg btn-ghost" href="<?= h(url(PUPPIES_PATH)) ?>">See all <?= count($avail) ?> schnauzer puppies <?= icon('arrow') ?></a></p><?php endif; ?>
   </div></section>
 
-  <section class="sec wrap" id="puppies">
-    <div class="sec-h"><h2>Schnauzer puppies available now</h2><a href="<?= h(url(PUPPIES_PATH)) ?>">See all <?= count($avail) > 1 ? count($avail).' ' : '' ?>puppies <?= icon('arrow') ?></a></div>
-    <?php if($avail): ?><p class="muted sec-sub">Tap <strong>Proceed now</strong> on any puppy to choose them, or <strong>Details</strong> for all their photos, papers and parents.</p><?php endif; ?>
-    <?= puppies_block($avail, 9) ?>
-    <?php if(count($avail) > 9): ?><p class="center"><a class="btn btn-lg btn-ghost" href="<?= h(url(PUPPIES_PATH)) ?>">See all <?= count($avail) ?> schnauzer puppies <?= icon('arrow') ?></a></p><?php endif; ?>
-  </section>
+  <section class="h2-sec h2-why"><div class="wrap h2-why-in">
+    <div class="h2-why-l">
+      <p class="kicker">Why <?= h($CFG['brand']) ?></p>
+      <h2>Everything a good start needs</h2>
+      <div class="why-list" role="tablist" aria-orientation="vertical" aria-label="Why families choose us">
+        <?php foreach($why as $i=>[$ic, $t]): ?><button type="button" role="tab" id="wt-<?= $i ?>" aria-controls="wp-<?= $i ?>" aria-selected="<?= $i ? 'false' : 'true' ?>"><span class="why-n"><?= sprintf('%02d', $i + 1) ?></span><?= h($t) ?><?= icon('arrow') ?></button><?php endforeach; ?>
+      </div>
+    </div>
+    <div class="why-panels">
+      <?php foreach($why as $i=>[$ic, $t, $txt, $link, $lt]): ?>
+      <div class="why-panel<?= $i ? '' : ' on' ?>" role="tabpanel" id="wp-<?= $i ?>" aria-labelledby="wt-<?= $i ?>"><span class="why-ic"><?= icon($ic) ?></span><h3><?= h($t) ?></h3><p><?= h($txt) ?></p><a class="h2-link" href="<?= h(url($link)) ?>"><?= h($lt) ?> <?= icon('arrow') ?></a></div>
+      <?php endforeach; ?>
+    </div>
+  </div></section>
 
-  <section class="wrap easy3 easy3-after" aria-label="How to get your puppy">
-    <a class="e3" href="#puppies"><span class="e3-n">1</span><span><strong>Choose your puppy</strong><small>Real photos, price, age and both parents</small></span></a>
-    <a class="e3" href="#inquire"><span class="e3-n">2</span><span><strong>Proceed now, in one minute</strong><small>Phone and email, plus a note</small></span></a>
-    <a class="e3" href="<?= h(url('puppy-delivery')) ?>"><span class="e3-n">3</span><span><strong>We call you, then deliver</strong><small>We reply <?= h(fill('{reply_time}')) ?>. Delivered to your door</small></span></a>
-  </section>
+  <section class="h2-sec h2-how" id="how"><div class="wrap">
+    <div class="h2-head h2-head-c"><div><p class="kicker">How it works</p><h2>From hello to delivery day</h2></div></div>
+    <ol class="tl"><?php foreach($steps as $i=>[$t, $txt]): ?><li><span class="tl-n"><?= $i + 1 ?></span><h3><?= h($t) ?></h3><p><?= h($txt) ?></p></li><?php endforeach; ?></ol>
+    <p class="center"><a class="h2-link" href="<?= h(url('how-it-works')) ?>">The full process <?= icon('arrow') ?></a></p>
+  </div></section>
 
   <?= inquiry_section() ?>
 
-  <section class="sec"><div class="wrap">
-    <div class="sec-h"><h2>Our promises to you</h2><a href="<?= h(url('health-guarantee')) ?>">Read the full health guarantee <?= icon('arrow') ?></a></div>
-    <?= guarantees_block() ?>
-  </div></section>
-
-  <section class="sec band"><div class="wrap split">
-    <div ><h2>How it works</h2><p>From inquiry to delivery day, in a few simple steps.</p><?= steps_block() ?><p><a class="btn" href="<?= h(url('how-it-works')) ?>">How buying from us works</a></p></div>
-    <div ><h2>Every puppy comes with</h2><?= included_block() ?><p class="muted">The price on each puppy’s page includes all of this. <a href="<?= h(url('whats-included')) ?>">What’s included</a></p></div>
-  </div></section>
-
-  <?php if($parents): ?>
-  <section class="sec"><div class="wrap">
-    <div class="sec-h"><h2>Meet the parents</h2><a href="<?= h(url('our-schnauzers')) ?>">All our schnauzers <?= icon('arrow') ?></a></div>
-    <div class="parent-row"><?php foreach(array_slice($parents, 0, 6) as $p) echo parent_mini($p); ?></div>
+  <?php if($mag && isset($guides['miniature-schnauzer'])): $f = $guides['miniature-schnauzer']; ?>
+  <section class="h2-sec h2-guides"><div class="wrap">
+    <div class="h2-head"><div><p class="kicker">Schnauzer guides</p><h2>Know your schnauzer</h2></div><a class="h2-link" href="<?= h(url('guides')) ?>">All <?= count($guides) ?> guides <?= icon('arrow') ?></a></div>
+    <div class="mag">
+      <a class="mag-feat" href="<?= h(url(article_path($f))) ?>"><span class="kicker">Most read</span><h3><?= h($f['title']) ?></h3><p><?= h(plain($f['answer'] ?? $f['excerpt'] ?? '', 200)) ?></p><span class="mag-go">Read the guide <?= icon('arrow') ?></span></a>
+      <div class="mag-list"><?php foreach($mag as $x): $a = $guides[$x]; ?><a class="mag-item" href="<?= h(url(article_path($a))) ?>"><span class="mag-g"><?= h($group_names[$a['group']] ?? 'Guide') ?></span><strong><?= h(short_title($a['title'])) ?></strong><small><?= h($a['excerpt'] ?? '') ?></small></a><?php endforeach; ?></div>
+    </div>
   </div></section>
   <?php endif; ?>
 
   <?php if($reviews): ?>
-  <section class="sec wrap">
-    <div class="sec-h"><h2>What our families say</h2><a href="<?= h(url('reviews')) ?>">All reviews <?= icon('arrow') ?></a></div>
+  <section class="h2-sec"><div class="wrap">
+    <div class="h2-head"><div><p class="kicker">Reviews</p><h2>What our families say</h2></div><a class="h2-link" href="<?= h(url('reviews')) ?>">All reviews <?= icon('arrow') ?></a></div>
     <div class="rgrid"><?php foreach(array_slice($reviews, 0, 3) as $r) echo review_card($r); ?></div>
-  </section>
+  </div></section>
   <?php endif; ?>
 
-  <section class="sec wrap split split-c">
-    <div ><h2>Delivered from <?= h($CFG['city']) ?>, <?= h($CFG['state_name']) ?> to your door</h2>
-      <p><?= h(fill($CFG['delivery_note'])) ?> Puppies travel no earlier than <?= h(fill('{go_home_weeks}')) ?> old, after a check by our veterinarian.</p>
-      <p class="cta-row"><a class="btn btn-ghost" href="<?= h(url('puppy-delivery')) ?>">How delivery works</a> <a class="btn btn-ghost" href="<?= h(url(PUPPIES_PATH.'/ohio')) ?>">Schnauzer puppies in Ohio</a></p></div>
-    <div class="verify"><h2><?= icon('shield', 'ic ic-lg') ?>Buy with confidence</h2>
-      <ul><li>Recent photos of your puppy and both parents, whenever you ask</li><li>A <strong>written agreement</strong> for your puppy, with our guarantees</li><li>We only contact you from <strong><?= h($CFG['email']) ?></strong></li><li>Registration numbers you can look up yourself</li></ul>
-      <p><a href="<?= h(url('is-pepper-whisker-legit')) ?>">How to verify us <?= icon('arrow') ?></a></p></div>
-  </section>
+  <?php if($parents): ?>
+  <section class="h2-sec"><div class="wrap">
+    <div class="h2-head"><div><p class="kicker">The parents</p><h2>Meet our schnauzers</h2></div><a class="h2-link" href="<?= h(url('our-schnauzers')) ?>">All our schnauzers <?= icon('arrow') ?></a></div>
+    <div class="parent-row"><?php foreach(array_slice($parents, 0, 6) as $p) echo parent_mini($p); ?></div>
+  </div></section>
+  <?php endif; ?>
 
   <?= home_knowledge() ?>
 
-  <?= guide_links(['schnauzer-dog-breed', 'miniature-schnauzer', 'schnauzer-sizes', 'schnauzer-haircut-styles', 'how-to-find-a-schnauzer-breeder', 'schnauzer-puppy-care'], 'Thinking about a schnauzer? Start here') ?>
-
-  <section class="sec band" id="waitlist-cta"><div class="wrap waitcta">
-    <div><h2>Don’t see your puppy yet?</h2><p>New litters go to our waitlist first. Join free and we’ll email you the moment puppies are born.</p></div>
-    <a class="btn btn-lg" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a>
+  <section class="h2-final"><div class="wrap h2-final-in">
+    <div><h2>Ready to meet your schnauzer?</h2><p>Choose a puppy and press Proceed now, or join the waitlist to hear about new litters first.</p></div>
+    <div class="h2-cta"><a class="btn btn-lg btn-cream" href="#puppies">Meet the puppies <?= icon('arrow') ?></a><a class="btn btn-lg btn-line" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a></div>
   </div></section>
   <?php
 }
@@ -675,6 +813,7 @@ function view_puppies(){
   $all = public_puppies();
   $list = array_values(array_filter($all, fn($p)=>$p['status'] !== 'sold'
     && ($filters['sex'] === '' || $p['sex'] === $filters['sex'])
+    && ($filters['size'] === '' || ($p['size'] ?? '') === $filters['size'])
     && ($filters['color'] === '' || stripos($p['color'], $filters['color']) !== false)));
   usort($list, fn($a, $b)=>(($a['status'] === 'available') <=> ($b['status'] === 'available')) * -1 ?: strcmp($b['created'] ?? '', $a['created'] ?? ''));
   $sold = array_slice(array_values(array_filter($all, fn($p)=>$p['status'] === 'sold')), 0, 8);
@@ -685,10 +824,11 @@ function view_puppies(){
     <?php if(count($all) > 3): ?>
     <form class="filters" method="get" action="<?= h(url(PUPPIES_PATH)) ?>" role="search" aria-label="Filter puppies">
       <?php if(empty($CFG['pretty_urls'])): ?><input type="hidden" name="path" value="<?= h(PUPPIES_PATH) ?>"><?php endif; ?>
+      <label>Size <select name="size" onchange="this.form.submit()"><option value="">Any</option><?php foreach(['miniature'=>'Miniature', 'standard'=>'Standard', 'giant'=>'Giant'] as $k=>$l): ?><option value="<?= $k ?>"<?= $filters['size'] === $k ? ' selected' : '' ?>><?= $l ?></option><?php endforeach; ?></select></label>
       <label>Sex <select name="sex" onchange="this.form.submit()"><option value="">Any</option><option value="male"<?= $filters['sex'] === 'male' ? ' selected' : '' ?>>Male</option><option value="female"<?= $filters['sex'] === 'female' ? ' selected' : '' ?>>Female</option></select></label>
       <?php if(count($colors) > 1): ?><label>Color <select name="color" onchange="this.form.submit()"><option value="">Any</option><?php foreach($colors as $c): ?><option<?= strcasecmp($filters['color'], $c) === 0 ? ' selected' : '' ?>><?= h($c) ?></option><?php endforeach; ?></select></label><?php endif; ?>
       <noscript><button class="btn btn-sm">Filter</button></noscript>
-      <?php if($filters['sex'] !== '' || $filters['color'] !== ''): ?><a href="<?= h(url(PUPPIES_PATH)) ?>">Clear filters</a><?php endif; ?>
+      <?php if($filters['sex'] !== '' || $filters['color'] !== '' || $filters['size'] !== ''): ?><a href="<?= h(url(PUPPIES_PATH)) ?>">Clear filters</a><?php endif; ?>
     </form>
     <?php endif; ?>
     <?= puppies_block($list) ?>
@@ -977,6 +1117,12 @@ function view_blog(){
   echo '</div><p><a class="btn btn-ghost" href="'.h(url('guides')).'">See all schnauzer guides</a></p></div>';
 }
 
+/* who wrote the guide and how (experience and trust signals for readers and Google) */
+function author_box(){
+  global $CFG;
+  return '<aside class="authorbox">'.logo_svg('author-logo').'<div><p><strong>About this guide</strong></p><p>Written by the '.h($CFG['brand']).' team, schnauzer breeders in '.h($CFG['city'].', '.$CFG['state_name'])
+    .'. Read <a href="'.h(url('editorial-policy')).'">how we write our guides</a>, <a href="'.h(url('about')).'">about us</a> and <a href="'.h(url('health-testing')).'">how we care for our dogs</a>. General information, not veterinary advice.</p></div></aside>';
+}
 function view_article(){
   global $art, $h1, $CFG;
   $toc = headings($art['body']);
@@ -993,7 +1139,7 @@ function view_article(){
     <?php if(!$zh): ?><p class="funnel"><?= icon('paw') ?><span>Looking for a puppy? See our <a href="<?= h(url(PUPPIES_PATH)) ?>">schnauzer puppies for sale</a>, each listed with photos, price and both parents.</span></p><?php endif; ?>
     <?php if(($art['image'] ?? '') !== ''): ?><div class="art-img"><?= img_tag($art['image'], $art['image_alt'] ?? $art['title'], '(max-width:900px) 100vw, 860px', true) ?></div><?php endif; ?>
     <div class="art-grid">
-      <div class="prose"><?= rich($art['body'], page_blocks()) ?><?php if(!$zh) echo price_cta_block(); ?></div>
+      <div class="prose"><?= rich($art['body'], page_blocks()) ?><?php if(!$zh) echo price_cta_block().author_box(); ?></div>
       <aside class="art-side">
         <?php if(count($toc) > 3): ?><nav class="toc" aria-label="On this page"><p><strong><?= $zh ? '目录' : 'On this page' ?></strong></p><ol><?php foreach($toc as [$id, $t]): ?><li><a href="<?= h(url(article_path($art))) ?>#<?= h($id) ?>"><?= h($t) ?></a></li><?php endforeach; ?></ol></nav><?php endif; ?>
         <div class="side-cta"><?= logo_svg('side-logo') ?><p><strong>Looking for a schnauzer puppy?</strong></p><p>Vet checked, microchipped, full papers and a written health guarantee — delivered from <?= h($CFG['city']) ?>, <?= h($CFG['state']) ?>.</p><a class="btn btn-block" href="<?= h(url(PUPPIES_PATH)) ?>">See available puppies</a><a class="btn btn-block btn-ghost" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a></div>
