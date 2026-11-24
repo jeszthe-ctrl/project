@@ -223,6 +223,21 @@ if(b)b.addEventListener('click',function(){var o=n.classList.toggle('open');b.se
 document.querySelectorAll('form.form').forEach(function(f){f.addEventListener('submit',function(){var s=f.querySelector('[type=submit]');setTimeout(function(){s.disabled=true;s.textContent='Sending…'},10)})});
 var bad=document.querySelector('.f-bad input,.f-bad textarea');if(bad)bad.focus();})();
 </script>
+<?php if(tawk_id() !== '' && !in_array($page, ['notfound'], true)): ?>
+<!--Start of Tawk.to Script-->
+<script>
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/<?= h(tawk_id()) ?>';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
+<?php endif; ?>
 </body>
 </html>
 <?php

@@ -240,6 +240,8 @@ if($act === 'save_settings'){
   $tab = in_line('tab', 20);
   $c = &$SITE['settings'];
   if($tab === 'site'){
+    $t = in_str('tawk_id', 2000); if(preg_match('#embed\.tawk\.to/([a-f0-9]{20,32}/[a-z0-9]+)#i', $t, $m)) $t = $m[1];
+    if($t === '' || preg_match('#^[a-f0-9]{20,32}/[a-z0-9]{1,40}$#i', $t)) $c['tawk_id'] = $t; else note('That live chat code wasn’t recognized, so it wasn’t changed. Paste the Tawk.to script or the ID like 6b05ab87…/default.', 'err');
     foreach(['brand'=>60, 'tagline'=>200, 'hero_title'=>200, 'home_seo_title'=>120, 'home_seo_desc'=>300] as $k=>$n) $c[$k] = in_line($k, $n);
     foreach(['hero_lede', 'guides_intro', 'footer_blurb', 'contact_intro'] as $k) $c[$k] = in_str($k, 1000);
     $e = in_line('email', 160); if(filter_var($e, FILTER_VALIDATE_EMAIL)) $c['email'] = $e; else note('That email address isn’t valid, so it wasn’t changed.', 'err');
@@ -524,6 +526,7 @@ function view_settings(){
     <label>Guides page introduction<textarea name="guides_intro" rows="2"><?= h($CFG['guides_intro']) ?></textarea></label>
     <label>Contact page introduction<textarea name="contact_intro" rows="2"><?= h($CFG['contact_intro']) ?></textarea></label>
     <label>Footer text<textarea name="footer_blurb" rows="2"><?= h($CFG['footer_blurb']) ?></textarea></label>
+    <label>Live chat (Tawk.to)<small>Your Tawk.to property and widget ID, e.g. 6b05ab87398c563cb2397234/default — or paste the whole Tawk.to script. Leave empty to turn the chat off.</small><input type="text" name="tawk_id" value="<?= h($CFG['tawk_id']) ?>"></label>
     <?= one_photo_editor('share_photo', $CFG['share_photo'], 'Link preview image', 'Shown when the home page is shared on social media (1200 × 630 is ideal)') ?>
   <?php elseif($tab === 'about'): ?>
     <p class="mut">The writer is shown on every guide (“By …”) and on the About page. A real name, a short bio with your schnauzer experience and a photo help readers and Google trust the guides.</p>

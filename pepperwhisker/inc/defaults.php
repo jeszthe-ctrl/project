@@ -24,6 +24,7 @@ return [
     'hero_photo'      => '',
     'share_photo'     => '',
     'gsc_verification'=> '', 'bing_verification' => '', 'ga4_id' => '',
+    'tawk_id'         => '6b05ab87398c563cb2397234/default',   /* Tawk.to live chat: property ID/widget ID, empty = no chat */
     'adsense_client'  => '',               /* ca-pub-…: turns on Google Auto ads and ads.txt */
     'affiliate_note'  => false,            /* show the affiliate line on guides */
     'facebook' => '', 'instagram' => '', 'pinterest' => '', 'youtube' => '',
@@ -128,6 +129,10 @@ This policy explains what information {brand} collects and how it is used. Last 
 ## When you contact us
 
 If you send a message through our contact form, we receive your email address, your name if you give it, and your message. We use them only to reply to you. We keep messages for as long as needed to answer them and then delete them within 12 months.
+
+## Live chat
+
+If you use the chat window, your messages and any details you type into it are handled by Tawk.to, our live chat provider, and used only to answer you.
 
 ## Analytics
 

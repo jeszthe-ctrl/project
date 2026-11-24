@@ -32,6 +32,14 @@ function data_dir(){
 function data_file($name){ return data_dir().'/'.$name.'.php'; }
 const IMG_EXTS = ['jpg', 'jpeg', 'png', 'webp'];
 
+/* the Tawk.to live chat widget ("property-id/widget-id"), or '' when switched off. Pasting the whole
+   Tawk.to script or its embed address into Settings works too: the ID is picked out of it. */
+function tawk_id(){
+  $v = trim((string)($GLOBALS['SITE']['settings']['tawk_id'] ?? ''));
+  if(preg_match('#embed\.tawk\.to/([a-f0-9]{20,32}/[a-z0-9]+)#i', $v, $m)) $v = $m[1];
+  return preg_match('#^[a-f0-9]{20,32}/[a-z0-9]{1,40}$#i', $v) ? $v : '';
+}
+
 /* the photo gallery (Admin → Photos): your own schnauzer photos, tagged by breed and color */
 const GALLERY_BREEDS = ['miniature'=>'Miniature schnauzer', 'standard'=>'Standard schnauzer', 'giant'=>'Giant schnauzer', 'mix'=>'Schnauzer mix'];
 const GALLERY_COLORS = ['salt-pepper'=>'Salt and pepper', 'black'=>'Black', 'black-silver'=>'Black and silver', 'white'=>'White', 'other'=>'Other color'];
