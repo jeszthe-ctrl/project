@@ -102,7 +102,28 @@ function site_upgrade($s, $d, $version){
   foreach(['guarantees', 'steps', 'included'] as $k) if(in_array($h($s[$k]), $known[$k] ?? [], true)) $s[$k] = $d[$k];
   foreach($s['settings'] as $k=>$v) if(is_string($v) && isset($d['settings'][$k]) && in_array(md5($v), $known['settings'][$k] ?? [], true)) $s['settings'][$k] = $d['settings'][$k];
 
-  /* one-off changes for sites installed from an earlier version go here, e.g. if($version < 2){ … } */
+  /* one-off changes for sites installed from an earlier version */
+  if($version < 2){
+    /* the available puppies arrive with the site: each one is added once, with its parents,
+       unless the site already has it (same name page or same puppy) */
+    $seed = require BB_ROOT.'/inc/seed_puppies.php';
+    $have = [];
+    foreach($s['puppies'] as $p) foreach(['id', 'slug', 'old_slug'] as $k) if(($p[$k] ?? '') !== '') $have[$k.':'.$p[$k]] = true;
+    $par_id = [];
+    foreach($seed['parents'] as $par){
+      $match = null;
+      foreach($s['parents'] as $x) if($x['id'] === $par['id'] || (strcasecmp(trim($x['name']), $par['name']) === 0 && $x['role'] === $par['role'])){ $match = $x; break; }
+      $par_id[$par['id']] = $match ? $match['id'] : $par['id'];
+      if(!$match) $par_add[] = $par;
+    }
+    $used = [];
+    foreach($seed['puppies'] as $p){
+      if(isset($have['id:'.$p['id']]) || isset($have['slug:'.$p['slug']]) || isset($have['old_slug:'.$p['old_slug']])) continue;
+      foreach(['dam', 'sire'] as $k) if(($p[$k] ?? '') !== ''){ $p[$k] = $par_id[$p[$k]] ?? ''; $used[$p[$k]] = true; }
+      $s['puppies'][] = $p;
+    }
+    foreach($par_add ?? [] as $par) if(isset($used[$par['id']]) && !find_by($s['parents'], 'slug', $par['slug'])) $s['parents'][] = $par;
+  }
   $s['settings']['content_version'] = (int)$d['settings']['content_version'];
   return $s;
 }

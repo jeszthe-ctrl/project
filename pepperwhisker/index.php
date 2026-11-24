@@ -235,7 +235,7 @@ elseif(count($seg) === 1 && ($info = info_page($PATH))) $page = 'info';
 if($page === 'notfound' && isset($SITE['redirects'][$PATH])){ $u = url($SITE['redirects'][$PATH]); header('Location: '.$BASE.($u === './' ? '' : $u), true, 301); exit; }
 /* the old price page: prices are listed with each puppy */
 if($page === 'notfound' && ($PATH === 'schnauzer-price-cost' || $PATH === 'guides/schnauzer-price')){ header('Location: '.$BASE.url(PUPPIES_PATH), true, 301); exit; }
-if($page === 'notfound' && count($seg) === 2 && $seg[0] === 'puppies' && ($old = find_by(public_puppies(), 'old_slug', $seg[1]))){ header('Location: '.$BASE.puppy_url($old), true, 301); exit; }
+if($page === 'notfound' && count($seg) === 2 && ($seg[0] === 'puppies' || $seg[0] === 'puppy') && ($old = find_by(public_puppies(), 'old_slug', $seg[1]))){ header('Location: '.$BASE.puppy_url($old), true, 301); exit; }
 if($page === 'notfound' && count($seg) === 2 && $seg[0] === PUPPIES_PATH){ header('Location: '.$BASE.url(PUPPIES_PATH), true, 301); exit; }
 
 /* with clean addresses on, old index.php?path=… links move permanently to the clean address */

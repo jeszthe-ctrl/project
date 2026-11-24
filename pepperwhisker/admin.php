@@ -607,12 +607,14 @@ const PUPPY_CSV_ALIASES = ['puppy'=>'name', 'puppy name'=>'name', 'dog'=>'name',
   'summary'=>'tagline', 'about'=>'description', 'notes'=>'description', 'video link'=>'video', 'youtube'=>'video',
   'ready_date'=>'ready', 'price_usd'=>'price', 'est_adult_weight_lbs'=>'adult_weight', 'adult weight'=>'adult_weight', 'expected adult weight'=>'adult_weight',
   'champion_bloodline'=>'champion', 'champion bloodline'=>'champion', 'video_embed_url'=>'video', 'dad_info'=>'sire', 'mom_info'=>'dam',
-  'gallery_images'=>'photos', 'gallery'=>'photos', 'images'=>'photos', 'slug'=>'old_slug'];
+  'gallery_images'=>'photos', 'gallery'=>'photos', 'images'=>'photos', 'slug'=>'old_slug',
+  'champion_status'=>'champion', 'image_gallery'=>'photos', 'video_url'=>'video'];
 function csv_date($v){
   $v = trim((string)$v);
   if($v === '') return '';
   if(preg_match('#^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})$#', $v, $m)){ $y = strlen($m[3]) === 2 ? 2000 + (int)$m[3] : (int)$m[3]; return checkdate((int)$m[1], (int)$m[2], $y) ? sprintf('%04d-%02d-%02d', $y, $m[1], $m[2]) : ''; }
-  if(preg_match('/\bnow\b/i', $v)) return '';   /* "Ready now" */
+  if(preg_match('/\bnow\b|go home|^ready$/i', $v)) return '';   /* "Ready now", "Ready to go home" */
+  $v = preg_replace('/^ready\s*(by|on|from|after)?\s*/i', '', $v);   /* "Ready by Dec. 15" */
   $t = strtotime(str_replace('.', '', $v));
   return $t ? date('Y-m-d', $t) : '';
 }
@@ -654,7 +656,8 @@ if($act === 'import_puppies'){
     $set = function($k, $v) use(&$p){ if($v !== null) $p[$k] = $v; };
     if(($v = $get('sex')) !== null && $v !== '') $p['sex'] = preg_match('/^(f|female|girl|she|bitch)/i', $v) ? 'female' : 'male';
     $set('color', $get('color') !== null ? mb_substr($get('color'), 0, 60) : null);
-    foreach(['dob', 'ready', 'vet_date'] as $k) if(($v = $get($k)) !== null){ $p[$k] = csv_date($v); if($v !== '' && $p[$k] === '' && !preg_match('/\bnow\b/i', $v)) $issues[] = "$name: couldn’t read the $k “{$v}” (use e.g. 2026-08-28 or 8/28/2026)."; }
+    foreach(['dob', 'ready', 'vet_date'] as $k) if(($v = $get($k)) !== null){ $p[$k] = csv_date($v); if($k === 'dob' && $p[$k] !== '' && $p[$k] > date('Y-m-d')) $p[$k] = date('Y-m-d', strtotime($p[$k].' -1 year'));   /* "May 27" without a year */
+      if($v !== '' && $p[$k] === '' && !preg_match('/\bnow\b|go home|^ready$/i', $v)) $issues[] = "$name: couldn’t read the $k “{$v}” (use e.g. 2026-08-28 or 8/28/2026)."; }
     if(($v = $get('price')) !== null){ $num = str_replace(['$', ',', ' ', 'USD', 'usd'], '', $v); if($v === '' || is_numeric($num)) $p['price'] = $v === '' ? '' : (string)round((float)$num, 2); else $issues[] = "$name: couldn’t read the price “{$v}”."; }
     if(($v = $get('status')) !== null && $v !== '') $p['status'] = preg_match('/sold|home|adopted/i', $v) ? 'sold' : (preg_match('/reserv|hold|pending|deposit/i', $v) ? 'reserved' : 'available');
     if(($v = $get('size')) !== null) $p['size'] = preg_match('/mini|toy|teacup/i', $v) ? 'miniature' : (preg_match('/giant/i', $v) ? 'giant' : (preg_match('/standard|medium/i', $v) ? 'standard' : ''));
@@ -676,14 +679,15 @@ if($act === 'import_puppies'){
       $p[$k] = $id;
     }
     if(($v = $get('champion')) !== null) $p['champion'] = (bool)preg_match('/^(y|yes|true|1|champion)/i', $v);
-    foreach(['markings'=>60, 'adult_weight'=>40, 'old_slug'=>80] as $k=>$max) if(($v = $get($k)) !== null) $p[$k] = mb_substr(preg_match('/^no markings?$/i', $v) ? '' : $v, 0, $max);
+    foreach(['markings'=>60, 'adult_weight'=>40, 'old_slug'=>80] as $k=>$max) if(($v = $get($k)) !== null) $p[$k] = mb_substr(preg_match('/^no markings?$|schnauzer coat$/i', $v) ? '' : $v, 0, $max);
     if(($v = $get('photos')) !== null && $v !== ''){
       /* photo paths on this website (e.g. assets/puppies/babe/babe-01.jpg): they show once those files are uploaded */
       $paths = array_values(array_filter(array_map(fn($x)=>ltrim(trim($x), '/'), preg_split('/\s*[|,;]\s*/', $v)), fn($x)=>preg_match('#^assets/[\w./-]+\.(jpe?g|png|webp)$#i', $x) && strpos($x, '..') === false));
       $p['photos'] = array_values(array_unique(array_merge(array_values(array_filter($p['photos'] ?? [], fn($f)=>strpos($f, 'assets/uploads/') === 0)), $paths)));
     }
     if(($p['chip_no'] ?? '') !== '') $p['microchip'] = true;
-    if(empty($p['slug'])) $p['slug'] = unique_slug($p['name'].' '.($p['color'] ?? '').' '.$p['sex'], $SITE['puppies'], $p['id']);
+    /* the spreadsheet's own page name (e.g. lilac-female-black-miniature-schnauzer) is kept as the page address */
+    if(empty($p['slug'])) $p['slug'] = unique_slug(($p['old_slug'] ?? '') !== '' ? $p['old_slug'] : $p['name'].' '.($p['color'] ?? '').' '.$p['sex'], $SITE['puppies'], $p['id']);
     if(in_array($p['slug'], state_slugs(), true)) $p['slug'] = unique_slug($p['slug'].'-puppy', $SITE['puppies'], $p['id']);
     $p['updated'] = date('c');
     if($i === null){ $SITE['puppies'][] = $p; $added++; } else { $SITE['puppies'][$i] = $p; $updated++; }

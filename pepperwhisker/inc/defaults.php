@@ -29,15 +29,15 @@ return [
     'breeder_photo'   => '',
     'hero_photo'      => '',
     'share_photo'     => '',
-    'tagline'         => 'Purebred schnauzer puppies, raised in Cincinnati and delivered to your door',
-    'hero_title'      => 'Schnauzer puppies for sale, delivered to your door',
-    'hero_lede'       => 'Healthy, family-raised purebred schnauzers from Cincinnati, Ohio. Every puppy comes vet checked, with age-appropriate shots, a microchip, starter food and full registration papers, backed by a written health guarantee.',
-    'home_seo_title'  => 'Schnauzer Puppies for Sale | Pepper Whisker, Cincinnati, Ohio',
-    'home_seo_desc'   => 'Schnauzer puppies for sale from Pepper Whisker, Cincinnati, Ohio: vet checked, shots, microchip, full papers and a health guarantee. Delivered to your door.',
-    'puppies_title'   => 'Schnauzer Puppies for Sale',
-    'puppies_seo_title'=> 'Schnauzer Puppies for Sale Near You | Available Now | Pepper Whisker',
-    'puppies_seo_desc'=> 'See every schnauzer puppy available now at Pepper Whisker: photos, price, age, color and parents. Vet checked, microchipped, full papers, delivered from Cincinnati, Ohio.',
-    'puppies_intro'   => "Every schnauzer puppy we have available right now is listed here, with real photos, price, date of birth and both parents. Each one has been raised in our home in {city}, {state}, examined by our veterinarian and is ready for a family that will love them.\n\nFound the one? Choose them in the inquiry form, leave your phone number and email, and add a note. It takes a minute, and we reply {reply_time}.",
+    'tagline'         => 'Miniature schnauzer puppies, raised in Cincinnati and delivered to your door',
+    'hero_title'      => 'Miniature schnauzer puppies for sale, delivered to your door',
+    'hero_lede'       => 'Healthy, family-raised miniature schnauzers from Cincinnati, Ohio. Every puppy comes vet checked, with age-appropriate shots, a microchip, starter food and full registration papers, backed by a written health guarantee.',
+    'home_seo_title'  => 'Miniature Schnauzer Puppies for Sale | Pepper Whisker',
+    'home_seo_desc'   => 'Miniature schnauzer puppies for sale from Pepper Whisker: AKC and APRI registered, vet checked, shots, microchip, all documents. Delivered to your door.',
+    'puppies_title'   => 'Miniature Schnauzer Puppies for Sale',
+    'puppies_seo_title'=> 'Miniature Schnauzer Puppies for Sale Near You | Pepper Whisker',
+    'puppies_seo_desc'=> 'Mini schnauzer puppies for sale now: salt and pepper, black and silver and black, with photos, price and ready date. Vet checked, all documents, delivered.',
+    'puppies_intro'   => "Every miniature schnauzer puppy we have available right now is listed here, with real photos, price, date of birth and both parents. Each one has been raised in our home in {city}, {state}, examined by our veterinarian and is ready for a family that will love them.\n\nFound the one? Choose them in the inquiry form, leave your phone number and email, and add a note. It takes a minute, and we reply {reply_time}.",
     'parents_intro'   => "Good puppies start with good parents. These are the adult schnauzers behind our litters: their registration, health testing, size and temperament. Ask us about any of them.",
     'litters_intro'   => "Our schnauzers have litters a few times a year, and the best puppies often go to families who are already on our waitlist. Join it below and we'll email you the moment a new litter is born, before the puppies are posted publicly.",
     'reviews_intro'   => "What families say after their Pepper Whisker puppy comes home. Every review here is from a real buyer and is published with their permission.",
@@ -50,7 +50,7 @@ return [
     'smtp_host'       => '', 'smtp_port' => '', 'smtp_secure' => 'tls', 'smtp_user' => '', 'smtp_pass' => '',
     'alert_phone'     => '', 'alert_sms_email' => '', 'twilio_sid' => '', 'twilio_token' => '', 'twilio_from' => '',
     'pretty_urls'     => false, 'pretty_auto' => false,
-    'content_version' => 1,   /* see site_load(): changes applied once to sites installed earlier */
+    'content_version' => 2,   /* see site_load(): changes applied once to sites installed earlier */
   ],
 
   /* delivery options and prices (Admin → Delivery). Times count from when the puppy leaves us. */
