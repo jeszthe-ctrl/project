@@ -50,7 +50,7 @@ return [
     'smtp_host'       => '', 'smtp_port' => '', 'smtp_secure' => 'tls', 'smtp_user' => '', 'smtp_pass' => '',
     'alert_phone'     => '', 'alert_sms_email' => '', 'twilio_sid' => '', 'twilio_token' => '', 'twilio_from' => '',
     'pretty_urls'     => false, 'pretty_auto' => false,
-    'content_version' => 6,   /* see site_load(): changes applied once to sites installed earlier */
+    'content_version' => 7,   /* see site_load(): changes applied once to sites installed earlier */
   ],
 
   /* delivery options and prices (Admin → Delivery). Times count from when the puppy leaves us. */
@@ -416,7 +416,7 @@ Choose your puppy in the inquiry form, leave your phone number and email, and ad
 We are delivery-only: every puppy is delivered to your door from {city}, {state}.
 
 ### How much does delivery cost?
-{delivery_options}. You see the price in the inquiry form as soon as you choose your state. See [puppy delivery](/puppy-delivery).
+{delivery_options}. We confirm your option and its price with you in writing. See [puppy delivery](/puppy-delivery).
 
 ### What comes with my puppy?
 A veterinarian health check, age-appropriate shots, a microchip, starter food, full registration papers and our written health guarantee. See [what's included](/whats-included).
