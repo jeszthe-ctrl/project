@@ -655,24 +655,6 @@ function guides_tabs(){
   <?php return ob_get_clean();
 }
 
-/* the hero's "find your puppy" box */
-function puppy_finder($avail){
-  global $CFG;
-  $colors = array_values(array_unique(array_filter(array_map(fn($p)=>ucwords(strtolower(trim($p['color']))), $avail))));
-  ob_start(); ?>
-  <form class="finder" method="get" action="<?= h(url(PUPPIES_PATH)) ?>" role="search" aria-label="Find your puppy">
-    <?php if(empty($CFG['pretty_urls'])): ?><input type="hidden" name="path" value="<?= h(PUPPIES_PATH) ?>"><?php endif; ?>
-    <p class="finder-t"><?= icon('paw') ?> Find your dachshund <span class="finder-n"><?= count($avail) ? count($avail).' available' : 'New litters soon' ?></span></p>
-    <div class="finder-row">
-      <label><span>Size</span><select name="size"><option value="">Any size</option><option value="miniature">Miniature</option><option value="tweenie">Tweenie</option><option value="standard">Standard</option></select></label>
-      <label><span>Boy or girl</span><select name="sex"><option value="">Either</option><option value="female">Girl</option><option value="male">Boy</option></select></label>
-      <?php if(count($colors) > 1): ?><label><span>Color</span><select name="color"><option value="">Any color</option><?php foreach($colors as $c): ?><option><?= h($c) ?></option><?php endforeach; ?></select></label><?php endif; ?>
-    </div>
-    <button class="btn btn-block btn-lg" type="submit">Show puppies <?= icon('arrow') ?></button>
-  </form>
-  <?php return ob_get_clean();
-}
-
 function view_home(){
   global $SITE, $CFG;
   $avail = array_merge(puppies_with('available'), puppies_with('reserved'));
