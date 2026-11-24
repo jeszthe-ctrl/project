@@ -33,7 +33,7 @@ return [
     'hero_title'      => 'Miniature schnauzer puppies for sale, delivered to your door',
     'hero_lede'       => 'Healthy, family-raised miniature schnauzers from Cincinnati, Ohio. Every puppy comes vet checked, with age-appropriate shots, a microchip, starter food and full registration papers, backed by a written health guarantee.',
     'home_seo_title'  => 'Miniature Schnauzer Puppies for Sale | Pepper Whisker',
-    'home_seo_desc'   => 'Miniature schnauzer puppies for sale from Pepper Whisker: AKC and APRI registered, vet checked, shots, microchip, all documents. Delivered to your door.',
+    'home_seo_desc'   => 'Miniature schnauzer puppies for sale from Pepper Whisker: vet checked, shots, microchip, all documents and a written health guarantee. Delivered to your door.',
     'puppies_title'   => 'Miniature Schnauzer Puppies for Sale',
     'puppies_seo_title'=> 'Miniature Schnauzer Puppies for Sale Near You | Pepper Whisker',
     'puppies_seo_desc'=> 'Mini schnauzer puppies for sale now: salt and pepper, black and silver and black, with photos, price and ready date. Vet checked, all documents, delivered.',
@@ -50,7 +50,7 @@ return [
     'smtp_host'       => '', 'smtp_port' => '', 'smtp_secure' => 'tls', 'smtp_user' => '', 'smtp_pass' => '',
     'alert_phone'     => '', 'alert_sms_email' => '', 'twilio_sid' => '', 'twilio_token' => '', 'twilio_from' => '',
     'pretty_urls'     => false, 'pretty_auto' => false,
-    'content_version' => 2,   /* see site_load(): changes applied once to sites installed earlier */
+    'content_version' => 3,   /* see site_load(): changes applied once to sites installed earlier */
   ],
 
   /* delivery options and prices (Admin → Delivery). Times count from when the puppy leaves us. */

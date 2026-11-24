@@ -363,38 +363,47 @@ return array (
     'tagline' => 
     array (
       0 => '76358125e75da83da6ae489b419f1fba',
+      1 => '579820bdf2f74205844c07b35143934c',
     ),
     'hero_title' => 
     array (
       0 => '5338ac2a5ad5ccd0da3365d2b9888e06',
+      1 => '5649a3761c24fe297e99b0cf646e70d1',
     ),
     'hero_lede' => 
     array (
       0 => 'd18e2170c037b500925c15895f860f7a',
+      1 => '2a44ba5ef01b11f22456aa8f49adb3ac',
     ),
     'home_seo_title' => 
     array (
       0 => 'dc519f17b4ddfac9c33843ccd4ea9d1a',
+      1 => 'b46c2cf43c1c8d25c846e5412e95cadb',
     ),
     'home_seo_desc' => 
     array (
       0 => '9357e564976bf161df7b2d443785a3da',
+      1 => '76666ea78382e9b2e3679dcd1906cbb8',
     ),
     'puppies_title' => 
     array (
       0 => 'edeec2c4b8148a54565884f67182e8aa',
+      1 => 'f437e1f5dfff84c637f4c43d92a15eff',
     ),
     'puppies_seo_title' => 
     array (
       0 => '8027f9f0be8ca9c64bbc4b9e58ec3118',
+      1 => 'b16b156dcf558fc7596992f42c6f267e',
     ),
     'puppies_seo_desc' => 
     array (
       0 => '5245a93b6a62b8f65127ecc772dd6849',
+      1 => '9ba49ab18d62e1043934da5b0f00df7d',
     ),
     'puppies_intro' => 
     array (
       0 => 'a1a9b4612bf60240b0a05f9c34a5db19',
+      1 => '2fdbfe6862166ebfbb03aefd27597dbd',
     ),
     'parents_intro' => 
     array (

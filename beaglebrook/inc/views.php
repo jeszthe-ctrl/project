@@ -564,7 +564,7 @@ function view_home(){
   </div></section>
 
   <section class="sec wrap" id="puppies">
-    <div class="sec-h"><h2>Beagle puppies available now</h2><a href="<?= h(url(PUPPIES_PATH)) ?>">See all <?= count($avail) ?: '' ?> puppies <?= icon('arrow') ?></a></div>
+    <div class="sec-h"><h2>Beagle puppies available now</h2><a href="<?= h(url(PUPPIES_PATH)) ?>">See all <?= count($avail) > 1 ? count($avail).' ' : '' ?>puppies <?= icon('arrow') ?></a></div>
     <?php if($avail): ?><p class="muted sec-sub">Tap <strong>Proceed now</strong> on any puppy to choose them, or <strong>Details</strong> for all their photos, papers and parents.</p><?php endif; ?>
     <?= puppies_block($avail, 9) ?>
     <?php if(count($avail) > 9): ?><p class="center"><a class="btn btn-lg btn-ghost" href="<?= h(url(PUPPIES_PATH)) ?>">See all <?= count($avail) ?> beagle puppies <?= icon('arrow') ?></a></p><?php endif; ?>
