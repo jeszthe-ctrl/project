@@ -311,8 +311,9 @@ if($page === 'unsubscribe'){
 $brand = $CFG['brand'];
 $crumbs = [['Home', '']];
 $title = $desc = $h1 = ''; $canonical = abs_url($PATH); $noindex = false; $og_type = 'website'; $og_image = ''; $lang = 'en';
-$filters = ['sex'=>(string)($_GET['sex'] ?? ''), 'color'=>trim((string)($_GET['color'] ?? ''))];
+$filters = ['sex'=>(string)($_GET['sex'] ?? ''), 'color'=>trim((string)($_GET['color'] ?? '')), 'size'=>(string)($_GET['size'] ?? '')];
 if(!in_array($filters['sex'], ['', 'male', 'female'], true)) $filters['sex'] = '';
+if(!in_array($filters['size'], ['', 'standard', 'tweenie', 'miniature'], true)) $filters['size'] = '';
 
 switch($page){
   case 'home':
@@ -321,7 +322,7 @@ switch($page){
   case 'puppies':
     $title = fill($CFG['puppies_seo_title']); $desc = fill($CFG['puppies_seo_desc']); $h1 = fill($CFG['puppies_title']);
     $crumbs[] = [$h1, PUPPIES_PATH]; $canonical = abs_url(PUPPIES_PATH);
-    if($filters['sex'] !== '' || $filters['color'] !== '') $noindex = true;
+    if($filters['sex'] !== '' || $filters['color'] !== '' || $filters['size'] !== '') $noindex = true;
     break;
   case 'location':
     [$sname, $scities] = states()[$loc];

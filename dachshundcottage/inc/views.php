@@ -425,10 +425,8 @@ function render_page(){
 <header class="site-h">
   <div class="wrap hrow">
     <a class="brand" href="./" aria-label="<?= h($CFG['brand']) ?> home"><?= logo_svg() ?><span class="brand-t"><?= h($CFG['brand']) ?><small>Purebred dachshund puppies</small></span></a>
-    <button class="navbtn" type="button" aria-expanded="false" aria-controls="nav"><?= icon('menu') ?><span>Menu</span></button>
-    <nav id="nav" class="nav" aria-label="Main">
-      <?php foreach(nav_items() as [$path, $label]): ?><a href="<?= h(url($path)) ?>"<?= $PATH === $path || ($path === PUPPIES_PATH && $page === 'puppy') || ($path === 'guides' && $page === 'article') ? ' aria-current="page"' : '' ?>><?= h($label) ?></a><?php endforeach; ?>
-    </nav>
+    <button class="navbtn" type="button" aria-expanded="false" aria-controls="nav"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span>Menu</span></button>
+    <?= mega_nav() ?>
     <a class="btn btn-sm hcta" href="<?= h(url(PUPPIES_PATH)) ?>">Find your puppy</a>
   </div>
 </header>
@@ -453,10 +451,30 @@ function render_page(){
 <script>
 (function(){
 var d=document,b=d.querySelector('.navbtn'),n=d.getElementById('nav');
-if(b)b.addEventListener('click',function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o)});
+if(b)b.addEventListener('click',function(){drawer(!n.classList.contains('open'))});
 d.querySelectorAll('[data-gal]').forEach(function(t){t.addEventListener('click',function(){var m=d.getElementById('gal-main');if(!m)return;m.innerHTML=t.querySelector('template').innerHTML;d.querySelectorAll('[data-gal]').forEach(function(x){x.removeAttribute('aria-current')});t.setAttribute('aria-current','true')})});
 d.querySelectorAll('form.form').forEach(function(f){f.addEventListener('submit',function(){var s=f.querySelector('[type=submit]');setTimeout(function(){s.disabled=true;s.textContent='Sending…'},10)})});
 var bad=d.querySelector('.f-bad input,.f-bad select,.f-bad textarea');if(bad)bad.focus();
+/* main menu: dropdowns open on hover (desktop) or click/keyboard; on phones the menu is a drawer */
+var wide=window.matchMedia('(min-width:1080px)'),items=d.querySelectorAll('.nav-item.has-menu'),scrim=d.querySelector('.nav-scrim'),hov;
+function closeAll(ex){items.forEach(function(it){if(it!==ex){it.classList.remove('open');it.querySelector('.nav-top').setAttribute('aria-expanded','false')}})}
+items.forEach(function(it){var b=it.querySelector('.nav-top');
+b.addEventListener('click',function(){var o=!it.classList.contains('open');closeAll(it);it.classList.toggle('open',o);b.setAttribute('aria-expanded',o)});
+it.addEventListener('mouseenter',function(){if(!wide.matches)return;clearTimeout(hov);hov=setTimeout(function(){closeAll(it);it.classList.add('open');b.setAttribute('aria-expanded','true')},90)});
+it.addEventListener('mouseleave',function(){if(!wide.matches)return;clearTimeout(hov);hov=setTimeout(function(){it.classList.remove('open');b.setAttribute('aria-expanded','false')},180)})});
+d.addEventListener('click',function(e){if(wide.matches&&!e.target.closest('.nav-item'))closeAll()});
+function drawer(o){n.classList.toggle('open',o);b&&b.setAttribute('aria-expanded',o);if(scrim)scrim.hidden=!o;d.body.classList.toggle('nav-open',o)}
+var nc=d.querySelector('.navclose');if(nc)nc.addEventListener('click',function(){drawer(false)});if(scrim)scrim.addEventListener('click',function(){drawer(false)});
+d.addEventListener('keydown',function(e){if(e.key==='Escape'){var o=d.querySelector('.nav-item.open .nav-top');closeAll();drawer(false);if(o)o.focus()}});
+/* header shadow and back-to-top */
+var hd=d.querySelector('.site-h'),top=d.createElement('button');top.className='totop';top.type='button';top.setAttribute('aria-label','Back to top');top.innerHTML='&uarr;';d.body.appendChild(top);
+top.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})});
+var onS=function(){var y=window.scrollY;if(hd)hd.classList.toggle('scrolled',y>8);top.classList.toggle('show',y>900)};window.addEventListener('scroll',onS,{passive:true});onS();
+/* guide tabs */
+d.querySelectorAll('.gtabs-sec').forEach(function(sec){var tabs=sec.querySelectorAll('[role=tab]'),ps=sec.querySelectorAll('[role=tabpanel]');
+ps.forEach(function(p){p.hidden=p.getAttribute('data-first')!=='1'});
+tabs.forEach(function(t,i){t.addEventListener('click',function(){tabs.forEach(function(x){x.setAttribute('aria-selected','false')});t.setAttribute('aria-selected','true');ps.forEach(function(p){p.hidden=p.id!==t.getAttribute('aria-controls')})});
+t.addEventListener('keydown',function(e){var k=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;if(k){var nx=tabs[(i+k+tabs.length)%tabs.length];nx.focus();nx.click()}})})});
 /* choosing a dog: the form shows the chosen puppy; "Inquire" on a card picks it in this page's form */
 var sel=d.querySelector('select[data-pickbox]');
 function showPick(){var box=sel.form.querySelector('.pickbox'),o=sel.options[sel.selectedIndex];if(!box)return;if(!o||!o.value){box.hidden=true;return}
@@ -539,6 +557,106 @@ function inquiry_section($sel=null, $title='', $band=true){
   <?php return ob_get_clean();
 }
 
+/* the main menu: dropdowns on desktop (hover or click, keyboard friendly), a slide-in drawer with
+   expanding sections on phones. Built from the puppies, guide groups and pages on the site. */
+function mega_nav(){
+  global $PATH, $page, $CFG;
+  $avail = count(array_merge(puppies_with('available'), puppies_with('reserved')));
+  $chev = '<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+  $item = function($path, $label, $sub='') { return '<a class="mi" href="'.h(url($path)).'"><span>'.h($label).'</span>'.($sub !== '' ? '<small>'.h($sub).'</small>' : '').'</a>'; };
+  $pages = []; foreach(['health-guarantee', 'health-testing', 'how-we-raise-our-puppies', 'whats-included', 'puppy-delivery', 'is-dachshund-cottage-legit', 'about', 'faq'] as $s) if($pg = info_page($s)) $pages[$s] = $pg;
+  $guides = articles_of('guide');
+  $groups = ['breed'=>'The breed', 'coats'=>'Coats', 'colors'=>'Colors', 'care'=>'Care & health'];
+  $prio = ['miniature-dachshund', 'dachshund-dog-breed', 'standard-dachshund', 'dachshund-sizes', 'dachshund-lifespan', 'long-haired-dachshund', 'mini-long-haired-dachshund', 'wirehaired-dachshund', 'smooth-dachshund',
+           'dapple-dachshund', 'piebald-dachshund', 'english-cream-dachshund', 'dachshund-colors', 'dachshund-back-problems-ivdd', 'dachshund-puppy-care', 'best-dog-food-for-dachshunds', 'dachshund-training'];
+  usort($guides, fn($a, $b)=>((array_search($a['slug'], $prio) === false ? 99 : array_search($a['slug'], $prio)) <=> (array_search($b['slug'], $prio) === false ? 99 : array_search($b['slug'], $prio))));
+  $cur = fn($test)=>$test ? ' aria-current="page"' : '';
+  ob_start(); ?>
+  <nav id="nav" class="nav" aria-label="Main">
+    <div class="nav-head"><strong><?= h($CFG['brand']) ?></strong><button class="navclose" type="button" aria-label="Close menu">&times;</button></div>
+    <div class="nav-item has-menu">
+      <button class="nav-top" type="button" aria-expanded="false" aria-controls="m-pups"<?= $cur($PATH === PUPPIES_PATH || $page === 'puppy') ?>>Puppies<?= $chev ?></button>
+      <div class="menu" id="m-pups"><div class="wrap menu-in menu-3">
+        <div class="menu-col"><p class="menu-h">Find your puppy</p>
+          <?= $item(PUPPIES_PATH, 'Dachshund puppies for sale', $avail ? $avail.' available now, with photos and prices' : 'Every available puppy, with prices') ?>
+          <?= $item('upcoming-litters', 'Upcoming litters & waitlist', 'Hear about new puppies first') ?>
+          <?= $item('our-dachshunds', 'Meet the parents', 'Registration and health details') ?>
+          <?= $item('how-it-works', 'How it works', 'From inquiry to delivery day') ?>
+        </div>
+        <div class="menu-col"><p class="menu-h">Delivered to your state</p><div class="menu-states">
+          <?php foreach(array_slice(array_keys(locations_on()), 0, 10) as $c): ?><a href="<?= h(location_url($c)) ?>"><?= h(states()[$c][0]) ?></a><?php endforeach; ?>
+          <a href="<?= h(url('puppy-delivery')) ?>"><strong>All delivery details</strong></a></div>
+        </div>
+        <div class="menu-feature"><?= logo_svg('mf-logo') ?><p class="mf-t">Ready to choose?</p><p>Pick your puppy and press <strong>Proceed now</strong>. It takes a minute.</p><a class="btn btn-sm" href="<?= h(url(PUPPIES_PATH)) ?>">See puppies</a></div>
+      </div></div>
+    </div>
+    <div class="nav-item has-menu">
+      <button class="nav-top" type="button" aria-expanded="false" aria-controls="m-guides"<?= $cur($PATH === 'guides' || $page === 'article') ?>>Dachshund guides<?= $chev ?></button>
+      <div class="menu" id="m-guides"><div class="wrap menu-in menu-4">
+        <?php foreach($groups as $g=>$label): $list = array_slice(array_values(array_filter($guides, fn($a)=>$a['group'] === $g)), 0, 5); if(!$list) continue; ?>
+        <div class="menu-col"><p class="menu-h"><?= h($label) ?></p><?php foreach($list as $a): ?><a class="mi mi-s" href="<?= h(url(article_path($a))) ?>"><span><?= h(short_title($a['title'])) ?></span></a><?php endforeach; ?></div>
+        <?php endforeach; ?>
+        <div class="menu-foot"><a href="<?= h(url('guides')) ?>">All <?= count($guides) ?> dachshund guides →</a><a href="<?= h(url('blog')) ?>">Blog →</a></div>
+      </div></div>
+    </div>
+    <div class="nav-item has-menu">
+      <button class="nav-top" type="button" aria-expanded="false" aria-controls="m-why"<?= $cur(isset($pages[$PATH]) || $PATH === 'reviews') ?>>Why us<?= $chev ?></button>
+      <div class="menu" id="m-why"><div class="wrap menu-in menu-3">
+        <div class="menu-col"><p class="menu-h">Our promise</p>
+          <?php foreach(['health-guarantee'=>'Every guarantee, in writing', 'health-testing'=>'How we look after our dogs', 'how-we-raise-our-puppies'=>'From birth to going home', 'whats-included'=>'Vet check, shots, chip, documents'] as $s=>$sub) if(isset($pages[$s])) echo $item($s, $pages[$s]['menu'] ?: $pages[$s]['title'], $sub); ?>
+        </div>
+        <div class="menu-col"><p class="menu-h">Buy with confidence</p>
+          <?php foreach(['is-dachshund-cottage-legit'=>'How to check any breeder', 'puppy-delivery'=>'Express and standard delivery', 'faq'=>'Answers to common questions', 'about'=>'The people behind our puppies'] as $s=>$sub) if(isset($pages[$s])) echo $item($s, $pages[$s]['menu'] ?: $pages[$s]['title'], $sub); ?>
+          <?= $item('reviews', 'Reviews', 'What our families say') ?>
+        </div>
+        <div class="menu-feature"><?= icon('shield', 'ic mf-ic') ?><p class="mf-t"><?= h(fill('{genetic_year}')) ?> health guarantee</p><p>Vet checked, vaccinated and microchipped, with all documents, including names.</p><a class="btn btn-sm btn-ghost" href="<?= h(url('health-guarantee')) ?>">Read the guarantee</a></div>
+      </div></div>
+    </div>
+    <a class="nav-link" href="<?= h(url('contact')) ?>"<?= $cur($PATH === 'contact') ?>>Contact</a>
+    <a class="btn nav-cta" href="<?= h(url(PUPPIES_PATH)) ?>">Find your puppy</a>
+  </nav>
+  <div class="nav-scrim" hidden></div>
+  <?php return ob_get_clean();
+}
+
+/* the home page's guide shelf: one tab per topic */
+function guides_tabs(){
+  $tabs = ['breed'=>['The breed', ['miniature-dachshund', 'dachshund-dog-breed', 'dachshund-sizes', 'dachshund-temperament']],
+           'coats'=>['Coats', ['long-haired-dachshund', 'mini-long-haired-dachshund', 'wirehaired-dachshund', 'smooth-dachshund']],
+           'colors'=>['Colors', ['dapple-dachshund', 'piebald-dachshund', 'english-cream-dachshund', 'dachshund-colors']],
+           'care'=>['Care & health', ['dachshund-back-problems-ivdd', 'dachshund-puppy-care', 'best-dog-food-for-dachshunds', 'dachshund-training']]];
+  $all = array_column(articles_of('guide'), null, 'slug');
+  ob_start(); ?>
+  <section class="sec band gtabs-sec"><div class="wrap">
+    <div class="sec-h"><h2>Thinking about a dachshund? Start here</h2><a href="<?= h(url('guides')) ?>">All guides <?= icon('arrow') ?></a></div>
+    <div class="gtabs" role="tablist" aria-label="Guide topics">
+      <?php $i = 0; foreach($tabs as $k=>[$label]): ?><button type="button" role="tab" id="gt-<?= $k ?>" aria-controls="gp-<?= $k ?>" aria-selected="<?= $i++ ? 'false' : 'true' ?>"><?= h($label) ?></button><?php endforeach; ?>
+    </div>
+    <?php $i = 0; foreach($tabs as $k=>[$label, $slugs]): ?>
+    <div class="gpanel" role="tabpanel" id="gp-<?= $k ?>" aria-labelledby="gt-<?= $k ?>" data-first="<?= $i++ ? '0' : '1' ?>"><div class="agrid"><?php foreach($slugs as $s) if(isset($all[$s])) echo article_card($all[$s]); ?></div></div>
+    <?php endforeach; ?>
+  </div></section>
+  <?php return ob_get_clean();
+}
+
+/* the hero's "find your puppy" box */
+function puppy_finder($avail){
+  global $CFG;
+  $colors = array_values(array_unique(array_filter(array_map(fn($p)=>ucwords(strtolower(trim($p['color']))), $avail))));
+  ob_start(); ?>
+  <form class="finder" method="get" action="<?= h(url(PUPPIES_PATH)) ?>" role="search" aria-label="Find your puppy">
+    <?php if(empty($CFG['pretty_urls'])): ?><input type="hidden" name="path" value="<?= h(PUPPIES_PATH) ?>"><?php endif; ?>
+    <p class="finder-t"><?= icon('paw') ?> Find your dachshund <span class="finder-n"><?= count($avail) ? count($avail).' available' : 'New litters soon' ?></span></p>
+    <div class="finder-row">
+      <label><span>Size</span><select name="size"><option value="">Any size</option><option value="miniature">Miniature</option><option value="tweenie">Tweenie</option><option value="standard">Standard</option></select></label>
+      <label><span>Boy or girl</span><select name="sex"><option value="">Either</option><option value="female">Girl</option><option value="male">Boy</option></select></label>
+      <?php if(count($colors) > 1): ?><label><span>Color</span><select name="color"><option value="">Any color</option><?php foreach($colors as $c): ?><option><?= h($c) ?></option><?php endforeach; ?></select></label><?php endif; ?>
+    </div>
+    <button class="btn btn-block btn-lg" type="submit">Show puppies <?= icon('arrow') ?></button>
+  </form>
+  <?php return ob_get_clean();
+}
+
 function view_home(){
   global $SITE, $CFG;
   $avail = array_merge(puppies_with('available'), puppies_with('reserved'));
@@ -550,7 +668,7 @@ function view_home(){
   foreach($avail as $p) if(!empty($p['photos'][0]) && !is_stream_img($p['photos'][0]) && count($shots) < 3) $shots[] = [$p['photos'][0], $p['name'].', '.strtolower(puppy_kind($p))];
   if(!$shots) foreach($avail as $p) if(!empty($p['photos'][0]) && count($shots) < 1) $shots[] = [$p['photos'][0], $p['name'].', '.strtolower(puppy_kind($p))];
   ?>
-  <section class="hero"><div class="wrap hero-in">
+  <section class="hero hero-v2"><div class="hero-bg" aria-hidden="true"></div><div class="wrap hero-in">
     <div class="hero-t">
       <p class="eyebrow"><?= h($CFG['brand']) ?> · Purebred dachshund puppies</p>
       <h1><?= h(fill($CFG['hero_title'])) ?></h1>
@@ -558,8 +676,11 @@ function view_home(){
       <div class="cta-row"><a class="btn btn-lg" href="#puppies">Choose your puppy <?= icon('arrow') ?></a><a class="btn btn-lg btn-ghost" href="#inquire">Proceed now</a></div>
       <ul class="ticks"><li><?= icon('check') ?>Vet checked</li><li><?= icon('check') ?>Shots &amp; microchip</li><li><?= icon('check') ?>All documents, with names</li><li><?= icon('check') ?>Written health guarantee</li><li><?= icon('check') ?>Delivered to your door</li></ul>
     </div>
-    <?php if($shots): ?><div class="hero-ph"><?= img_tag($shots[0][0], $shots[0][1], '(max-width:900px) 92vw, 480px', true) ?></div>
-    <?php else: ?><div class="hero-card"><?= logo_svg('hero-logo') ?><p><strong><?= h($CFG['brand']) ?></strong><br>Dachshund puppies, raised with care</p></div><?php endif; ?>
+    <div class="hero-side">
+      <?php if($shots): ?><div class="hero-ph"><?= img_tag($shots[0][0], $shots[0][1], '(max-width:900px) 92vw, 480px', true) ?></div><?php endif; ?>
+      <?= puppy_finder($avail) ?>
+      <div class="hero-badges"><span><?= icon('shield') ?>Vet checked</span><span><?= icon('doc') ?>All documents</span><span><?= icon('truck') ?>Delivered</span></div>
+    </div>
   </div></section>
 
   <section class="sec wrap" id="puppies">
@@ -567,6 +688,17 @@ function view_home(){
     <?php if($avail): ?><p class="muted sec-sub">Tap <strong>Proceed now</strong> on any puppy to choose them, or <strong>Details</strong> for all their photos, papers and parents.</p><?php endif; ?>
     <?= puppies_block($avail, 9) ?>
     <?php if(count($avail) > 9): ?><p class="center"><a class="btn btn-lg btn-ghost" href="<?= h(url(PUPPIES_PATH)) ?>">See all <?= count($avail) ?> dachshund puppies <?= icon('arrow') ?></a></p><?php endif; ?>
+  </section>
+
+  <section class="sec wrap browse" aria-label="Browse dachshunds">
+    <div class="sec-h"><h2>Browse by size and coat</h2></div>
+    <div class="tiles">
+      <a class="tile t-mini" href="<?= h(url(PUPPIES_PATH, ['size'=>'miniature'])) ?>"><span class="tile-k">Puppies</span><strong>Miniature</strong><small>11 lb and under</small><span class="tile-go"><?= icon('arrow') ?></span></a>
+      <a class="tile t-std" href="<?= h(url(PUPPIES_PATH, ['size'=>'standard'])) ?>"><span class="tile-k">Puppies</span><strong>Standard</strong><small>16–32 lb</small><span class="tile-go"><?= icon('arrow') ?></span></a>
+      <a class="tile t-long" href="<?= h(url('guides/long-haired-dachshund')) ?>"><span class="tile-k">Guide</span><strong>Long-haired</strong><small>Silky, gentle, feathered</small><span class="tile-go"><?= icon('arrow') ?></span></a>
+      <a class="tile t-wire" href="<?= h(url('guides/wirehaired-dachshund')) ?>"><span class="tile-k">Guide</span><strong>Wirehaired</strong><small>Bearded and low-shedding</small><span class="tile-go"><?= icon('arrow') ?></span></a>
+      <a class="tile t-dapple" href="<?= h(url('guides/dapple-dachshund')) ?>"><span class="tile-k">Guide</span><strong>Dapple</strong><small>Marbled and striking</small><span class="tile-go"><?= icon('arrow') ?></span></a>
+    </div>
   </section>
 
   <section class="wrap easy3 easy3-after" aria-label="How to get your puppy">
@@ -612,7 +744,7 @@ function view_home(){
 
   <?= home_knowledge() ?>
 
-  <?= guide_links(['dachshund-dog-breed', 'miniature-dachshund', 'long-haired-dachshund', 'dachshund-back-problems-ivdd', 'how-to-find-a-dachshund-breeder', 'dachshund-puppy-care'], 'Thinking about a dachshund? Start here') ?>
+  <?= guides_tabs() ?>
 
   <section class="sec band" id="waitlist-cta"><div class="wrap waitcta">
     <div><h2>Don’t see your puppy yet?</h2><p>New litters go to our waitlist first. Join free and we’ll email you the moment puppies are born.</p></div>
@@ -675,6 +807,7 @@ function view_puppies(){
   $all = public_puppies();
   $list = array_values(array_filter($all, fn($p)=>$p['status'] !== 'sold'
     && ($filters['sex'] === '' || $p['sex'] === $filters['sex'])
+    && ($filters['size'] === '' || ($p['size'] ?? '') === $filters['size'])
     && ($filters['color'] === '' || stripos($p['color'], $filters['color']) !== false)));
   usort($list, fn($a, $b)=>(($a['status'] === 'available') <=> ($b['status'] === 'available')) * -1 ?: strcmp($b['created'] ?? '', $a['created'] ?? ''));
   $sold = array_slice(array_values(array_filter($all, fn($p)=>$p['status'] === 'sold')), 0, 8);
@@ -685,10 +818,11 @@ function view_puppies(){
     <?php if(count($all) > 3): ?>
     <form class="filters" method="get" action="<?= h(url(PUPPIES_PATH)) ?>" role="search" aria-label="Filter puppies">
       <?php if(empty($CFG['pretty_urls'])): ?><input type="hidden" name="path" value="<?= h(PUPPIES_PATH) ?>"><?php endif; ?>
+      <label>Size <select name="size" onchange="this.form.submit()"><option value="">Any</option><?php foreach(['miniature'=>'Miniature', 'tweenie'=>'Tweenie', 'standard'=>'Standard'] as $k=>$l): ?><option value="<?= $k ?>"<?= $filters['size'] === $k ? ' selected' : '' ?>><?= $l ?></option><?php endforeach; ?></select></label>
       <label>Sex <select name="sex" onchange="this.form.submit()"><option value="">Any</option><option value="male"<?= $filters['sex'] === 'male' ? ' selected' : '' ?>>Male</option><option value="female"<?= $filters['sex'] === 'female' ? ' selected' : '' ?>>Female</option></select></label>
       <?php if(count($colors) > 1): ?><label>Color <select name="color" onchange="this.form.submit()"><option value="">Any</option><?php foreach($colors as $c): ?><option<?= strcasecmp($filters['color'], $c) === 0 ? ' selected' : '' ?>><?= h($c) ?></option><?php endforeach; ?></select></label><?php endif; ?>
       <noscript><button class="btn btn-sm">Filter</button></noscript>
-      <?php if($filters['sex'] !== '' || $filters['color'] !== ''): ?><a href="<?= h(url(PUPPIES_PATH)) ?>">Clear filters</a><?php endif; ?>
+      <?php if($filters['sex'] !== '' || $filters['color'] !== '' || $filters['size'] !== ''): ?><a href="<?= h(url(PUPPIES_PATH)) ?>">Clear filters</a><?php endif; ?>
     </form>
     <?php endif; ?>
     <?= puppies_block($list) ?>
