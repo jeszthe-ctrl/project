@@ -326,7 +326,7 @@ switch($page){
     break;
   case 'location':
     [$sname, $scities] = states()[$loc];
-    $h1 = 'Golden retriever puppies for sale in '.$sname; $title = 'Golden retriever Puppies for Sale in '.$sname.' | '.$brand;
+    $h1 = 'Golden retriever puppies for sale in '.$sname; $title = 'Golden Retriever Puppies for Sale in '.$sname.' | '.$brand;
     $desc = 'Golden retriever puppies delivered to '.implode(', ', array_slice($scities, 0, 3)).' and all of '.$sname.' from our home in '.$CFG['city'].', Ohio. Vet checked, microchipped, all documents, health guarantee.';
     $crumbs[] = [fill($CFG['puppies_title']), PUPPIES_PATH]; $crumbs[] = [$sname, PUPPIES_PATH.'/'.state_slug($loc)];
     break;
@@ -344,7 +344,7 @@ switch($page){
     $crumbs[] = ['Our dogs', 'our-dogs'];
     break;
   case 'upcoming-litters':
-    $h1 = 'Upcoming golden retriever litters and waitlist'; $title = 'Upcoming Golden retriever Litters & Puppy Waitlist | '.$brand;
+    $h1 = 'Upcoming golden retriever litters and waitlist'; $title = 'Upcoming Golden Retriever Litters & Puppy Waitlist | '.$brand;
     $desc = 'See planned and newborn Golden Little Wonders litters and join the waitlist to hear about new golden retriever puppies before they are posted publicly.';
     $crumbs[] = ['Upcoming litters', 'upcoming-litters'];
     break;
@@ -354,17 +354,17 @@ switch($page){
     $crumbs[] = ['Reviews', 'reviews'];
     break;
   case 'contact':
-    $h1 = 'Contact Golden Little Wonders'; $title = 'Contact Golden Little Wonders | Golden retriever Breeder in Cincinnati, Ohio';
+    $h1 = 'Contact Golden Little Wonders'; $title = 'Contact Golden Little Wonders | Golden Retriever Breeder in Cincinnati, Ohio';
     $desc = 'Questions about a golden retriever puppy, delivery or the breed? Contact Golden Little Wonders in Cincinnati, Ohio. We reply '.fill('{reply_time}').'.';
     $crumbs[] = ['Contact', 'contact'];
     break;
   case 'guides':
-    $h1 = 'Golden retriever guides'; $title = 'Golden retriever Guides: Breed, Price, Care, Training & Mixes';
+    $h1 = 'Golden retriever guides'; $title = 'Golden Retriever Guides: Breed, Types, Health, Training & Mixes';
     $desc = 'Expert golden retriever guides from a golden retriever breeder: the breed, price, lifespan, colors, training, food, mixes and buying a puppy safely.';
     $crumbs[] = ['Guides', 'guides'];
     break;
   case 'blog':
-    $h1 = 'The Golden Little Wonders blog'; $title = 'Golden retriever Blog: Puppy Tips, Stories & News | '.$brand;
+    $h1 = 'The Golden Little Wonders blog'; $title = 'Golden Retriever Blog: Puppy Tips, Stories & News | '.$brand;
     $desc = 'Golden retriever puppy tips, stories and news from Golden Little Wonders, a golden retriever breeder in Cincinnati, Ohio.';
     $crumbs[] = ['Blog', 'blog'];
     break;

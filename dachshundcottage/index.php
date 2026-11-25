@@ -359,7 +359,7 @@ switch($page){
     $crumbs[] = ['Contact', 'contact'];
     break;
   case 'guides':
-    $h1 = 'Dachshund guides'; $title = 'Dachshund Guides: Breed, Price, Care, Training & Mixes';
+    $h1 = 'Dachshund guides'; $title = 'Dachshund Guides: Sizes, Coats, Back Health, Care & Training';
     $desc = 'Expert dachshund guides from a dachshund breeder: the breed, price, lifespan, colors, training, food, mixes and buying a puppy safely.';
     $crumbs[] = ['Guides', 'guides'];
     break;

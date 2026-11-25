@@ -920,7 +920,7 @@ function view_puppy(){
 
   <div class="card"><details><summary>Search engine &amp; address (optional)</summary>
     <label>Page address<small>golden-retriever-puppies-for-sale/<b>…</b> — made from the name, color and sex if left empty</small><input type="text" name="slug" value="<?= h($p['slug']) ?>"></label>
-    <label>Title for Google<small>Leave empty for “<?= h(($p['name'] ?: 'Name').': Color Sex Golden retriever Puppy for Sale | '.$CFG['brand']) ?>”</small><input type="text" name="seo_title" value="<?= h($p['seo_title']) ?>"></label>
+    <label>Title for Google<small>Leave empty for “<?= h(($p['name'] ?: 'Name').': Color Sex Golden Retriever Puppy for Sale | '.$CFG['brand']) ?>”</small><input type="text" name="seo_title" value="<?= h($p['seo_title']) ?>"></label>
     <label>Description for Google<small>Leave empty to write one from the puppy’s details</small><textarea name="seo_desc" rows="2"><?= h($p['seo_desc']) ?></textarea></label>
   </details>
   <label class="cb"><input type="checkbox" name="hidden" value="1"<?= $p['hidden'] ? ' checked' : '' ?>> Hide from the website</label>
