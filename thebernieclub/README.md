@@ -4,7 +4,7 @@ The website for The Bernie Club, a bernedoodle breeder in Cincinnati, Ohio. Plai
 
 ## What's in it
 
-- **Its own design:** black, white and rust like a Bernese coat, Plus Jakarta Sans with Instrument Serif accents, a tilting "membership card" hero, a stats strip, size bars, a journey rail and colorful guide cards.
+- **Its own design:** a Swiss Alps theme in sky blue, snow white, pine green and Swiss red, Outfit and Source Sans 3, a layered mountain hero that moves as you scroll, sizes drawn as mountain peaks, a zigzag "trail home", a field-guide library with side tabs and a Bernese-face logo.
 - **Home page:** available puppies with filters (girls, boys, micro, mini, medium, standard), "Proceed now" on every puppy, sizes compared, why join the club, how it works, the one-minute inquiry, the guide library, the breed at a glance and buyer questions (with FAQ structured data).
 - **Bernedoodle Puppies for Sale** (`/bernedoodle-puppies-for-sale`) and a page for every puppy, with photos or video stills, price, delivery, ready date, documents and both parents. Puppies without a photo show “Photos coming soon” until one is added.
 - **State delivery pages** (`/bernedoodle-puppies-for-sale/{state}`) for "near me" searches.

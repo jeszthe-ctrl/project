@@ -403,7 +403,7 @@ function render_page(){
 <meta property="og:url" content="<?= h($canonical) ?>">
 <meta property="og:image" content="<?= h($img) ?>">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#161616">
+<meta name="theme-color" content="#1e4f4b">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -412,7 +412,7 @@ function render_page(){
 <?php endif; ?>
 <script>document.documentElement.className+=" js"</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500..800&family=Source+Sans+3:ital,wght@0,400..700;1,400&display=swap">
 <link rel="stylesheet" href="assets/style.css?v=<?= (int)$css_v ?>">
 <?= structured_data() ?>
 <?php if(preg_match('/^G-[A-Z0-9]{4,}$/', $CFG['ga4_id'])): ?>
@@ -422,8 +422,8 @@ function render_page(){
 </head>
 <body class="pg-<?= h($page) ?>">
 <a class="skip" href="#main">Skip to content</a>
-<div class="topbar bc-top"><div class="wrap"><span><?= icon('truck') ?>Delivered to your door</span><span class="hide-sm"><?= icon('shield') ?><?= h(fill('{genetic_year}')) ?> health guarantee</span><span class="hide-sm"><?= icon('doc') ?>All puppy documents available</span></div></div>
-<header class="site-h bc-h">
+<div class="topbar al-top"><div class="wrap"><span><?= icon('truck') ?>Delivered to your door</span><span class="hide-sm"><?= icon('shield') ?><?= h(fill('{genetic_year}')) ?> health guarantee</span><span class="hide-sm"><?= icon('doc') ?>All puppy documents available</span></div></div>
+<header class="site-h al-h">
   <div class="wrap hrow">
     <a class="brand" href="./" aria-label="<?= h($CFG['brand']) ?> home"><?= logo_svg() ?><span class="brand-t"><?= h($CFG['brand']) ?><small>Family-raised bernedoodle puppies</small></span></a>
     <button class="navbtn" type="button" aria-expanded="false" aria-controls="nav"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span>Menu</span></button>
@@ -636,6 +636,21 @@ function mega_nav(){
 }
 
 
+/* the hero's Swiss mountain scene: layered peaks with snow, pine hills and trees (drawn, so it works before any photos) */
+function alpine_scene(){
+  $trees = '';
+  foreach([[40,286],[66,282],[96,284],[128,280],[530,268],[556,264],[586,266],[1150,262],[1178,258],[1206,260],[1238,256],[1270,258],[1380,256],[1404,252]] as [$x, $y])
+    $trees .= '<path d="M'.$x.' '.($y - 30).'l-11 30h22z"/>';
+  return '<svg class="al-scene" viewBox="0 0 1440 360" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">'
+    .'<g class="al-l1" data-depth=".08"><path d="M0 230 120 150l80 40 120-100 100 80 100-50 120 80 120-100 120 80 120-70 120 80 120-70 100 50 100-40v230H0z" fill="#c9dcea"/>'
+    .'<path d="M320 90l-22 24 12-3 10 9 10-10 14 5zM760 100l-20 22 11-3 10 8 9-9 13 4zM1000 110l-18 20 10-2 9 7 8-8 12 4z" fill="#fff"/></g>'
+    .'<g class="al-l2" data-depth=".16"><path d="M0 270l160-90 100 50 140-90 120 100 140-80 140 90 140-100 140 90 140-70 220 80v110H0z" fill="#95b5c8"/>'
+    .'<path d="M400 140l-28 32 16-6 12 12 12-13 16 7zM940 150l-26 30 16-6 12 12 12-13 14 7zM660 160l-22 26 14-5 10 11 10-12 14 6zM1220 170l-20 24 12-4 9 9 9-10 12 5zM160 180l-20 22 12-4 8 9 9-10 11 5z" fill="#fff"/></g>'
+    .'<g class="al-l3" data-depth=".26"><path d="M0 300c200-50 360-20 520-38 180-20 300 38 480 8 160-26 300-2 440-20v110H0z" fill="#3f7468"/><g fill="#2b5b51">'.$trees.'</g>'
+    .'<g transform="translate(860 246)"><path d="M0 26V10L16-2 32 10v16z" fill="#f3e6d3"/><path d="M-4 11 16-6l20 17" fill="none" stroke="#c8372d" stroke-width="5" stroke-linejoin="round"/><rect x="12" y="14" width="8" height="12" fill="#7a4b2a"/></g></g>'
+    .'<path class="al-l4" data-depth=".34" d="M0 330c240-30 480-10 720-18s480 14 720-12v60H0z" fill="#1e4f4b"/></svg>';
+}
+
 function view_home(){
   global $SITE, $CFG;
   $avail = array_merge(puppies_with('available'), puppies_with('reserved'));
@@ -644,143 +659,123 @@ function view_home(){
   $chips = array_filter(['sex:female'=>'Girls', 'sex:male'=>'Boys', 'size:toy'=>'Micro', 'size:mini'=>'Mini', 'size:medium'=>'Medium', 'size:standard'=>'Standard'],
     function($k) use($avail){ [$f, $v] = explode(':', $k); return (bool)array_filter($avail, fn($p)=>($p[$f] ?? '') === $v); }, ARRAY_FILTER_USE_KEY);
   $n = count($avail);
-  /* the card photo: the owner's own photo, else the first available puppy with a photo */
-  $photo = $CFG['hero_photo'] !== '' && is_file(BB_ROOT.'/'.$CFG['hero_photo']) ? [$CFG['hero_photo'], 'Bernedoodle puppies at '.$CFG['brand']] : null;
-  if(!$photo) foreach($avail as $p) if(!empty($p['photos'][0])){ $photo = [$p['photos'][0], $p['name'].', '.strtolower(puppy_kind($p))]; break; }
-  $sizes = [
-    ['toy', 'Micro', '10–25 lb', '12–17 in', 'Apartments and smaller homes', 'micro-bernedoodle', 34],
-    ['mini', 'Mini', '25–50 lb', '18–22 in', 'Most families; the most popular size', 'mini-bernedoodle', 56],
-    ['medium', 'Medium', '50–70 lb', '20–24 in', 'Active families with a yard', 'bernedoodle-size', 76],
-    ['standard', 'Standard', '70–90+ lb', '23–29 in', 'Big-dog lovers with space', 'standard-bernedoodle', 100],
+  $peaks = [['Micro', '10–25 lb', 'Small homes and apartments', 'micro-bernedoodle', 38], ['Mini', '25–50 lb', 'Most families; most popular', 'mini-bernedoodle', 58],
+            ['Medium', '50–70 lb', 'Active families with a yard', 'bernedoodle-size', 78], ['Standard', '70–90+ lb', 'Big-dog lovers with space', 'standard-bernedoodle', 100]];
+  $camp = [
+    ['home', 'Raised in our home', 'Every puppy grows up in the middle of family life in '.$CFG['city'].', handled and loved every day, so they arrive calm and confident.', 'how-we-raise-our-puppies'],
+    ['heart', 'Health-checked parents', 'Both parents are listed on every puppy’s page, with their health details. Ask us for anything you’d like to see.', 'health-testing'],
+    ['shield', 'Guarantees in writing', fill('A {vet_check_hour} vet check guarantee, a {genetic_year} genetic health guarantee and a lifetime take-back promise.'), 'health-guarantee'],
   ];
-  $club = [
-    ['home', 'Raised in our home', 'Puppies grow up in the middle of family life in '.$CFG['city'].', handled every day.', 'how-we-raise-our-puppies'],
-    ['heart', 'Health-checked parents', 'Both parents listed on every puppy page, with their health details.', 'health-testing'],
-    ['shield', 'Guarantees in writing', fill('{vet_check_hour} vet check and {genetic_year} genetic health guarantee.'), 'health-guarantee'],
-    ['doc', 'All documents, with names', 'Health record, vaccinations, microchip details and papers.', 'whats-included'],
-    ['truck', 'Delivered to your door', 'Express within 24 hours or Standard in 2–5 days.', 'puppy-delivery'],
-    ['chat', 'Lifetime club support', 'Questions about feeding, training or grooming? Ask us any time.', 'about'],
-  ];
-  $journey = [['Choose', 'Pick your puppy from real photos, price and parents.'], ['Proceed now', 'Leave your phone and email. One minute.'],
-              ['Talk', 'We reply '.fill('{reply_time}').' and confirm in writing.'], ['Delivery', 'Vet checked, with documents and starter food.'], ['For life', 'Club support for your bernedoodle’s whole life.']];
-  $lib = ['breed'=>'The bernedoodle', 'sizes'=>'Sizes', 'colors'=>'Colors & markings', 'care'=>'Care & grooming', 'buying'=>'Buying'];
+  $trail = [['Choose your puppy', 'Real photos, price, size, age and both parents on every puppy page.'], ['Press Proceed now', 'Leave your phone number and email, plus a note. It takes a minute.'],
+            ['We talk', 'We reply '.fill('{reply_time}').', answer every question and confirm everything in writing.'], ['Delivery day', 'Vet checked, with all documents, including names, and starter food.'],
+            ['Club support for life', 'Feeding, training, grooming or health: call, text or email us any time.']];
+  $lib = ['breed'=>['The bernedoodle', 'paw'], 'sizes'=>['Sizes', 'home'], 'colors'=>['Colors & markings', 'star'], 'care'=>['Care & grooming', 'heart'], 'buying'=>['Buying a puppy', 'doc']];
   $all_g = articles_of('guide');
   ?>
-  <section class="bc-hero"><div class="wrap bc-hero-in">
-    <div class="bc-copy">
-      <p class="bc-pill"><span class="bc-dot"></span><?= $n ? $n.' '.($n === 1 ? 'puppy' : 'puppies').' available now' : 'New litters announced soon' ?> · <?= h($CFG['city']) ?>, <?= h($CFG['state']) ?></p>
-      <h1>Bernedoodle puppies, <em>family-raised</em> and delivered to you.</h1>
-      <p class="bc-lede"><?= h(fill($CFG['hero_lede'])) ?></p>
-      <div class="bc-cta"><a class="btn btn-lg btn-rust" href="#puppies"><?= $n ? 'Meet the puppies' : 'See our puppies' ?> <?= icon('arrow') ?></a><a class="btn btn-lg btn-ghost" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a></div>
-      <p class="bc-note"><?= icon('check') ?>Vet checked <?= icon('check') ?>Microchipped <?= icon('check') ?>All documents, with names</p>
+  <section class="al-hero">
+    <div class="al-sun" aria-hidden="true"></div>
+    <div class="al-cloud al-cl1" aria-hidden="true"><?= icon('shield') ?>Vet checked</div>
+    <div class="al-cloud al-cl2" aria-hidden="true"><?= icon('chip') ?>Microchipped</div>
+    <div class="al-cloud al-cl3" aria-hidden="true"><?= icon('truck') ?>Delivered in 24h</div>
+    <div class="wrap al-hero-in">
+      <p class="al-pill"><span class="al-dot"></span><?= $n ? $n.' '.($n === 1 ? 'puppy' : 'puppies').' ready for a home' : 'New litters announced soon' ?></p>
+      <h1>Bernedoodle puppies <span>raised in our home, delivered to yours.</span></h1>
+      <p class="al-lede"><?= h(fill($CFG['hero_lede'])) ?></p>
+      <div class="al-cta"><a class="btn btn-lg btn-red" href="#puppies"><?= $n ? 'Meet the puppies' : 'See our puppies' ?> <?= icon('arrow') ?></a><a class="btn btn-lg btn-snow" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a></div>
     </div>
-    <div class="bc-cardwrap" aria-hidden="true">
-      <div class="bc-card bc-card-back"></div>
-      <div class="bc-card" id="bc-card">
-        <div class="bc-card-top"><?= logo_svg('bc-card-logo') ?><div><strong>The Bernie Club</strong><span>Membership card</span></div><b class="bc-chip"></b></div>
-        <div class="bc-card-mid">
-          <div class="bc-card-ph"><?= $photo ? img_tag($photo[0], $photo[1], '160px', true) : logo_svg('bc-card-ph-logo') ?></div>
-          <div><small>Member</small><p class="bc-card-name">Your new best friend</p><small>Breed</small><p>Bernedoodle</p></div>
-        </div>
-        <ul class="bc-card-perks"><li><?= icon('check') ?>Vet checked</li><li><?= icon('check') ?>Microchipped</li><li><?= icon('check') ?><?= h(fill('{genetic_year}')) ?> guarantee</li><li><?= icon('check') ?>Lifetime support</li></ul>
-        <div class="bc-card-foot"><span>Member since <?= date('Y') ?></span><span>No. 0001</span></div>
-        <i class="bc-stripes"><b></b><b></b><b></b></i>
-      </div>
-    </div>
-  </div></section>
+    <?= alpine_scene() ?>
+  </section>
 
-  <section class="bc-strip"><div class="wrap bc-strip-in">
+  <section class="al-base"><div class="wrap al-base-in">
     <div><strong data-count="4">4</strong><span>sizes, micro to standard</span></div>
-    <div><strong data-count="<?= (int)$CFG['go_home_weeks'] ?>" data-suffix=" wk+"><?= (int)$CFG['go_home_weeks'] ?> wk+</strong><span>going-home age</span></div>
+    <div><strong data-count="<?= (int)$CFG['genetic_years'] ?>" data-suffix=" yr"><?= (int)$CFG['genetic_years'] ?> yr</strong><span>genetic health guarantee</span></div>
     <div><strong data-count="24" data-suffix="h">24h</strong><span>express delivery</span></div>
-    <div><strong data-count="<?= (int)$CFG['genetic_years'] ?>" data-suffix=" yr"><?= (int)$CFG['genetic_years'] ?> yr</strong><span>health guarantee</span></div>
+    <div><strong data-count="100" data-suffix="%">100%</strong><span>documents, with names</span></div>
   </div></section>
 
-  <section class="bc-sec" id="puppies"><div class="wrap">
-    <div class="bc-head bc-head-c"><p class="bc-kick">Available now</p><h2>Bernedoodle puppies for sale</h2><p>Every puppy is listed with real photos, price, size, age and both parents. Found the one? Press <strong>Proceed now</strong>.</p></div>
-    <?php if($n > 1 && $chips): ?><div class="chips bc-chips" role="group" aria-label="Filter puppies"><button type="button" data-f="all" aria-pressed="true">All</button><?php foreach($chips as $k=>$l): ?><button type="button" data-f="<?= h($k) ?>" aria-pressed="false"><?= h($l) ?></button><?php endforeach; ?></div><?php endif; ?>
+  <section class="al-sec" id="puppies"><div class="wrap">
+    <div class="al-head al-head-c"><p class="al-kick"><?= icon('paw') ?>Available now</p><h2>Bernedoodle puppies for sale</h2><p>Every puppy is listed with real photos, price, size, age and both parents. Found the one? Press <strong>Proceed now</strong>.</p></div>
+    <?php if($n > 1 && $chips): ?><div class="chips al-chips" role="group" aria-label="Filter puppies"><button type="button" data-f="all" aria-pressed="true">All</button><?php foreach($chips as $k=>$l): ?><button type="button" data-f="<?= h($k) ?>" aria-pressed="false"><?= h($l) ?></button><?php endforeach; ?></div><?php endif; ?>
     <?php if($n): ?>
     <?= puppies_block($avail, 12) ?>
     <p class="chips-none" hidden>No puppies match that right now. <a href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a> to hear first.</p>
     <p class="center"><a class="btn btn-ghost" href="<?= h(url(PUPPIES_PATH)) ?>"><?= $n > 1 ? 'See all '.$n.' bernedoodle puppies' : 'Bernedoodle puppies for sale' ?> <?= icon('arrow') ?></a></p>
     <?php else: ?>
-    <div class="bc-next"><span class="bc-next-ic"><?= icon('calendar') ?></span><div><h3>The next litter is on its way</h3><p>Every puppy has found a home for now. Join the waitlist and we’ll email you the moment new bernedoodle puppies are born, before they’re posted here.</p></div><a class="btn btn-lg btn-rust" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist <?= icon('arrow') ?></a></div>
+    <div class="al-next"><?= logo_svg('al-next-logo') ?><div><h3>The next litter is on its way</h3><p>Every puppy has found a home for now. Join the waitlist and we’ll email you the moment new bernedoodle puppies are born, before they’re posted here.</p></div><a class="btn btn-lg btn-red" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist <?= icon('arrow') ?></a></div>
     <?php endif; ?>
   </div></section>
 
-  <section class="bc-sec bc-sizes"><div class="wrap">
-    <div class="bc-head bc-head-split"><div><p class="bc-kick">Bernedoodle sizes</p><h2>Micro, mini, medium or standard?</h2></div><p>Size depends mostly on the poodle parent. Here is what each size usually weighs as an adult, and who it suits best.</p></div>
-    <div class="bc-size-grid">
-      <?php foreach($sizes as [$k, $name, $w, $hgt, $best, $slug, $pct]): ?>
-      <a class="bc-size" href="<?= h(url('guides/'.$slug)) ?>">
-        <span class="bc-size-bar"><i style="height:<?= $pct ?>%"><?= icon('paw') ?></i></span>
-        <span class="bc-size-b"><strong><?= h($name) ?> bernedoodle</strong><span class="bc-size-w"><?= h($w) ?> · <?= h($hgt) ?></span><small><?= h($best) ?></small></span>
-      </a>
+  <section class="al-sec al-peaks-sec"><div class="wrap">
+    <div class="al-head al-head-c"><p class="al-kick"><?= icon('home') ?>Bernedoodle sizes</p><h2>Pick your peak</h2><p>From pocket-sized micro to big, gentle standard. Size depends mostly on the poodle parent.</p></div>
+    <div class="al-peaks">
+      <?php foreach($peaks as [$name, $w, $best, $slug, $hgt]): ?>
+      <a class="al-peak" href="<?= h(url('guides/'.$slug)) ?>" style="--h:<?= $hgt ?>%"><span class="al-mtn"><i></i></span><strong><?= h($name) ?></strong><span class="al-w"><?= h($w) ?></span><small><?= h($best) ?></small></a>
       <?php endforeach; ?>
     </div>
+    <p class="center"><a class="al-more" href="<?= h(url('guides/bernedoodle-size')) ?>">Bernedoodle size and growth chart <?= icon('arrow') ?></a></p>
   </div></section>
 
-  <section class="bc-sec bc-club"><div class="wrap bc-club-in">
-    <div class="bc-club-l">
-      <p class="bc-kick">Why join the club</p>
-      <h2>We raise bernedoodles. <em>Only</em> bernedoodles.</h2>
-      <p>Every Bernie Club puppy is born and raised in our home in <?= h($CFG['city']) ?>, <?= h($CFG['state_name']) ?>. They grow up with the sounds, people and gentle routines of family life, so they arrive confident and ready for yours.</p>
-      <p>Because we focus on one breed, we can tell you honestly which size and generation suits your home, and help with everything that comes after.</p>
-      <a class="bc-more" href="<?= h(url('about')) ?>">Meet the people behind the club <?= icon('arrow') ?></a>
-    </div>
-    <ul class="bc-club-list"><?php foreach($club as [$ic, $t, $txt, $link]): ?><li><a href="<?= h(url($link)) ?>"><span class="bc-ic"><?= icon($ic) ?></span><strong><?= h($t) ?></strong><span><?= h($txt) ?></span></a></li><?php endforeach; ?></ul>
+  <section class="al-sec al-camp"><div class="wrap">
+    <div class="al-head al-head-split"><div><p class="al-kick"><?= icon('heart') ?>Why families choose us</p><h2>One breed, raised with care in <?= h($CFG['city']) ?></h2></div><p>We raise bernedoodles and nothing else, so we can tell you honestly which size and generation suits your home, and help with everything that comes after.</p></div>
+    <div class="al-camp-grid"><?php foreach($camp as [$ic, $t, $txt, $link]): ?><a class="al-camp-card" href="<?= h(url($link)) ?>"><span class="al-badge"><?= icon($ic) ?></span><h3><?= h($t) ?></h3><p><?= h($txt) ?></p><span class="al-more">Learn more <?= icon('arrow') ?></span></a><?php endforeach; ?></div>
   </div></section>
 
-  <section class="bc-sec bc-journey" id="how"><div class="wrap">
-    <div class="bc-head bc-head-c"><p class="bc-kick">How it works</p><h2>Your journey into the club</h2></div>
-    <ol class="bc-rail"><?php foreach($journey as $i=>[$t, $txt]): ?><li><span class="bc-rail-n"><?= $i + 1 ?></span><h3><?= h($t) ?></h3><p><?= h($txt) ?></p></li><?php endforeach; ?></ol>
-    <p class="center"><a class="bc-more" href="<?= h(url('how-it-works')) ?>">The full process, step by step <?= icon('arrow') ?></a></p>
+  <section class="al-sec al-trail-sec" id="how"><div class="wrap">
+    <div class="al-head al-head-c"><p class="al-kick"><?= icon('truck') ?>How it works</p><h2>The trail home</h2><p>Five easy steps from first hello to lifelong friend.</p></div>
+    <ol class="al-trail"><?php foreach($trail as $i=>[$t, $txt]): ?><li><span class="al-stop"><?= $i + 1 ?></span><div class="al-trail-card"><h3><?= h($t) ?></h3><p><?= h($txt) ?></p></div></li><?php endforeach; ?></ol>
+    <p class="center"><a class="al-more" href="<?= h(url('how-it-works')) ?>">The full process <?= icon('arrow') ?></a></p>
   </div></section>
 
   <?= inquiry_section() ?>
 
   <?php if($all_g): ?>
-  <section class="bc-sec bc-lib gtabs-sec"><div class="wrap">
-    <div class="bc-head bc-head-split"><div><p class="bc-kick">The bernedoodle library</p><h2>Everything about bernedoodles</h2></div><p>Honest guides from a bernedoodle-only breeder: sizes, generations, tricolor and merle coats, shedding, haircuts, health and more.</p></div>
-    <div class="gtabs bc-tabs" role="tablist" aria-label="Guide topics">
-      <?php $first = true; foreach($lib as $g=>$label): if(!array_filter($all_g, fn($a)=>$a['group'] === $g)) continue; ?><button type="button" role="tab" id="lt-<?= $g ?>" aria-controls="lp-<?= $g ?>" aria-selected="<?= $first ? 'true' : 'false' ?>"><?= h($label) ?></button><?php $first = false; endforeach; ?>
+  <section class="al-sec al-lib gtabs-sec"><div class="wrap">
+    <div class="al-head al-head-split"><div><p class="al-kick"><?= icon('book') ?>The bernedoodle field guide</p><h2>Everything about bernedoodles</h2></div><p>Honest guides from a bernedoodle-only breeder: sizes, generations, tricolor and merle coats, shedding, haircuts, health and more.</p></div>
+    <div class="al-lib-in">
+      <div class="gtabs al-vtabs" role="tablist" aria-orientation="vertical" aria-label="Guide topics">
+        <?php $first = true; foreach($lib as $g=>[$label, $ic]): $cnt = count(array_filter($all_g, fn($a)=>$a['group'] === $g)); if(!$cnt) continue; ?><button type="button" role="tab" id="lt-<?= $g ?>" aria-controls="lp-<?= $g ?>" aria-selected="<?= $first ? 'true' : 'false' ?>"><?= icon($ic) ?><span><?= h($label) ?></span><em><?= $cnt ?></em></button><?php $first = false; endforeach; ?>
+        <a class="al-more" href="<?= h(url('guides')) ?>">All <?= count($all_g) ?> guides <?= icon('arrow') ?></a>
+      </div>
+      <?php $first = true; foreach($lib as $g=>[$label, $ic]): $list = array_slice(array_values(array_filter($all_g, fn($a)=>$a['group'] === $g)), 0, 6); if(!$list) continue; ?>
+      <div class="al-lib-p" role="tabpanel" id="lp-<?= $g ?>" aria-labelledby="lt-<?= $g ?>" data-first="<?= $first ? '1' : '0' ?>"<?= $first ? '' : ' hidden' ?>>
+        <?php foreach($list as $a): ?><a class="al-entry" href="<?= h(url(article_path($a))) ?>"><strong><?= h(short_title($a['title'])) ?></strong><small><?= h($a['excerpt'] ?? '') ?></small><span><?= icon('arrow') ?></span></a><?php endforeach; ?>
+      </div>
+      <?php $first = false; endforeach; ?>
     </div>
-    <?php $first = true; foreach($lib as $g=>$label): $list = array_slice(array_values(array_filter($all_g, fn($a)=>$a['group'] === $g)), 0, 6); if(!$list) continue; ?>
-    <div class="bc-lib-p" role="tabpanel" id="lp-<?= $g ?>" aria-labelledby="lt-<?= $g ?>" data-first="<?= $first ? '1' : '0' ?>"<?= $first ? '' : ' hidden' ?>>
-      <?php foreach($list as $i=>$a): ?><a class="bc-gcard bc-g<?= $i % 3 ?>" href="<?= h(url(article_path($a))) ?>"><span class="bc-gtag"><?= h($label) ?></span><strong><?= h(short_title($a['title'])) ?></strong><small><?= h($a['excerpt'] ?? '') ?></small><span class="bc-go">Read <?= icon('arrow') ?></span></a><?php endforeach; ?>
-    </div>
-    <?php $first = false; endforeach; ?>
-    <p class="center"><a class="btn btn-ghost" href="<?= h(url('guides')) ?>">All <?= count($all_g) ?> bernedoodle guides <?= icon('arrow') ?></a></p>
   </div></section>
   <?php endif; ?>
 
   <?php if($reviews): ?>
-  <section class="bc-sec"><div class="wrap">
-    <div class="bc-head bc-head-c"><p class="bc-kick">Reviews</p><h2>What club families say</h2></div>
+  <section class="al-sec"><div class="wrap">
+    <div class="al-head al-head-c"><p class="al-kick"><?= icon('star') ?>Reviews</p><h2>What our families say</h2></div>
     <div class="rgrid"><?php foreach(array_slice($reviews, 0, 3) as $r) echo review_card($r); ?></div>
-    <p class="center"><a class="bc-more" href="<?= h(url('reviews')) ?>">All reviews <?= icon('arrow') ?></a></p>
+    <p class="center"><a class="al-more" href="<?= h(url('reviews')) ?>">All reviews <?= icon('arrow') ?></a></p>
   </div></section>
   <?php endif; ?>
 
   <?php if($parents): ?>
-  <section class="bc-sec"><div class="wrap">
-    <div class="bc-head bc-head-c"><p class="bc-kick">The parents</p><h2>Meet our dogs</h2></div>
+  <section class="al-sec"><div class="wrap">
+    <div class="al-head al-head-c"><p class="al-kick"><?= icon('heart') ?>The parents</p><h2>Meet our dogs</h2></div>
     <div class="parent-row"><?php foreach(array_slice($parents, 0, 6) as $p) echo parent_mini($p); ?></div>
-    <p class="center"><a class="bc-more" href="<?= h(url('our-dogs')) ?>">All our dogs <?= icon('arrow') ?></a></p>
+    <p class="center"><a class="al-more" href="<?= h(url('our-dogs')) ?>">All our dogs <?= icon('arrow') ?></a></p>
   </div></section>
   <?php endif; ?>
 
   <?= home_knowledge() ?>
 
-  <section class="bc-final"><i class="bc-stripes"><b></b><b></b><b></b></i><div class="wrap bc-final-in">
-    <h2>Ready to join <em>the club</em>?</h2>
-    <p>Choose a puppy and press Proceed now, or join the waitlist to hear about new litters first.</p>
-    <div class="bc-cta"><a class="btn btn-lg btn-rust" href="#puppies">See the puppies <?= icon('arrow') ?></a><a class="btn btn-lg btn-line" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a></div>
-  </div></section>
+  <section class="al-final">
+    <svg class="al-final-mtn" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true"><path d="M0 120V70l140-50 120 40 160-60 150 70 130-40 170 50 160-70 150 60 120-30 140 40v60z" fill="#1e4f4b"/></svg>
+    <div class="wrap al-final-in">
+      <?= logo_svg('al-final-logo') ?>
+      <h2>Ready to welcome your bernedoodle home?</h2>
+      <p>Choose a puppy and press Proceed now, or join the waitlist to hear about new litters first.</p>
+      <div class="al-cta"><a class="btn btn-lg btn-red" href="#puppies">See the puppies <?= icon('arrow') ?></a><a class="btn btn-lg btn-snow" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a></div>
+    </div>
+  </section>
   <script>
-  (function(){var w=document.querySelector('.bc-cardwrap'),c=document.getElementById('bc-card');if(!w||!c||window.matchMedia('(prefers-reduced-motion: reduce)').matches||!window.matchMedia('(hover:hover)').matches)return;
-  w.addEventListener('mousemove',function(e){var r=w.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform='rotateY('+(x*14).toFixed(2)+'deg) rotateX('+(-y*12).toFixed(2)+'deg)';c.style.setProperty('--gx',(x*100+50)+'%');c.style.setProperty('--gy',(y*100+50)+'%')});
-  w.addEventListener('mouseleave',function(){c.style.transform=''})})();
+  (function(){var ls=document.querySelectorAll('.al-scene [data-depth]');if(!ls.length||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;var t=0;
+  function u(){t=0;var y=Math.min(window.scrollY,700);ls.forEach(function(l){l.style.transform='translateY('+(y*parseFloat(l.getAttribute('data-depth'))).toFixed(1)+'px)'})}
+  window.addEventListener('scroll',function(){if(!t){t=1;requestAnimationFrame(u)}},{passive:true})})();
   </script>
   <?php
 }
@@ -815,9 +810,9 @@ function home_knowledge(){
     ['Grooming', 'Brushing several times a week; haircut every 6–8 weeks', 'bernedoodle-haircuts'],
   ];
   ob_start(); ?>
-  <section class="bc-sec bc-know" id="bernedoodle-puppies"><div class="wrap bc-know-in">
+  <section class="al-sec al-know" id="bernedoodle-puppies"><div class="wrap al-know-in">
     <div>
-      <p class="bc-kick">Before you buy</p>
+      <p class="al-kick"><?= icon('book') ?>Before you buy</p>
       <h2>Bernedoodle puppies: what to know</h2>
       <p class="answer"><?= h('The bernedoodle is a cross between a Bernese mountain dog and a poodle: an affectionate, goofy and smart family dog with a wavy or curly coat that usually sheds little. Bernedoodles come in micro, mini, medium and standard sizes and live about 12 to 15 years. At '.$CFG['brand'].', every puppy is raised in our home in '.$CFG['city'].', Ohio, vet checked, vaccinated and microchipped, then delivered to your door.') ?></p>
       <div class="table-wrap"><table class="facts-t"><caption>The bernedoodle at a glance</caption><tbody>
@@ -825,10 +820,10 @@ function home_knowledge(){
       </tbody></table></div>
     </div>
     <div>
-      <p class="bc-kick">Questions</p>
+      <p class="al-kick"><?= icon('chat') ?>Questions</p>
       <h2>Bernedoodle puppy questions</h2>
       <div class="faqs"><?php foreach(home_faqs() as $i=>[$q, $a]): ?><details<?= $i === 0 ? ' open' : '' ?>><summary><h3><?= h($q) ?></h3></summary><p><?= h($a) ?></p></details><?php endforeach; ?></div>
-      <p><a class="bc-more" href="<?= h(url('faq')) ?>">More questions and answers <?= icon('arrow') ?></a></p>
+      <p><a class="al-more" href="<?= h(url('faq')) ?>">More questions and answers <?= icon('arrow') ?></a></p>
     </div>
   </div></section>
   <?php return ob_get_clean();
