@@ -403,7 +403,7 @@ function render_page(){
 <meta property="og:url" content="<?= h($canonical) ?>">
 <meta property="og:image" content="<?= h($img) ?>">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#0e0f10">
+<meta name="theme-color" content="#12161d">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -412,7 +412,7 @@ function render_page(){
 <?php endif; ?>
 <script>document.documentElement.className+=" js"</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400..800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Figtree:ital,wght@0,400..700;1,400&display=swap">
 <link rel="stylesheet" href="assets/style.css?v=<?= (int)$css_v ?>">
 <?= structured_data() ?>
 <?php if(preg_match('/^G-[A-Z0-9]{4,}$/', $CFG['ga4_id'])): ?>
@@ -422,8 +422,8 @@ function render_page(){
 </head>
 <body class="pg-<?= h($page) ?>">
 <a class="skip" href="#main">Skip to content</a>
-<div class="topbar dk-top"><div class="wrap"><span><?= icon('truck') ?>Delivered to your door</span><span class="hide-sm"><?= icon('shield') ?><?= h(fill('{genetic_year}')) ?> health guarantee</span><span class="hide-sm"><?= icon('doc') ?>All puppy documents available</span></div></div>
-<header class="site-h dk-h">
+<div class="topbar gw-top"><div class="wrap"><span><?= icon('truck') ?>Delivered to your door</span><span class="hide-sm"><?= icon('shield') ?><?= h(fill('{genetic_year}')) ?> health guarantee</span><span class="hide-sm"><?= icon('doc') ?>All puppy documents available</span></div></div>
+<header class="site-h gw-h">
   <div class="wrap hrow">
     <a class="brand" href="./" aria-label="<?= h($CFG['brand']) ?> home"><?= logo_svg() ?><span class="brand-t"><?= h($CFG['brand']) ?><small>Family-raised bernedoodle puppies</small></span></a>
     <button class="navbtn" type="button" aria-expanded="false" aria-controls="nav"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span>Menu</span></button>
@@ -643,138 +643,155 @@ function view_home(){
   $parents = array_values(array_filter($SITE['parents'], fn($p)=>empty($p['hidden']) && empty($p['retired'])));
   $chips = array_filter(['sex:female'=>'Girls', 'sex:male'=>'Boys', 'size:toy'=>'Micro', 'size:mini'=>'Mini', 'size:medium'=>'Medium', 'size:standard'=>'Standard'],
     function($k) use($avail){ [$f, $v] = explode(':', $k); return (bool)array_filter($avail, fn($p)=>($p[$f] ?? '') === $v); }, ARRAY_FILTER_USE_KEY);
+  /* the hero picture: the owner's own photo, else the first available puppy with a photo */
+  $hero = $CFG['hero_photo'] !== '' && is_file(BB_ROOT.'/'.$CFG['hero_photo']) ? [$CFG['hero_photo'], 'Bernedoodle puppies at '.$CFG['brand'], null] : null;
+  if(!$hero) foreach($avail as $p) if(!empty($p['photos'][0])){ $hero = [$p['photos'][0], $p['name'].', '.strtolower(puppy_kind($p)), $p]; break; }
   $n = count($avail);
-  $photo = $CFG['hero_photo'] !== '' && is_file(BB_ROOT.'/'.$CFG['hero_photo']) ? [$CFG['hero_photo'], 'Bernedoodle puppies at '.$CFG['brand']] : null;
-  if(!$photo) foreach($avail as $p) if(!empty($p['photos'][0])){ $photo = [$p['photos'][0], $p['name'].', '.strtolower(puppy_kind($p))]; break; }
-  $sizes = [
-    ['micro', 'Micro', '10–25 lb', '12–17 in', '12–16 yrs', 'Apartments, smaller homes and easy travel.', 'micro-bernedoodle', 28],
-    ['mini', 'Mini', '25–50 lb', '18–22 in', '12–15 yrs', 'Most families. Our most popular size: big personality, easy to handle.', 'mini-bernedoodle', 52],
-    ['medium', 'Medium', '50–70 lb', '20–24 in', '12–15 yrs', 'Active families with a yard who want a sturdy, playful companion.', 'bernedoodle-size', 76],
-    ['standard', 'Standard', '70–90+ lb', '23–29 in', '11–14 yrs', 'Big-dog lovers with space: a calm, gentle giant.', 'standard-bernedoodle', 100],
-  ];
-  $why = [
-    ['home', 'Raised in our home', 'Every puppy grows up in the middle of family life in '.$CFG['city'].', handled every day, so they arrive calm and confident.', 'how-we-raise-our-puppies'],
-    ['heart', 'Health-checked parents', 'Both parents are listed on every puppy’s page with their health details. Ask for anything you’d like to see.', 'health-testing'],
-    ['shield', 'Guarantees in writing', fill('A {vet_check_hour} vet check guarantee, a {genetic_year} genetic health guarantee and a lifetime take-back promise.'), 'health-guarantee'],
-    ['doc', 'All documents, with names', 'Health record, vaccinations, microchip details and papers, with your puppy’s and both parents’ names.', 'whats-included'],
-  ];
-  $steps = [['Choose', 'Real photos, price, size and both parents on every puppy page.'], ['Proceed now', 'Leave your phone and email, plus a note. One minute.'],
-            ['We talk', 'We reply '.fill('{reply_time}').' and confirm everything in writing.'], ['Delivery', 'Vet checked, with documents and starter food, at your door.'], ['For life', 'Support for feeding, training and grooming, any time.']];
-  $lib = ['breed'=>'The bernedoodle', 'sizes'=>'Sizes', 'colors'=>'Colors & markings', 'care'=>'Care & grooming', 'buying'=>'Buying'];
+  $words = ['Vet checked', 'Microchipped', 'Age-appropriate shots', 'All documents, with names', fill('{genetic_year}').' health guarantee', 'Express delivery in 24 hours', 'Raised in our home', 'Lifetime support'];
+  $steps = [['Choose your puppy', 'Every puppy is listed with real photos, price, size, age and both parents.'],
+            ['Press Proceed now', 'Leave your phone number and email, plus a note if you like. It takes a minute.'],
+            ['We get in touch', 'We reply '.fill('{reply_time}').', answer every question and confirm everything in writing.'],
+            ['Delivered to your door', 'Vet checked, with all documents and starter food. Then lifetime support.']];
+  $lib = ['breed'=>'The bernedoodle', 'sizes'=>'Sizes', 'colors'=>'Colors & markings', 'care'=>'Care & grooming', 'buying'=>'Buying a puppy'];
   $all_g = articles_of('guide');
-  $ring = 'VET CHECKED · MICROCHIPPED · ALL DOCUMENTS · '.strtoupper(fill('{genetic_year}')).' GUARANTEE · DELIVERED TO YOUR DOOR · ';
+  $by = array_column($all_g, null, 'slug');
+  $feature = $by['mini-bernedoodle'] ?? ($all_g[0] ?? null);
+  $facts = [
+    ['Parents', 'Bernese mountain dog × poodle', 'bernedoodle-dog-breed'],
+    ['Sizes', 'Micro 10–25 lb · mini 25–50 · medium 50–70 · standard 70–90+', 'bernedoodle-size'],
+    ['Generations', 'F1, F1B, F2 and multigen', 'bernedoodle-generations'],
+    ['Lifespan', 'About 12–15 years', 'bernedoodle-lifespan'],
+    ['Coat', 'Wavy or curly; usually low shedding', 'do-bernedoodles-shed'],
+    ['Colors', 'Tricolor, black and white, merle, sable', 'bernedoodle-colors'],
+    ['Temperament', 'Affectionate, goofy, smart', 'bernedoodle-temperament'],
+    ['Grooming', 'Brushing weekly; haircut every 6–8 weeks', 'bernedoodle-haircuts'],
+  ];
   ?>
-  <section class="dk-hero" id="dk-hero">
-    <div class="dk-grid" aria-hidden="true"></div>
-    <div class="wrap dk-hero-in">
-      <div class="dk-copy">
-        <p class="dk-pill"><span class="dk-dot"></span><?= $n ? $n.' '.($n === 1 ? 'puppy' : 'puppies').' available now' : 'New litters announced soon' ?><span class="dk-sep"></span><span class="dk-loc"><?= h($CFG['city']) ?>, <?= h($CFG['state']) ?></span></p>
-        <h1>Bernedoodle puppies, <span class="dk-grad">raised with care</span> and delivered to you.</h1>
-        <p class="dk-lede"><?= h(fill($CFG['hero_lede'])) ?></p>
-        <div class="dk-cta"><a class="btn btn-lg btn-rust" href="#puppies"><?= $n ? 'Meet the puppies' : 'See our puppies' ?> <?= icon('arrow') ?></a><a class="btn btn-lg btn-outline" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a></div>
-        <ul class="dk-trust"><li><?= icon('shield') ?>Vet checked</li><li><?= icon('chip') ?>Microchipped</li><li><?= icon('doc') ?>All documents, with names</li></ul>
+  <section class="gw-hero">
+    <div class="gw-glow" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="wrap gw-hero-in">
+      <div class="gw-copy">
+        <p class="gw-pill"><span class="gw-live"></span><?= $n ? $n.' '.($n === 1 ? 'puppy' : 'puppies').' ready for a home' : 'New litters announced soon' ?></p>
+        <h1>Bernedoodle puppies, <span class="gw-gold">raised like family.</span></h1>
+        <p class="gw-lede"><?= h(fill($CFG['hero_lede'])) ?></p>
+        <div class="gw-cta"><a class="btn btn-lg btn-gold" href="#puppies"><?= $n ? 'Meet the puppies' : 'See our puppies' ?> <?= icon('arrow') ?></a><a class="btn btn-lg btn-glass" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a></div>
+        <ul class="gw-trust"><li><?= icon('home') ?><span><strong>Home-raised</strong> in <?= h($CFG['city']) ?>, <?= h($CFG['state']) ?></span></li><li><?= icon('shield') ?><span><strong><?= h(fill('{genetic_year}')) ?></strong> health guarantee</span></li><li><?= icon('truck') ?><span><strong>Delivered</strong> to your door</span></li></ul>
       </div>
-      <div class="dk-emblem" aria-hidden="true">
-        <svg class="dk-ring" viewBox="0 0 400 400"><defs><path id="dk-circle" d="M200 200m-168 0a168 168 0 1 1 336 0a168 168 0 1 1-336 0"/></defs><text><textPath href="#dk-circle" textLength="1040" lengthAdjust="spacing"><?= h($ring) ?></textPath></text></svg>
-        <div class="dk-core"><?= $photo ? img_tag($photo[0], $photo[1], '300px', true) : logo_svg('dk-core-logo') ?></div>
-        <div class="dk-chip dk-c1"><strong data-count="24" data-suffix="h">24h</strong><span>express delivery</span></div>
-        <div class="dk-chip dk-c2"><strong data-count="<?= (int)$CFG['genetic_years'] ?>" data-suffix=" yr"><?= (int)$CFG['genetic_years'] ?> yr</strong><span>health guarantee</span></div>
-        <div class="dk-chip dk-c3"><strong data-count="4">4</strong><span>sizes, micro to standard</span></div>
+      <div class="gw-stage" aria-hidden="<?= $hero ? 'false' : 'true' ?>">
+        <div class="gw-orb"></div>
+        <?php if($hero): ?>
+        <figure class="gw-photo"><?= img_tag($hero[0], $hero[1], '(max-width:900px) 80vw, 420px', true) ?><?php if($hero[2]): ?><figcaption><strong><?= h($hero[2]['name']) ?></strong><span><?= h(trim(($hero[2]['color'] ?? '').' · '.sex_label($hero[2]['sex'] ?? ''), ' ·')) ?></span></figcaption><?php endif; ?></figure>
+        <?php else: ?>
+        <div class="gw-emblem"><?= logo_svg('gw-emblem-mark') ?><span><?= h($CFG['brand']) ?></span></div>
+        <?php endif; ?>
+        <div class="gw-card gw-c1"><?= icon('shield') ?><div><strong>Vet checked</strong><span>Shots &amp; microchip</span></div></div>
+        <div class="gw-card gw-c2"><?= icon('doc') ?><div><strong>All documents</strong><span>Including names</span></div></div>
+        <div class="gw-card gw-c3"><?= icon('truck') ?><div><strong>Express delivery</strong><span>Within 24 hours</span></div></div>
       </div>
     </div>
+    <div class="gw-marquee" aria-hidden="true"><div class="gw-track"><?php for($k = 0; $k < 2; $k++) foreach($words as $w) echo '<span>'.h($w).'</span><b>✦</b>'; ?></div></div>
   </section>
 
-  <section class="dk-sec" id="puppies"><div class="wrap">
-    <div class="dk-head" data-rv><p class="dk-kick">Available now</p><h2>Bernedoodle puppies for sale</h2><p>Every puppy is listed with real photos, price, size, age and both parents. Found the one? Press <strong>Proceed now</strong>.</p></div>
-    <?php if($n > 1 && $chips): ?><div class="chips dk-chips" role="group" aria-label="Filter puppies"><button type="button" data-f="all" aria-pressed="true">All</button><?php foreach($chips as $k=>$l): ?><button type="button" data-f="<?= h($k) ?>" aria-pressed="false"><?= h($l) ?></button><?php endforeach; ?></div><?php endif; ?>
+  <section class="gw-sec" id="puppies"><div class="wrap">
+    <div class="gw-head gw-head-row">
+      <div><p class="gw-kick">Available now</p><h2>Bernedoodle puppies for sale</h2></div>
+      <p>Real photos, price, age and both parents on every puppy. Found the one? Press <strong>Proceed now</strong>.</p>
+    </div>
+    <?php if($n > 1 && $chips): ?><div class="chips" role="group" aria-label="Filter puppies"><button type="button" data-f="all" aria-pressed="true">All</button><?php foreach($chips as $k=>$l): ?><button type="button" data-f="<?= h($k) ?>" aria-pressed="false"><?= h($l) ?></button><?php endforeach; ?></div><?php endif; ?>
     <?php if($n): ?>
     <?= puppies_block($avail, 12) ?>
     <p class="chips-none" hidden>No puppies match that right now. <a href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a> to hear first.</p>
-    <p class="center"><a class="btn btn-outline" href="<?= h(url(PUPPIES_PATH)) ?>"><?= $n > 1 ? 'See all '.$n.' bernedoodle puppies' : 'Bernedoodle puppies for sale' ?> <?= icon('arrow') ?></a></p>
+    <p class="center"><a class="btn btn-ghost" href="<?= h(url(PUPPIES_PATH)) ?>"><?= $n > 1 ? 'See all '.$n.' bernedoodle puppies' : 'Bernedoodle puppies for sale' ?> <?= icon('arrow') ?></a></p>
     <?php else: ?>
-    <div class="dk-next dk-spot" data-rv><span class="dk-next-ic"><?= icon('calendar') ?></span><div><h3>The next litter is on its way</h3><p>Every puppy has found a home for now. Join the waitlist and we’ll email you the moment new bernedoodle puppies are born, before they’re posted here.</p></div><a class="btn btn-lg btn-rust" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist <?= icon('arrow') ?></a></div>
+    <div class="gw-next">
+      <div class="gw-next-l"><?= icon('calendar', 'ic gw-next-ic') ?><div><h3>Our next litter is on its way</h3><p>Every puppy has found a home for now. Join the waitlist and we’ll email you the moment new bernedoodle puppies are born, before they’re posted here.</p></div></div>
+      <div class="gw-next-r"><a class="btn btn-lg btn-gold" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist <?= icon('arrow') ?></a><a class="gw-more" href="<?= h(url(PUPPIES_PATH)) ?>">Bernedoodle puppies for sale <?= icon('arrow') ?></a></div>
+    </div>
     <?php endif; ?>
   </div></section>
 
-  <section class="dk-sec dk-sizes gtabs-sec"><div class="wrap">
-    <div class="dk-head dk-head-split" data-rv><div><p class="dk-kick">Bernedoodle sizes</p><h2>Find the right size</h2></div><p>Bernedoodles come in four sizes. Size depends mostly on the poodle parent. Tap a size to compare.</p></div>
-    <div class="dk-size" data-rv>
-      <div class="gtabs dk-seg" role="tablist" aria-label="Bernedoodle sizes"><?php foreach($sizes as $i=>$z): ?><button type="button" role="tab" id="st-<?= $z[0] ?>" aria-controls="sp-<?= $z[0] ?>" aria-selected="<?= $i === 1 ? 'true' : 'false' ?>"><?= h($z[1]) ?></button><?php endforeach; ?></div>
-      <?php foreach($sizes as $i=>[$k, $name, $w, $hgt, $life, $best, $slug, $pct]): ?>
-      <div class="dk-size-p" role="tabpanel" id="sp-<?= $k ?>" aria-labelledby="st-<?= $k ?>" data-first="<?= $i === 1 ? '1' : '0' ?>"<?= $i === 1 ? '' : ' hidden' ?>>
-        <div class="dk-size-l"><p class="dk-size-name"><?= h($name) ?> bernedoodle</p><p class="dk-size-w"><?= h($w) ?></p><p class="dk-size-best"><?= h($best) ?></p><a class="dk-more" href="<?= h(url('guides/'.$slug)) ?>">Read the <?= h(strtolower($name)) ?> guide <?= icon('arrow') ?></a></div>
-        <dl class="dk-size-r">
-          <div><dt>Adult weight</dt><dd><?= h($w) ?></dd></div><div><dt>Height</dt><dd><?= h($hgt) ?></dd></div><div><dt>Lifespan</dt><dd><?= h($life) ?></dd></div>
-          <div class="dk-bars"><dt>Size compared</dt><dd><?php foreach($sizes as $z2): ?><span class="<?= $z2[0] === $k ? 'on' : '' ?>"><i style="height:<?= $z2[7] ?>%"></i><b><?= h($z2[1]) ?></b></span><?php endforeach; ?></dd></div>
-        </dl>
-      </div>
-      <?php endforeach; ?>
+  <section class="gw-sec gw-bento-sec"><div class="wrap">
+    <div class="gw-head"><p class="gw-kick">Why families choose us</p><h2>One breed. One home.<br>Every puppy known by name.</h2></div>
+    <div class="gw-bento">
+      <a class="gw-tile gw-t-story" href="<?= h(url('how-we-raise-our-puppies')) ?>">
+        <span class="gw-quote">“</span>
+        <p class="gw-t-big">We raise bernedoodles and nothing else. Every puppy grows up in our home in <?= h($CFG['city']) ?>, part of everyday family life, before they ever meet yours.</p>
+        <span class="gw-more">How we raise our puppies <?= icon('arrow') ?></span>
+      </a>
+      <div class="gw-tile gw-t-stat"><strong data-count="<?= (int)$CFG['genetic_years'] ?>" data-suffix=" yr"><?= (int)$CFG['genetic_years'] ?> yr</strong><span>genetic health guarantee, in writing</span></div>
+      <div class="gw-tile gw-t-stat gw-t-gold"><strong data-count="24" data-suffix="h">24h</strong><span>express delivery to your door</span></div>
+      <a class="gw-tile gw-t-card" href="<?= h(url('health-testing')) ?>"><span class="gw-ic"><?= icon('heart') ?></span><h3>Healthy, gentle parents</h3><p>Chosen for health and temperament. Both parents are listed on every puppy’s page.</p></a>
+      <a class="gw-tile gw-t-card" href="<?= h(url('whats-included')) ?>"><span class="gw-ic"><?= icon('doc') ?></span><h3>All documents, with names</h3><p>Health and vaccination records, microchip details and papers, with your puppy’s name.</p></a>
+      <a class="gw-tile gw-t-card" href="<?= h(url('health-guarantee')) ?>"><span class="gw-ic"><?= icon('shield') ?></span><h3>Guarantees in writing</h3><p><?= h(fill('A {vet_check_hour} vet check guarantee, a {genetic_year} genetic guarantee and a lifetime take-back promise.')) ?></p></a>
+      <a class="gw-tile gw-t-wide" href="<?= h(url('about')) ?>"><span class="gw-ic"><?= icon('chat') ?></span><div><h3>Support for your bernedoodle’s whole life</h3><p>Feeding, training, grooming or health: call, text or email us any time.</p></div><?= icon('arrow') ?></a>
     </div>
   </div></section>
 
-  <section class="dk-sec dk-why-sec"><div class="wrap">
-    <div class="dk-head dk-head-split" data-rv><div><p class="dk-kick">Why families choose us</p><h2>One breed. Raised with care.</h2></div><p>We raise bernedoodles and nothing else in our home in <?= h($CFG['city']) ?>, <?= h($CFG['state_name']) ?>, so we can tell you honestly which size suits your home, and help with everything after.</p></div>
-    <div class="dk-why" data-rv><?php foreach($why as $i=>[$ic, $t, $txt, $link]): ?><a class="dk-why-c dk-spot" href="<?= h(url($link)) ?>"><span class="dk-n"><?= sprintf('%02d', $i + 1) ?></span><span class="dk-ic"><?= icon($ic) ?></span><h3><?= h($t) ?></h3><p><?= h($txt) ?></p><span class="dk-more">Learn more <?= icon('arrow') ?></span></a><?php endforeach; ?></div>
-  </div></section>
-
-  <section class="dk-sec dk-how" id="how"><div class="wrap">
-    <div class="dk-head dk-head-c" data-rv><p class="dk-kick">How it works</p><h2>From hello to delivery day</h2></div>
-    <ol class="dk-steps" style="--p:0"><?php foreach($steps as $i=>[$t, $txt]): ?><li><span class="dk-step-n"><?= $i + 1 ?></span><h3><?= h($t) ?></h3><p><?= h($txt) ?></p></li><?php endforeach; ?></ol>
-    <p class="center"><a class="dk-more" href="<?= h(url('how-it-works')) ?>">The full process <?= icon('arrow') ?></a></p>
+  <section class="gw-sec gw-how" id="how"><div class="wrap gw-how-in">
+    <div class="gw-how-l">
+      <p class="gw-kick">How it works</p>
+      <h2>From hello to delivery day</h2>
+      <p>No pressure and no surprises: four simple steps, everything confirmed in writing.</p>
+      <a class="btn btn-ghost" href="<?= h(url('how-it-works')) ?>">The full process <?= icon('arrow') ?></a>
+    </div>
+    <ol class="gw-steps" style="--p:0"><?php foreach($steps as $i=>[$t, $txt]): ?><li><span class="gw-n"><?= sprintf('%02d', $i + 1) ?></span><div><h3><?= h($t) ?></h3><p><?= h($txt) ?></p></div></li><?php endforeach; ?></ol>
   </div></section>
 
   <?= inquiry_section() ?>
 
   <?php if($all_g): ?>
-  <section class="dk-sec dk-lib gtabs-sec"><div class="wrap">
-    <div class="dk-head dk-head-split" data-rv><div><p class="dk-kick">The bernedoodle library</p><h2>Everything about bernedoodles</h2></div><p>Honest guides from a bernedoodle-only breeder: sizes, generations, tricolor and merle coats, shedding, haircuts, health and more.</p></div>
-    <div class="gtabs dk-tabs" role="tablist" aria-label="Guide topics">
-      <?php $first = true; foreach($lib as $g=>$label): if(!array_filter($all_g, fn($a)=>$a['group'] === $g)) continue; ?><button type="button" role="tab" id="lt-<?= $g ?>" aria-controls="lp-<?= $g ?>" aria-selected="<?= $first ? 'true' : 'false' ?>"><?= h($label) ?></button><?php $first = false; endforeach; ?>
+  <section class="gw-sec gw-lib gtabs-sec"><div class="wrap">
+    <div class="gw-head gw-head-row"><div><p class="gw-kick">The bernedoodle library</p><h2>Everything about bernedoodles</h2></div><p>Honest guides from a bernedoodle-only breeder: micro, mini and standard sizes, generations, tricolor and merle coats, shedding, haircuts and health.</p></div>
+    <div class="gw-lib-in">
+      <?php if($feature): ?><a class="gw-feat" href="<?= h(url(article_path($feature))) ?>"><span class="gw-kick">Most read</span><h3><?= h($feature['title']) ?></h3><p><?= h(plain($feature['answer'] ?? $feature['excerpt'] ?? '', 210)) ?></p><span class="gw-more">Read the guide <?= icon('arrow') ?></span></a><?php endif; ?>
+      <div class="gw-lib-r">
+        <div class="gtabs" role="tablist" aria-label="Guide topics">
+          <?php $first = true; foreach($lib as $g=>$label): if(!array_filter($all_g, fn($a)=>$a['group'] === $g)) continue; ?><button type="button" role="tab" id="lt-<?= $g ?>" aria-controls="lp-<?= $g ?>" aria-selected="<?= $first ? 'true' : 'false' ?>"><?= h($label) ?></button><?php $first = false; endforeach; ?>
+        </div>
+        <?php $first = true; foreach($lib as $g=>$label): $list = array_slice(array_values(array_filter($all_g, fn($a)=>$a['group'] === $g && $a['slug'] !== ($feature['slug'] ?? ''))), 0, 5); if(!$list) continue; ?>
+        <div class="gw-lib-p" role="tabpanel" id="lp-<?= $g ?>" aria-labelledby="lt-<?= $g ?>" data-first="<?= $first ? '1' : '0' ?>"<?= $first ? '' : ' hidden' ?>>
+          <?php foreach($list as $a): ?><a class="gw-lib-i" href="<?= h(url(article_path($a))) ?>"><span><strong><?= h(short_title($a['title'])) ?></strong><small><?= h($a['excerpt'] ?? '') ?></small></span><?= icon('arrow') ?></a><?php endforeach; ?>
+        </div>
+        <?php $first = false; endforeach; ?>
+        <a class="gw-more" href="<?= h(url('guides')) ?>">All <?= count($all_g) ?> bernedoodle guides <?= icon('arrow') ?></a>
+      </div>
     </div>
-    <?php $first = true; foreach($lib as $g=>$label): $list = array_slice(array_values(array_filter($all_g, fn($a)=>$a['group'] === $g)), 0, 6); if(!$list) continue; ?>
-    <div class="dk-lib-p" role="tabpanel" id="lp-<?= $g ?>" aria-labelledby="lt-<?= $g ?>" data-first="<?= $first ? '1' : '0' ?>"<?= $first ? '' : ' hidden' ?>>
-      <?php foreach($list as $a): ?><a class="dk-card dk-spot" href="<?= h(url(article_path($a))) ?>"><span class="dk-tag"><?= h($label) ?></span><strong><?= h(short_title($a['title'])) ?></strong><small><?= h($a['excerpt'] ?? '') ?></small><span class="dk-go"><?= icon('arrow') ?></span></a><?php endforeach; ?>
-    </div>
-    <?php $first = false; endforeach; ?>
-    <p class="center"><a class="btn btn-outline" href="<?= h(url('guides')) ?>">All <?= count($all_g) ?> bernedoodle guides <?= icon('arrow') ?></a></p>
   </div></section>
   <?php endif; ?>
 
   <?php if($reviews): ?>
-  <section class="dk-sec"><div class="wrap">
-    <div class="dk-head dk-head-c" data-rv><p class="dk-kick">Reviews</p><h2>What our families say</h2></div>
+  <section class="gw-sec"><div class="wrap">
+    <div class="gw-head gw-head-row"><div><p class="gw-kick">Reviews</p><h2>What our families say</h2></div><a class="gw-more" href="<?= h(url('reviews')) ?>">All reviews <?= icon('arrow') ?></a></div>
     <div class="rgrid"><?php foreach(array_slice($reviews, 0, 3) as $r) echo review_card($r); ?></div>
-    <p class="center"><a class="dk-more" href="<?= h(url('reviews')) ?>">All reviews <?= icon('arrow') ?></a></p>
   </div></section>
   <?php endif; ?>
 
   <?php if($parents): ?>
-  <section class="dk-sec"><div class="wrap">
-    <div class="dk-head dk-head-c" data-rv><p class="dk-kick">The parents</p><h2>Meet our dogs</h2></div>
+  <section class="gw-sec"><div class="wrap">
+    <div class="gw-head gw-head-row"><div><p class="gw-kick">The parents</p><h2>Meet our dogs</h2></div><a class="gw-more" href="<?= h(url('our-dogs')) ?>">All our dogs <?= icon('arrow') ?></a></div>
     <div class="parent-row"><?php foreach(array_slice($parents, 0, 6) as $p) echo parent_mini($p); ?></div>
-    <p class="center"><a class="dk-more" href="<?= h(url('our-dogs')) ?>">All our dogs <?= icon('arrow') ?></a></p>
   </div></section>
   <?php endif; ?>
 
-  <?= home_knowledge() ?>
+  <section class="gw-sec gw-know" id="bernedoodle-puppies"><div class="wrap">
+    <div class="gw-head gw-head-row"><div><p class="gw-kick">Before you buy</p><h2>Bernedoodle puppies: what to know</h2></div>
+      <p class="answer"><?= h('The bernedoodle is a cross between a Bernese mountain dog and a poodle: an affectionate, goofy and smart family dog with a wavy or curly coat that usually sheds little. Bernedoodles come in micro, mini, medium and standard sizes and live about 12 to 15 years. At '.$CFG['brand'].', every puppy is raised in our home in '.$CFG['city'].', Ohio, vet checked, vaccinated and microchipped, then delivered to your door.') ?></p></div>
+    <dl class="gw-facts"><?php foreach($facts as [$k, $v, $slug]): ?><div><dt><?= h($k) ?></dt><dd><?= h($v) ?></dd><a href="<?= h(url('guides/'.$slug)) ?>" aria-label="More about bernedoodle <?= h(strtolower($k)) ?>"><?= icon('arrow') ?></a></div><?php endforeach; ?></dl>
+    <p class="gw-know-p">Bernedoodles combine the Bernese mountain dog’s gentle, loyal nature with the poodle’s intelligence and low-shedding coat. They are social dogs who love company, need daily exercise and regular grooming, and come in a size for almost every home. Our <a href="<?= h(url('guides/bernedoodle-dog-breed')) ?>">bernedoodle breed guide</a> covers everything in detail.</p>
+  </div></section>
 
-  <section class="dk-final"><div class="wrap dk-final-in" data-rv>
-    <p class="dk-kick">Ready when you are</p>
-    <h2>Your bernedoodle is <span class="dk-grad">waiting.</span></h2>
-    <p>Choose a puppy and press Proceed now, or join the waitlist to hear about new litters first.</p>
-    <div class="dk-cta"><a class="btn btn-lg btn-rust" href="#puppies">See the puppies <?= icon('arrow') ?></a><a class="btn btn-lg btn-outline" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a></div>
+  <section class="gw-sec gw-faq"><div class="wrap gw-faq-in">
+    <div class="gw-faq-l"><p class="gw-kick">Questions</p><h2>Bernedoodle puppy questions</h2><p>Can’t find your answer? We reply <?= h(fill('{reply_time}')) ?>.</p><a class="btn btn-ghost" href="<?= h(url('contact')) ?>">Ask us anything <?= icon('arrow') ?></a> <a class="gw-more" href="<?= h(url('faq')) ?>">More answers <?= icon('arrow') ?></a></div>
+    <div class="faqs"><?php foreach(home_faqs() as $i=>[$q, $a]): ?><details<?= $i === 0 ? ' open' : '' ?>><summary><h3><?= h($q) ?></h3></summary><p><?= h($a) ?></p></details><?php endforeach; ?></div>
+  </div></section>
+
+  <section class="gw-final"><div class="wrap gw-final-in">
+    <div><p class="gw-kick">Ready when you are</p><h2>Your bernedoodle is waiting.</h2><p>Choose a puppy and press Proceed now, or join the waitlist to hear about new litters first.</p></div>
+    <div class="gw-cta"><a class="btn btn-lg btn-dark" href="#puppies">See the puppies <?= icon('arrow') ?></a><a class="btn btn-lg btn-ghost" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a></div>
   </div></section>
   <script>
-  (function(){var d=document,rm=window.matchMedia('(prefers-reduced-motion: reduce)').matches,h=d.getElementById('dk-hero');
-  /* the hero glow follows the mouse */
-  if(h&&!rm)h.addEventListener('mousemove',function(e){var r=h.getBoundingClientRect();h.style.setProperty('--mx',(e.clientX-r.left)+'px');h.style.setProperty('--my',(e.clientY-r.top)+'px')});
-  /* cards light up where the cursor is */
-  d.querySelectorAll('.dk-spot').forEach(function(c){c.addEventListener('mousemove',function(e){var r=c.getBoundingClientRect();c.style.setProperty('--x',(e.clientX-r.left)+'px');c.style.setProperty('--y',(e.clientY-r.top)+'px')})});
-  /* sections fade up as they come into view */
-  var rv=d.querySelectorAll('[data-rv]');if('IntersectionObserver' in window&&!rm){d.documentElement.classList.add('rv-on');var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -8% 0px'});rv.forEach(function(el){io.observe(el)})}
-  /* the steps line fills as you scroll */
-  var s=d.querySelector('.dk-steps');if(s){var t=0;function u(){t=0;var r=s.getBoundingClientRect(),p=Math.min(1,Math.max(0,(window.innerHeight*.85-r.top)/(window.innerHeight*.6)));s.style.setProperty('--p',p.toFixed(3));s.querySelectorAll('li').forEach(function(li,i,a){li.classList.toggle('on',p>=i/(a.length-1)-.001)})}window.addEventListener('scroll',function(){if(!t){t=1;requestAnimationFrame(u)}},{passive:true});u()}
-  })();
+  (function(){var s=document.querySelector('.gw-steps');if(!s)return;var t=0;function u(){t=0;var r=s.getBoundingClientRect(),h=window.innerHeight,p=Math.min(1,Math.max(0,(h*.7-r.top)/r.height));s.style.setProperty('--p',p.toFixed(3));s.querySelectorAll('li').forEach(function(li,i,all){li.classList.toggle('on',p>=i/all.length)})}
+  window.addEventListener('scroll',function(){if(!t){t=1;requestAnimationFrame(u)}},{passive:true});u()})();
   </script>
   <?php
 }
