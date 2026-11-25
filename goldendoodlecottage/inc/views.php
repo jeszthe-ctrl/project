@@ -998,7 +998,7 @@ function view_location(){
   if($others): ?><section class="sec wrap"><div class="states"><p class="eyebrow"><?= icon('truck') ?>We also deliver to</p><ul><?php foreach(array_slice($others, 0, 10) as $c): ?><li><a href="<?= h(location_url($c)) ?>"><?= h(states()[$c][0]) ?></a></li><?php endforeach; ?><li><a href="<?= h(url(PUPPIES_PATH)) ?>">All puppies</a></li></ul></div></section><?php endif;
 }
 
-function view_our_goldendoodles(){
+function view_our_dogs(){
   global $SITE, $CFG;
   $list = array_values(array_filter($SITE['parents'], fn($p)=>empty($p['hidden'])));
   usort($list, fn($a, $b)=>(!empty($a['retired']) <=> !empty($b['retired'])) ?: strcmp($a['role'], $b['role']));
