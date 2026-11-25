@@ -4,7 +4,7 @@ The website for Golden Little Wonders, a golden retriever breeder in Cincinnati,
 
 ## What's in it
 
-- **Its own design:** forest green and gold, DM Serif Display and Nunito Sans, a two-row header with the name centered, an arched hero, and a tabbed golden retriever library on the home page.
+- **Its own design:** espresso and gold on warm ivory, Bricolage Grotesque and Figtree, a dark animated hero with glass cards, a bento grid, a "how it works" timeline that fills as you scroll, a magazine guide library and a gold closing band.
 - **Home page:** available puppies with filters (girls, boys, American, English cream, field), "Proceed now" on every puppy, why families choose us, how it works, the one-minute inquiry, the guide library, the breed at a glance and buyer questions (with FAQ structured data).
 - **Golden Retriever Puppies for Sale** (`/golden-retriever-puppies-for-sale`) and a page for every puppy, with photos or video stills, price, type, delivery, ready date, documents and both parents. Puppies without a photo show “Photos coming soon” until one is added.
 - **State delivery pages** (`/golden-retriever-puppies-for-sale/{state}`) for "near me" searches.
