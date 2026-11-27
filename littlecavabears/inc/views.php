@@ -61,7 +61,7 @@ function icon_for($title){
 
 /* the logo: a paw over a brook, and the name */
 function logo_svg($class='logo-mark'){
-  return '<svg class="'.h($class).'" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="23" fill="#fde9e4"/><g fill="#a8643f"><circle cx="10.5" cy="24" r="5.4"/><circle cx="9.6" cy="30.5" r="5"/><circle cx="11.6" cy="36" r="4.2"/><circle cx="37.5" cy="24" r="5.4"/><circle cx="38.4" cy="30.5" r="5"/><circle cx="36.4" cy="36" r="4.2"/></g><g fill="#d08a5a"><circle cx="24" cy="25" r="12.5"/><circle cx="15.5" cy="15.5" r="4.6"/><circle cx="20.5" cy="11.8" r="4.8"/><circle cx="27.5" cy="11.8" r="4.8"/><circle cx="32.5" cy="15.5" r="4.6"/><circle cx="14.2" cy="21" r="4.2"/><circle cx="33.8" cy="21" r="4.2"/></g><ellipse cx="24" cy="30.4" rx="7.6" ry="6.2" fill="#fbe3cd"/><circle cx="19" cy="23.4" r="1.9" fill="#3b2620"/><circle cx="29" cy="23.4" r="1.9" fill="#3b2620"/><circle cx="19.6" cy="22.8" r=".6" fill="#fff"/><circle cx="29.6" cy="22.8" r=".6" fill="#fff"/><ellipse cx="24" cy="28.4" rx="2.7" ry="2" fill="#3b2620"/><path d="M24 30.2v1.6m-2.6 1c1.2 1 4 1 5.2 0" fill="none" stroke="#3b2620" stroke-width="1" stroke-linecap="round"/><circle cx="16.2" cy="28.4" r="1.9" fill="#f2a7a0" opacity=".85"/><circle cx="31.8" cy="28.4" r="1.9" fill="#f2a7a0" opacity=".85"/></svg>';
+  return '<svg class="'.h($class).'" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="23" fill="#2e221d"/><circle cx="24" cy="24" r="20.2" fill="none" stroke="#c9967e" stroke-width=".9"/><text x="24" y="30.6" text-anchor="middle" font-family="\'Cormorant Garamond\',Georgia,\'Times New Roman\',serif" font-style="italic" font-weight="500" font-size="19" fill="#f6ebe3" letter-spacing="-.5">lc</text><path d="M24 9.6l.9 1.8 2 .3-1.45 1.4.35 2-1.8-.95-1.8.95.35-2-1.45-1.4 2-.3z" fill="#c9967e"/></svg>';
 }
 
 /* a photo, or a soft placeholder until photos are added */
@@ -403,7 +403,7 @@ function render_page(){
 <meta property="og:url" content="<?= h($canonical) ?>">
 <meta property="og:image" content="<?= h($img) ?>">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#f6d9d2">
+<meta name="theme-color" content="#2e221d">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -412,7 +412,7 @@ function render_page(){
 <?php endif; ?>
 <script>document.documentElement.className+=" js"</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500..700&family=Nunito:ital,wght@0,400..800;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:opsz,wght@9..40,400..600&display=swap">
 <link rel="stylesheet" href="assets/style.css?v=<?= (int)$css_v ?>">
 <?= structured_data() ?>
 <?php if(preg_match('/^G-[A-Z0-9]{4,}$/', $CFG['ga4_id'])): ?>
@@ -662,24 +662,20 @@ function view_home(){
   $pastels = ['blush', 'butter', 'sage', 'sky'];
   ?>
   <section class="lb-hero" id="lb-hero">
-    <i class="lb-blob lb-b1" aria-hidden="true"></i><i class="lb-blob lb-b2" aria-hidden="true"></i><i class="lb-blob lb-b3" aria-hidden="true"></i>
     <div class="wrap lb-hero-in">
       <div class="lb-copy">
-        <p class="lb-pill"><?= icon('heart') ?><?= $n ? $n.' '.($n === 1 ? 'puppy' : 'puppies').' ready for a home' : 'New litters announced soon' ?></p>
-        <h1>Cavapoo puppies, <span>as cuddly as little bears.</span></h1>
+        <p class="lb-pill"><span class="lb-dot"></span><?= $n ? $n.' '.($n === 1 ? 'puppy' : 'puppies').' ready for a home' : 'New litters announced soon' ?></p>
+        <h1>Cavapoo puppies, <em>raised with love</em> in our home.</h1>
         <p class="lb-lede"><?= h(fill($CFG['hero_lede'])) ?></p>
         <div class="lb-cta"><a class="btn btn-lg btn-rose" href="#puppies"><?= $n ? 'Meet the puppies' : 'See our puppies' ?> <?= icon('arrow') ?></a><a class="btn btn-lg btn-soft" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a></div>
         <ul class="lb-trust"><li><?= icon('heart') ?>Raised in our home</li><li><?= icon('shield') ?><?= h(fill('{genetic_year}')) ?> health guarantee</li><li><?= icon('truck') ?>Delivered to your door</li></ul>
       </div>
-      <div class="lb-art" id="lb-art" aria-hidden="true">
-        <div class="lb-bubble"><?= $photo ? img_tag($photo[0], $photo[1], '(max-width:900px) 80vw, 440px', true) : logo_svg('lb-face') ?></div>
-        <span class="lb-sticker lb-s1"><?= icon('check') ?>Vet checked</span>
-        <span class="lb-sticker lb-s2"><?= icon('paw') ?>Toy · Mini · Standard</span>
-        <span class="lb-sticker lb-s3"><?= icon('heart') ?>Low shedding</span>
-        <span class="lb-heart lb-h1"><?= icon('heart') ?></span><span class="lb-heart lb-h2"><?= icon('heart') ?></span>
+      <div class="lb-art" id="lb-art">
+        <figure class="lb-arch"><?= $photo ? img_tag($photo[0], $photo[1], '(max-width:900px) 80vw, 460px', true) : '<div class="lb-arch-empty">'.logo_svg('lb-arch-mark').'<span>Little Cava Bears</span><small>Est. in '.h($CFG['city']).'</small></div>' ?></figure>
+        <div class="lb-card lb-c1" aria-hidden="true"><small>Health guarantee</small><strong><?= h(fill('{genetic_year}')) ?>, in writing</strong></div>
+        <div class="lb-card lb-c2" aria-hidden="true"><small>Sizes</small><strong>Toy · Mini · Standard</strong></div>
       </div>
     </div>
-    <svg class="lb-wave" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40c160-34 320-34 480 0s320 34 480 0 320-34 480 0v40H0z" fill="#fff"/></svg>
   </section>
 
   <section class="lb-promises"><div class="wrap lb-promises-in">
@@ -687,20 +683,20 @@ function view_home(){
   </div></section>
 
   <section class="lb-sec" id="puppies"><div class="wrap">
-    <div class="lb-head lb-head-c"><p class="lb-kick"><?= icon('paw') ?>Available now</p><h2>Cavapoo puppies for sale</h2><p>Every puppy is listed with real photos, price, size, age and both parents. Found your little bear? Press <strong>Proceed now</strong>.</p></div>
+    <div class="lb-head lb-head-c"><p class="lb-kick"><?= icon('paw') ?>Available now</p><h2>Cavapoo puppies for sale</h2><p>Every puppy is listed with real photos, price, size, age and both parents. Found the one? Press <strong>Proceed now</strong>.</p></div>
     <?php if($n > 1 && $chips): ?><div class="chips lb-chips" role="group" aria-label="Filter puppies"><button type="button" data-f="all" aria-pressed="true">All</button><?php foreach($chips as $k=>$l): ?><button type="button" data-f="<?= h($k) ?>" aria-pressed="false"><?= h($l) ?></button><?php endforeach; ?></div><?php endif; ?>
     <?php if($n): ?>
     <?= puppies_block($avail, 12) ?>
     <p class="chips-none" hidden>No puppies match that right now. <a href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a> to hear first.</p>
     <p class="center"><a class="btn btn-soft" href="<?= h(url(PUPPIES_PATH)) ?>"><?= $n > 1 ? 'See all '.$n.' cavapoo puppies' : 'Cavapoo puppies for sale' ?> <?= icon('arrow') ?></a></p>
     <?php else: ?>
-    <div class="lb-next"><?= logo_svg('lb-next-face') ?><div><h3>Our next little bears are on the way</h3><p>Every puppy has found a home for now. Join the waitlist and we’ll email you the moment new cavapoo puppies are born, before they’re posted here.</p></div><a class="btn btn-lg btn-rose" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist <?= icon('arrow') ?></a></div>
+    <div class="lb-next"><?= logo_svg('lb-next-face') ?><div><h3>Our next litter is on its way</h3><p>Every puppy has found a home for now. Join the waitlist and we’ll email you the moment new cavapoo puppies are born, before they’re posted here.</p></div><a class="btn btn-lg btn-rose" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist <?= icon('arrow') ?></a></div>
     <?php endif; ?>
   </div></section>
 
   <section class="lb-sec lb-sizes"><div class="wrap">
-    <div class="lb-head lb-head-c"><p class="lb-kick"><?= icon('paw') ?>Cavapoo sizes</p><h2>Choose your little bear</h2><p>Cavapoos come in three sizes, depending mostly on the poodle parent. All three are cuddly, gentle and low shedding.</p></div>
-    <div class="lb-bears"><?php foreach($bears as $i=>[$name, $w, $hgt, $txt, $slug, $scale]): ?><a class="lb-bear lb-<?= $pastels[$i] ?>" href="<?= h(url('guides/'.$slug)) ?>"><span class="lb-bear-face" style="--s:<?= $scale / 100 ?>"><?= logo_svg('lb-bear-svg') ?></span><strong><?= h($name) ?> cavapoo</strong><span class="lb-bear-w"><?= h($w) ?> · <?= h($hgt) ?></span><small><?= h($txt) ?></small><span class="lb-more">Read more <?= icon('arrow') ?></span></a><?php endforeach; ?></div>
+    <div class="lb-head lb-head-c"><p class="lb-kick"><?= icon('paw') ?>Cavapoo sizes</p><h2>Three sizes, one sweet temperament</h2><p>Cavapoos come in three sizes, depending mostly on the poodle parent. All three are cuddly, gentle and low shedding.</p></div>
+    <div class="lb-bears"><?php foreach($bears as $i=>[$name, $w, $hgt, $txt, $slug, $scale]): ?><a class="lb-bear lb-<?= $pastels[$i] ?>" href="<?= h(url('guides/'.$slug)) ?>"><span class="lb-bear-n"><?= sprintf('%02d', $i + 1) ?></span><strong><?= h($name) ?> cavapoo</strong><span class="lb-scale"><i style="width:<?= $scale ?>%"></i></span><span class="lb-bear-w"><?= h($w) ?> · <?= h($hgt) ?></span><small><?= h($txt) ?></small><span class="lb-more">Read more <?= icon('arrow') ?></span></a><?php endforeach; ?></div>
   </div></section>
 
   <section class="lb-sec lb-why"><div class="wrap lb-why-in">
@@ -755,8 +751,7 @@ function view_home(){
   <?= home_knowledge() ?>
 
   <section class="lb-final">
-    <svg class="lb-wave lb-wave-top" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40c160 34 320 34 480 0s320-34 480 0 320 34 480 0V0H0z" fill="#fff"/></svg>
-    <div class="wrap lb-final-in"><?= logo_svg('lb-final-face') ?><h2>Ready to meet your little bear?</h2><p>Choose a puppy and press Proceed now, or join the waitlist to hear about new litters first.</p>
+    <div class="wrap lb-final-in"><?= logo_svg('lb-final-face') ?><h2>Ready to meet your cavapoo?</h2><p>Choose a puppy and press Proceed now, or join the waitlist to hear about new litters first.</p>
       <div class="lb-cta"><a class="btn btn-lg btn-cream" href="#puppies">See the puppies <?= icon('arrow') ?></a><a class="btn btn-lg btn-line" href="<?= h(url('upcoming-litters')) ?>#waitlist">Join the waitlist</a></div></div>
   </section>
   <script>

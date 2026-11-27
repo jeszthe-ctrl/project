@@ -4,7 +4,7 @@ The website for Little Cava Bears, a cavapoo breeder in Cincinnati, Ohio. Plain 
 
 ## What's in it
 
-- **Its own design:** light and sweet: cream, blush and caramel with soft pastels, Fredoka and Nunito, a teddy-bear cavapoo face, a hero with floating stickers and soft waves, three little bears for the sizes, pastel step and guide cards.
+- **Its own design:** premium and soft: ivory, blush, taupe and rose-gold, Cormorant Garamond headings with DM Sans, a monogram logo, an arched photo frame, thin rules and small caps, and gentle motion only.
 - **Home page:** available puppies with filters (girls, boys, toy, mini, standard), "Proceed now" on every puppy, the three sizes, why families choose us, how it works, the one-minute inquiry, the guide library, the breed at a glance and buyer questions (with FAQ structured data).
 - **Cavapoo Puppies for Sale** (`/cavapoo-puppies-for-sale`) and a page for every puppy, with photos or video stills, price, delivery, ready date, documents and both parents. Puppies without a photo show “Photos coming soon” until one is added.
 - **State delivery pages** (`/cavapoo-puppies-for-sale/{state}`) for "near me" searches.
